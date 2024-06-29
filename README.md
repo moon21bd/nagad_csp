@@ -1,7 +1,5 @@
 # Laravel Vue Admin
 
-[Laravel Vue Admin](https://laravel-vue-admin.eu.org) is a beautiful dashboard combination of [Laravel](https://laravel.com/), [Vue3](https://github.com/vuejs/vue) and the UI Toolkit [Element Plus](https://element-plus.org/).
-
 ## Getting started
 
 ### Installing
@@ -9,6 +7,13 @@
 #### Manual
 
 ```bash
+
+# Clone the repository
+git clone git@github.com:moon21bd/nagad_csp.git
+cp .env.example .env
+
+# Run Composer Command
+composer install
 
 # Migration and DB seeder (after changing your DB settings in .env)
 php artisan migrate --seed
