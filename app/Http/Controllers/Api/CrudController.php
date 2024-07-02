@@ -33,6 +33,7 @@ class CrudController extends ResponseController
 
     public function updateCallType(Request $request, $id)
     {
+         // testing
         $data = [
             'call_type_name' => $request->name ?? '',
             'status'         => $request->status ?? 'active'

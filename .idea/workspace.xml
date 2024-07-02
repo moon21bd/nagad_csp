@@ -5,43 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="635d349e-87fa-4c5e-91d0-018938e14f74" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/Models/CallCategory.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/Models/CallSubCategory.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/Models/CallSubSubCategory.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/Models/CallType.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/migrations/2024_07_01_163932_create_call_types_table.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/migrations/2024_07_01_164242_create_call_categories_table.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/migrations/2024_07_01_164402_create_call_sub_categories_table.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/database/migrations/2024_07_01_164415_create_call_sub_sub_categories_table.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/nagad_csp.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/nagad_csp.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/css/app.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/css/app.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/fonts/vendor/@fortawesome/fontawesome-free/webfa-brands-400.svg" beforeDir="false" afterPath="$PROJECT_DIR$/public/fonts/vendor/@fortawesome/fontawesome-free/webfa-brands-400.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/fonts/vendor/@fortawesome/fontawesome-free/webfa-regular-400.svg" beforeDir="false" afterPath="$PROJECT_DIR$/public/fonts/vendor/@fortawesome/fontawesome-free/webfa-regular-400.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/fonts/vendor/@fortawesome/fontawesome-free/webfa-solid-900.svg" beforeDir="false" afterPath="$PROJECT_DIR$/public/fonts/vendor/@fortawesome/fontawesome-free/webfa-solid-900.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/js/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/js/resources_js_views_admin_animations_vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/resources_js_views_admin_animations_vue.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/js/resources_js_views_admin_blank_vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/resources_js_views_admin_blank_vue.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/js/resources_js_views_admin_borders_vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/resources_js_views_admin_borders_vue.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/js/resources_js_views_admin_buttons_vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/resources_js_views_admin_buttons_vue.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/js/resources_js_views_admin_cards_vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/resources_js_views_admin_cards_vue.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/js/resources_js_views_admin_charts_vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/resources_js_views_admin_charts_vue.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/js/resources_js_views_admin_colors_vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/resources_js_views_admin_colors_vue.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/js/resources_js_views_admin_dashboard_vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/resources_js_views_admin_dashboard_vue.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/js/resources_js_views_admin_other_vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/resources_js_views_admin_other_vue.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/js/resources_js_views_admin_page-not-found_vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/resources_js_views_admin_page-not-found_vue.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/js/resources_js_views_admin_tables_vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/resources_js_views_admin_tables_vue.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/js/resources_js_views_forgot_index_vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/resources_js_views_forgot_index_vue.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/js/resources_js_views_home_index_vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/resources_js_views_home_index_vue.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/js/resources_js_views_login_index_vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/resources_js_views_login_index_vue.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/js/resources_js_views_register_index_vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/resources_js_views_register_index_vue.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/js/resources_js_views_reset_index_vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/resources_js_views_reset_index_vue.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/js/resources_js_views_verify_index_vue.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/js/resources_js_views_verify_index_vue.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/mix-manifest.json" beforeDir="false" afterPath="$PROJECT_DIR$/public/mix-manifest.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/js/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/js/router.js" beforeDir="false" afterPath="$PROJECT_DIR$/resources/js/router.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/routes/api.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/Api/CrudController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/Api/CrudController.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -272,11 +236,22 @@
       <updated>1719854631342</updated>
       <workItem from="1719854632456" duration="12084000" />
       <workItem from="1719866792133" duration="3494000" />
-      <workItem from="1719933591680" duration="4668000" />
+      <workItem from="1719933591680" duration="5498000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ID_ORDER">
+      <list>
+        <option value="Default.Root" />
+        <option value="Default.Author" />
+        <option value="Default.Date" />
+        <option value="Default.Subject" />
+        <option value="Space.CommitStatus" />
+      </list>
+    </option>
   </component>
 </project>
