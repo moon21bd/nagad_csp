@@ -4,7 +4,7 @@
     <div class="masthead">
       <div class="text-center text-white">
         <h1 class="py-5 home-title">
-          Welcome to Laravel 8 & Vue.js Admin Dashboard
+          Welcome to NAGAD CSP Admin Dashboard
         </h1>
       </div>
     </div>

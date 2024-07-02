@@ -33,7 +33,7 @@
 ## About The Project
 
 
-`laravel-vue-dashboard` is a Single Page Application (SPA) dashboard
+`nagad_csp` is a Single Page Application (SPA) dashboard
 built with [Laravel 8](https://laravel.com), [Vue.js](https://vuejs.org/) and [Bootstrap 4](https://getbootstrap.com) ([SB Admin Template](https://github.com/StartBootstrap/startbootstrap-sb-admin-2)). Thanks to the combination of the power of Laravel and the speed of Vue.js it is an excellent full-stack starter kit for enterprise applications.
  
  
@@ -69,13 +69,7 @@ The code is structured in such a way to make it easy to modify and add new pages
 
 
    ```sh
-    # Clone the project
-    git clone https://github.com/ramoncrisante/laravel-vue-dashboard.git
-
-    # Enter the project directory
-    cd laravel-vue-dashboard
-
-    # Copy env file and add your own database and mail credentials
+   # Copy env file and add your own database and mail credentials
     cp .env.example .env
 
     # Install dependency
@@ -145,33 +139,10 @@ Contributions are what make the open source community such an amazing place to l
 <!-- LICENSE -->
 ## License
 
-Distributed under the MIT License. See [LICENSE](https://github.com/ramoncrisante/laravel-vue-dashboard/blob/main/LICENSE.txt) for more information.
+Distributed under the MIT License. See [LICENSE] for more information.
 Basically, feel free to use and re-use any way you want.
 
 
 
 <!-- CONTACT -->
 ## Contact
-
-Ramon Crisante - ramon.crisante@yahoo.com
-
-Project Link: [https://github.com/ramoncrisante/laravel-vue-dashboard](https://github.com/ramoncrisante/laravel-vue-dashboard)
-
-
-
-
-
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/ramoncrisante/laravel-vue-dashboard.svg?style=for-the-badge
-[contributors-url]: https://github.com/ramoncrisante/laravel-vue-dashboard/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/ramoncrisante/laravel-vue-dashboard.svg?style=for-the-badge
-[forks-url]: https://github.com/ramoncrisante/laravel-vue-dashboard/network/members
-[stars-shield]: https://img.shields.io/github/stars/ramoncrisante/laravel-vue-dashboard.svg?style=for-the-badge
-[stars-url]: https://github.com/ramoncrisante/laravel-vue-dashboard/stargazers
-[issues-shield]: https://img.shields.io/github/issues/ramoncrisante/laravel-vue-dashboard.svg?style=for-the-badge
-[issues-url]: https://github.com/ramoncrisante/laravel-vue-dashboard/issues
-[license-shield]: https://img.shields.io/github/license/ramoncrisante/laravel-vue-dashboard.svg?style=for-the-badge
-[license-url]: https://github.com/ramoncrisante/laravel-vue-dashboard/blob/main/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/ramoncrisante

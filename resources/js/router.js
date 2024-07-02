@@ -3,6 +3,7 @@ import Vue from "vue";
 import Router from "vue-router";
 import store from "./vuex";
 import AdminLayout from "./views/admin/layout/index";
+import groupRouters from "./routers/group";
 
 Vue.use(Router);
 
@@ -141,7 +142,9 @@ let router = new Router({
                 requiresAuth: true,
                 layout: AdminLayout
             }
-        }
+        },
+        ...groupRouters.options.routes
+
     ]
 });
 
