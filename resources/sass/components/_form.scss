@@ -1,0 +1,201 @@
+input[type="text"]:-webkit-autofill,
+input[type="tel"]:-webkit-autofill input[type="password"]:-webkit-autofill {
+    -webkit-background-clip: text;
+}
+
+.custom-file-label::after {
+    color: $white;
+}
+
+.form-group {
+    &.required .control-label:after {
+        content: " *";
+        color: $red !important;
+    }
+
+    .help {
+        font-size: 14px;
+        margin-top: 5px;
+    }
+}
+
+.mx-datepicker-range {
+    width: 100%;
+}
+
+.btn {
+    border: 1px solid $pc;
+    letter-spacing: 0.35px;
+    border-radius: 4px;
+    transition: all 0.3s linear;
+    &-outline {
+        color: $pc !important;
+        background-color: $white !important;
+        &:hover {
+            color: $white !important;
+            background-color: $pc !important;
+        }
+    }
+
+    &:not(.btn-lg, .btn-sm, .btn-xs) {
+        padding: 8px 18px 8px;
+        font-size: 15px;
+    }
+
+    &:not(
+            .btn-primary,
+            .btn-secondary,
+            .btn-success,
+            .btn-danger,
+            .btn-warning,
+            .btn-info
+        ) {
+        color: $white;
+    }
+}
+
+.control-label,
+.col-form-label {
+    font-size: 14px;
+    font-weight: 500 !important;
+    color: $black;
+}
+
+.form-control,
+.select2-container--default .select2-selection--single,
+.select2-container--default .select2-selection--multiple,
+.input-group-sm > .form-control {
+    height: auto;
+    padding: 10px 12px 10px;
+    font-size: 13px;
+    border-color: #e0e4e9;
+    transition: all 0.3s linear;
+    border-radius: 5px;
+    resize: none;
+    border-width: 1px;
+}
+
+.form-control.file-caption {
+    border-radius: 4px 0 0 4px !important;
+}
+
+.multiselect__select {
+    padding: 8px 12px 6px;
+    background: url("#{$img-path}/search-dropdown.svg") no-repeat;
+    background-position: calc(100% - 10px) center;
+    @include cover(12px);
+
+    &::before {
+        display: none;
+    }
+}
+
+.multiselect__option {
+    padding: 10px;
+    font-size: 14px;
+}
+
+.multiselect__tag-icon {
+    &:hover {
+        background: none;
+    }
+    &:after {
+        color: $white;
+    }
+}
+
+.form-control.last_updated {
+    width: 100%;
+}
+
+.form-control:focus,
+.multiselect__tags:focus {
+    border-color: rgba(0, 0, 0, 0.25);
+}
+
+.input-group-btn > .btn {
+    font-size: 13px;
+    border: 1px solid transparent;
+    padding: 8px 12px 8px;
+    line-height: 1.42857143;
+}
+
+select.form-control {
+    background: #fff url("#{$img-path}/search-dropdown.svg") no-repeat;
+    background-position: calc(100% - 10px) center;
+    @include cover(12px);
+    cursor: default;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+select.form-control[multiple="multiple"] {
+    background: none;
+    border-radius: 0 0 4px 4px;
+
+    option {
+        color: #666;
+        font-size: 15px;
+        padding: 5px 10px;
+    }
+}
+
+select.form-control:focus {
+    outline: none;
+}
+
+.custom-checkbox .custom-control-label::before,
+.custom-control-input:focus ~ .custom-control-label::before,
+.custom-control-label::before {
+    @include shadow(none);
+}
+
+.custom-control-input:focus ~ .custom-control-label::before {
+    box-shadow: none;
+}
+
+.custom-control {
+    label {
+        &:not(.form-check-label):not(.custom-file-label) {
+            font-weight: 400;
+            color: $text-color;
+            font-size: 14px;
+            text-transform: capitalize;
+        }
+
+        &::before,
+        &::after {
+            top: 0.12rem;
+        }
+    }
+
+    &-label::before {
+        background: $white;
+    }
+}
+
+.form {
+    &-corner {
+        .btn,
+        .form-control,
+        .multiselect__tags,
+        .input-group > .input-group-prepend > .input-group-text,
+        .custom-file-label,
+        .custom-file-label::after,
+        .custom-checkbox .custom-control-label::before {
+            border-radius: 0;
+        }
+    }
+
+    &-iconless {
+        .input-group-prepend {
+            display: none;
+        }
+    }
+
+    &-iconless-corner {
+        @extend .form-iconless;
+        @extend .form-corner;
+    }
+}
