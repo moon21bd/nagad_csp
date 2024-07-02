@@ -141,7 +141,26 @@ let router = new Router({
                 requiresAuth: true,
                 layout: AdminLayout
             }
-        }
+        },
+        // crud routes
+        {
+            path: "/admin/add/:page?",
+            name: "addData",
+            component: () => import("./views/admin/addData.vue"),
+            meta: {
+                requiresAuth: true,
+                layout: AdminLayout
+            }
+        },
+        {
+            path: "/admin/data/:page?",
+            name: "viewData",
+            component: () => import("./views/admin/viewCrudData.vue"),
+            meta: {
+                requiresAuth: true,
+                layout: AdminLayout
+            }
+        },
     ]
 });
 

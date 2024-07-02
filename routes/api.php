@@ -21,7 +21,33 @@ Route::post('forgot', [Api\ForgotController::class, 'forgot']);
 Route::post('reset', [Api\ForgotController::class, 'reset']);
 Route::get('email/resend/{user}', [Api\VerifyController::class, 'resend'])->name('verification.resend');
 Route::get('email/verify/{id}', [Api\VerifyController::class, 'verify'])->name('verification.verify');; // Make sure to keep this as your route name
-    
+
 Route::group(['middleware' => ['auth:api']], function () {
     Route::get('user', [Api\AuthController::class, 'user']);
 });
+
+
+Route::get('get_call_type', [Api\CrudController::class, 'getCallType']);
+Route::post('store_call_type', [Api\CrudController::class, 'addCallType']);
+Route::get('edit_call_type/{id}', [Api\CrudController::class, 'editCallType']);
+Route::post('update_call_type/{id}', [Api\CrudController::class, 'updateCallType']);
+Route::get('delete_call_type/{id}', [Api\CrudController::class, 'deleteCallType']);
+
+Route::get('get_call_category', [Api\CrudController::class, 'getCallCategory']);
+Route::post('store_call_category', [Api\CrudController::class, 'addCallCategory']);
+Route::get('edit_call_category/{id}', [Api\CrudController::class, 'editCallCategory']);
+Route::post('update_call_category/{id}', [Api\CrudController::class, 'updateCallCategory']);
+Route::get('delete_call_category/{id}', [Api\CrudController::class, 'deleteCallCategory']);
+
+Route::get('get_call_sub_category', [Api\CrudController::class, 'getCallSubCategory']);
+Route::post('store_call_sub_category', [Api\CrudController::class, 'addCallSubCategory']);
+Route::get('edit_call_sub_category/{id}', [Api\CrudController::class, 'editCallSubCategory']);
+Route::post('update_call_sub_category/{id}', [Api\CrudController::class, 'updateCallSubCategory']);
+Route::get('delete_call_sub_category/{id}', [Api\CrudController::class, 'deleteCallSubCategory']);
+
+Route::get('get_call_sub_sub_category', [Api\CrudController::class, 'getCallSubSubCategory']);
+Route::post('store_call_sub_sub_category', [Api\CrudController::class, 'addCallSubSubCategory']);
+Route::get('edit_call_sub_sub_category/{id}', [Api\CrudController::class, 'editCallSubSubCategory']);
+Route::post('update_call_sub_sub_category/{id}', [Api\CrudController::class, 'updateCallSubSubCategory']);
+Route::get('delete_call_sub_sub_category/{id}', [Api\CrudController::class, 'deleteCallSubSubCategory']);
+
