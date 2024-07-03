@@ -3,7 +3,12 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api;
-
+use App\Http\Controllers\{
+    NCGroupController,
+    NCCallCategoryController,
+    NCCallTypeController,
+    NCCallSubCategoryController
+};
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -26,4 +31,14 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::get('user', [Api\AuthController::class, 'user']);
 });
 
-Route::apiResource('groups', \App\Http\Controllers\NCGroupController::class);
+Route::apiResources([
+    'groups' => NCGroupController::class,
+    'call-categories' => NCCallCategoryController::class,
+    'call-types' => NCCallTypeController::class,
+    'call-sub-categories' => NCCallSubCategoryController::class,
+]);
+
+//Route::apiResource('groups', \App\Http\Controllers\NCGroupController::class);
+//Route::apiResource('call-categories', \App\Http\Controllers\NCCallCategoryController::class);
+//Route::apiResource('call-types', \App\Http\Controllers\NCCallTypeController::class);
+//Route::apiResource('call-sub-categories', \App\Http\Controllers\NCCallSubCategoryController::class);

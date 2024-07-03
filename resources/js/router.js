@@ -3,7 +3,10 @@ import Vue from "vue";
 import Router from "vue-router";
 import store from "./vuex";
 import AdminLayout from "./views/admin/layout/index";
-import groupRouters from "./routers/group";
+import groupRouters from "./routers/nc-groups";
+import callCategoriesRouters from "./routers/nc-call-categories";
+import callSubCategoriesRouters from "./routers/nc-call-sub-categories";
+import callTypesRouters from "./routers/nc-call-types";
 
 Vue.use(Router);
 
@@ -143,7 +146,10 @@ let router = new Router({
                 layout: AdminLayout
             }
         },
-        ...groupRouters.options.routes
+        ...groupRouters.options.routes,
+        ...callCategoriesRouters.options.routes,
+        ...callSubCategoriesRouters.options.routes,
+        ...callTypesRouters.options.routes,
 
     ]
 });
