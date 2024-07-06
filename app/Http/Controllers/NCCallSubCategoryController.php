@@ -40,13 +40,13 @@ class NCCallSubCategoryController extends Controller
         $subCategory = NCCallSubCategory::findOrFail($id);
 
         $validated = $request->validate([
-            'call_type_id' => 'required|exists:n_c_call_types,id',
+            'call_type_id' => 'required|exists:nc_call_types,id',
             'call_category_id' => 'required|exists:nc_call_categories,id',
             'call_sub_category_name' => 'required|string|max:128',
             'status' => 'required|in:active,inactive',
         ]);
 
-        $validated['updated_by'] = Auth::id();
+        $validated['updated_by'] = $validated['last_updated_by'] = Auth::id();
         $subCategory->update($validated);
         return response()->json($subCategory);
 

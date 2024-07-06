@@ -46,7 +46,7 @@ export default {
                         this.callType = callType;
                     } else {
                         console.error('Call type not found');
-                        this.$router.push('/admin/call-types'); // Redirect if not found
+                        this.$router.push('/admin/call-types');
                     }
                 } else {
                     console.error('Call types are not an array or not defined');

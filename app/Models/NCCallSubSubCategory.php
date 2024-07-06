@@ -5,16 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class NCCallSubCategory extends Model
+class NCCallSubSubCategory extends Model
 {
     use HasFactory;
 
-    protected $table = 'nc_call_sub_categories';
+    protected $table = 'nc_call_sub_sub_categories';
 
     protected $fillable = [
         'call_type_id',
         'call_category_id',
-        'call_sub_category_name',
+        'call_sub_category_id',
+        'call_sub_sub_category_name',
         'status',
         'created_by',
         'updated_by',
@@ -44,5 +45,10 @@ class NCCallSubCategory extends Model
     public function callCategory()
     {
         return $this->belongsTo(NCCallCategory::class, 'call_category_id');
+    }
+
+    public function callSubCategory()
+    {
+        return $this->belongsTo(NCCallSubCategory::class, 'call_category_id');
     }
 }

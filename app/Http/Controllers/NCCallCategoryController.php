@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\NCCallCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class NCCallCategoryController extends Controller
 {
@@ -30,11 +31,8 @@ class NCCallCategoryController extends Controller
             'call_type_id' => 'required|integer',
             'call_category_name' => 'required|string|max:128',
             'status' => 'required|in:active,inactive',
-            // 'created_by' => 'nullable|integer',
-            // 'updated_by' => 'nullable|integer',
-            // 'last_updated_by' => 'nullable|integer',
         ]);
-
+        $validatedData['created_by'] = Auth::id();
         $callCategory = NCCallCategory::create($validatedData);
         return response()->json($callCategory, 201);
     }
@@ -64,9 +62,8 @@ class NCCallCategoryController extends Controller
             'call_type_id' => 'required|integer',
             'call_category_name' => 'required|string|max:128',
             'status' => 'required|in:active,inactive',
-            // 'updated_by' => 'nullable|integer',
-            // 'last_updated_by' => 'nullable|integer',
         ]);
+        $validatedData['updated_by'] = $validatedData['last_updated_by'] = Auth::id();
 
         $category = NCCallCategory::findOrFail($id);
         $category->update($validatedData);

@@ -6,7 +6,10 @@ import AdminLayout from "./views/admin/layout/index";
 import groupRouters from "./routers/nc-groups";
 import callCategoriesRouters from "./routers/nc-call-categories";
 import callSubCategoriesRouters from "./routers/nc-call-sub-categories";
+import callSubSubCategoriesRouters from "./routers/nc-call-sub-sub-categories";
 import callTypesRouters from "./routers/nc-call-types";
+import ncAccessLists from "./routers/nc-access-lists";
+import ncGroupConfigs from "./routers/nc-group-configs";
 
 Vue.use(Router);
 
@@ -149,7 +152,10 @@ let router = new Router({
         ...groupRouters.options.routes,
         ...callCategoriesRouters.options.routes,
         ...callSubCategoriesRouters.options.routes,
+        ...callSubSubCategoriesRouters.options.routes,
         ...callTypesRouters.options.routes,
+        ...ncAccessLists.options.routes,
+        ...ncGroupConfigs.options.routes,
 
     ]
 });

@@ -7,8 +7,12 @@ use App\Http\Controllers\{
     NCGroupController,
     NCCallCategoryController,
     NCCallTypeController,
-    NCCallSubCategoryController
+    NCCallSubCategoryController,
+    NCCallSubSubCategoryController,
+    NCAccessListController,
+    NCGroupConfigsController
 };
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -31,14 +35,14 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::get('user', [Api\AuthController::class, 'user']);
 });
 
-Route::apiResources([
-    'groups' => NCGroupController::class,
-    'call-categories' => NCCallCategoryController::class,
-    'call-types' => NCCallTypeController::class,
-    'call-sub-categories' => NCCallSubCategoryController::class,
-]);
-
-//Route::apiResource('groups', \App\Http\Controllers\NCGroupController::class);
-//Route::apiResource('call-categories', \App\Http\Controllers\NCCallCategoryController::class);
-//Route::apiResource('call-types', \App\Http\Controllers\NCCallTypeController::class);
-//Route::apiResource('call-sub-categories', \App\Http\Controllers\NCCallSubCategoryController::class);
+Route::group(['middleware' => 'auth:api'], function () {
+    Route::apiResources([
+        'groups' => NCGroupController::class,
+        'call-categories' => NCCallCategoryController::class,
+        'call-types' => NCCallTypeController::class,
+        'call-sub-categories' => NCCallSubCategoryController::class,
+        'call-sub-sub-categories' => NCCallSubSubCategoryController::class,
+        'access-lists' => NCAccessListController::class,
+        'group-configs' => NCGroupConfigsController::class,
+    ]);
+});

@@ -54,7 +54,7 @@ export default {
         callCategoriesForType() {
             if (!this.subCategory.call_type_id) return [];
             return this.callCategories.filter(category => category.call_type_id === this.subCategory.call_type_id);
-        }
+        },
     },
     methods: {
         async fetchCategories() {

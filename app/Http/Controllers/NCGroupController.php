@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\NCGroup;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class NCGroupController extends Controller
 {
@@ -15,14 +16,13 @@ class NCGroupController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'status' => 'required|in:active,inactive',
-            'role_id' => 'required',
-            'created_by' => 'required|integer',
         ]);
 
-        $group = NCGroup::create($request->all());
+        $validatedData['created_by'] = Auth::id();
+        $group = NCGroup::create($validatedData);
         return response()->json($group, 201);
     }
 
@@ -34,16 +34,14 @@ class NCGroupController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'status' => 'sometimes|required|in:active,inactive',
-            'role_id' => 'sometimes|required',
-            // 'updated_by' => 'required|integer',
-            // 'last_updated_by' => 'required|integer',
         ]);
 
         $group = NCGroup::findOrFail($id);
-        $group->update($request->all());
+        $validatedData['updated_by'] = $validatedData['last_updated_by'] = Auth::id();
+        $group->update($validatedData);
         return response()->json($group);
     }
 

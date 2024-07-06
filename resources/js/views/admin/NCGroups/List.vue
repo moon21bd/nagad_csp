@@ -27,7 +27,6 @@ export default {
                     console.log('Group deleted successfully.');
                 } catch (error) {
                     console.error('Error deleting group:', error);
-                    // Handle error (e.g., show error message to user)
                 }
             }
         }

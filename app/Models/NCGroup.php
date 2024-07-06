@@ -12,7 +12,6 @@ class NCGroup extends Model
 
     protected $fillable = [
         'name',
-        'role_id',
         'status',
         'created_by',
         'updated_by',
@@ -23,4 +22,19 @@ class NCGroup extends Model
         'name' => 'string',
         'status' => 'string'
     ];
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updater()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function lastUpdater()
+    {
+        return $this->belongsTo(User::class, 'last_updated_by');
+    }
 }

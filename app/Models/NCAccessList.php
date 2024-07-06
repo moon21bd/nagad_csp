@@ -5,20 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class NCCallSubCategory extends Model
+class NCAccessList extends Model
 {
     use HasFactory;
 
-    protected $table = 'nc_call_sub_categories';
+    protected $table = 'nc_access_lists';
 
     protected $fillable = [
-        'call_type_id',
-        'call_category_id',
-        'call_sub_category_name',
+        'access_name',
         'status',
         'created_by',
         'updated_by',
-        'last_updated_by',
+        'last_updated_by'
     ];
 
     public function creator()
@@ -36,13 +34,8 @@ class NCCallSubCategory extends Model
         return $this->belongsTo(User::class, 'last_updated_by');
     }
 
-    public function callType()
+    public function groupConfigs()
     {
-        return $this->belongsTo(NCCallType::class, 'call_type_id');
-    }
-
-    public function callCategory()
-    {
-        return $this->belongsTo(NCCallCategory::class, 'call_category_id');
+        return $this->belongsToMany(NCGroupConfigs::class, 'group_config_access_list', 'access_list_id', 'group_config_id');
     }
 }

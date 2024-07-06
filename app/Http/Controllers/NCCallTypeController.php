@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\NCCallTypeResource;
 use App\Models\NCCallType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class NCCallTypeController extends Controller
 {
@@ -18,12 +19,9 @@ class NCCallTypeController extends Controller
     {
         $validatedData = $request->validate([
             'call_type_name' => 'required|string|max:128',
-            'status' => 'required|in:active,inactive',
-            'created_by' => 'nullable|string|max:128',
-            'updated_by' => 'nullable|string|max:128',
-            'last_updated_by' => 'nullable|string|max:128'
+            'status' => 'required|in:active,inactive'
         ]);
-
+        $validatedData['created_by'] = Auth::id();
         $ncCallType = NCCallType::create($validatedData);
         return response()->json($ncCallType, 201);
     }
@@ -41,11 +39,8 @@ class NCCallTypeController extends Controller
         $validatedData = $request->validate([
             'call_type_name' => 'required|string|max:128',
             'status' => 'required|in:active,inactive',
-            'created_by' => 'nullable|string|max:128',
-            'updated_by' => 'nullable|string|max:128',
-            'last_updated_by' => 'nullable|string|max:128'
         ]);
-
+        $validatedData['updated_by'] = $validatedData['last_updated_by'] = Auth::id();
         $ncCallType->update($validatedData);
         return response()->json($ncCallType);
     }
