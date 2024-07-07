@@ -7,12 +7,14 @@
         "watch-poll": "mix watch -- --watch-options-poll=1000",
         "hot": "mix watch --hot",
         "prod": "npm run production",
-        "production": "mix --production"
+        "production": "mix --production",
+        "start-json-server": "node server.js"
     },
     "devDependencies": {
-        "axios": "^0.21",
+        "axios": "^0.21.4",
         "bootstrap": "^4.6.0",
         "jquery": "^3.6",
+        "json-server": "^0.16.3",
         "laravel-mix": "^6.0.6",
         "lodash": "^4.17.19",
         "popper.js": "^1.16.1",
@@ -28,6 +30,7 @@
         "@fortawesome/fontawesome-free": "^5.15.4",
         "chart.js": "^2.9.4",
         "datatables.net-dt": "^1.1.0",
+        "element-ui": "^2.15.14",
         "startbootstrap-sb-admin-2": "^4.1.4",
         "vue-router": "^3.5.2",
         "vue-toasted": "^1.1.28",

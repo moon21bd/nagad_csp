@@ -1,0 +1,157 @@
+{
+  "groups": [
+    {
+      "id": 1,
+      "name": "Back Office"
+    },
+    {
+      "id": 2,
+      "name": "Auto Close"
+    },
+    {
+      "id": 3,
+      "name": "Technology Operation"
+    },
+    {
+      "id": 4,
+      "name": "CDIM"
+    },
+    {
+      "id": 5,
+      "name": "CS CDIM"
+    },
+    {
+      "id": 6,
+      "name": "Reconciliation"
+    },
+    {
+      "id": 7,
+      "name": "Merchant Team"
+    },
+    {
+      "id": 8,
+      "name": "Sales"
+    },
+    {
+      "id": 9,
+      "name": "Strategy"
+    },
+    {
+      "id": 10,
+      "name": "Commercial"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Fraud",
+      "subcategories": [
+        "Fraud Attempt",
+        "SSL Commerz Fraud Issue",
+        "Online Payment Fraud Activity"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Account Related",
+      "subcategories": [
+        "Account BAR",
+        "Account Unbar",
+        "Account Profile Status"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Add Money",
+      "subcategories": [
+        "Add money Complain",
+        "Add Money Dispute"
+      ]
+    }
+  ],
+  "tickets": [
+    {
+      "callType": "Service Request",
+      "category": "Add Money",
+      "subCategory": "Add money Complain",
+      "incidentType": "Activity",
+      "incidentbBrief": "",
+      "victimAccountNo": "01964037334",
+      "fraudsterAccountNo": "01964037335",
+      "customerCallingNo": "01964037337",
+      "fraudsterCallingNo": "01964037339",
+      "dateTime": "2024-07-16T00:05:08.000Z",
+      "transactionID": "12345678",
+      "paymentChannel": "Apps",
+      "amountAsPortal": "1000",
+      "amountAsCustomer": "1200",
+      "fraudulentAmountAvailability": true,
+      "responsibleTeam": "CDIM",
+      "remarks": "Customer Information",
+      "incidentBrief": "Test",
+      "id": 1
+    },
+    {
+      "callType": "Complaint",
+      "category": "Account Related",
+      "subCategory": "Account Profile Status",
+      "incidentType": "Attempt",
+      "incidentbBrief": "",
+      "victimAccountNo": "01700718949",
+      "fraudsterAccountNo": "01700718940",
+      "customerCallingNo": "01700718941",
+      "fraudsterCallingNo": "01700718947",
+      "dateTime": "2024-07-02T20:01:01.000Z",
+      "transactionID": "1234",
+      "paymentChannel": "Ussd",
+      "amountAsPortal": "12346",
+      "amountAsCustomer": "1234576",
+      "fraudulentAmountAvailability": true,
+      "responsibleTeam": "Sales",
+      "remarks": "Test Remarks",
+      "incidentBrief": "Test incident",
+      "id": 2
+    },
+    {
+      "callType": "Service Request",
+      "category": "Account Related",
+      "subCategory": "Account Profile Status",
+      "incidentType": "Below 500",
+      "incidentBrief": "Test incident",
+      "victimAccountNo": "01980495664",
+      "fraudsterAccountNo": "01980495666",
+      "customerCallingNo": "01980495669",
+      "fraudsterCallingNo": "01980495662",
+      "dateTime": "2024-07-08T19:02:01.000Z",
+      "transactionID": "23456789",
+      "paymentChannel": "Ussd",
+      "amountAsPortal": "678",
+      "amountAsCustomer": "765",
+      "fraudulentAmountAvailability": true,
+      "responsibleTeam": "Merchant Team",
+      "remarks": "You can customize HTML templates for options.",
+      "id": 3
+    },
+    {
+      "callType": "Complaint",
+      "category": "Fraud",
+      "subCategory": "Fraud Attempt",
+      "incidentType": "Activity",
+      "incidentBrief": "test",
+      "victimAccountNo": "01700718967",
+      "fraudsterAccountNo": "01700718978",
+      "customerCallingNo": "01700718940",
+      "fraudsterCallingNo": "01700718924",
+      "dateTime": "2024-07-09T04:07:01.000Z",
+      "transactionID": "6789",
+      "paymentChannel": "Apps",
+      "amountAsPortal": "23456",
+      "amountAsCustomer": "4567",
+      "fraudulentAmountAvailability": true,
+      "responsibleTeam": "Strategy",
+      "remarks": "good",
+      "id": 4
+    }
+  ],
+  "users": []
+}

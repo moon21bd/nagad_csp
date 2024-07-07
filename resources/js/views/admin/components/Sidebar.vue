@@ -1,184 +1,127 @@
 <template>
-    <ul
-        class="navbar-nav bg-red sidebar sidebar-dark accordion"
-        id="accordionSidebar"
-    >
+    <aside class="bg-white sidebar sidebar-light">
         <!-- Sidebar - Brand -->
         <router-link
             class="sidebar-brand d-flex align-items-center justify-content-center"
             to="/"
         >
-            <div class="sidebar-brand-icon rotate-n-15">
-                <i class="fas fa-laugh-wink"></i>
-            </div>
-            <div class="sidebar-brand-text mx-3">SB Admin <sup>2</sup></div>
+            <i class="icon-logo sidebar-brand-icon"></i>
+            <img class="sidebar-brand-logo" src="/images/logo.svg" alt="" />
         </router-link>
-
-        <!-- Divider -->
-        <hr class="sidebar-divider my-0" />
-
-        <!-- Nav Item - Dashboard -->
-        <li class="nav-item active">
-            <router-link class="nav-link" to="/admin">
-                <i class="fas fa-fw fa-tachometer-alt"></i>
-                <span>Dashboard</span></router-link
+        <div class="sidebar-nav">
+            <el-menu
+                :default-active="activeIndex"
+                class="el-menu-vertical-demo"
+                :unique-opened="true"
+                @open="handleOpen"
+                @close="handleClose"
             >
-        </li>
+                <el-menu-item index="/admin">
+                    <router-link to="/admin">
+                        <i class="icon-grid"></i>
+                        <span>Dashboard</span>
+                    </router-link>
+                </el-menu-item>
+                <el-menu-item index="/admin/tickets">
+                    <router-link to="/admin/tickets">
+                        <i class="icon-tickets"></i>
+                        <span>Tickets</span>
+                    </router-link>
+                </el-menu-item>
+                <el-menu-item index="/admin/download">
+                    <router-link to="/admin/download">
+                        <i class="icon-download"></i>
+                        <span>Ticket Download</span>
+                    </router-link>
+                </el-menu-item>
+                <el-menu-item index="/admin/back-office">
+                    <router-link to="/admin/back-office">
+                        <i class="icon-briefcase"></i>
+                        <span>Back Office</span>
+                    </router-link>
+                </el-menu-item>
+                <el-menu-item index="/admin/call-type">
+                    <router-link to="/admin/call-type">
+                        <i class="icon-phone"></i>
+                        <span>Call Type</span>
+                    </router-link>
+                </el-menu-item>
+                <el-menu-item index="/admin/users">
+                    <router-link to="/admin/users">
+                        <i class="icon-users"></i>
+                        <span>Users</span>
+                    </router-link>
+                </el-menu-item>
+                <el-menu-item index="/admin/roles">
+                    <router-link to="/admin/roles">
+                        <i class="icon-phone"></i>
+                        <span>Roles</span>
+                    </router-link>
+                </el-menu-item>
 
-        <!-- Divider -->
-        <hr class="sidebar-divider" />
-
-        <!-- Heading -->
-        <div class="sidebar-heading">Interface</div>
-
-        <!-- Nav Item - Pages Collapse Menu -->
-        <li class="nav-item">
-            <a
-                class="nav-link collapsed"
-                href="#"
-                data-toggle="collapse"
-                data-target="#collapseTwo"
-                aria-expanded="true"
-                aria-controls="collapseTwo"
-            >
-                <i class="fas fa-fw fa-cog"></i>
-                <span>Components</span>
-            </a>
-            <div
-                id="collapseTwo"
-                class="collapse"
-                aria-labelledby="headingTwo"
-                data-parent="#accordionSidebar"
-            >
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <h6 class="collapse-header">Custom Components:</h6>
-                    <router-link
-                        class="collapse-item"
-                        to="/admin/components/buttons"
-                        >Buttons</router-link
-                    >
-                    <router-link
-                        class="collapse-item"
-                        to="/admin/components/cards"
-                        >Cards</router-link
-                    >
-                </div>
-            </div>
-        </li>
-
-        <!-- Nav Item - Utilities Collapse Menu -->
-        <li class="nav-item">
-            <a
-                class="nav-link collapsed"
-                href="#"
-                data-toggle="collapse"
-                data-target="#collapseUtilities"
-                aria-expanded="true"
-                aria-controls="collapseUtilities"
-            >
-                <i class="fas fa-fw fa-wrench"></i>
-                <span>Utilities</span>
-            </a>
-            <div
-                id="collapseUtilities"
-                class="collapse"
-                aria-labelledby="headingUtilities"
-                data-parent="#accordionSidebar"
-            >
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <h6 class="collapse-header">Custom Utilities:</h6>
-                    <router-link
-                        class="collapse-item"
-                        to="/admin/utilities/colors"
-                        >Colors</router-link
-                    >
-                    <router-link
-                        class="collapse-item"
-                        to="/admin/utilities/borders"
-                        >Borders</router-link
-                    >
-                    <router-link
-                        class="collapse-item"
-                        to="/admin/utilities/animations"
-                        >Animations</router-link
-                    >
-                    <router-link
-                        class="collapse-item"
-                        to="/admin/utilities/other"
-                        >Other</router-link
-                    >
-                </div>
-            </div>
-        </li>
-
-        <!-- Divider -->
-        <hr class="sidebar-divider" />
-
-        <!-- Heading -->
-        <div class="sidebar-heading">Addons</div>
-
-        <!-- Nav Item - Pages Collapse Menu -->
-        <li class="nav-item">
-            <a
-                class="nav-link collapsed"
-                href="#"
-                data-toggle="collapse"
-                data-target="#collapsePages"
-                aria-expanded="true"
-                aria-controls="collapsePages"
-            >
-                <i class="fas fa-fw fa-folder"></i>
-                <span>Pages</span>
-            </a>
-            <div
-                id="collapsePages"
-                class="collapse"
-                aria-labelledby="headingPages"
-                data-parent="#accordionSidebar"
-            >
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <h6 class="collapse-header">Other Pages:</h6>
-                    <router-link
-                        class="collapse-item"
-                        to="/admin/pages/page-not-found"
-                        >404 Page</router-link
-                    >
-                    <router-link class="collapse-item" to="/admin/pages/blank"
-                        >Blank Page</router-link
-                    >
-                </div>
-            </div>
-        </li>
-
-        <!-- Nav Item - Charts -->
-        <li class="nav-item">
-            <router-link class="nav-link" to="/admin/charts">
-                <i class="fas fa-fw fa-chart-area"></i>
-                <span>Charts</span></router-link
-            >
-        </li>
-
-        <!-- Nav Item - Tables -->
-        <li class="nav-item">
-            <router-link class="nav-link" to="/admin/tables">
-                <i class="fas fa-fw fa-table"></i>
-                <span>Tables</span></router-link
-            >
-        </li>
-
-        <!-- Divider -->
-        <hr class="sidebar-divider d-none d-md-block" />
-
-        <!-- Sidebar Toggler (Sidebar) -->
-        <div class="text-center d-none d-md-inline">
-            <button class="rounded-circle border-0" id="sidebarToggle"></button>
+                <el-submenu index="1" class="all-dashboard">
+                    <template slot="title">
+                        <i class="icon-user"></i>
+                        <span>All Dashboard</span>
+                    </template>
+                    <el-menu-item-group>
+                        <el-menu-item index="/admin/charts">
+                            <router-link to="/admin/charts">
+                                <i class="icon-grid"></i>
+                                <span>Admin Dashboard</span>
+                            </router-link>
+                        </el-menu-item>
+                        <el-menu-item index="/admin/components/buttons">
+                            <router-link to="/admin/components/buttons">
+                                <i class="icon-grid"></i>
+                                <span>Agent Dashboard</span>
+                            </router-link>
+                        </el-menu-item>
+                        <el-menu-item index="/admin/components/updated">
+                            <router-link to="/admin/components/updated">
+                                <i class="icon-grid"></i>
+                                <span>Updated</span>
+                            </router-link>
+                        </el-menu-item>
+                        <el-menu-item index="/admin/components/multipurpose">
+                            <router-link to="/admin/components/multipurpose">
+                                <i class="icon-grid"></i>
+                                <span>Multipurpose</span>
+                            </router-link>
+                        </el-menu-item>
+                    </el-menu-item-group>
+                </el-submenu>
+                <!-- <el-submenu index="2">
+                <template slot="title">
+                    <i class="icon-grid"></i>
+                    <span>Navigator One</span>
+                </template>
+                <el-menu-item-group title="Group One">
+                    <el-menu-item index="2-1">item one</el-menu-item>
+                    <el-menu-item index="2-2">item one</el-menu-item>
+                </el-menu-item-group>
+                <el-menu-item-group title="Group Two">
+                    <el-menu-item index="2-3">item three</el-menu-item>
+                </el-menu-item-group>
+                <el-submenu index="2-4">
+                    <template slot="title">item four</template>
+                    <el-menu-item index="2-4-1">item one</el-menu-item>
+                </el-submenu>
+            </el-submenu> -->
+            </el-menu>
         </div>
-    </ul>
+    </aside>
+
     <!-- End of Sidebar -->
 </template>
 
 <script>
 export default {
     name: "Sidebar",
+    computed: {
+        activeIndex() {
+            return this.$route.path; // Reactively return the current route path
+        },
+    },
 };
 </script>

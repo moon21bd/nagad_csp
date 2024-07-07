@@ -142,6 +142,15 @@ let router = new Router({
                 layout: AdminLayout,
             },
         },
+        {
+            path: "/admin/tickets",
+            name: "tickets",
+            component: () => import("./views/admin/tickets/tickets.vue"),
+            meta: {
+                requiresAuth: true,
+                layout: AdminLayout,
+            },
+        },
     ],
 });
 
