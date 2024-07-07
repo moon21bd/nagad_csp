@@ -1,7 +1,7 @@
 /node_modules
 /public/hot
 /public/js/
-/public/css/
+#/public/css/
 /public/storage
 /storage/*.key
 /storage/css
@@ -22,3 +22,4 @@ yarn-error.log
 composer.lock
 yarn.lock
 .idea/workspace.xml
+package-lock.json

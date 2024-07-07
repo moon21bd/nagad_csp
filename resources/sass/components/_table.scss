@@ -1,0 +1,135 @@
+// table
+.table {
+    margin-bottom: 0;
+    & > thead {
+        & > tr {
+            & > th {
+                font-weight: 500;
+                font-size: 14px;
+                border: none;
+                padding: 10px 8px;
+            }
+        }
+    }
+    & > tbody {
+        & > tr {
+            & > td {
+                color: #878787;
+                font-weight: 400;
+                font-size: 13px;
+                padding: 10px 8px;
+                .badge {
+                    padding: 0.3em 0.6em;
+                    font-size: 12px;
+                    font-weight: 400;
+                    border-radius: 30px;
+                    margin: 2px 4px 2px 0px;
+                }
+                &:first-child {
+                    font-weight: 600;
+                }
+                :not(:last-child) a {
+                    font-weight: 500;
+                }
+                &:last-child {
+                    .btn-icon {
+                        border-radius: 30px;
+                        width: 30px;
+                        height: 30px;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        border: none;
+                        margin-left: 7px;
+                        padding: 0;
+                        &.btn-danger {
+                            background-color: rgba($red, 0.15) !important;
+                            color: $red !important;
+                        }
+                    }
+                }
+            }
+            &:nth-child(2n) {
+                background-color: #f5f5f5;
+            }
+        }
+    }
+
+    &:not(.table-bordered) > tbody > tr > td {
+        border-right: none;
+    }
+    &:not(.table-has-many) > tbody > tr > td {
+        vertical-align: middle;
+    }
+    & > tbody > tr > td:last-child,
+    & > thead > tr > th:last-child {
+        text-align: right;
+        white-space: nowrap;
+    }
+}
+
+%table-border {
+    & > tbody > tr:nth-child(2n) {
+        background-color: $white;
+    }
+
+    & > tbody > tr > td:not(:last-child) {
+        border-right: 1px solid $off-white;
+    }
+
+    & > thead > tr > th:not(:last-child) {
+        border-right: 1px solid rgba($white, 0.5);
+    }
+}
+%table-condensed {
+    & > tbody > tr > td,
+    & > tbody > tr > th,
+    & > tfoot > tr > td,
+    & > tfoot > tr > th,
+    & > thead > tr > td,
+    & > thead > tr > th {
+        padding: 5px;
+    }
+}
+
+@mixin table-theme($table-name, $table-color) {
+    .#{$table-name} {
+        & > thead > tr > th,
+        & > tbody > tr > td:last-child .btn {
+            background-color: rgba($table-color, 0.2) !important;
+            color: $table-color !important;
+        }
+    
+        & > tbody > tr > td:first-child {
+            color: $table-color;
+        }
+
+        &-border{
+            @extend .#{$table-name};
+            @extend %table-border;
+        }
+        &-condensed {
+            @extend .#{$table-name};
+            @extend %table-condensed;
+        }
+    }
+}
+
+
+$tcolor-plate: (
+  table-blue: $blue,
+  table-cyan: $cyan,
+  table-green: $green,
+  table-purple: $purple,
+  table-yellow: $yellow,
+  table-default: $default,
+  table-red: $red
+) !default;
+
+@each $table-theme, $table-color in $tcolor-plate {
+  @include table-theme($table-theme, $table-color);
+}
+
+.table-condensed{
+    @extend %table-condensed;
+}

@@ -1,0 +1,61 @@
+.project {
+    &-box {
+        background: #fff;
+        padding: 20px 15px 0;
+        text-align: center;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        margin-bottom: 30px;
+        border-radius: 4px;
+
+        &-thumb {
+            margin: 0 0 10px;
+
+            img {
+                max-width: 80%;
+                height: 60px;
+            }
+        }
+
+        &-content {
+            margin: 0 -15px;
+
+            .btn {
+                background: none;
+                text-transform: capitalize;
+                color: #060606 !important;
+                width: 100%;
+                border-top: 1px solid rgba(0, 0, 0, 0.2);
+                border-radius: 0;
+                padding: 12px 18px 12px;
+
+                &:hover {
+                    background:  rgba(0, 0, 0, 0.2);
+                }
+            }
+        }
+
+        &-title {
+            font-size: 18px;
+            line-height: 24px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 90%;
+            font-weight: 500;
+            margin: 20px auto 30px;
+
+            a {
+                color: $pc;
+            }
+
+            &-lg {
+                color: $pc;
+                margin: 0;
+                font-size: 24px;
+                line-height: 30px;
+            }
+        }
+
+    }
+
+}

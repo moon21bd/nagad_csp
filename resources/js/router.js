@@ -1,7 +1,6 @@
 import Vue from "vue";
 
 import Router from "vue-router";
-import store from "./vuex";
 import AdminLayout from "./views/admin/layout/index";
 import groupRouters from "./routers/nc-groups";
 import callCategoriesRouters from "./routers/nc-call-categories";
@@ -10,6 +9,7 @@ import callSubSubCategoriesRouters from "./routers/nc-call-sub-sub-categories";
 import callTypesRouters from "./routers/nc-call-types";
 import ncAccessLists from "./routers/nc-access-lists";
 import ncGroupConfigs from "./routers/nc-group-configs";
+import store from "./vuex";
 
 Vue.use(Router);
 
@@ -146,17 +146,17 @@ let router = new Router({
             component: () => import("./views/admin/tables.vue"),
             meta: {
                 requiresAuth: true,
-                layout: AdminLayout
-            }
+                layout: AdminLayout,
+            },
         },
         {
-            path: '/forbidden',
-            component: import("./views/permissions/forbidden.vue"),
-            name: 'Forbidden',
+            path: "/admin/tickets",
+            name: "tickets",
+            component: () => import("./views/admin/tickets/tickets.vue"),
             meta: {
                 requiresAuth: true,
-                layout: AdminLayout
-            }
+                layout: AdminLayout,
+            },
         },
         ...groupRouters.options.routes,
         ...callCategoriesRouters.options.routes,
@@ -165,23 +165,12 @@ let router = new Router({
         ...callTypesRouters.options.routes,
         ...ncAccessLists.options.routes,
         ...ncGroupConfigs.options.routes,
-
-    ]
+    ],
 });
 
 router.beforeEach((to, from, next) => {
-    console.log('to', to, 'from', from)
     if (to.matched.some(record => record.meta.requiresAuth)) {
         if (store.getters.user) {
-            /*const userPermissions = store.state.userPermissions;
-            console.log('userPermissions', userPermissions)
-            if (userPermissions.some(permission => permission.path === to.path)) {
-                next();
-                return;
-            } else {
-                next({name: 'Forbidden'});
-                return;
-            }*/
             next();
             return;
         }

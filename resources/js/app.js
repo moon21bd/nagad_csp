@@ -6,14 +6,17 @@
 
 require("./bootstrap");
 
-import router from "./router";
-import "./axios";
-import store from "./vuex";
+import ElementUI from "element-ui";
+import locale from "element-ui/lib/locale/lang/en";
+import "element-ui/lib/theme-chalk/index.css";
 import Toasted from "vue-toasted";
-import Chart from "chart.js";
+import "./axios";
+import router from "./router";
+import store from "./vuex";
 
 window.Vue = require("vue").default;
 Vue.use(Toasted);
+Vue.use(ElementUI, { locale });
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
