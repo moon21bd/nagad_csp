@@ -1,0 +1,105 @@
+// Global component styles
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    height: 100%;
+}
+
+a {
+    &:focus {
+        outline: none;
+    }
+}
+
+// Main page wrapper
+#wrapper {
+    display: flex;
+    #content-wrapper {
+        background-color: #e9f0f9;
+        width: 100%;
+        overflow-x: hidden;
+        padding-left: $sidebar-base-width;
+        transition: all 0.25s cubic-bezier(0.09, 0.64, 0.31, 0.88);
+        #content {
+            flex: 1 0 auto;
+        }
+    }
+}
+
+.sidebar-toggled {
+    #wrapper {
+        #content-wrapper {
+            padding-left: $sidebar-collapsed-width;
+            transition: all 0.25s cubic-bezier(0.09, 0.64, 0.31, 0.88);
+        }
+    }
+}
+
+// Set container padding to match gutter width instead of default 15px
+.container,
+.container-fluid {
+    padding-left: $grid-gutter-width;
+    padding-right: $grid-gutter-width;
+}
+
+// Scroll to top button
+.scroll-to-top {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    display: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    text-align: center;
+    color: $white;
+    background: fade-out($gray-800, 0.5);
+    line-height: 46px;
+    &:focus,
+    &:hover {
+        color: white;
+    }
+    &:hover {
+        background: $gray-800;
+    }
+    i {
+        font-weight: 800;
+    }
+}
+
+input[type="text"]:-webkit-autofill,
+input[type="tel"]:-webkit-autofill input[type="password"]:-webkit-autofill {
+    -webkit-background-clip: text;
+}
+.control-label {
+    font-size: 14px;
+    font-weight: 500 !important;
+    color: $black;
+    sup {
+        color: $red;
+    }
+}
+.form-control {
+    font-size: 13px;
+    border-radius: 5px;
+    resize: none;
+    padding: 10px 12px 10px;
+    height: auto;
+    &:focus {
+        outline: none;
+        box-shadow: none;
+        border-color: darken(#ced4da, 05);
+    }
+}
+select.form-control {
+    background: #fff url("/images/search-dropdown.svg") no-repeat;
+    background-position: calc(100% - 12px) center;
+    background-size: 10px;
+    cursor: default;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+}

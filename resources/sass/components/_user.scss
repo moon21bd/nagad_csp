@@ -1,0 +1,95 @@
+.user {
+    &-box {
+        background: #fff;
+        padding: 30px 15px;
+        text-align: center;
+        box-shadow: 0 0 8px -2px rgba(0, 0, 0, 0.2);
+        margin-bottom: 30px;
+        border-radius: 15px;
+    }
+
+    &-thumb {
+        margin: 0 0 10px;
+
+        img {
+            max-width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+    }
+
+    &-content {
+        .btn {
+            background: darken($sc, 10);
+            text-transform: capitalize;
+            border-radius: 30px;
+
+            &:hover {
+                background: $sc;
+            }
+        }
+    }
+
+    &-title {
+        font-size: 16px;
+        line-height: 24px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 98%;
+        font-weight: 500;
+        margin: 0 0 10px;
+
+        a {
+            color: $pc;
+        }
+
+        &-lg {
+            color: $pc;
+            margin: 0;
+            font-size: 24px;
+            line-height: 30px;
+        }
+    }
+
+    &-designation {
+        margin: 10px 0 15px;
+        font-size: 16px;
+        color: $sc;
+        font-weight: 400;
+    }
+
+    &-description {
+        font-size: 15px;
+        line-height: 22px;
+    }
+
+    &-box-list {
+        text-align: left;
+
+        .product-title {
+            min-height: 0;
+            margin: 0;
+        }
+    }
+
+    &-pagination {
+        text-align: center;
+
+        .pagination>li>a {
+            background: #ffffff;
+        }
+
+        .pagination>li.active>a {
+            background: #222423;
+        }
+    }
+}
+
+@media all and (max-width:767px) {
+    .product-title-lg {
+        font-size: 20px;
+        line-height: 30px;
+    }
+}

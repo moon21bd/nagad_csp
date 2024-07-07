@@ -24,28 +24,28 @@ let router = new Router({
         {
             path: "/login/:user_id?",
             name: "login",
-            component: () => import("./views/login/index.vue")
+            component: () => import("./views/login/login.vue"),
         },
         {
             path: "/register",
             name: "register",
-            component: () => import("./views/register/index.vue")
+            component: () => import("./views/register/register.vue"),
         },
         {
             path: "/verify/user/:id",
             name: "verify",
             props: true,
-            component: () => import("./views/verify/index.vue")
+            component: () => import("./views/verify/verify.vue"),
         },
         {
             path: "/forgot-password",
             name: "forgot",
-            component: () => import("./views/forgot/index.vue")
+            component: () => import("./views/forgot/forgot.vue"),
         },
         {
             path: "/reset/:token",
             name: "reset",
-            component: () => import("./views/reset/index.vue")
+            component: () => import("./views/reset/index.vue"),
         },
         /**
          * Admin routes
@@ -56,8 +56,8 @@ let router = new Router({
             component: () => import("./views/admin/dashboard.vue"),
             meta: {
                 requiresAuth: true,
-                layout: AdminLayout
-            }
+                layout: AdminLayout,
+            },
         },
         {
             path: "/admin/components/buttons",
@@ -65,8 +65,8 @@ let router = new Router({
             component: () => import("./views/admin/buttons.vue"),
             meta: {
                 requiresAuth: true,
-                layout: AdminLayout
-            }
+                layout: AdminLayout,
+            },
         },
         {
             path: "/admin/components/cards",
@@ -74,8 +74,8 @@ let router = new Router({
             component: () => import("./views/admin/cards.vue"),
             meta: {
                 requiresAuth: true,
-                layout: AdminLayout
-            }
+                layout: AdminLayout,
+            },
         },
         {
             path: "/admin/utilities/colors",
@@ -83,8 +83,8 @@ let router = new Router({
             component: () => import("./views/admin/colors.vue"),
             meta: {
                 requiresAuth: true,
-                layout: AdminLayout
-            }
+                layout: AdminLayout,
+            },
         },
         {
             path: "/admin/utilities/borders",
@@ -149,15 +149,7 @@ let router = new Router({
                 layout: AdminLayout
             }
         },
-        {
-            path: '/forbidden',
-            component: import("./views/permissions/forbidden.vue"),
-            name: 'Forbidden',
-            meta: {
-                requiresAuth: true,
-                layout: AdminLayout
-            }
-        },
+        {path: '/forbidden', component: Forbidden, name: 'Forbidden'},
         ...groupRouters.options.routes,
         ...callCategoriesRouters.options.routes,
         ...callSubCategoriesRouters.options.routes,
@@ -170,18 +162,8 @@ let router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-    console.log('to', to, 'from', from)
     if (to.matched.some(record => record.meta.requiresAuth)) {
         if (store.getters.user) {
-            /*const userPermissions = store.state.userPermissions;
-            console.log('userPermissions', userPermissions)
-            if (userPermissions.some(permission => permission.path === to.path)) {
-                next();
-                return;
-            } else {
-                next({name: 'Forbidden'});
-                return;
-            }*/
             next();
             return;
         }
