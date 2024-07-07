@@ -24,23 +24,23 @@ let router = new Router({
         {
             path: "/login/:user_id?",
             name: "login",
-            component: () => import("./views/login/index.vue")
+            component: () => import("./views/login/login.vue")
         },
         {
             path: "/register",
             name: "register",
-            component: () => import("./views/register/index.vue")
+            component: () => import("./views/register/register.vue")
         },
         {
             path: "/verify/user/:id",
             name: "verify",
             props: true,
-            component: () => import("./views/verify/index.vue")
+            component: () => import("./views/verify/verify.vue")
         },
         {
             path: "/forgot-password",
             name: "forgot",
-            component: () => import("./views/forgot/index.vue")
+            component: () => import("./views/forgot/forgot.vue")
         },
         {
             path: "/reset/:token",
