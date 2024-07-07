@@ -53,4 +53,16 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return config('auth.must_verify_email');
     }
+
+    public function groups()
+    {
+        return $this->belongsToMany(NCGroup::class, 'nc_user_groups', 'user_id', 'group_id');
+    }
+
+    public function hasPermissionForPath($path)
+    {
+        return $this->groups->pluck('permissions')->flatten()->contains(function ($permission) use ($path) {
+            return $permission->path && str_is($permission->path, $path);
+        });
+    }
 }

@@ -149,6 +149,15 @@ let router = new Router({
                 layout: AdminLayout
             }
         },
+        {
+            path: '/forbidden',
+            component: import("./views/permissions/forbidden.vue"),
+            name: 'Forbidden',
+            meta: {
+                requiresAuth: true,
+                layout: AdminLayout
+            }
+        },
         ...groupRouters.options.routes,
         ...callCategoriesRouters.options.routes,
         ...callSubCategoriesRouters.options.routes,
@@ -161,8 +170,18 @@ let router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
+    console.log('to', to, 'from', from)
     if (to.matched.some(record => record.meta.requiresAuth)) {
         if (store.getters.user) {
+            /*const userPermissions = store.state.userPermissions;
+            console.log('userPermissions', userPermissions)
+            if (userPermissions.some(permission => permission.path === to.path)) {
+                next();
+                return;
+            } else {
+                next({name: 'Forbidden'});
+                return;
+            }*/
             next();
             return;
         }

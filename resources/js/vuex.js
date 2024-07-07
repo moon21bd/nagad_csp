@@ -7,6 +7,8 @@ Vue.use(Vuex);
 
 const store = new Vuex.Store({
     state: {
+        permissions: [],
+        userPermissions: [],
         user: null,
         groups: [],
         callTypes: [],
@@ -27,10 +29,29 @@ const store = new Vuex.Store({
         allCallSubSubCategories: (state) => state.callSubSubCategories,
         singleCallSubSubCategory: (state) => state.callSubSubCategory,
         getSubCategory: state => state.subCategory,
-        accessLists: state => state.accessLists
+        accessLists: state => state.accessLists,
+        hasPermission: (state) => (permissionName) => {
+            return state.permissions.includes(permissionName);
+        },
 
     },
     actions: {
+        async fetchPermissions({ commit }) {
+            try {
+                const response = await axios.get('/user/permissions');
+                commit('setPermissions', response.data.permissions);
+            } catch (error) {
+                console.error('Error fetching permissions:', error);
+            }
+        },
+        async fetchUserPermissions({commit}) {
+            try {
+                const response = await axios.get('/user/permissions');
+                commit('setUserPermissions', response.data);
+            } catch (error) {
+                console.error('Failed to fetch permissions', error);
+            }
+        },
         user({commit}, user) {
             commit("setUser", user);
         },
@@ -176,7 +197,7 @@ const store = new Vuex.Store({
                 throw new Error(`Error fetching sub-category: ${error}`);
             }
         },
-        async fetchAccessLists({ commit }) {
+        async fetchAccessLists({commit}) {
             try {
                 const response = await axios.get('/access-lists');
                 commit('setAccessLists', response.data);
@@ -186,6 +207,12 @@ const store = new Vuex.Store({
         }
     },
     mutations: {
+        setPermissions(state, permissions) {
+            state.permissions = permissions;
+        },
+        setUserPermissions(state, permissions) {
+            state.userPermissions = permissions;
+        },
         setUser(state, user) {
             state.user = user;
         },

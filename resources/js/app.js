@@ -36,5 +36,8 @@ Vue.component("app", require("./App.vue").default);
 const app = new Vue({
     router,
     store,
-    el: "#app"
+    el: "#app",
+    created() {
+        this.$store.dispatch('fetchUserPermissions');
+    }
 });

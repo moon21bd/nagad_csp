@@ -37,4 +37,14 @@ class NCGroup extends Model
     {
         return $this->belongsTo(User::class, 'last_updated_by');
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'nc_user_groups', 'group_id', 'user_id');
+    }
+
+    public function permissions()
+    {
+        return $this->belongsToMany(NCPermission::class, 'nc_group_permissions', 'group_id', 'permission_id');
+    }
 }

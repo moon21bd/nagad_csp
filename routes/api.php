@@ -34,6 +34,7 @@ Route::get('email/verify/{id}', [Api\VerifyController::class, 'verify'])->name('
 Route::group(['middleware' => ['auth:api']], function () {
     Route::get('user', [Api\AuthController::class, 'user']);
 });
+Route::middleware('auth:api')->get('/user/permissions', [Api\UserPermissionsController::class, 'index']);
 
 Route::group(['middleware' => 'auth:api'], function () {
     Route::apiResources([
