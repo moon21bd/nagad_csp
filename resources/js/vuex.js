@@ -36,7 +36,7 @@ const store = new Vuex.Store({
 
     },
     actions: {
-        async fetchPermissions({ commit }) {
+        /*async fetchPermissions({ commit }) {
             try {
                 const response = await axios.get('/user/permissions');
                 commit('setPermissions', response.data.permissions);
@@ -51,7 +51,7 @@ const store = new Vuex.Store({
             } catch (error) {
                 console.error('Failed to fetch permissions', error);
             }
-        },
+        },*/
         user({commit}, user) {
             commit("setUser", user);
         },

@@ -41,6 +41,6 @@ const app = new Vue({
     store,
     el: "#app",
     created() {
-        this.$store.dispatch('fetchUserPermissions');
+        // this.$store.dispatch('fetchUserPermissions');
     }
 });

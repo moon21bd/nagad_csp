@@ -2,17 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Passport\HasApiTokens;
 
-class User extends Authenticatable implements MustVerifyEmail
+// use Laravel\Passport\HasApiTokens;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
+
+// class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens;
-
-    protected $appends = ['must_verify_email'];
+    use HasFactory, Notifiable, HasApiTokens, HasRoles;
+    protected $guard_name = 'api';
+    // protected $appends = ['must_verify_email'];
     /**
      * The attributes that are mass assignable.
      *
@@ -54,7 +58,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return config('auth.must_verify_email');
     }
 
-    public function groups()
+    /*public function groups()
     {
         return $this->belongsToMany(NCGroup::class, 'nc_user_groups', 'user_id', 'group_id');
     }
@@ -64,5 +68,5 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->groups->pluck('permissions')->flatten()->contains(function ($permission) use ($path) {
             return $permission->path && str_is($permission->path, $path);
         });
-    }
+    }*/
 }
