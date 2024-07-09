@@ -6,9 +6,8 @@
     font-style: normal;
     font-display: block;
 }
-
-[class^="icon-"],
-[class*=" icon-"] {
+[class^="icon-"]:before,
+[class*=" icon-"]:before {
     font-family: "nagad" !important;
     speak: never;
     font-style: normal;

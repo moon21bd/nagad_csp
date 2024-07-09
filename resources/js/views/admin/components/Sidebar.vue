@@ -5,16 +5,14 @@
             class="sidebar-brand d-flex align-items-center justify-content-center"
             to="/"
         >
-            <i class="icon-logo sidebar-brand-icon"></i>
-            <img class="sidebar-brand-logo" src="/images/logo.svg" alt="" />
+            <!-- <i class="icon-logo sidebar-brand-icon"></i> -->
+            <!-- <img class="sidebar-brand-logo" src="/images/logo.svg" alt="" /> -->
         </router-link>
         <div class="sidebar-nav">
             <el-menu
                 :default-active="activeIndex"
                 class="el-menu-vertical-demo"
                 :unique-opened="true"
-                @open="handleOpen"
-                @close="handleClose"
             >
                 <el-menu-item index="/admin">
                     <router-link to="/admin">
