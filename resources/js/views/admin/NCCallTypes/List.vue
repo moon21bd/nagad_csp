@@ -1,38 +1,120 @@
 <template>
     <div>
-        <h1>Call Types</h1>
-        <router-link to="/admin/call-types/create">Create New Call Type</router-link>
-        <ul>
-            <li v-for="callType in callTypes" :key="callType.id">
-                {{ callType.call_type_name }}
-                <router-link :to="{ name: 'call-types-edit', params: { id: callType.id } }">Edit</router-link>
-                <button @click="deleteCallType(callType.id)">Delete</button>
-            </li>
-        </ul>
+        <div class="common-heading d-flex align-items-center mb-3">
+            <h1 class="title">Call Types</h1>
+            <router-link
+                class="btn btn-site ml-auto"
+                to="/admin/call-types/create"
+                ><i class="icon-plus"></i> New
+            </router-link>
+        </div>
+        <div class="card mb-4">
+            <div class="overlay" v-if="isLoading">
+                <img src="/images/loader.gif" alt="" />
+            </div>
+            <div class="card-body">
+                <div v-if="callTypes.length && !isLoading">
+                    <div class="table-responsive">
+                        <table id="dataTable" class="table border rounded">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                    <th class="text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    v-for="{
+                                        call_type_name,
+                                        id,
+                                        status,
+                                    } in callTypes"
+                                    :key="id"
+                                >
+                                    <td>{{ call_type_name }}</td>
+                                    <td>
+                                        <span
+                                            :class="
+                                                status === 'active'
+                                                    ? 'active'
+                                                    : 'inactive'
+                                            "
+                                            class="badge"
+                                            >{{ status }}</span
+                                        >
+                                    </td>
+                                    <td class="text-right">
+                                        <router-link
+                                            class="btn-action btn-edit"
+                                            :to="{
+                                                name: 'call-types-edit',
+                                                params: { id },
+                                            }"
+                                            ><i class="icon-edit-pen"></i
+                                        ></router-link>
+                                        <a
+                                            class="btn-action btn-trash"
+                                            @click.prevent="deleteCallType(id)"
+                                        >
+                                            <i class="icon-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <no-data v-else />
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
+import "datatables.net-dt/css/jquery.dataTables.min.css";
+import "datatables.net-dt/js/dataTables.dataTables";
+import noData from "../components/noData.vue";
 export default {
+    components: {
+        noData,
+    },
+    data() {
+        return {
+            isLoading: false,
+            status: "active",
+        };
+    },
     computed: {
         callTypes() {
             return this.$store.getters.callTypes;
-        }
+        },
     },
     created() {
-        this.$store.dispatch('fetchCallTypes');
+        this.$store.dispatch("fetchCallTypes");
     },
     methods: {
         async deleteCallType(id) {
-            if (confirm('Are you sure you want to delete this call type?')) {
+            if (confirm("Are you sure you want to delete this call type?")) {
                 try {
-                    await this.$store.dispatch('deleteCallType', id);
+                    await this.$store.dispatch("deleteCallType", id);
                 } catch (error) {
-                    console.error('Error deleting call type:', error);
+                    console.error("Error deleting call type:", error);
                 }
             }
-        }
-    }
+        },
+        initializeDataTable() {
+            this.$nextTick(() => {
+                $("#dataTable").DataTable();
+            });
+        },
+    },
+    watch: {
+        callTypes(newValue, oldValue) {
+            if (newValue.length) {
+                this.initializeDataTable();
+            }
+        },
+    },
 };
 </script>
-

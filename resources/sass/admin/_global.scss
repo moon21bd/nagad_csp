@@ -270,10 +270,11 @@ select.form-control {
                     text-transform: capitalize;
                     font-size: 12px !important;
                     min-width: 54px;
-                }
-                .inactive,
-                .active {
                     font-weight: 500;
+                    &-common {
+                        color: #69738b !important;
+                        background-color: rgb(126 120 120 / 15%) !important;
+                    }
                 }
             }
         }
@@ -389,6 +390,21 @@ select.form-control {
             }
         }
     }
+}
+// element ui
+.el-input__inner {
+    border-color: #ced4da !important;
+}
+.el-select .el-input.is-focus .el-input__inner {
+    border-color: #bfc7cf !important;
+}
+.el-select-dropdown__item.selected {
+    color: $red !important;
+    font-weight: 500 !important;
+}
+.el-select-dropdown {
+    border: none !important;
+    box-shadow: 0 0 15px -5px rgba(11, 14, 102, 0.3) !important;
 }
 .password {
     position: relative;

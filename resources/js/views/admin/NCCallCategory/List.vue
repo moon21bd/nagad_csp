@@ -101,6 +101,18 @@ export default {
                 this.$store.dispatch("deleteCallCategory", categoryId);
             }
         },
+        initializeDataTable() {
+            this.$nextTick(() => {
+                $("#dataTable").DataTable();
+            });
+        },
+    },
+    watch: {
+        callCategories(newValue, oldValue) {
+            if (newValue.length) {
+                this.initializeDataTable();
+            }
+        },
     },
 };
 </script>

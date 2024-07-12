@@ -5,8 +5,8 @@
             class="sidebar-brand d-flex align-items-center justify-content-center"
             to="/"
         >
-            <!-- <i class="icon-logo sidebar-brand-icon"></i> -->
-            <!-- <img class="sidebar-brand-logo" src="/images/logo.svg" alt="" /> -->
+            <i class="icon-logo sidebar-brand-icon"></i>
+            <img class="sidebar-brand-logo" src="/images/logo.svg" alt="" />
         </router-link>
         <div class="sidebar-nav">
             <el-menu
@@ -38,8 +38,8 @@
                         <span>Back Office</span>
                     </router-link>
                 </el-menu-item>
-                <el-menu-item index="/admin/call-type">
-                    <router-link to="/admin/call-type">
+                <el-menu-item index="/admin/call-types">
+                    <router-link to="/admin/call-types">
                         <i class="icon-phone"></i>
                         <span>Call Type</span>
                     </router-link>
