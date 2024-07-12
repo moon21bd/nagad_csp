@@ -152,6 +152,16 @@ let router = new Router({
                 layout: AdminLayout
             }
         },
+        // crud routes
+        {
+            path: "/admin/config/add",
+            name: "configAdd",
+            component: () => import("./views/admin/configAdd.vue"),
+            meta: {
+                requiresAuth: true,
+                layout: AdminLayout
+            }
+        },
         {
             path: "/admin/data/:page?",
             name: "viewData",

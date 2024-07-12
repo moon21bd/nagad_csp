@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\NcRequiredFieldConfig;
 use Illuminate\Http\Request;
 
 class CrudController extends ResponseController
@@ -212,5 +213,25 @@ class CrudController extends ResponseController
         $model = "App\Models\\" . $modelName;
         $model::where('id', $id)
               ->delete();
+    }
+
+    public function storeConfig(Request $request)
+    {
+        $input = $request->all();
+        NcRequiredFieldConfig::create([
+            'call_type_id'=>$input['callTypeId']??'',
+            'call_category_id'=>$input['callCategoryId']??'',
+            'call_sub_category_id'=>$input['callSubCategoryId'],
+            'input_field_name'=>$input['inputFiledName'],
+            'input_type'=>$input['inputType'],
+            'input_value'=>$input['inputValue']??'',
+            'input_validation'=>$input['inputValidation'],
+            'status'=>$input['statusValue'],
+            'created_by'=>'admin',
+            'updated_by'=>'admin',
+            'last_updated_by'=>''
+
+
+        ]);
     }
 }

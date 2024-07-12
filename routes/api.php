@@ -51,3 +51,4 @@ Route::get('edit_call_sub_sub_category/{id}', [Api\CrudController::class, 'editC
 Route::post('update_call_sub_sub_category/{id}', [Api\CrudController::class, 'updateCallSubSubCategory']);
 Route::get('delete_call_sub_sub_category/{id}', [Api\CrudController::class, 'deleteCallSubSubCategory']);
 
+Route::post('store_config', [Api\CrudController::class, 'storeConfig']);
