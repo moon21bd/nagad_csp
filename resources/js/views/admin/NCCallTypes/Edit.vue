@@ -4,7 +4,7 @@
         <form @submit.prevent="updateCallType">
             <div>
                 <label for="call_type_name">Call Type Name:</label>
-                <input type="text" v-model="callType.call_type_name" required />
+                <input type="text" v-model="callType.call_type_name" required/>
             </div>
             <div>
                 <label for="status">Status:</label>
@@ -19,6 +19,8 @@
 </template>
 
 <script>
+import axios from "../../../axios";
+
 export default {
     data() {
         return {
@@ -28,7 +30,8 @@ export default {
                 created_by: '',
                 updated_by: '',
                 last_updated_by: '',
-            }
+            },
+            id: this.$route.params.id
         };
     },
     async created() {
@@ -37,32 +40,24 @@ export default {
     methods: {
         async fetchCallType() {
             try {
-                // Ensure the action completes and returns data
-                const callTypes = await this.$store.dispatch('fetchCallTypes');
-                console.log('Call types available:', callTypes);
-                if (Array.isArray(callTypes)) {
-                    const callType = callTypes.find(type => type.id === parseInt(this.$route.params.id));
-                    if (callType) {
-                        this.callType = callType;
-                    } else {
-                        console.error('Call type not found');
-                        this.$router.push('/admin/call-types');
-                    }
-                } else {
-                    console.error('Call types are not an array or not defined');
-                }
+                const response = await axios.get('/call-types/' + this.id);
+                this.callType = response.data
+                console.log('response', response.data)
             } catch (error) {
                 console.error('Error fetching call type:', error);
             }
         },
         async updateCallType() {
             try {
-                await this.$store.dispatch('updateCallType', { id: this.$route.params.id, ...this.callType });
-                this.$router.push('/admin/call-types');
+                const response = await axios.put(`/call-types/${this.id}`, this.callType);
+                this.$router.push({name: "call-types"})
             } catch (error) {
                 console.error('Error updating call type:', error);
             }
         }
+    },
+    mounted() {
+        this.fetchCallType()
     }
 };
 </script>

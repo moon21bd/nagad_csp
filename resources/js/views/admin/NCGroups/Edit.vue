@@ -46,7 +46,7 @@ export default {
                     status: 'active',
                 };
 
-                this.$router.push({ name: 'groups' });
+                this.$router.push({name: 'groups'});
             } catch (error) {
                 console.error('Error updating group:', error);
                 if (error.response && error.response.data.errors) {
@@ -69,8 +69,8 @@ export default {
             }
         }
     },
-    created() {
-        this.fetchGroupData();
+    mounted() {
+        this.fetchGroupData()
     }
 };
 </script>

@@ -55,7 +55,7 @@ export default {
         };
     },
     computed: {
-        ...mapGetters(['singleCallSubSubCategory']),
+        ...mapGetters('globalStore', ['singleCallSubSubCategory']),
         callTypes() {
             return this.$store.getters.callTypes;
         },
@@ -86,7 +86,7 @@ export default {
         },
         async updateSubSubCategory() {
             try {
-                await this.$store.dispatch('updateCallSubSubCategory', {
+                await this.$store.dispatch('globalStore/updateCallSubSubCategory', {
                     id: this.$route.params.id,
                     data: this.subSubCategory
                 });
@@ -97,10 +97,10 @@ export default {
         }
     },
     created() {
-        this.$store.dispatch('fetchCallTypes');
-        this.$store.dispatch('fetchCallCategories');
-        this.$store.dispatch('fetchCallSubCategories');
-        this.$store.dispatch('fetchCallSubSubCategory', this.$route.params.id).then(() => {
+        this.$store.dispatch('globalStore/fetchCallTypes');
+        this.$store.dispatch('globalStore/fetchCallCategories');
+        this.$store.dispatch('globalStore/fetchCallSubCategories');
+        this.$store.dispatch('globalStore/fetchCallSubSubCategory', this.$route.params.id).then(() => {
             const category = this.singleCallSubSubCategory;
             this.subSubCategory.call_type_id = category.call_type_id;
             this.subSubCategory.call_category_id = category.call_category_id;

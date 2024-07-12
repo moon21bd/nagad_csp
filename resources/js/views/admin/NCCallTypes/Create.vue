@@ -4,7 +4,7 @@
         <form @submit.prevent="createCallType">
             <div>
                 <label for="call_type_name">Call Type Name:</label>
-                <input type="text" v-model="callType.call_type_name" required />
+                <input type="text" v-model="callType.call_type_name" required/>
             </div>
             <div>
                 <label for="status">Status:</label>
@@ -19,6 +19,8 @@
 </template>
 
 <script>
+import axios from "../../../axios";
+
 export default {
     data() {
         return {
@@ -34,12 +36,14 @@ export default {
     methods: {
         async createCallType() {
             try {
-                await this.$store.dispatch('createCallType', this.callType);
-                this.$router.push('/admin/call-types');
+                await axios.post("/call-types", this.callType);
+                this.callType = {};
+                this.$router.push({name: "call-types"})
             } catch (error) {
-                console.error('Error creating call type:', error);
+                console.error("Error creating call type:", error);
             }
         }
-    }
+    },
+
 };
 </script>

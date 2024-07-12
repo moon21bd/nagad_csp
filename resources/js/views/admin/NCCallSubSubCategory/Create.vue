@@ -83,7 +83,7 @@ export default {
         },
         async createSubSubCategory() {
             try {
-                await this.$store.dispatch('createCallSubSubCategory', this.subSubCategory);
+                await this.$store.dispatch('globalStore/createCallSubSubCategory', this.subSubCategory);
                 this.$router.push('/admin/call-sub-sub-categories');
             } catch (error) {
                 console.error('Error creating sub sub-category:', error);
@@ -92,9 +92,9 @@ export default {
     },
     created() {
         // Fetch initial data
-        this.$store.dispatch('fetchCallTypes');
-        this.$store.dispatch('fetchCallCategories');
-        this.$store.dispatch('fetchCallSubCategories');
+        this.$store.dispatch('globalStore/fetchCallTypes');
+        this.$store.dispatch('globalStore/fetchCallCategories');
+        this.$store.dispatch('globalStore/fetchCallSubCategories');
     }
 };
 </script>

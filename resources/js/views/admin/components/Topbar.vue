@@ -107,7 +107,8 @@
                         src="/images/user-avatar.png"
                     />
                     <span class="ml-2 d-none d-lg-inline text-gray-600 small"
-                    >{{ user.first_name }} {{ user.last_name }}
+                    >
+                            <span v-if="user">{{ user.name }}</span>
                         <i class="icon-down"></i
                         ></span>
                 </a>
@@ -144,27 +145,16 @@ import {mapActions, mapGetters} from "vuex";
 export default {
     name: "Topbar",
     computed: {
-        /*isLoggedIn() {
-            return this.$store.state.auth.authenticated;
-        },
+        ...mapGetters('auth', ["user"]),
         user() {
-            return (this.$store.state.auth.authenticated) ? this.$store.state.auth.user : ''
-        },*/
-        ...mapGetters(["user"]),
+            return this.$store.getters['auth/user'];
+        }
     },
     methods: {
-        /*...mapActions({
-            signOut: "auth/logout"
-        }),
-        async logout() {
-            await axios.post('/logout').then(({data}) => {
-                this.signOut()
-                this.$router.push({name: "login"})
-            })
-        },*/
+        ...mapActions('auth', ["setUser"]),
         logout() {
             localStorage.removeItem("token");
-            this.$store.dispatch("user", null);
+            this.setUser(null);
             this.$router.push("/login");
         },
     },

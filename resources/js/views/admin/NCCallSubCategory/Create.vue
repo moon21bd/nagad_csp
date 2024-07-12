@@ -4,7 +4,7 @@
         <form @submit.prevent="createSubCategory">
             <div>
                 <label for="call_type_id">Call Type:</label>
-                <select v-model="subCategory.call_type_id" @change="fetchCategories" required>
+                <select v-model="subCategory.call_type_id" @change="fetchCategories()" required>
                     <option :value="null" disabled>Select Call Type</option>
                     <option v-for="type in callTypes" :key="type.id" :value="type.id">{{ type.call_type_name }}</option>
                 </select>
@@ -13,12 +13,14 @@
                 <label for="call_category_id">Call Category:</label>
                 <select v-model="subCategory.call_category_id" required>
                     <option :value="null" disabled>Select Call Category</option>
-                    <option v-for="category in callCategoriesForType" :key="category.id" :value="category.id">{{ category.call_category_name }}</option>
+                    <option v-for="category in callCategories" :key="category.id" :value="category.id">
+                        {{ category.call_category_name }}
+                    </option>
                 </select>
             </div>
             <div>
                 <label for="call_sub_category_name">Sub Category Name:</label>
-                <input type="text" v-model="subCategory.call_sub_category_name" required />
+                <input type="text" v-model="subCategory.call_sub_category_name" required/>
             </div>
             <div>
                 <label for="status">Status:</label>
@@ -33,6 +35,8 @@
 </template>
 
 <script>
+import axios from "../../../axios";
+
 export default {
     data() {
         return {
@@ -41,39 +45,41 @@ export default {
                 call_category_id: null,
                 call_sub_category_name: '',
                 status: 'active'
-            }
+            },
+            callTypes: [],
+            callCategories: []
         };
     },
-    computed: {
-        callTypes() {
-            return this.$store.getters.callTypes;
-        },
-        callCategories() {
-            return this.$store.getters.callCategories;
-        },
-        callCategoriesForType() {
-            if (!this.subCategory.call_type_id) return [];
-            return this.callCategories.filter(category => category.call_type_id === this.subCategory.call_type_id);
-        },
-    },
+
     methods: {
-        async fetchCategories() {
-            if (!this.subCategory.call_type_id) return;
+        async fetchCallTypes() {
             try {
-                // Optionally, you can fetch categories here if they haven't been fetched before.
-                // await this.$store.dispatch('fetchCallCategories');
+                const response = await axios.get("/call-types");
+                this.callTypes = response.data;
+            } catch (error) {
+                console.error("Error fetching call types:", error);
+            }
+        },
+        async fetchCategories() {
+            try {
+                const response = await axios.get(`/get-category/${this.subCategory.call_type_id}`);
+                this.callCategories = response.data;
             } catch (error) {
                 console.error('Error fetching call categories:', error);
             }
         },
         async createSubCategory() {
             try {
-                await this.$store.dispatch('createCallSubCategory', this.subCategory);
-                this.$router.push('/admin/call-sub-categories');
+                await axios.post('/call-sub-categories', this.subCategory);
+                this.$router.push({name: "call-sub-categories-index"})
+
             } catch (error) {
-                console.error('Error creating sub-category:', error);
+                console.error('Error creating call sub-category:', error);
             }
-        }
+        },
+    },
+    mounted() {
+        this.fetchCallTypes()
     }
 };
 </script>

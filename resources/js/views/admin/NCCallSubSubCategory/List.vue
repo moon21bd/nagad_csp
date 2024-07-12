@@ -39,52 +39,37 @@
 </template>
 
 <script>
+import axios from "../../../axios";
+
 export default {
     data() {
-        return {};
+        return {
+            callSubSubCategories: []
+        };
     },
-    computed: {
-        callSubSubCategories() {
-            return this.$store.getters.allCallSubSubCategories;
-        },
-        callTypes() {
-            return this.$store.getters.callTypes;
-        },
-        callCategories() {
-            return this.$store.getters.callCategories;
-        },
-        callSubCategories() {
-            return this.$store.getters.callSubCategories;
-        }
-    },
+
     methods: {
-        getCallTypeName(callTypeId) {
-            const type = this.callTypes.find(type => type.id === callTypeId);
-            return type ? type.call_type_name : 'Unknown';
-        },
-        getCallCategoryName(callCategoryId) {
-            const category = this.callCategories.find(category => category.id === callCategoryId);
-            return category ? category.call_category_name : 'Unknown';
-        },
-        getCallSubCategoryName(callSubCategoryId) {
-            const subCategory = this.callSubCategories.find(subCategory => subCategory.id === callSubCategoryId);
-            return subCategory ? subCategory.call_sub_category_name : 'Unknown';
+        async fetchCallSubSubCategories() {
+            try {
+                const response = await axios.get('/call-sub-sub-categories');
+                this.callSubSubCategories = response.data;
+            } catch (error) {
+                console.error('Error fetching call sub-categories:', error);
+            }
         },
         async deleteSubSubCategory(id) {
             if (confirm('Are you sure you want to delete this item?')) {
                 try {
-                    await this.$store.dispatch('deleteCallSubSubCategory', id);
+                    await this.$store.dispatch('globalStore/deleteCallSubSubCategory', id);
                 } catch (error) {
                     console.error('Error deleting sub sub-category:', error);
                 }
             }
         }
     },
-    created() {
-        this.$store.dispatch('fetchCallSubSubCategories');
-        this.$store.dispatch('fetchCallTypes');
-        this.$store.dispatch('fetchCallCategories');
-        this.$store.dispatch('fetchCallSubCategories');
+    mounted() {
+        this.fetchCallSubSubCategories()
     }
+
 };
 </script>

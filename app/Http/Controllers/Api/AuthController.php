@@ -31,12 +31,17 @@ class AuthController extends Controller
                     ], 401);
                 }
 
+                $user['roles'] = $user->getAllPermissions();
+                Log::info('USER: ' . json_encode($user));
+                $permissions = [];
+                foreach ($user['roles'] as $roles) {
+                    $permissions[] = $roles['name'];
+                }
+                $user['cando'] = $permissions;
+
                 return response([
-                    'title' => 'Successfully loggedIn.',
                     'message' => 'Successfully loggedIn.',
                     'token' => $token,
-                    'access_token' => $token,
-                    'token_type' => 'Bearer',
                     'user' => $user
                 ]);
 
@@ -53,9 +58,24 @@ class AuthController extends Controller
         ], 401);
     }
 
-    public function user()
+    public function user(Request $request)
+    {
+        $user = User::find(Auth::user()->id);
+        $user['roles'] = $user->getAllPermissions();
+        Log::info('USER: ' . json_encode($user));
+        $permissions = [];
+        foreach ($user['roles'] as $roles) {
+            $permissions[] = $roles['name'];
+        }
+        $user['cando'] = $permissions;
+        Log::info('PERMISSIONS: ' . json_encode($permissions) . ' USER: ' . json_encode($user));
+
+        return response()->json($user);
+    }
+
+    /*public function user()
     {
         Log::info('user method called', Auth::user());
         return response()->json(Auth::user());
-    }
+    }*/
 }

@@ -48,6 +48,17 @@ class NCCallCategoryController extends Controller
         $category = NCCallCategory::findOrFail($id);
         return response()->json($category);
     }
+    /**
+     * Display the specified resource.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCategoryByCallTypeId($id)
+    {
+        $category = NCCallCategory::where('call_type_id', $id)->get();
+        return response()->json($category);
+    }
 
     /**
      * Update the specified resource in storage.

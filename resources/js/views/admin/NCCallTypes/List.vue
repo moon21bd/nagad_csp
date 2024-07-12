@@ -13,25 +13,38 @@
 </template>
 
 <script>
+import axios from "../../../axios";
+
 export default {
-    computed: {
-        callTypes() {
-            return this.$store.getters.callTypes;
-        }
-    },
-    created() {
-        this.$store.dispatch('fetchCallTypes');
+    data() {
+        return {
+            callTypes: []
+        };
     },
     methods: {
         async deleteCallType(id) {
-            if (confirm('Are you sure you want to delete this call type?')) {
-                try {
-                    await this.$store.dispatch('deleteCallType', id);
-                } catch (error) {
-                    console.error('Error deleting call type:', error);
+            try {
+                if (confirm("Are you sure you want to delete this call Type?")) {
+                    await axios.delete(`/call-types/${id}`);
+                    this.fetchCallTypes()
                 }
+
+            } catch (error) {
+                console.error("Error deleting call type:", error);
+            }
+        },
+        async fetchCallTypes() {
+            try {
+                const response = await axios.get("/call-types");
+                console.log('response', response.data)
+                this.callTypes = response.data;
+            } catch (error) {
+                console.error("Error fetching call types:", error);
             }
         }
+    },
+    mounted() {
+        this.fetchCallTypes()
     }
 };
 </script>

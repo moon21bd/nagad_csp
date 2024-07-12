@@ -4,7 +4,7 @@
         <form @submit.prevent="updateSubCategory">
             <div>
                 <label for="call_type_id">Call Type:</label>
-                <select v-model="subCategory.call_type_id" @change="fetchCategories" required>
+                <select v-model="subCategory.call_type_id" @change="getCategoryById" required>
                     <option :value="null" disabled>Select Call Type</option>
                     <option v-for="type in callTypes" :key="type.id" :value="type.id">{{ type.call_type_name }}</option>
                 </select>
@@ -13,7 +13,7 @@
                 <label for="call_category_id">Call Category:</label>
                 <select v-model="subCategory.call_category_id" required>
                     <option :value="null" disabled>Select Call Category</option>
-                    <option v-for="category in callCategoriesForType" :key="category.id" :value="category.id">
+                    <option v-for="category in callCategories" :key="category.id" :value="category.id">
                         {{ category.call_category_name }}
                     </option>
                 </select>
@@ -35,6 +35,8 @@
 </template>
 
 <script>
+import axios from "../../../axios";
+
 export default {
     data() {
         return {
@@ -43,60 +45,61 @@ export default {
                 call_category_id: null,
                 call_sub_category_name: '',
                 status: 'active'
-            }
+            },
+            callTypes: [],
+            callCategories: [],
+            id: this.$route.params.id
         };
     },
-    computed: {
-        callTypes() {
-            return this.$store.getters.callTypes;
-        },
-        callCategories() {
-            return this.$store.getters.callCategories;
-        },
-        callCategoriesForType() {
-            if (!this.subCategory.call_type_id) return [];
-            return this.callCategories.filter(category => category.call_type_id === this.subCategory.call_type_id);
-        }
-    },
-    created() {
-        const subCategoryId = this.$route.params.id;
-        if (subCategoryId) {
-            this.fetchSubCategory(subCategoryId);
-        }
-    },
-    methods: {
-        async fetchSubCategory(id) {
-            try {
-                const response = await this.$store.dispatch('fetchCallSubCategory', id);
-                console.log('API Response:', response);
 
-                if (response && response.call_type_id && response.call_category_id) {
-                    this.subCategory = {
-                        ...response,
-                        call_type: { id: response.call_type_id },
-                        call_category: { id: response.call_category_id },
-                    };
-                } else {
-                    console.error('Response or its nested properties are null or undefined.');
-                }
+    methods: {
+        async fetchCallTypes() {
+            try {
+                const response = await axios.get("/call-types");
+                this.callTypes = response.data;
             } catch (error) {
-                console.error('Error fetching sub-category:', error);
+                console.error("Error fetching call types:", error);
+            }
+        },
+        async fetchSubCategories() {
+            try {
+                const response = await axios.get(`/call-sub-categories/${this.id}`);
+                this.subCategory = response.data;
+                this.getCategoryById()
+            } catch (error) {
+                console.error('Error fetching call categories:', error);
+            }
+        }, async getCategories() {
+            try {
+                const response = await axios.get(`/get-category/${this.subCategory.call_type_id}`);
+                this.callCategories = response.data;
+            } catch (error) {
+                console.error('Error fetching call categories:', error);
+            }
+        },
+
+        async getCategoryById() {
+            try {
+                const response = await axios.get(`/get-category/${this.subCategory.call_type_id}`);
+                this.callCategories = response.data;
+            } catch (error) {
+                console.error('Error fetching call categories:', error);
             }
         },
 
         async updateSubCategory() {
             try {
-                await this.$store.dispatch('updateCallSubCategory', this.subCategory);
-                this.$router.push('/admin/call-sub-categories');
+                await axios.put(`/call-sub-categories/${this.id}`, this.subCategory);
+                this.$router.push({name: "call-sub-categories-index"})
             } catch (error) {
-                console.error('Error updating sub-category:', error);
+                console.error('Error updating call sub-category:', error);
             }
         },
-        fetchCategories() {
-            if (this.subCategory.call_type_id) {
-                this.$store.dispatch('fetchCategoriesByType', this.subCategory.call_type_id);
-            }
-        }
+
+    },
+    mounted() {
+        this.fetchCallTypes()
+        this.fetchSubCategories()
     }
 };
 </script>

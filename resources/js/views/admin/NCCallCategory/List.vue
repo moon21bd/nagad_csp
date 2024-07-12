@@ -13,22 +13,37 @@
 </template>
 
 <script>
+import axios from "../../../axios";
+
 export default {
     name: 'List',
-    computed: {
-        callCategories() {
-            return this.$store.getters.callCategories;
+    data() {
+        return {
+            callCategories: []
         }
-    },
-    created() {
-        this.$store.dispatch('fetchCallCategories');
     },
     methods: {
-        deleteCategory(categoryId) {
-            if (confirm('Are you sure you want to delete this call category?')) {
-                this.$store.dispatch('deleteCallCategory', categoryId);
+        async fetchCallCategories() {
+            try {
+                const response = await axios.get("/call-categories");
+                this.callCategories = response.data;
+            } catch (error) {
+                console.error("Error fetching call categories:", error);
             }
-        }
+        },
+        async deleteCategory(categoryId) {
+            try {
+                if (confirm('Are you sure you want to delete this call category?')) {
+                    await axios.delete(`/call-categories/${categoryId}`);
+                    this.fetchCallCategories()
+                }
+            } catch (error) {
+                console.error('Error deleting call category:', error);
+            }
+        },
+    },
+    mounted() {
+        this.fetchCallCategories()
     }
 };
 </script>

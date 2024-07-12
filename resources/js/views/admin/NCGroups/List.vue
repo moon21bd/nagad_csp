@@ -13,26 +13,39 @@
 </template>
 
 <script>
+import axios from "../../../axios";
+
 export default {
-    computed: {
-        groups() {
-            return this.$store.state.groups;
-        }
+    data() {
+        return {
+            groups: []
+        };
     },
     methods: {
-        async deleteGroup(groupId) {
-            if (confirm('Are you sure you want to delete this group?')) {
-                try {
-                    await this.$store.dispatch('deleteGroup', groupId);
-                    console.log('Group deleted successfully.');
-                } catch (error) {
-                    console.error('Error deleting group:', error);
-                }
+        async fetchGroups() {
+            try {
+                const response = await axios.get("/groups");
+                this.groups = response.data;
+            } catch (error) {
+                console.error("Error fetching groups:", error);
             }
-        }
+        },
+        async deleteGroup(groupId) {
+            try {
+                if (confirm('Are you sure you want to delete this group?')) {
+                    await axios.delete(`/groups/${groupId}`);
+                    this.fetchGroups()
+                }
+
+            } catch (error) {
+                console.error("Error deleting group:", error);
+            }
+        },
+
     },
-    created() {
-        this.$store.dispatch('fetchGroups');
+    mounted() {
+        this.fetchGroups()
     }
+
 };
 </script>

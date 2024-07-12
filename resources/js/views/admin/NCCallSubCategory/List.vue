@@ -32,33 +32,36 @@
 </template>
 
 <script>
+import axios from "../../../axios";
+
 export default {
-    computed: {
-        callSubCategories() {
-            return this.$store.getters.callSubCategories;
-        },
-    },
-    created() {
-        this.fetchCallSubCategories();
+    data() {
+        return {
+            callSubCategories: []
+        }
     },
     methods: {
         async fetchCallSubCategories() {
             try {
-                await this.$store.dispatch('fetchCallSubCategories');
+                const response = await axios.get('/call-sub-categories');
+                this.callSubCategories = response.data;
             } catch (error) {
                 console.error('Error fetching call sub-categories:', error);
             }
         },
         async deleteSubCategory(subCategoryId) {
-            if (confirm('Are you sure you want to delete this call sub-category?')) {
-                try {
-                    await this.$store.dispatch('deleteCallSubCategory', subCategoryId);
-                    this.fetchCallSubCategories();
-                } catch (error) {
-                    console.error('Error deleting call sub-category:', error);
+            try {
+                if (confirm('Are you sure you want to delete this call sub-category?')) {
+                    await axios.delete(`/call-sub-categories/${subCategoryId}`);
+                    this.fetchCallSubCategories()
                 }
+            } catch (error) {
+                console.error('Error deleting call sub-category:', error);
             }
-        }
+        },
+    },
+    mounted() {
+        this.fetchCallSubCategories()
     }
 };
 </script>

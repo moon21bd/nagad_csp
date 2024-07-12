@@ -55,7 +55,7 @@ export default {
         sbadmin2.init();
     },
     computed: {
-        ...mapGetters(["user"]),
+        ...mapGetters('globalStore', ["user"]),
     },
 };
 </script>

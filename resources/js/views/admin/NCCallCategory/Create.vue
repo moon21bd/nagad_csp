@@ -5,12 +5,13 @@
             <div>
                 <label for="call_type_id">Call Type:</label>
                 <select v-model="category.call_type_id" required>
+                    <option value="">-- Select --</option>
                     <option v-for="type in callTypes" :key="type.id" :value="type.id">{{ type.call_type_name }}</option>
                 </select>
             </div>
             <div>
                 <label for="call_category_name">Category Name:</label>
-                <input type="text" v-model="category.call_category_name" required />
+                <input type="text" v-model="category.call_category_name" required/>
             </div>
             <div>
                 <label for="status">Status:</label>
@@ -25,6 +26,8 @@
 </template>
 
 <script>
+import axios from "../../../axios";
+
 export default {
     data() {
         return {
@@ -32,26 +35,32 @@ export default {
                 call_type_id: '',
                 call_category_name: '',
                 status: 'active'
-            }
+            },
+            callTypes: []
         };
     },
-    computed: {
-        callTypes() {
-            return this.$store.getters.callTypes;
-        }
-    },
-    async created() {
-        await this.$store.dispatch('fetchCallTypes');
-    },
+
     methods: {
         async createCategory() {
             try {
-                await this.$store.dispatch('createCallCategory', this.category);
-                this.$router.push('/admin/call-categories');
+                await axios.post('/call-categories', this.category);
+                this.category = {};
+                this.$router.push({name: "call-categories-index"})
             } catch (error) {
-                console.error('Error creating category:', error);
+                console.error('Error creating call category:', error);
+            }
+        },
+        async fetchCallTypes() {
+            try {
+                const response = await axios.get("/call-types");
+                this.callTypes = response.data;
+            } catch (error) {
+                console.error("Error fetching call types:", error);
             }
         }
+    },
+    mounted() {
+        this.fetchCallTypes()
     }
 };
 </script>

@@ -26,7 +26,6 @@
                                         </tr>
                                         </thead>
                                         <tbody v-if="permissions && (permissions.data || []).length > 0">
-                                        {{ permissions }}
                                         <tr v-for="(permission,key) in permissions.data" :key="key">
                                             <td>{{ permission.id }}</td>
                                             <td>{{ permission.name }}</td>

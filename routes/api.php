@@ -72,6 +72,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('usersdata/save', [UsersController::class, 'store']);
     Route::delete('users/delete/{id}', [UsersController::class, 'destroy']);
 
+    Route::get('get-category/{id}', [NCCallCategoryController::class, 'getCategoryByCallTypeId']);
+
     // for nagad api
     Route::apiResources([
         'groups' => NCGroupController::class,
