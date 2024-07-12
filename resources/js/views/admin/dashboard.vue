@@ -460,8 +460,8 @@ import chartPieDemo from "../../chart/demo/chart-pie-demo";
 export default {
   name: "Dashboard",
   mounted() {
-    chartAreaDemo();
-    chartPieDemo();
+    // chartAreaDemo();
+    // chartPieDemo();
   },
 };
 </script>

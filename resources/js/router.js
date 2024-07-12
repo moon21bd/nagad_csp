@@ -9,6 +9,7 @@ import callSubSubCategoriesRouters from "./routers/nc-call-sub-sub-categories";
 import callTypesRouters from "./routers/nc-call-types";
 import ncAccessLists from "./routers/nc-access-lists";
 import ncGroupConfigs from "./routers/nc-group-configs";
+import backOffice from "./routers/backoffice";
 import store from "./vuex";
 
 Vue.use(Router);
@@ -19,7 +20,7 @@ let router = new Router({
         {
             path: "/",
             name: "home",
-            component: () => import("./views/home/index.vue")
+            component: () => import("./views/login/login.vue")
         },
         {
             path: "/login/:user_id?",
@@ -165,23 +166,14 @@ let router = new Router({
         ...callTypesRouters.options.routes,
         ...ncAccessLists.options.routes,
         ...ncGroupConfigs.options.routes,
+        ...backOffice.options.routes,
 
     ]
 });
 
 router.beforeEach((to, from, next) => {
-    console.log('to', to, 'from', from)
     if (to.matched.some(record => record.meta.requiresAuth)) {
         if (store.getters.user) {
-            /*const userPermissions = store.state.userPermissions;
-            console.log('userPermissions', userPermissions)
-            if (userPermissions.some(permission => permission.path === to.path)) {
-                next();
-                return;
-            } else {
-                next({name: 'Forbidden'});
-                return;
-            }*/
             next();
             return;
         }
@@ -190,5 +182,46 @@ router.beforeEach((to, from, next) => {
         next();
     }
 });
+
+
+/*router.beforeEach((to, from, next) => {
+    console.log("Navigating to:", to.fullPath);
+    console.log("Authentication status:", store.state.auth.authenticated);
+
+    const isAuthenticated = store.state.auth.authenticated;
+
+    if (to.meta.middleware === "guest") {
+        if (isAuthenticated) {
+            next({ name: "home" });
+        } else {
+            next();
+        }
+    } else {
+        if (!isAuthenticated) {
+            next({ name: "login" }); // Redirect to login if not authenticated
+        } else {
+            next();
+        }
+    }
+});*/
+
+
+/*router.beforeEach((to, from, next) => {
+    document.title = `${to.meta.title} - ${process.env.MIX_APP_NAME}`
+    console.log('to.meta.middleware', to.meta)
+    if (to.meta.middleware == "guest") {
+        if (store.state.auth.authenticated) {
+            next({name: "home"})
+        }
+        next()
+    } else {
+        if (store.state.auth.authenticated) {
+            next()
+        } else {
+            next({name: "home"})
+            next()
+        }
+    }
+})*/
 
 export default router;

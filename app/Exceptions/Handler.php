@@ -4,6 +4,8 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use Spatie\Permission\Exceptions\UnauthorizedException;
+
 
 class Handler extends ExceptionHandler
 {
@@ -37,5 +39,20 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    public function render($request, Throwable $exception)
+    {
+        if ($exception instanceof UnauthorizedException) {
+            // Customize the response for the 403 Forbidden error
+            return response()->json([
+                'code' => 403,
+                'error' => 'You are not authorized to perform this action.'
+            ], 403);
+            // Or redirect to a specific route
+            // return redirect()->route('home')->with('error', 'You are not authorized to perform this action.');
+        }
+
+        return parent::render($request, $exception);
     }
 }

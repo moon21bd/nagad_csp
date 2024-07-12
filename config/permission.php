@@ -181,6 +181,13 @@ return [
          * file. Using 'default' here means to use the `default` set in cache.php.
          */
 
-        'store' => 'default',
+        // 'store' => 'default',
+
+        /*
+         * Disabling Cache
+            Setting 'cache.store' => 'array' in config/permission.php will effectively disable caching by this package between requests (it will only cache in-memory until the current request is completed processing, never persisting it).
+         */
+
+        'store' => 'array',
     ],
 ];

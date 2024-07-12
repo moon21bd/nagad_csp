@@ -47,7 +47,7 @@
                                 December 12, 2019
                             </div>
                             <span class="font-weight-bold"
-                                >A new monthly report is ready to
+                            >A new monthly report is ready to
                                 download!</span
                             >
                         </div>
@@ -84,7 +84,7 @@
                     <a
                         class="dropdown-item text-center small text-gray-500"
                         href="#"
-                        >Show All Alerts</a
+                    >Show All Alerts</a
                     >
                 </div>
             </li>
@@ -107,9 +107,9 @@
                         src="/images/user-avatar.png"
                     />
                     <span class="ml-2 d-none d-lg-inline text-gray-600 small"
-                        >{{ user.first_name }} {{ user.last_name }}
+                    >{{ user.first_name }} {{ user.last_name }}
                         <i class="icon-down"></i
-                    ></span>
+                        ></span>
                 </a>
                 <!-- Dropdown - User Information -->
                 <div
@@ -139,14 +139,29 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import {mapActions, mapGetters} from "vuex";
 
 export default {
     name: "Topbar",
     computed: {
+        /*isLoggedIn() {
+            return this.$store.state.auth.authenticated;
+        },
+        user() {
+            return (this.$store.state.auth.authenticated) ? this.$store.state.auth.user : ''
+        },*/
         ...mapGetters(["user"]),
     },
     methods: {
+        /*...mapActions({
+            signOut: "auth/logout"
+        }),
+        async logout() {
+            await axios.post('/logout').then(({data}) => {
+                this.signOut()
+                this.$router.push({name: "login"})
+            })
+        },*/
         logout() {
             localStorage.removeItem("token");
             this.$store.dispatch("user", null);

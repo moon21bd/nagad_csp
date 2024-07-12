@@ -44,6 +44,28 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
+    console.log("Navigating to:", to.fullPath);
+    console.log("Authentication status:", store.state.auth.authenticated);
+
+    const isAuthenticated = store.state.auth.authenticated;
+
+    if (to.meta.middleware === "guest") {
+        if (isAuthenticated) {
+            next({name: "home"});
+        } else {
+            next();
+        }
+    } else {
+        if (!isAuthenticated) {
+            next({name: "login"}); // Redirect to login if not authenticated
+        } else {
+            next();
+        }
+    }
+});
+
+
+/*router.beforeEach((to, from, next) => {
     if (to.matched.some((record) => record.meta.requiresAuth)) {
         if (store.getters.user) {
             next();
@@ -53,6 +75,6 @@ router.beforeEach((to, from, next) => {
     } else {
         next();
     }
-});
+});*/
 
 export default router;
