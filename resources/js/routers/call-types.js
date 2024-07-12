@@ -6,7 +6,7 @@ import AdminLayout from "../views/admin/layout/index.vue";
 export default [
     {
         path: '/admin/call-types',
-        name: 'call-types',
+        name: 'call-types-index',
         component: CallTypeList,
         meta: {
             requiresAuth: true,

@@ -9,6 +9,14 @@ use Illuminate\Support\Facades\Auth;
 
 class NCCallTypeController extends Controller
 {
+    /*function __construct()
+    {
+        $this->middleware('permission:call-types-list|call-types-create|call-types-edit|call-types-delete', ['only' => ['index', 'store']]);
+        $this->middleware('permission:call-types-create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:call-types-edit', ['only' => ['edit', 'store']]);
+        $this->middleware('permission:call-types-delete', ['only' => ['destroy']]);
+    }*/
+
     public function index()
     {
         $ncCallType = NCCallType::all();

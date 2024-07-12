@@ -38,7 +38,7 @@ export default {
             try {
                 await axios.post("/call-types", this.callType);
                 this.callType = {};
-                this.$router.push({name: "call-types"})
+                this.$router.push({name: "call-types-index"})
             } catch (error) {
                 console.error("Error creating call type:", error);
             }

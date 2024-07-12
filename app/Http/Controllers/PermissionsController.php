@@ -12,7 +12,6 @@ use Illuminate\Auth\Access\AuthorizationException;
 
 class PermissionsController extends Controller
 {
-
     function __construct()
     {
         $this->middleware('permission:permission-list|permission-create|permission-edit|permission-delete', ['only' => ['index', 'store']]);

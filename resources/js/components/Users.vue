@@ -48,8 +48,8 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <pagination align="center" :data="users"
-                                            @pagination-change-page="getUsers"></pagination>
+                                <!--                                <pagination align="center" :data="users"
+                                                                            @pagination-change-page="getUsers"></pagination>-->
                             </div>
                             <div class="col-5">
                                 <form ref="RoleForm" action="javascript:void(0)" @submit="saveUser" class="row"

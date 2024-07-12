@@ -50,7 +50,7 @@ export default {
         async updateCallType() {
             try {
                 const response = await axios.put(`/call-types/${this.id}`, this.callType);
-                this.$router.push({name: "call-types"})
+                this.$router.push({name: "call-types-index"})
             } catch (error) {
                 console.error('Error updating call type:', error);
             }
