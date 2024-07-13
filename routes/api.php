@@ -14,7 +14,8 @@ use App\Http\Controllers\{
     AuthController,
     RolesController,
     PermissionsController,
-    UsersController
+    UsersController,
+    NCRequiredConfigController
 };
 
 /*
@@ -28,7 +29,18 @@ use App\Http\Controllers\{
 |
 */
 
-// from another project
+
+/*
+// Resource Controller Methods
+
+GET /users → index method
+GET /users/create → create method
+POST /users → store method
+GET /users/{user} → show method
+GET /users/{user}/edit → edit method
+PUT /users/{user} → update method
+PATCH /users/{user} → update method
+DELETE /users/{user} → destroy method*/
 
 //Route::post('/login', [AuthController::class, 'login']);
 //Route::post('/register',[AuthController::class,'register']);
@@ -74,6 +86,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::get('get-category/{id}', [NCCallCategoryController::class, 'getCategoryByCallTypeId']);
 
+    Route::get('call-sub-by-call-cat-id/{ctid}/{ccid}', [NCCallSubCategoryController::class, 'getCallSubCatByCallAndCategoryId']);
+
     // for nagad api
     Route::apiResources([
         'groups' => NCGroupController::class,
@@ -83,5 +97,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         'call-sub-sub-categories' => NCCallSubSubCategoryController::class,
         'access-lists' => NCAccessListController::class,
         'group-configs' => NCGroupConfigsController::class,
+        'required-fields-configs' => NCRequiredConfigController::class,
     ]);
 });

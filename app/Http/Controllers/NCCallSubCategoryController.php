@@ -6,7 +6,6 @@ use App\Models\NCCallSubCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-
 class NCCallSubCategoryController extends Controller
 {
     public function index()
@@ -18,6 +17,12 @@ class NCCallSubCategoryController extends Controller
     public function show($id)
     {
         $subCategory = NCCallSubCategory::with('callType', 'callCategory')->findOrFail($id);
+        return response()->json($subCategory);
+    }
+
+    public function getCallSubCatByCallAndCategoryId($callTypeId, $callCategoryId)
+    {
+        $subCategory = NCCallSubCategory::with('callType', 'callCategory')->where(['call_type_id' => $callTypeId, 'call_category_id' => $callCategoryId])->get();
         return response()->json($subCategory);
     }
 

@@ -11,6 +11,7 @@ import accessLists from "./routers/access-lists";
 import groups from "./routers/groups";
 import groupConfigs from "./routers/group-configs";
 import store from "./store";
+import requiredConfigs from "./routers/required-fields";
 
 Vue.use(Router);
 
@@ -26,6 +27,7 @@ let router = new Router({
         ...callSubSubCategory,
         ...groupConfigs,
         ...rolesPermissions,
+        ...requiredConfigs
 
     ]
 });
