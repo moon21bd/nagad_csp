@@ -115,16 +115,16 @@ export default {
             }
         },
         async deleteSubCategory(subCategoryId) {
-            if (confirm('Are you sure you want to delete this call sub-category?')) {
-                try {
-                    if (confirm('Are you sure you want to delete this call sub-category?')) {
-                        await axios.delete(`/call-sub-categories/${subCategoryId}`);
-                        this.fetchCallSubCategories()
-                    }
-                } catch (error) {
-                    console.error('Error deleting call sub-category:', error);
+
+            try {
+                if (confirm('Are you sure you want to delete this call sub-category?')) {
+                    await axios.delete(`/call-sub-categories/${subCategoryId}`);
+                    this.fetchCallSubCategories()
                 }
+            } catch (error) {
+                console.error('Error deleting call sub-category:', error);
             }
+
         }
     },
     mounted() {

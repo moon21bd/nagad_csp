@@ -37,10 +37,7 @@
                                         </option>
                                     </select>
                                 </div>
-                                <div>
-                                    <label for="call_sub_category_name">Sub Category Name:</label>
-                                    <input type="text" v-model="subCategory.call_sub_category_name" required/>
-                                </div>
+
                                 <div class="form-group">
                                     <label class="control-label"
                                     >Call Category</label
@@ -53,7 +50,7 @@
                                         placeholder="Select Category"
                                     >
                                         <el-option
-                                            v-for="category in callCategoriesForType"
+                                            v-for="category in callCategories"
                                             :key="category.id"
                                             :label="category.call_category_name"
                                             :value="category.id"
@@ -158,7 +155,15 @@ export default {
                 console.error('Error fetching call categories:', error);
             }
         },
-
+        async fetchCategories() {
+            try {
+                const response = await axios.get(`/call-categories/${this.id}`);
+                this.callCategories = response.data;
+                this.getCategoryById()
+            } catch (error) {
+                console.error('Error fetching call categories:', error);
+            }
+        },
         async updateSubCategory() {
             try {
                 await axios.put(`/call-sub-categories/${this.id}`, this.subCategory);
