@@ -16,16 +16,6 @@
                 <div class="row">
                     <div class="col-md-6">
                         <form @submit.prevent="createSubCategory">
-                            <!--                            <div>
-                                                            <label for="call_type_id">Call Type:</label>
-                                                            <select v-model="subCategory.call_type_id" @change="fetchCategories" required>
-                                                                <option :value="null" disabled>Select Call Type</option>
-                                                                <option v-for="type in callTypes" :key="type.id" :value="type.id">
-                                                                    {{ type.call_type_name }}
-                                                                </option>
-                                                            </select>
-                                                        </div>-->
-
                             <div class="form-group">
                                 <label class="control-label">Call Type</label>
                                 <el-select
@@ -45,7 +35,6 @@
                                     </el-option>
                                 </el-select>
                             </div>
-
 
                             <div class="form-group">
                                 <label class="control-label">Call Category</label>

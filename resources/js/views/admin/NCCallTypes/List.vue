@@ -103,7 +103,6 @@ export default {
         async fetchCallTypes() {
             try {
                 const response = await axios.get("/call-types");
-                console.log('response', response.data)
                 this.callTypes = response.data;
             } catch (error) {
                 console.error("Error fetching call types:", error);

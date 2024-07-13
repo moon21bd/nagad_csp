@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="common-heading d-flex align-items-center mb-3">
-            <h1 class="title">Call Categories</h1>
+            <h1 class="title">Service Categories</h1>
             <router-link
                 class="btn btn-site ml-auto"
                 to="/admin/call-categories/create"
@@ -19,43 +19,36 @@
                             <thead>
                             <tr>
                                 <th>Name</th>
+                                <th>Service Type</th>
                                 <th>Status</th>
                                 <th class="text-right">Action</th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr
-                                v-for="{
-                                        call_category_name,
-                                        id,
-                                        status,
-                                    } in callCategories"
-                                :key="id"
-                            >
-                                <td>{{ call_category_name }}</td>
+
+                            <tr v-for="callCategory in callCategories" :key="callCategory.id">
+                                <td>{{ callCategory.call_category_name }}</td>
+                                <td>{{ callCategory.call_type?.call_type_name || 'N/A' }}</td>
                                 <td>
                                         <span
                                             :class="
-                                                status === 'active'
+                                                callCategory.status === 'active'
                                                     ? 'active'
                                                     : 'inactive'
                                             "
                                             class="badge"
-                                        >{{ status }}</span
+                                        >{{ callCategory.status }}</span
                                         >
                                 </td>
                                 <td class="text-right">
                                     <router-link
                                         class="btn-action btn-edit"
-                                        :to="{
-                                                name: 'call-categories-edit',
-                                                params: { id },
-                                            }"
+                                        :to="{name: 'call-categories-edit', params: { id: callCategory.id },}"
                                     ><i class="icon-edit-pen"></i
                                     ></router-link>
                                     <a
                                         class="btn-action btn-trash"
-                                        @click.prevent="deleteCategory(id)"
+                                        @click.prevent="deleteCategory(callCategory.id)"
                                     >
                                         <i class="icon-trash"></i>
                                     </a>
@@ -92,6 +85,7 @@ export default {
         async fetchCallCategories() {
             try {
                 const response = await axios.get("/call-categories");
+                console.log('response.data', response.data)
                 this.callCategories = response.data;
             } catch (error) {
                 console.error("Error fetching call categories:", error);

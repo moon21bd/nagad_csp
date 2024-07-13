@@ -18,29 +18,25 @@
                         <form @submit.prevent="createCategory">
                             <div class="form-group">
                                 <label class="control-label">Call Type</label>
-                                <div class="custom-style">
-                                    <select
-                                        class="form-control"
-                                        v-model="category.call_type_id"
-                                        required
-                                    >
-                                        <option value="" disabled>
-                                            Select Call Type
-                                        </option>
-                                        <option
-                                            v-for="types in callTypes"
-                                            :key="types.id"
-                                            :value="types.id"
-                                        >
-                                            {{ types.call_type_name }}
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label"
-                                >Category Name</label
+                                <el-select
+                                    class="d-block w-100"
+                                    v-model="category.call_type_id"
+                                    required
+                                    filterable
+                                    placeholder="Select Type"
                                 >
+                                    <el-option
+                                        v-for="type in callTypes"
+                                        :key="type.id"
+                                        :label="type.call_type_name"
+                                        :value="type.id"
+                                    >
+                                    </el-option>
+                                </el-select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="control-label">Category Name</label>
                                 <input
                                     class="form-control"
                                     v-model="category.call_category_name"
@@ -50,8 +46,7 @@
                             </div>
                             <div class="form-group d-flex align-items-center">
                                 <label class="control-label m-0 mr-3"
-                                >Status:</label
-                                >
+                                >Status:</label>
                                 <label class="radio mr-2"
                                 ><input
                                     type="radio"
