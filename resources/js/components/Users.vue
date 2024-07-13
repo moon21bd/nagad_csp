@@ -183,7 +183,6 @@ export default {
         },
         async getUsers(page = 1) {
             await axios.get('/users?page=' + page).then(response => {
-                console.log('getUsers data', response.data)
                 this.users = response.data
             }).catch(error => {
                 console.log('getUsers', error)

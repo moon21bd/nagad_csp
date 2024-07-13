@@ -12,17 +12,14 @@ use App\Http\Requests\RegisterRequest;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Log;
 
-
 class AuthController extends Controller
 {
-
     public function login(LoginRequest $request)
     {
         try {
             if (Auth::attempt($request->only('email', 'password'))) {
                 /** @var User $user */
                 $user = Auth::user();
-                // $token = $user->createToken('API Token')->accessToken;
                 $token = $user->createToken('authToken')->plainTextToken;
 
                 if (config('auth.must_verify_email') && !$user->hasVerifiedEmail()) {
