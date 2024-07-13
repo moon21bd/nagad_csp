@@ -38,7 +38,7 @@ export default {
             selectedAccessLists: [], // Track selected access lists
         };
     },
-    created() {
+    mounted() {
         this.fetchGroups();
         this.fetchAccessLists();
     },

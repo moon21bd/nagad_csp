@@ -2,7 +2,8 @@
     <div>
         <h2>Group Configurations</h2>
 
-        <router-link :to="{ name: 'create-group-config' }" class="btn btn-primary mb-3">Add Group Configuration</router-link>
+        <router-link :to="{ name: 'create-group-config' }" class="btn btn-primary mb-3">Add Group Configuration
+        </router-link>
 
         <table class="table">
             <thead>
@@ -20,7 +21,9 @@
                 <td>{{ groupConfig.status }}</td>
                 <td>
                     <!-- Button to edit group configuration -->
-                    <router-link :to="{ name: 'edit-group-config', params: { id: groupConfig.id } }" class="btn btn-sm btn-primary">Edit</router-link>
+                    <router-link :to="{ name: 'edit-group-config', params: { id: groupConfig.id } }"
+                                 class="btn btn-sm btn-primary">Edit
+                    </router-link>
 
                     <!-- Button to delete group configuration (if required) -->
                     <button @click="confirmDelete(groupConfig.id)" class="btn btn-sm btn-danger">Delete</button>
@@ -40,7 +43,7 @@ export default {
             groupConfigs: []
         };
     },
-    created() {
+    mounted() {
         this.fetchGroupConfigs();
     },
     methods: {

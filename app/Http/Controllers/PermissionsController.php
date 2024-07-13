@@ -73,7 +73,6 @@ class PermissionsController extends Controller
 
                 // Assign permissions to super admin role
                 $this->assignPermissionsToSuperAdmin($permission);
-
                 $msg = 'Permission created successfully.';
             }
 
