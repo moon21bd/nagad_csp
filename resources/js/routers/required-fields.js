@@ -37,14 +37,6 @@ export default [
             layout: AdminLayout
         }
     },
-    {
-        path: "/admin/data/:page?",
-        name: "viewData",
-        component: () => import("../views/admin/viewCrudData.vue"),
-        meta: {
-            requiresAuth: true,
-            layout: AdminLayout
-        }
-    },
+
 
 ];
