@@ -48,8 +48,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <!--                                <pagination align="center" :data="users"
-                                                                            @pagination-change-page="getUsers"></pagination>-->
+
                             </div>
                             <div class="col-5">
                                 <form ref="RoleForm" action="javascript:void(0)" @submit="saveUser" class="row"
@@ -185,7 +184,7 @@ export default {
             await axios.get('/users?page=' + page).then(response => {
                 this.users = response.data
             }).catch(error => {
-                console.log('getUsers', error)
+                // console.log('getUsers', error)
                 this.users = {}
             })
         },

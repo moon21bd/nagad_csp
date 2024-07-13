@@ -21,7 +21,7 @@ class AuthController extends Controller
                 /** @var User $user */
                 $user = Auth::user();
                 $token = $user->createToken('authToken')->plainTextToken;
-
+                // dd($user, $token);
                 if (config('auth.must_verify_email') && !$user->hasVerifiedEmail()) {
                     return response([
                         'message' => 'Email must be verified.'

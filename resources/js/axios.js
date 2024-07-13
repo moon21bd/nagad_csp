@@ -18,6 +18,21 @@ axios.interceptors.response.use(
     }
 );
 
+axios.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response.status === 403) {
+            // Handle unauthorized access, e.g., redirect to a login page or show a message
+            this.$bvToast.toast('Unauthorized access', {
+                title: 'Error',
+                variant: 'danger',
+                solid: true,
+            });
+        }
+        return Promise.reject(error);
+    }
+);
+
 axios.defaults.baseURL = "/api/"; // Change this if your API URL differs
 axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
 
