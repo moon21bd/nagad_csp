@@ -2979,6 +2979,7 @@ __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
 window.Vue = (__webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js")["default"]);
 Vue.use((vue_toasted__WEBPACK_IMPORTED_MODULE_3___default()));
+
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -3258,10 +3259,30 @@ var router = new vue_router__WEBPACK_IMPORTED_MODULE_3__["default"]({
   },
   // crud routes
   {
-    path: "/admin/config/add",
+    path: "/admin/nc-config/add",
     name: "configAdd",
     component: function component() {
-      return __webpack_require__.e(/*! import() */ "resources_js_views_admin_configAdd_vue").then(__webpack_require__.bind(__webpack_require__, /*! ./views/admin/configAdd.vue */ "./resources/js/views/admin/configAdd.vue"));
+      return __webpack_require__.e(/*! import() */ "resources_js_views_admin_ncRequiredConfig_Create_vue").then(__webpack_require__.bind(__webpack_require__, /*! ./views/admin/ncRequiredConfig/Create.vue */ "./resources/js/views/admin/ncRequiredConfig/Create.vue"));
+    },
+    meta: {
+      requiresAuth: true,
+      layout: _views_admin_layout_index__WEBPACK_IMPORTED_MODULE_1__["default"]
+    }
+  }, {
+    path: "/admin/nc-config",
+    name: "configList",
+    component: function component() {
+      return __webpack_require__.e(/*! import() */ "resources_js_views_admin_ncRequiredConfig_List_vue").then(__webpack_require__.bind(__webpack_require__, /*! ./views/admin/ncRequiredConfig/List.vue */ "./resources/js/views/admin/ncRequiredConfig/List.vue"));
+    },
+    meta: {
+      requiresAuth: true,
+      layout: _views_admin_layout_index__WEBPACK_IMPORTED_MODULE_1__["default"]
+    }
+  }, {
+    path: "/admin/nc-config/edit/:id",
+    name: "configEdit",
+    component: function component() {
+      return __webpack_require__.e(/*! import() */ "resources_js_views_admin_ncRequiredConfig_Edit_vue").then(__webpack_require__.bind(__webpack_require__, /*! ./views/admin/ncRequiredConfig/Edit.vue */ "./resources/js/views/admin/ncRequiredConfig/Edit.vue"));
     },
     meta: {
       requiresAuth: true,
@@ -3390,31 +3411,805 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 /* harmony import */ var vuex_persistedstate__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex-persistedstate */ "./node_modules/vuex-persistedstate/dist/vuex-persistedstate.es.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_1__);
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator["return"] && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, "catch": function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 
 
 
-vue__WEBPACK_IMPORTED_MODULE_1__["default"].use(vuex__WEBPACK_IMPORTED_MODULE_2__["default"]);
-var state = {
-  user: null
-};
-var store = new vuex__WEBPACK_IMPORTED_MODULE_2__["default"].Store({
-  state: state,
+
+vue__WEBPACK_IMPORTED_MODULE_2__["default"].use(vuex__WEBPACK_IMPORTED_MODULE_3__["default"]);
+var store = new vuex__WEBPACK_IMPORTED_MODULE_3__["default"].Store({
+  state: {
+    permissions: [],
+    userPermissions: [],
+    user: null,
+    groups: [],
+    callTypes: [],
+    callCategories: [],
+    callSubCategories: [],
+    callSubSubCategories: [],
+    callSubSubCategory: {},
+    subCategory: null,
+    accessLists: [],
+    ncRequiredConfigs: []
+  },
   getters: {
     user: function user(state) {
       return state.user;
+    },
+    groups: function groups(state) {
+      return state.groups;
+    },
+    callTypes: function callTypes(state) {
+      return state.callTypes;
+    },
+    callCategories: function callCategories(state) {
+      return state.callCategories;
+    },
+    callSubCategories: function callSubCategories(state) {
+      return state.callSubCategories;
+    },
+    ncRequiredConfigs: function ncRequiredConfigs(state) {
+      return state.ncRequiredConfigs;
+    },
+    allCallSubSubCategories: function allCallSubSubCategories(state) {
+      return state.callSubSubCategories;
+    },
+    singleCallSubSubCategory: function singleCallSubSubCategory(state) {
+      return state.callSubSubCategory;
+    },
+    getSubCategory: function getSubCategory(state) {
+      return state.subCategory;
+    },
+    accessLists: function accessLists(state) {
+      return state.accessLists;
+    },
+    hasPermission: function hasPermission(state) {
+      return function (permissionName) {
+        return state.permissions.includes(permissionName);
+      };
     }
   },
   actions: {
-    user: function user(context, _user) {
-      context.commit('user', _user);
+    fetchPermissions: function fetchPermissions(_ref) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+        var commit, response;
+        return _regeneratorRuntime().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              commit = _ref.commit;
+              _context.prev = 1;
+              _context.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().get('/user/permissions');
+            case 4:
+              response = _context.sent;
+              commit('setPermissions', response.data.permissions);
+              _context.next = 11;
+              break;
+            case 8:
+              _context.prev = 8;
+              _context.t0 = _context["catch"](1);
+              console.error('Error fetching permissions:', _context.t0);
+            case 11:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, null, [[1, 8]]);
+      }))();
+    },
+    fetchUserPermissions: function fetchUserPermissions(_ref2) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+        var commit, response;
+        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              commit = _ref2.commit;
+              _context2.prev = 1;
+              _context2.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().get('/user/permissions');
+            case 4:
+              response = _context2.sent;
+              commit('setUserPermissions', response.data);
+              _context2.next = 11;
+              break;
+            case 8:
+              _context2.prev = 8;
+              _context2.t0 = _context2["catch"](1);
+              console.error('Failed to fetch permissions', _context2.t0);
+            case 11:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2, null, [[1, 8]]);
+      }))();
+    },
+    user: function user(_ref3, _user) {
+      var commit = _ref3.commit;
+      commit("setUser", _user);
+    },
+    fetchGroups: function fetchGroups(_ref4) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3() {
+        var commit, response;
+        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+          while (1) switch (_context3.prev = _context3.next) {
+            case 0:
+              commit = _ref4.commit;
+              _context3.prev = 1;
+              _context3.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().get("/groups");
+            case 4:
+              response = _context3.sent;
+              commit("setGroups", response.data);
+              _context3.next = 11;
+              break;
+            case 8:
+              _context3.prev = 8;
+              _context3.t0 = _context3["catch"](1);
+              console.error("Error fetching groups:", _context3.t0);
+            case 11:
+            case "end":
+              return _context3.stop();
+          }
+        }, _callee3, null, [[1, 8]]);
+      }))();
+    },
+    fetchCallCategories: function fetchCallCategories(_ref5) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+        var commit, response;
+        return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+          while (1) switch (_context4.prev = _context4.next) {
+            case 0:
+              commit = _ref5.commit;
+              _context4.prev = 1;
+              _context4.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().get("/call-categories");
+            case 4:
+              response = _context4.sent;
+              commit("setCallCategories", response.data);
+              return _context4.abrupt("return", response.data);
+            case 9:
+              _context4.prev = 9;
+              _context4.t0 = _context4["catch"](1);
+              console.error("Error fetching call categories:", _context4.t0);
+            case 12:
+            case "end":
+              return _context4.stop();
+          }
+        }, _callee4, null, [[1, 9]]);
+      }))();
+    },
+    createCallCategory: function createCallCategory(_ref6, categoryData) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
+        var commit, response;
+        return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+          while (1) switch (_context5.prev = _context5.next) {
+            case 0:
+              commit = _ref6.commit;
+              _context5.prev = 1;
+              _context5.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().post('/call-categories', categoryData);
+            case 4:
+              response = _context5.sent;
+              commit('addCallCategory', response.data);
+              _context5.next = 11;
+              break;
+            case 8:
+              _context5.prev = 8;
+              _context5.t0 = _context5["catch"](1);
+              console.error('Error creating call category:', _context5.t0);
+            case 11:
+            case "end":
+              return _context5.stop();
+          }
+        }, _callee5, null, [[1, 8]]);
+      }))();
+    },
+    updateCallCategory: function updateCallCategory(_ref7, categoryData) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
+        var commit, response;
+        return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+          while (1) switch (_context6.prev = _context6.next) {
+            case 0:
+              commit = _ref7.commit;
+              _context6.prev = 1;
+              _context6.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().put("/call-categories/".concat(categoryData.id), categoryData);
+            case 4:
+              response = _context6.sent;
+              commit('updateCallCategory', response.data);
+              _context6.next = 11;
+              break;
+            case 8:
+              _context6.prev = 8;
+              _context6.t0 = _context6["catch"](1);
+              console.error('Error updating call category:', _context6.t0);
+            case 11:
+            case "end":
+              return _context6.stop();
+          }
+        }, _callee6, null, [[1, 8]]);
+      }))();
+    },
+    deleteCallCategory: function deleteCallCategory(_ref8, categoryId) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7() {
+        var commit;
+        return _regeneratorRuntime().wrap(function _callee7$(_context7) {
+          while (1) switch (_context7.prev = _context7.next) {
+            case 0:
+              commit = _ref8.commit;
+              _context7.prev = 1;
+              _context7.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default()["delete"]("/call-categories/".concat(categoryId));
+            case 4:
+              commit('removeCallCategory', categoryId);
+              _context7.next = 10;
+              break;
+            case 7:
+              _context7.prev = 7;
+              _context7.t0 = _context7["catch"](1);
+              console.error('Error deleting call category:', _context7.t0);
+            case 10:
+            case "end":
+              return _context7.stop();
+          }
+        }, _callee7, null, [[1, 7]]);
+      }))();
+    },
+    fetchCallSubCategories: function fetchCallSubCategories(_ref9) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8() {
+        var commit, response;
+        return _regeneratorRuntime().wrap(function _callee8$(_context8) {
+          while (1) switch (_context8.prev = _context8.next) {
+            case 0:
+              commit = _ref9.commit;
+              _context8.prev = 1;
+              _context8.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().get('/call-sub-categories');
+            case 4:
+              response = _context8.sent;
+              commit('setCallSubCategories', response.data);
+              return _context8.abrupt("return", response.data);
+            case 9:
+              _context8.prev = 9;
+              _context8.t0 = _context8["catch"](1);
+              console.error('Error fetching call sub-categories:', _context8.t0);
+            case 12:
+            case "end":
+              return _context8.stop();
+          }
+        }, _callee8, null, [[1, 9]]);
+      }))();
+    },
+    createCallSubCategory: function createCallSubCategory(_ref10, subCategoryData) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9() {
+        var commit, response;
+        return _regeneratorRuntime().wrap(function _callee9$(_context9) {
+          while (1) switch (_context9.prev = _context9.next) {
+            case 0:
+              commit = _ref10.commit;
+              _context9.prev = 1;
+              _context9.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().post('/call-sub-categories', subCategoryData);
+            case 4:
+              response = _context9.sent;
+              commit('addCallSubCategory', response.data);
+              _context9.next = 11;
+              break;
+            case 8:
+              _context9.prev = 8;
+              _context9.t0 = _context9["catch"](1);
+              console.error('Error creating call sub-category:', _context9.t0);
+            case 11:
+            case "end":
+              return _context9.stop();
+          }
+        }, _callee9, null, [[1, 8]]);
+      }))();
+    },
+    updateCallSubCategory: function updateCallSubCategory(_ref11, subCategoryData) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10() {
+        var commit, response;
+        return _regeneratorRuntime().wrap(function _callee10$(_context10) {
+          while (1) switch (_context10.prev = _context10.next) {
+            case 0:
+              commit = _ref11.commit;
+              _context10.prev = 1;
+              _context10.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().put("/call-sub-categories/".concat(subCategoryData.id), subCategoryData);
+            case 4:
+              response = _context10.sent;
+              commit('updateCallSubCategory', response.data);
+              _context10.next = 11;
+              break;
+            case 8:
+              _context10.prev = 8;
+              _context10.t0 = _context10["catch"](1);
+              console.error('Error updating call sub-category:', _context10.t0);
+            case 11:
+            case "end":
+              return _context10.stop();
+          }
+        }, _callee10, null, [[1, 8]]);
+      }))();
+    },
+    deleteCallSubCategory: function deleteCallSubCategory(_ref12, subCategoryId) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee11() {
+        var commit;
+        return _regeneratorRuntime().wrap(function _callee11$(_context11) {
+          while (1) switch (_context11.prev = _context11.next) {
+            case 0:
+              commit = _ref12.commit;
+              _context11.prev = 1;
+              _context11.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default()["delete"]("/call-sub-categories/".concat(subCategoryId));
+            case 4:
+              commit('removeCallSubCategory', subCategoryId);
+              _context11.next = 10;
+              break;
+            case 7:
+              _context11.prev = 7;
+              _context11.t0 = _context11["catch"](1);
+              console.error('Error deleting call sub-category:', _context11.t0);
+            case 10:
+            case "end":
+              return _context11.stop();
+          }
+        }, _callee11, null, [[1, 7]]);
+      }))();
+    },
+    fetchCallTypes: function fetchCallTypes(_ref13) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() {
+        var commit, response;
+        return _regeneratorRuntime().wrap(function _callee12$(_context12) {
+          while (1) switch (_context12.prev = _context12.next) {
+            case 0:
+              commit = _ref13.commit;
+              _context12.prev = 1;
+              _context12.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().get("/call-types");
+            case 4:
+              response = _context12.sent;
+              commit("setCallTypes", response.data);
+              return _context12.abrupt("return", response.data);
+            case 9:
+              _context12.prev = 9;
+              _context12.t0 = _context12["catch"](1);
+              console.error("Error fetching call types:", _context12.t0);
+            case 12:
+            case "end":
+              return _context12.stop();
+          }
+        }, _callee12, null, [[1, 9]]);
+      }))();
+    },
+    createCallType: function createCallType(_ref14, callTypeData) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
+        var dispatch;
+        return _regeneratorRuntime().wrap(function _callee13$(_context13) {
+          while (1) switch (_context13.prev = _context13.next) {
+            case 0:
+              dispatch = _ref14.dispatch;
+              _context13.prev = 1;
+              _context13.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().post("/call-types", callTypeData);
+            case 4:
+              dispatch("fetchCallTypes");
+              _context13.next = 10;
+              break;
+            case 7:
+              _context13.prev = 7;
+              _context13.t0 = _context13["catch"](1);
+              console.error("Error creating call type:", _context13.t0);
+            case 10:
+            case "end":
+              return _context13.stop();
+          }
+        }, _callee13, null, [[1, 7]]);
+      }))();
+    },
+    updateCallType: function updateCallType(_ref15, callType) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee14() {
+        var commit, response;
+        return _regeneratorRuntime().wrap(function _callee14$(_context14) {
+          while (1) switch (_context14.prev = _context14.next) {
+            case 0:
+              commit = _ref15.commit;
+              _context14.prev = 1;
+              _context14.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().put("/call-types/".concat(callType.id), callType);
+            case 4:
+              response = _context14.sent;
+              commit('updateCallType', response.data);
+              _context14.next = 11;
+              break;
+            case 8:
+              _context14.prev = 8;
+              _context14.t0 = _context14["catch"](1);
+              console.error('Error updating call type:', _context14.t0);
+            case 11:
+            case "end":
+              return _context14.stop();
+          }
+        }, _callee14, null, [[1, 8]]);
+      }))();
+    },
+    deleteCallType: function deleteCallType(_ref16, callTypeId) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee15() {
+        var commit;
+        return _regeneratorRuntime().wrap(function _callee15$(_context15) {
+          while (1) switch (_context15.prev = _context15.next) {
+            case 0:
+              commit = _ref16.commit;
+              _context15.prev = 1;
+              _context15.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default()["delete"]("/call-types/".concat(callTypeId));
+            case 4:
+              commit("removeCallType", callTypeId);
+              _context15.next = 10;
+              break;
+            case 7:
+              _context15.prev = 7;
+              _context15.t0 = _context15["catch"](1);
+              console.error("Error deleting call type:", _context15.t0);
+            case 10:
+            case "end":
+              return _context15.stop();
+          }
+        }, _callee15, null, [[1, 7]]);
+      }))();
+    },
+    fetchCallSubSubCategories: function fetchCallSubSubCategories(_ref17) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee16() {
+        var commit, response;
+        return _regeneratorRuntime().wrap(function _callee16$(_context16) {
+          while (1) switch (_context16.prev = _context16.next) {
+            case 0:
+              commit = _ref17.commit;
+              _context16.next = 3;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().get('/call-sub-sub-categories');
+            case 3:
+              response = _context16.sent;
+              commit('setCallSubSubCategories', response.data);
+            case 5:
+            case "end":
+              return _context16.stop();
+          }
+        }, _callee16);
+      }))();
+    },
+    fetchCallSubSubCategory: function fetchCallSubSubCategory(_ref18, id) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee17() {
+        var commit, response;
+        return _regeneratorRuntime().wrap(function _callee17$(_context17) {
+          while (1) switch (_context17.prev = _context17.next) {
+            case 0:
+              commit = _ref18.commit;
+              _context17.next = 3;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().get("/call-sub-sub-categories/".concat(id));
+            case 3:
+              response = _context17.sent;
+              commit('setCallSubSubCategory', response.data);
+            case 5:
+            case "end":
+              return _context17.stop();
+          }
+        }, _callee17);
+      }))();
+    },
+    createCallSubSubCategory: function createCallSubSubCategory(_ref19, data) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee18() {
+        var dispatch;
+        return _regeneratorRuntime().wrap(function _callee18$(_context18) {
+          while (1) switch (_context18.prev = _context18.next) {
+            case 0:
+              dispatch = _ref19.dispatch;
+              _context18.next = 3;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().post('/call-sub-sub-categories', data);
+            case 3:
+              dispatch('fetchCallSubSubCategories');
+            case 4:
+            case "end":
+              return _context18.stop();
+          }
+        }, _callee18);
+      }))();
+    },
+    updateCallSubSubCategory: function updateCallSubSubCategory(_ref20, _ref21) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee19() {
+        var dispatch, id, data;
+        return _regeneratorRuntime().wrap(function _callee19$(_context19) {
+          while (1) switch (_context19.prev = _context19.next) {
+            case 0:
+              dispatch = _ref20.dispatch;
+              id = _ref21.id, data = _ref21.data;
+              _context19.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().put("/call-sub-sub-categories/".concat(id), data);
+            case 4:
+              dispatch('fetchCallSubSubCategories');
+            case 5:
+            case "end":
+              return _context19.stop();
+          }
+        }, _callee19);
+      }))();
+    },
+    deleteCallSubSubCategory: function deleteCallSubSubCategory(_ref22, id) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee20() {
+        var dispatch;
+        return _regeneratorRuntime().wrap(function _callee20$(_context20) {
+          while (1) switch (_context20.prev = _context20.next) {
+            case 0:
+              dispatch = _ref22.dispatch;
+              _context20.next = 3;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default()["delete"]("/call-sub-sub-categories/".concat(id));
+            case 3:
+              dispatch('fetchCallSubSubCategories');
+            case 4:
+            case "end":
+              return _context20.stop();
+          }
+        }, _callee20);
+      }))();
+    },
+    fetchNcRequiredConfig: function fetchNcRequiredConfig(_ref23) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee21() {
+        var commit, response;
+        return _regeneratorRuntime().wrap(function _callee21$(_context21) {
+          while (1) switch (_context21.prev = _context21.next) {
+            case 0:
+              commit = _ref23.commit;
+              _context21.prev = 1;
+              _context21.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().get('/store_config');
+            case 4:
+              response = _context21.sent;
+              commit('setNcRequiredConfig', response.data);
+              return _context21.abrupt("return", response.data);
+            case 9:
+              _context21.prev = 9;
+              _context21.t0 = _context21["catch"](1);
+              console.error('Error fetching nc-configs:', _context21.t0);
+            case 12:
+            case "end":
+              return _context21.stop();
+          }
+        }, _callee21, null, [[1, 9]]);
+      }))();
+    },
+    createNcRequiredConfig: function createNcRequiredConfig(_ref24, ncConfigData) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee22() {
+        var commit, response;
+        return _regeneratorRuntime().wrap(function _callee22$(_context22) {
+          while (1) switch (_context22.prev = _context22.next) {
+            case 0:
+              commit = _ref24.commit;
+              _context22.prev = 1;
+              _context22.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().post('/store_config', ncConfigData);
+            case 4:
+              response = _context22.sent;
+              commit('addNcRequiredConfig', response.data);
+              _context22.next = 11;
+              break;
+            case 8:
+              _context22.prev = 8;
+              _context22.t0 = _context22["catch"](1);
+              console.error('Error creating nc-required-config:', _context22.t0);
+            case 11:
+            case "end":
+              return _context22.stop();
+          }
+        }, _callee22, null, [[1, 8]]);
+      }))();
+    },
+    updateNcRequiredConfig: function updateNcRequiredConfig(_ref25, ncConfigData) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee23() {
+        var commit, response;
+        return _regeneratorRuntime().wrap(function _callee23$(_context23) {
+          while (1) switch (_context23.prev = _context23.next) {
+            case 0:
+              commit = _ref25.commit;
+              _context23.prev = 1;
+              _context23.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().put("/store_config/".concat(ncConfigData.id), ncConfigData);
+            case 4:
+              response = _context23.sent;
+              commit('updateNcRequiredConfig', response.data);
+              _context23.next = 11;
+              break;
+            case 8:
+              _context23.prev = 8;
+              _context23.t0 = _context23["catch"](1);
+              console.error('Error updating nc-required-config:', _context23.t0);
+            case 11:
+            case "end":
+              return _context23.stop();
+          }
+        }, _callee23, null, [[1, 8]]);
+      }))();
+    },
+    deleteNcRequiredConfig: function deleteNcRequiredConfig(_ref26, ncConfigData) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee24() {
+        var commit;
+        return _regeneratorRuntime().wrap(function _callee24$(_context24) {
+          while (1) switch (_context24.prev = _context24.next) {
+            case 0:
+              commit = _ref26.commit;
+              _context24.prev = 1;
+              _context24.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default()["delete"]("/store_config/".concat(ncConfigData));
+            case 4:
+              commit('removeNcRequiredConfig', ncConfigData);
+              _context24.next = 10;
+              break;
+            case 7:
+              _context24.prev = 7;
+              _context24.t0 = _context24["catch"](1);
+              console.error('Error deleting nc-required-config:', _context24.t0);
+            case 10:
+            case "end":
+              return _context24.stop();
+          }
+        }, _callee24, null, [[1, 7]]);
+      }))();
+    },
+    fetchCallSubCategory: function fetchCallSubCategory(_ref27, subCategoryId) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee25() {
+        var commit, response, subCategory;
+        return _regeneratorRuntime().wrap(function _callee25$(_context25) {
+          while (1) switch (_context25.prev = _context25.next) {
+            case 0:
+              commit = _ref27.commit;
+              _context25.prev = 1;
+              console.log('subCategoryId', subCategoryId);
+              _context25.next = 5;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().get("/call-sub-categories/".concat(subCategoryId));
+            case 5:
+              response = _context25.sent;
+              subCategory = response.data;
+              commit('setSubCategory', subCategory);
+              return _context25.abrupt("return", subCategory);
+            case 11:
+              _context25.prev = 11;
+              _context25.t0 = _context25["catch"](1);
+              throw new Error("Error fetching sub-category: ".concat(_context25.t0));
+            case 14:
+            case "end":
+              return _context25.stop();
+          }
+        }, _callee25, null, [[1, 11]]);
+      }))();
+    },
+    fetchAccessLists: function fetchAccessLists(_ref28) {
+      return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee26() {
+        var commit, response;
+        return _regeneratorRuntime().wrap(function _callee26$(_context26) {
+          while (1) switch (_context26.prev = _context26.next) {
+            case 0:
+              commit = _ref28.commit;
+              _context26.prev = 1;
+              _context26.next = 4;
+              return axios__WEBPACK_IMPORTED_MODULE_1___default().get('/access-lists');
+            case 4:
+              response = _context26.sent;
+              commit('setAccessLists', response.data);
+              _context26.next = 11;
+              break;
+            case 8:
+              _context26.prev = 8;
+              _context26.t0 = _context26["catch"](1);
+              console.error('Error fetching access lists:', _context26.t0);
+            case 11:
+            case "end":
+              return _context26.stop();
+          }
+        }, _callee26, null, [[1, 8]]);
+      }))();
     }
   },
   mutations: {
-    user: function user(state, _user2) {
-      state.user = _user2;
+    setPermissions: function setPermissions(state, permissions) {
+      state.permissions = permissions;
+    },
+    setUserPermissions: function setUserPermissions(state, permissions) {
+      state.userPermissions = permissions;
+    },
+    setUser: function setUser(state, user) {
+      state.user = user;
+    },
+    setGroups: function setGroups(state, groups) {
+      state.groups = groups;
+    },
+    setCallCategories: function setCallCategories(state, callCategories) {
+      state.callCategories = callCategories;
+    },
+    addCallCategory: function addCallCategory(state, newCategory) {
+      state.callCategories.push(newCategory);
+    },
+    updateCallCategory: function updateCallCategory(state, updatedCategory) {
+      var index = state.callCategories.findIndex(function (category) {
+        return category.id === updatedCategory.id;
+      });
+      if (index !== -1) {
+        vue__WEBPACK_IMPORTED_MODULE_2__["default"].set(state.callCategories, index, updatedCategory);
+      }
+    },
+    removeCallCategory: function removeCallCategory(state, categoryId) {
+      state.callCategories = state.callCategories.filter(function (category) {
+        return category.id !== categoryId;
+      });
+    },
+    setNcRequiredConfig: function setNcRequiredConfig(state, ncRequiredConfig) {
+      state.ncRequiredConfigs = ncRequiredConfig;
+    },
+    addNcRequiredConfig: function addNcRequiredConfig(state, newNcRequiredConfig) {
+      state.ncRequiredConfigs.push(newNcRequiredConfig);
+    },
+    updateNcRequiredConfig: function updateNcRequiredConfig(state, updatedNcRequiredConfig) {
+      var index = state.ncRequiredConfigs.findIndex(function (subCategory) {
+        return subCategory.id === updatedNcRequiredConfig.id;
+      });
+      if (index !== -1) {
+        vue__WEBPACK_IMPORTED_MODULE_2__["default"].set(state.callSubCategories, index, updatedSubCategory);
+      }
+    },
+    removeNcRequiredConfig: function removeNcRequiredConfig(state, subCategoryId) {
+      state.callSubCategories = state.callSubCategories.filter(function (subCategory) {
+        return subCategory.id !== subCategoryId;
+      });
+    },
+    addCallSubCategory: function addCallSubCategory(state, newSubCategory) {
+      state.callSubCategories.push(newSubCategory);
+    },
+    updateCallSubCategory: function updateCallSubCategory(state, updatedSubCategory) {
+      var index = state.callSubCategories.findIndex(function (subCategory) {
+        return subCategory.id === updatedSubCategory.id;
+      });
+      if (index !== -1) {
+        vue__WEBPACK_IMPORTED_MODULE_2__["default"].set(state.callSubCategories, index, updatedSubCategory);
+      }
+    },
+    removeCallSubCategory: function removeCallSubCategory(state, subCategoryId) {
+      state.callSubCategories = state.callSubCategories.filter(function (subCategory) {
+        return subCategory.id !== subCategoryId;
+      });
+    },
+    setCallTypes: function setCallTypes(state, callTypes) {
+      state.callTypes = callTypes;
+    },
+    updateCallType: function updateCallType(state, updatedCallType) {
+      var index = state.callTypes.findIndex(function (type) {
+        return type.id === updatedCallType.id;
+      });
+      if (index !== -1) {
+        vue__WEBPACK_IMPORTED_MODULE_2__["default"].set(state.callTypes, index, updatedCallType);
+      }
+    },
+    removeCallType: function removeCallType(state, callTypeId) {
+      state.callTypes = state.callTypes.filter(function (type) {
+        return type.id !== callTypeId;
+      });
+    },
+    setCallSubSubCategories: function setCallSubSubCategories(state, callSubSubCategories) {
+      return state.callSubSubCategories = callSubSubCategories;
+    },
+    setCallSubSubCategory: function setCallSubSubCategory(state, callSubSubCategory) {
+      return state.callSubSubCategory = callSubSubCategory;
+    },
+    setSubCategory: function setSubCategory(state, subCategory) {
+      state.subCategory = subCategory;
+      state.subCategory.call_type = subCategory.call_type || null;
+      state.subCategory.call_category = subCategory.call_category || null;
+    },
+    setAccessLists: function setAccessLists(state, accessLists) {
+      state.accessLists = accessLists;
     }
   },
   plugins: [(0,vuex_persistedstate__WEBPACK_IMPORTED_MODULE_0__["default"])()]
@@ -51921,6 +52716,19 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/css/app.css":
+/*!*******************************!*\
+  !*** ./resources/css/app.css ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
 /***/ "./node_modules/moment/locale/af.js":
 /*!******************************************!*\
   !*** ./node_modules/moment/locale/af.js ***!
@@ -93643,7 +94451,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"name":"axios","version":"0.21.4","de
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames not based on template
-/******/ 			if ({"resources_js_views_home_index_vue":1,"resources_js_views_login_index_vue":1,"resources_js_views_register_index_vue":1,"resources_js_views_verify_index_vue":1,"resources_js_views_forgot_index_vue":1,"resources_js_views_reset_index_vue":1,"resources_js_views_admin_dashboard_vue":1,"resources_js_views_admin_buttons_vue":1,"resources_js_views_admin_cards_vue":1,"resources_js_views_admin_colors_vue":1,"resources_js_views_admin_borders_vue":1,"resources_js_views_admin_animations_vue":1,"resources_js_views_admin_other_vue":1,"resources_js_views_admin_page-not-found_vue":1,"resources_js_views_admin_blank_vue":1,"resources_js_views_admin_charts_vue":1,"resources_js_views_admin_tables_vue":1,"resources_js_views_admin_addData_vue":1,"resources_js_views_admin_configAdd_vue":1,"resources_js_views_admin_subcategoryDetailsAdd_vue":1,"resources_js_views_admin_viewCrudData_vue":1}[chunkId]) return "js/" + chunkId + ".js";
+/******/ 			if ({"resources_js_views_home_index_vue":1,"resources_js_views_login_index_vue":1,"resources_js_views_register_index_vue":1,"resources_js_views_verify_index_vue":1,"resources_js_views_forgot_index_vue":1,"resources_js_views_reset_index_vue":1,"resources_js_views_admin_dashboard_vue":1,"resources_js_views_admin_buttons_vue":1,"resources_js_views_admin_cards_vue":1,"resources_js_views_admin_colors_vue":1,"resources_js_views_admin_borders_vue":1,"resources_js_views_admin_animations_vue":1,"resources_js_views_admin_other_vue":1,"resources_js_views_admin_page-not-found_vue":1,"resources_js_views_admin_blank_vue":1,"resources_js_views_admin_charts_vue":1,"resources_js_views_admin_tables_vue":1,"resources_js_views_admin_addData_vue":1,"resources_js_views_admin_ncRequiredConfig_Create_vue":1,"resources_js_views_admin_ncRequiredConfig_List_vue":1,"resources_js_views_admin_ncRequiredConfig_Edit_vue":1,"resources_js_views_admin_subcategoryDetailsAdd_vue":1,"resources_js_views_admin_viewCrudData_vue":1}[chunkId]) return "js/" + chunkId + ".js";
 /******/ 			// return url for filenames based on template
 /******/ 			return undefined;
 /******/ 		};
@@ -93848,7 +94656,8 @@ module.exports = /*#__PURE__*/JSON.parse('{"name":"axios","version":"0.21.4","de
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module depends on other loaded chunks and execution need to be delayed
 /******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/js/app.js")))
-/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/sass/app.scss")))
+/******/ 	__webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/sass/app.scss")))
+/******/ 	var __webpack_exports__ = __webpack_require__.O(undefined, ["css/app"], () => (__webpack_require__("./resources/css/app.css")))
 /******/ 	__webpack_exports__ = __webpack_require__.O(__webpack_exports__);
 /******/ 	
 /******/ })()

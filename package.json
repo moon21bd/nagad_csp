@@ -26,13 +26,15 @@
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.15.4",
+        "@vee-validate/rules": "^4.13.2",
         "chart.js": "^2.9.4",
         "datatables.net-dt": "^1.1.0",
         "startbootstrap-sb-admin-2": "^4.1.4",
-        "vee-validate": "^4.13.1",
+        "vee-validate": "^4.13.2",
         "vue-data-tables": "^3.4.5",
         "vue-router": "^3.5.2",
         "vue-toasted": "^1.1.28",
+        "vuejs-datetimepicker": "^1.1.13",
         "vuetable-2": "^1.7.5",
         "vuex": "^3.6.2",
         "vuex-persistedstate": "^4.0.0"

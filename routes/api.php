@@ -4,6 +4,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api;
 use App\Http\Controllers\Api\NcRecuiredConfigController;
+use App\Http\Controllers\{
+    NCGroupController,
+    NCCallCategoryController,
+    NCCallTypeController,
+    NCCallSubCategoryController,
+    NCCallSubSubCategoryController,
+    NCAccessListController,
+    NCGroupConfigsController
+};
+
 
 /*
 |--------------------------------------------------------------------------
@@ -52,5 +62,20 @@ Route::get('edit_call_sub_sub_category/{id}', [Api\CrudController::class, 'editC
 Route::post('update_call_sub_sub_category/{id}', [Api\CrudController::class, 'updateCallSubSubCategory']);
 Route::get('delete_call_sub_sub_category/{id}', [Api\CrudController::class, 'deleteCallSubSubCategory']);
 
-Route::post('store_config', [Api\CrudController::class, 'storeConfig']);
-Route::apiResource('store_config', NcRecuiredConfigController::class);
+//Route::apiResource('store_config', NcRecuiredConfigController::class);
+Route::get('get-category/{id}', [NCCallCategoryController::class, 'getCategoryByCallTypeId']);
+Route::get('get-sub-category/{id}', [NCCallSubCategoryController::class, 'getSubCategoryByCategoryId']);
+Route::get('get-nc-filed_config-data/{id}', [NcRecuiredConfigController::class, 'getNcFiledConfigDataByConfigId']);
+
+
+    Route::apiResources([
+        'groups' => NCGroupController::class,
+        'call-categories' => NCCallCategoryController::class,
+        'call-types' => NCCallTypeController::class,
+        'call-sub-categories' => NCCallSubCategoryController::class,
+        'call-sub-sub-categories' => NCCallSubSubCategoryController::class,
+        'access-lists' => NCAccessListController::class,
+        'group-configs' => NCGroupConfigsController::class,
+        'store_config' => NcRecuiredConfigController::class,
+    ]);
+

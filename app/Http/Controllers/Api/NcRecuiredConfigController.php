@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\NCCallSubCategory;
+use App\Models\NCCallSubSubCategory;
 use App\Models\NcRequiredFieldConfig;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class NcRecuiredConfigController extends Controller
 {
@@ -15,7 +18,8 @@ class NcRecuiredConfigController extends Controller
      */
     public function index()
     {
-        //
+       $data = NcRequiredFieldConfig::with('callType', 'callCategory','callSubCategory')->get();
+        return response()->json($data);
     }
 
     /**
@@ -62,7 +66,7 @@ class NcRecuiredConfigController extends Controller
      */
     public function show(NcRequiredFieldConfig $ncRequiredFieldConfig,$id)
     {
-        $data = NcRequiredFieldConfig::where('call_sub_category_id',$id)->get();
+        $data = NcRequiredFieldConfig::findOrFail($id);
         if ($data)
         {
             return json_encode($data);
@@ -87,9 +91,26 @@ class NcRecuiredConfigController extends Controller
      * @param  \App\Models\NcRequiredFieldConfig  $ncRequiredFieldConfig
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, NcRequiredFieldConfig $ncRequiredFieldConfig)
+    public function update(Request $request, $id)
     {
-        //
+        $requiredConfig = NcRequiredFieldConfig::findOrFail($id);
+
+        $validated = $request->validate([
+            'call_type_id' => 'required|exists:nc_call_types,id',
+            'call_category_id' => 'required|exists:nc_call_categories,id',
+            'call_sub_category_id' => 'required|exists:nc_call_sub_categories,id',
+            'input_field_name' => 'required|string|max:128',
+            'input_type' => 'required|string|max:128',
+            'input_value' => 'nullable',
+            'input_validation' => 'required|string',
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        $validated['updated_by'] = Auth::id();
+        $validated['last_updated_by'] = Auth::id();
+        $requiredConfig->update($validated);
+        return response()->json($requiredConfig);
+
     }
 
     /**
@@ -98,8 +119,20 @@ class NcRecuiredConfigController extends Controller
      * @param  \App\Models\NcRequiredFieldConfig  $ncRequiredFieldConfig
      * @return \Illuminate\Http\Response
      */
-    public function destroy(NcRequiredFieldConfig $ncRequiredFieldConfig)
+    public function destroy($id)
     {
-        //
+        $filedConfig = NcRequiredFieldConfig::findOrFail($id);
+        $filedConfig->delete();
+
+        return response()->json(['message' => 'Deleted successfully']);
+    }
+
+    public function getNcFiledConfigDataByConfigId($id)
+    {
+        $data = NcRequiredFieldConfig::where('call_sub_category_id',$id)->get();
+        if ($data)
+        {
+            return json_encode($data);
+        }
     }
 }

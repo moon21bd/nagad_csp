@@ -1332,6 +1332,13 @@
   dependencies:
     "@types/node" "*"
 
+"@vee-validate/rules@^4.13.2":
+  version "4.13.2"
+  resolved "https://registry.yarnpkg.com/@vee-validate/rules/-/rules-4.13.2.tgz#f460970883bcf528235180c818bc5c9aafc8e453"
+  integrity sha512-NrmjxXw/gZQVhjgwIdEOeRYxn74I/3BYXTuExdwbpCPVgFh0pjTQx9aPGkVBnueeszVqO2LfWyKUpvwSWLPXRA==
+  dependencies:
+    vee-validate "4.13.2"
+
 "@vue/compiler-sfc@2.7.16":
   version "2.7.16"
   resolved "https://registry.yarnpkg.com/@vue/compiler-sfc/-/compiler-sfc-2.7.16.tgz#ff81711a0fac9c68683d8bb00b63f857de77dc83"
@@ -2503,6 +2510,11 @@ datatables.net@1.13.11:
   integrity sha512-AE6RkMXziRaqzPcu/pl3SJXeRa6fmXQG/fVjuRESujvkzqDCYEeKTTpPMuVJSGYJpPi32WGSphVNNY1G4nSN/g==
   dependencies:
     jquery "1.8 - 4"
+
+date-fns@^1.29.0:
+  version "1.30.1"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-1.30.1.tgz#2e71bf0b119153dbb4cc4e88d9ea5acfb50dc05c"
+  integrity sha512-hBSVCvSmWC+QypYObzwGOd9wqdDpOt+0wl0KbU+R+uuZBS1jN8VsD1ss3irQDknRj5NvxiTF6oj/nDRnN/UQNw==
 
 de-indent@^1.0.2:
   version "1.0.2"
@@ -5541,10 +5553,10 @@ vary@~1.1.2:
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==
 
-vee-validate@^4.13.1:
-  version "4.13.1"
-  resolved "https://registry.yarnpkg.com/vee-validate/-/vee-validate-4.13.1.tgz#fce6cadc0980436e09b605e2565aff4fc26ef524"
-  integrity sha512-JAlUWTBHg0z66n+v66mrtE9IC1xmVCggzpyc7UXCNkizVok8Zgt1VAVjobSxA/0N19Zn6v6hRfjoYciYH/Z11Q==
+vee-validate@4.13.2, vee-validate@^4.13.2:
+  version "4.13.2"
+  resolved "https://registry.yarnpkg.com/vee-validate/-/vee-validate-4.13.2.tgz#cf601c9ac029d58a15aecc1dbab28b15628f0a0e"
+  integrity sha512-HlpR/6MJ92TW9f135umMZKUqdd/tFQTxLNSf2ImbU4Y/MlLVAUpF1l64VdjTOhbClAqPjCb5p/SqHDxLpUHXrw==
   dependencies:
     "@vue/devtools-api" "^6.6.1"
     type-fest "^4.8.3"
@@ -5610,13 +5622,21 @@ vue-toasted@^1.1.28:
   resolved "https://registry.yarnpkg.com/vue-toasted/-/vue-toasted-1.1.28.tgz#dbabb83acc89f7a9e8765815e491d79f0dc65c26"
   integrity sha512-UUzr5LX51UbbiROSGZ49GOgSzFxaMHK6L00JV8fir/CYNJCpIIvNZ5YmS4Qc8Y2+Z/4VVYRpeQL2UO0G800Raw==
 
-vue@^2.5.16, vue@^2.6.12:
+vue@^2.3.3, vue@^2.5.16, vue@^2.6.12:
   version "2.7.16"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.7.16.tgz#98c60de9def99c0e3da8dae59b304ead43b967c9"
   integrity sha512-4gCtFXaAA3zYZdTp5s4Hl2sozuySsgz4jy1EnpBHNfpMa9dK1ZCG7viqBPCwXtmgc8nHqUsAu3G4gtmXkkY3Sw==
   dependencies:
     "@vue/compiler-sfc" "2.7.16"
     csstype "^3.1.0"
+
+vuejs-datetimepicker@^1.1.13:
+  version "1.1.13"
+  resolved "https://registry.yarnpkg.com/vuejs-datetimepicker/-/vuejs-datetimepicker-1.1.13.tgz#5b3edd93036ad83b15d19f5b8dd5e7f8bc62e848"
+  integrity sha512-R7UtjXqRpqLnUk9uSiAmWXk64hFFfpoGDRiFLVGORU/ptSQRPh0KhfBwoe1ED7EeCQBAP8dXRh14n8RmfC6m1g==
+  dependencies:
+    date-fns "^1.29.0"
+    vue "^2.3.3"
 
 vuetable-2@^1.7.5:
   version "1.7.5"

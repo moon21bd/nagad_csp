@@ -3,54 +3,70 @@
         <form>
             <div class="form-group">
                 <label for="name">Call Type Id</label>
-                <input type="text" v-model="callTypeId" class="form-control" id="name"
-                       placeholder="Enter Call Type Name">
+                <select v-model="callTypeId" @change="fetchCategories" required>
+                    <option :value="null" disabled>Select Call Type</option>
+                    <option v-for="type in callTypes" :key="type.id" :value="type.id">
+                        {{ type.call_type_name }}
+                    </option>
+                </select>
             </div>
             <div class="form-group">
                 <label for="name">Call Category Id</label>
-                <input type="text" v-model="callCategoryId" class="form-control" id=""
-                       placeholder="Enter Call Type Name">
+                <select v-model="callCategoryId" @change="fetchSubCategory" required>
+                    <option :value="null" disabled>Select Call Category</option>
+                    <option v-for="category in callCategories"
+                            :key="category.id"
+                            :value="category.id">
+                        {{ category.call_category_name }}
+                    </option>
+                </select>
             </div>
             <div class="form-group">
-                <label for="exampleFormControlSelect1">Input Filed Name</label>
-                <select class="form-control"  v-model="subCategoryReportId"
-                        id="">
-                    <option value="1" @click.prevent="submitReportId">Fraud Gd</option>
-                    <option value="2" @click.prevent="submitReportId">Fraus Activity</option>
+                <label for="name">Call sub Category Id</label>
+                <select v-model="callSubCategoryId" required>
+                    <option :value="null" disabled>Select Call Sub Category</option>
+                    <option v-for="subCategory in callSubCategories"
+                            :key="subCategory.id"
+                            :value="subCategory.id" @click.prevent="submitReportId">
+                        {{ subCategory.call_sub_category_name }}
+                    </option>
                 </select>
             </div>
           <div v-for="(data,index) in reportData">
-              <div class="form-group" v-if="data.input_type !== 'select'">
-                  <label for="name">{{data.input_field_name}}</label>
-                  <input type="text" class="form-control" id=""
-                         placeholder="Enter Call Type Name">
-              </div>
-              <div class="form-group" v-else-if = "data.input_type === 'datetime'">
-                  <label for="exampleFormControlSelect1">{{data.input_field_name}}</label>
-                  <input type="datetime-local" :value="myDate && myDate.toISOString().split('T')[0]"
-                         @input="myDate = getDateClean($event.target.valueAsDate)">
-              </div>
-              <div class="form-group" v-else>
+              <div class="form-group" v-if="data.input_type === 'select'">
                   <label for="exampleFormControlSelect1">{{data.input_field_name}}</label>
                   <select class="form-control"
                           id="" >
                       <option v-for="option in selectOptionValue[index].input_value" :value="option">{{option}}</option>
                   </select>
               </div>
+              <div class="form-group" v-else-if = "data.input_type === 'datetime'">
+                  <label for="exampleFormControlSelect1">{{data.input_field_name}}</label>
+                  <datetime class="form-control" format="YYYY-MM-DD h:i:s" v-model="date"></datetime>
+
+              </div>
+              <div class="form-group" v-else>
+                  <label for="name">{{data.input_field_name}}</label>
+                  <input type="text" class="form-control" id=""
+                         placeholder="Enter Call Type Name" >
+              </div>
           </div>
-            <button type="submit" class="btn btn-primary">Save</button>
+
+            <button type="submit" @click="submit" class="btn btn-primary">Save</button>
         </form>
     </div>
 </template>
 
 <script>
+import datetime from 'vuejs-datetimepicker';
 export default {
-    name: 'configAdd',
+    name: 'subCategoryDetailsAdd',
+    components: { datetime },
     data() {
         return {
             name: '',
             statusValue: '',
-            actionUrl: 'store_config/',
+            actionUrl: 'get-nc-filed_config-data/',
             apiUrl: '',
             callTypeId: null,
             callCategoryId: null,
@@ -62,57 +78,67 @@ export default {
             subCategoryReportId: null,
             reportData:{},
             selectOptionValue:{},
-            myDate: new Date('2011-04-11T10:20:30Z')
+            myDate: new Date('2011-04-11T10:20:30Z'),
+            callTypes:{},
+            callCategories:{},
+            callSubCategories:{},
+            date:''
         }
     },
     mounted() {
-        // if (this.requestedPage === 'callType') {
-        //     this.actionUrl += 'store_call_type'
-        // }
+        this.init()
     },
     methods: {
         async init() {
-
+           await this.fetchCallTypes()
         },
-        storeData() {
-            return new Promise((resolve, reject) => {
-                axios
-                    .post(this.actionUrl, {
-                        inputFiledName: this.inputFiledName,
-                        callTypeId: this.callTypeId,
-                        callCategoryId: this.callCategoryId,
-                        callSubCategoryId: this.callSubCategoryId,
-                        inputValue: this.inputValue,
-                        inputType: this.inputType,
-                        inputValidation: this.inputValidation,
-                        statusValue: this.statusValue
-                    })
-                    .then((response) => {
-                        resolve(response)
-                    })
-                    .catch((error) => {
-                        reject(error)
-                    })
-                    .finally(() => {
-                    })
-            })
+        async fetchCallTypes() {
+            try {
+                const response = await axios.get("/call-types");
+                this.callTypes = response.data;
+            } catch (error) {
+                console.error("Error fetching call types:", error);
+            }
+        },
+        async fetchCategories() {
+            try {
+                const response = await axios.get(`/get-category/${this.callTypeId}`);
+                this.callCategories = response.data;
+                console.log('call category',this.callCategories)
+            } catch (error) {
+                console.error('Error fetching call categories:', error);
+            }
+        },
+        async fetchSubCategory() {
+            try {
+                const response = await axios.get(`/get-sub-category/${this.callCategoryId}`);
+                this.callSubCategories = response.data;
+            } catch (error) {
+                console.error('Error fetching call sub categories:', error);
+            }
+        },
+        async fetchInputFields() {
+            try {
+                const response = await axios.get(`/get-sub-category/${this.callCategoryId}`);
+                this.callSubCategories = response.data;
+            } catch (error) {
+                console.error('Error fetching call sub categories:', error);
+            }
         },
         async submit() {
-            await this.storeData().then(response => {
-                this.inputFiledName = ''
-                this.callTypeId = null
-                this.callCategoryId = null
-                this.callSubCategoryId = null
-                this.inputValue = ''
-                this.inputType = ''
-                this.inputValidation = 'required,'
-                this.statusValue = ''
-            })
+                // this.inputFiledName = ''
+                // this.callTypeId = null
+                // this.callCategoryId = null
+                // this.callSubCategoryId = null
+                // this.inputValue = ''
+                // this.inputType = ''
+                // this.inputValidation = 'required,'
+                // this.statusValue = ''
         },
         fetchSubcategoryReportField() {
             return new Promise((resolve, reject) => {
                 axios
-                    .get(this.actionUrl+this.subCategoryReportId)
+                    .get(this.actionUrl+this.callSubCategoryId)
                     .then((response) => {
                         resolve(response)
                     })

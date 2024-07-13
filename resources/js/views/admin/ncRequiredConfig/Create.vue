@@ -3,18 +3,34 @@
         <form>
             <div class="form-group">
                 <label for="name">Call Type Id</label>
-                <input type="text" v-model="callTypeId" class="form-control" id="name"
-                       placeholder="Enter Call Type Name">
+                <select v-model="callTypeId" @change="fetchCategories" required>
+                    <option :value="null" disabled>Select Call Type</option>
+                    <option v-for="type in callTypes" :key="type.id" :value="type.id">
+                        {{ type.call_type_name }}
+                    </option>
+                </select>
             </div>
             <div class="form-group">
                 <label for="name">Call Category Id</label>
-                <input type="text" v-model="callCategoryId" class="form-control" id=""
-                       placeholder="Enter Call Type Name">
+                <select v-model="callCategoryId" @change="fetchSubCategory" required>
+                    <option :value="null" disabled>Select Call Category</option>
+                    <option v-for="category in callCategories"
+                    :key="category.id"
+                    :value="category.id">
+                        {{ category.call_category_name }}
+                    </option>
+                </select>
             </div>
             <div class="form-group">
                 <label for="name">Call Sub Category Id</label>
-                <input type="text" v-model="callSubCategoryId" class="form-control" id=""
-                       placeholder="Enter Call Type Name">
+                <select v-model="callSubCategoryId" required>
+                    <option :value="null" disabled>Select Call Sub Category</option>
+                    <option v-for="subCategory in callSubCategories"
+                            :key="subCategory.id"
+                            :value="subCategory.id">
+                        {{ subCategory.call_sub_category_name }}
+                    </option>
+                </select>
             </div>
             <div class="form-group">
                 <label for="name">Input Filed Name</label>
@@ -54,7 +70,7 @@
 
 <script>
 export default {
-    name: 'configAdd',
+    name: 'Create',
     data() {
         return {
             name: '',
@@ -67,17 +83,43 @@ export default {
             inputValue: '',
             inputType: '',
             inputFiledName: '',
-            inputValidation: 'required,'
+            inputValidation: 'required,',
+            callTypes:[],
+            callCategories:{},
+            callSubCategories:{},
         }
     },
     mounted() {
-        // if (this.requestedPage === 'callType') {
-        //     this.actionUrl += 'store_call_type'
-        // }
+        this.fetchCallTypes()
     },
     methods: {
         async init() {
 
+        },
+        async fetchCallTypes() {
+            try {
+                const response = await axios.get("/call-types");
+                this.callTypes = response.data;
+            } catch (error) {
+                console.error("Error fetching call types:", error);
+            }
+        },
+        async fetchCategories() {
+            try {
+                const response = await axios.get(`/get-category/${this.callTypeId}`);
+                this.callCategories = response.data;
+                console.log('call category',this.callCategories)
+            } catch (error) {
+                console.error('Error fetching call categories:', error);
+            }
+        },
+        async fetchSubCategory() {
+            try {
+                const response = await axios.get(`/get-sub-category/${this.callCategoryId}`);
+                this.callSubCategories = response.data;
+            } catch (error) {
+                console.error('Error fetching call sub categories:', error);
+            }
         },
         storeData() {
             return new Promise((resolve, reject) => {

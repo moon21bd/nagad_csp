@@ -11,9 +11,13 @@ import "./axios";
 import store from "./vuex";
 import Toasted from "vue-toasted";
 import Chart from "chart.js";
-
 window.Vue = require("vue").default;
+
 Vue.use(Toasted);
+
+
+
+
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue

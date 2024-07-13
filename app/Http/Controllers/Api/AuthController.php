@@ -19,9 +19,11 @@ class AuthController extends Controller
     {
         try {
             if (Auth::attempt($request->only('email', 'password'))) {
+
                 /** @var User $user */
                 $user = Auth::user();
                 $token = $user->createToken('API Token')->accessToken;
+
 
                 if (config('auth.must_verify_email') && !$user->hasVerifiedEmail()) {
                     return response([
@@ -37,7 +39,7 @@ class AuthController extends Controller
             }
         } catch (\Exception $e) {
             return response([
-                'message' => 'Internal error, please try again later.' //$e->getMessage()
+                'message' => $e->getMessage()
             ], 400);
         }
 

@@ -154,9 +154,27 @@ let router = new Router({
         },
         // crud routes
         {
-            path: "/admin/config/add",
+            path: "/admin/nc-config/add",
             name: "configAdd",
-            component: () => import("./views/admin/configAdd.vue"),
+            component: () => import("./views/admin/ncRequiredConfig/Create.vue"),
+            meta: {
+                requiresAuth: true,
+                layout: AdminLayout
+            }
+        },
+        {
+            path: "/admin/nc-config",
+            name: "configList",
+            component: () => import("./views/admin/ncRequiredConfig/List.vue"),
+            meta: {
+                requiresAuth: true,
+                layout: AdminLayout
+            }
+        },
+        {
+            path: "/admin/nc-config/edit/:id",
+            name: "configEdit",
+            component: () => import("./views/admin/ncRequiredConfig/Edit.vue"),
             meta: {
                 requiresAuth: true,
                 layout: AdminLayout
