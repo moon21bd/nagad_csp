@@ -163,6 +163,15 @@ let router = new Router({
             }
         },
         {
+            path: "/admin/config/details/add",
+            name: "subcategoryDetailsAdd",
+            component: () => import("./views/admin/subcategoryDetailsAdd.vue"),
+            meta: {
+                requiresAuth: true,
+                layout: AdminLayout
+            }
+        },
+        {
             path: "/admin/data/:page?",
             name: "viewData",
             component: () => import("./views/admin/viewCrudData.vue"),

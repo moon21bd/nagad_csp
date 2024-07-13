@@ -28,7 +28,7 @@
                     <option value="varchar">String</option>
                     <option value="select">Select/Option</option>
                     <option value="text">Text</option>
-                    <option value="text">DateTime</option>
+                    <option value="datetime">DateTime</option>
                 </select>
             </div>
             <div class="form-group">
@@ -90,7 +90,7 @@ export default {
                         inputValue: this.inputValue,
                         inputType: this.inputType,
                         inputValidation: this.inputValidation,
-                        status: this.statusValue
+                        statusValue: this.statusValue
                     })
                     .then((response) => {
                         resolve(response)
@@ -103,17 +103,16 @@ export default {
             })
         },
         async submit() {
-            console.log('staus',this.statusValue)
-            // await this.storeData().then(response => {
-            //     this.inputFiledName = ''
-            //     this.callTypeId = null
-            //     this.callCategoryId =null
-            //     this.callSubCategoryId =null
-            //     this.inputValue = ''
-            //     this.inputType = ''
-            //     this.inputValidation = ''
-            //     this.statusValue = 'required,'
-            // })
+            await this.storeData().then(response => {
+                this.inputFiledName = ''
+                this.callTypeId = null
+                this.callCategoryId =null
+                this.callSubCategoryId =null
+                this.inputValue = ''
+                this.inputType = ''
+                this.inputValidation = 'required,'
+                this.statusValue = ''
+            })
         }
     }
 }

@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api;
+use App\Http\Controllers\Api\NcRecuiredConfigController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,3 +53,4 @@ Route::post('update_call_sub_sub_category/{id}', [Api\CrudController::class, 'up
 Route::get('delete_call_sub_sub_category/{id}', [Api\CrudController::class, 'deleteCallSubSubCategory']);
 
 Route::post('store_config', [Api\CrudController::class, 'storeConfig']);
+Route::apiResource('store_config', NcRecuiredConfigController::class);
