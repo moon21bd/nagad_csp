@@ -1,15 +1,14 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import createPersistedState from "vuex-persistedstate";
-import axios from "axios";
+import axios from "../axios";
 
 Vue.use(Vuex);
 
-const store = new Vuex.Store({
+export default {
+    namespaced: true,
     state: {
         permissions: [],
         userPermissions: [],
-        user: null,
         groups: [],
         callTypes: [],
         callCategories: [],
@@ -18,10 +17,8 @@ const store = new Vuex.Store({
         callSubSubCategory: {},
         subCategory: null,
         accessLists: []
-
     },
     getters: {
-        user: (state) => state.user,
         groups: (state) => state.groups,
         callTypes: (state) => state.callTypes,
         callCategories: (state) => state.callCategories,
@@ -32,54 +29,11 @@ const store = new Vuex.Store({
         accessLists: state => state.accessLists,
         hasPermission: (state) => (permissionName) => {
             return state.permissions.includes(permissionName);
-        },
-
+        }
     },
     actions: {
-        async fetchPermissions({ commit }) {
-            try {
-                const response = await axios.get('/user/permissions');
-                commit('setPermissions', response.data.permissions);
-            } catch (error) {
-                console.error('Error fetching permissions:', error);
-            }
-        },
-        async fetchUserPermissions({commit}) {
-            try {
-                const response = await axios.get('/user/permissions');
-                commit('setUserPermissions', response.data);
-            } catch (error) {
-                console.error('Failed to fetch permissions', error);
-            }
-        },
-        user({commit}, user) {
-            commit("setUser", user);
-        },
-        async fetchGroups({commit}) {
-            try {
-                const response = await axios.get("/groups");
-                commit("setGroups", response.data);
-            } catch (error) {
-                console.error("Error fetching groups:", error);
-            }
-        },
-        async fetchCallCategories({commit}) {
-            try {
-                const response = await axios.get("/call-categories");
-                commit("setCallCategories", response.data);
-                return response.data;
-            } catch (error) {
-                console.error("Error fetching call categories:", error);
-            }
-        },
-        async createCallCategory({commit}, categoryData) {
-            try {
-                const response = await axios.post('/call-categories', categoryData);
-                commit('addCallCategory', response.data);
-            } catch (error) {
-                console.error('Error creating call category:', error);
-            }
-        },
+
+
         async updateCallCategory({commit}, categoryData) {
             try {
                 const response = await axios.put(`/call-categories/${categoryData.id}`, categoryData);
@@ -96,56 +50,18 @@ const store = new Vuex.Store({
                 console.error('Error deleting call category:', error);
             }
         },
-        async fetchCallSubCategories({commit}) {
-            try {
-                const response = await axios.get('/call-sub-categories');
-                commit('setCallSubCategories', response.data);
-                return response.data;
-            } catch (error) {
-                console.error('Error fetching call sub-categories:', error);
-            }
-        },
-        async createCallSubCategory({commit}, subCategoryData) {
-            try {
-                const response = await axios.post('/call-sub-categories', subCategoryData);
-                commit('addCallSubCategory', response.data);
-            } catch (error) {
-                console.error('Error creating call sub-category:', error);
-            }
-        },
-        async updateCallSubCategory({commit}, subCategoryData) {
-            try {
-                const response = await axios.put(`/call-sub-categories/${subCategoryData.id}`, subCategoryData);
-                commit('updateCallSubCategory', response.data);
-            } catch (error) {
-                console.error('Error updating call sub-category:', error);
-            }
-        },
-        async deleteCallSubCategory({commit}, subCategoryId) {
-            try {
-                await axios.delete(`/call-sub-categories/${subCategoryId}`);
-                commit('removeCallSubCategory', subCategoryId);
-            } catch (error) {
-                console.error('Error deleting call sub-category:', error);
-            }
-        },
-        async fetchCallTypes({commit}) {
-            try {
-                const response = await axios.get("/call-types");
-                commit("setCallTypes", response.data);
-                return response.data;
-            } catch (error) {
-                console.error("Error fetching call types:", error);
-            }
-        },
-        async createCallType({dispatch}, callTypeData) {
+
+
+
+
+        /*async createCallType({dispatch}, callTypeData) {
             try {
                 await axios.post("/call-types", callTypeData);
                 dispatch("fetchCallTypes");
             } catch (error) {
                 console.error("Error creating call type:", error);
             }
-        },
+        },*/
         async updateCallType({commit}, callType) {
             try {
                 const response = await axios.put(`/call-types/${callType.id}`, callType);
@@ -162,26 +78,19 @@ const store = new Vuex.Store({
                 console.error("Error deleting call type:", error);
             }
         },
-        async fetchCallSubSubCategories({commit}) {
-            const response = await axios.get('/call-sub-sub-categories');
-            commit('setCallSubSubCategories', response.data);
-        },
 
         async fetchCallSubSubCategory({commit}, id) {
             const response = await axios.get(`/call-sub-sub-categories/${id}`);
             commit('setCallSubSubCategory', response.data);
         },
-
         async createCallSubSubCategory({dispatch}, data) {
             await axios.post('/call-sub-sub-categories', data);
             dispatch('fetchCallSubSubCategories');
         },
-
         async updateCallSubSubCategory({dispatch}, {id, data}) {
             await axios.put(`/call-sub-sub-categories/${id}`, data);
             dispatch('fetchCallSubSubCategories');
         },
-
         async deleteCallSubSubCategory({dispatch}, id) {
             await axios.delete(`/call-sub-sub-categories/${id}`);
             dispatch('fetchCallSubSubCategories');
@@ -196,28 +105,21 @@ const store = new Vuex.Store({
             } catch (error) {
                 throw new Error(`Error fetching sub-category: ${error}`);
             }
-        },
-        async fetchAccessLists({commit}) {
+        }, async fetchAccessLists({commit}) {
             try {
                 const response = await axios.get('/access-lists');
                 commit('setAccessLists', response.data);
             } catch (error) {
                 console.error('Error fetching access lists:', error);
             }
-        }
+        },
     },
     mutations: {
-        setPermissions(state, permissions) {
-            state.permissions = permissions;
-        },
-        setUserPermissions(state, permissions) {
-            state.userPermissions = permissions;
-        },
-        setUser(state, user) {
-            state.user = user;
-        },
         setGroups(state, groups) {
             state.groups = groups;
+        },
+        removeGroup(state, groupId) {
+            state.groups = state.groups.filter(group => group.id !== groupId);
         },
         setCallCategories(state, callCategories) {
             state.callCategories = callCategories;
@@ -249,9 +151,9 @@ const store = new Vuex.Store({
         removeCallSubCategory(state, subCategoryId) {
             state.callSubCategories = state.callSubCategories.filter(subCategory => subCategory.id !== subCategoryId);
         },
-        setCallTypes(state, callTypes) {
+        /*setCallTypes(state, callTypes) {
             state.callTypes = callTypes;
-        },
+        },*/
         updateCallType(state, updatedCallType) {
             const index = state.callTypes.findIndex(type => type.id === updatedCallType.id);
             if (index !== -1) {
@@ -259,9 +161,7 @@ const store = new Vuex.Store({
             }
         },
         removeCallType(state, callTypeId) {
-            state.callTypes = state.callTypes.filter(
-                (type) => type.id !== callTypeId
-            );
+            state.callTypes = state.callTypes.filter((type) => type.id !== callTypeId);
         },
         setCallSubSubCategories: (state, callSubSubCategories) => (state.callSubSubCategories = callSubSubCategories),
         setCallSubSubCategory: (state, callSubSubCategory) => (state.callSubSubCategory = callSubSubCategory),
@@ -272,9 +172,6 @@ const store = new Vuex.Store({
         },
         setAccessLists(state, accessLists) {
             state.accessLists = accessLists;
-        },
-    },
-    plugins: [createPersistedState()],
-});
-
-export default store;
+        }
+    }
+}

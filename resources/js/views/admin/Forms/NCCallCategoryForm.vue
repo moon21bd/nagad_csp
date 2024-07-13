@@ -67,17 +67,17 @@ export default {
                     this.form = { ...data };
                 });
         }
-        this.$store.dispatch("fetchCallTypes");
+        this.$store.dispatch("globalStore/fetchCallTypes");
     },
     methods: {
         submitForm() {
             if (this.isEdit) {
-                this.$store.dispatch("updateCallCategory", {
+                this.$store.dispatch("globalStore/updateCallCategory", {
                     id: this.categoryId,
                     ...this.form,
                 });
             } else {
-                this.$store.dispatch("createCallCategory", this.form);
+                this.$store.dispatch("globalStore/createCallCategory", this.form);
             }
         },
     },

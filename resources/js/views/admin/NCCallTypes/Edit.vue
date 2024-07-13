@@ -4,13 +4,13 @@
             <router-link
                 class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
                 to="/admin/call-types"
-                ><i class="icon-left"></i>
+            ><i class="icon-left"></i>
             </router-link>
             <h1 class="title m-0">Edit Call Type</h1>
         </div>
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
-                <img src="/images/loader.gif" alt="" />
+                <img src="/images/loader.gif" alt=""/>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -18,7 +18,7 @@
                         <form @submit.prevent="updateCallType">
                             <div class="form-group">
                                 <label class="control-label"
-                                    >Call Type Name</label
+                                >Call Type Name</label
                                 >
                                 <input
                                     class="form-control"
@@ -29,15 +29,15 @@
                             </div>
                             <div class="form-group d-flex align-items-center">
                                 <label class="control-label m-0 mr-3"
-                                    >Status:</label
+                                >Status:</label
                                 >
                                 <label class="radio mr-2"
-                                    ><input
-                                        type="radio"
-                                        value="active"
-                                        v-model="callType.status"
-                                        required
-                                    /><span class="radio-mark"></span>Active
+                                ><input
+                                    type="radio"
+                                    value="active"
+                                    v-model="callType.status"
+                                    required
+                                /><span class="radio-mark"></span>Active
                                 </label>
                                 <label class="radio">
                                     <input
@@ -60,17 +60,20 @@
 </template>
 
 <script>
+import axios from "../../../axios";
+
 export default {
     data() {
         return {
             isLoading: false,
             callType: {
-                call_type_name: "",
-                status: "active",
-                created_by: "",
-                updated_by: "",
-                last_updated_by: "",
+                call_type_name: '',
+                status: 'active',
+                created_by: '',
+                updated_by: '',
+                last_updated_by: '',
             },
+            id: this.$route.params.id
         };
     },
     async created() {
@@ -79,40 +82,24 @@ export default {
     methods: {
         async fetchCallType() {
             try {
-                // Ensure the action completes and returns data
-                const callTypes = await this.$store.dispatch("fetchCallTypes");
-                console.log("Call types available:", callTypes);
-                if (Array.isArray(callTypes)) {
-                    const callType = callTypes.find(
-                        (type) => type.id === parseInt(this.$route.params.id)
-                    );
-                    if (callType) {
-                        this.callType = callType;
-                    } else {
-                        console.error("Call type not found");
-                        this.$router.push("/admin/call-types");
-                    }
-                } else {
-                    console.error("Call types are not an array or not defined");
-                }
+                const response = await axios.get('/call-types/' + this.id);
+                this.callType = response.data
+                console.log('response', response.data)
             } catch (error) {
-                console.error("Error fetching call type:", error);
+                console.error('Error fetching call type:', error);
             }
         },
         async updateCallType() {
-            this.isLoading = true;
             try {
-                await this.$store.dispatch("updateCallType", {
-                    id: this.$route.params.id,
-                    ...this.callType,
-                });
-                this.$router.push("/admin/call-types");
+                await axios.put(`/call-types/${this.id}`, this.callType);
+                this.$router.push({name: "call-types-index"})
             } catch (error) {
-                console.error("Error updating call type:", error);
-            } finally {
-                this.isLoading = false;
+                console.error('Error updating call type:', error);
             }
-        },
+        }
     },
+    mounted() {
+        this.fetchCallType()
+    }
 };
 </script>

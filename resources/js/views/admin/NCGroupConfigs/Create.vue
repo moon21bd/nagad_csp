@@ -4,13 +4,13 @@
             <router-link
                 class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
                 to="/admin/group-configs"
-                ><i class="icon-left"></i>
+            ><i class="icon-left"></i>
             </router-link>
             <h1 class="title m-0">Create Group Configuration</h1>
         </div>
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
-                <img src="/images/loader.gif" alt="" />
+                <img src="/images/loader.gif" alt=""/>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -18,7 +18,7 @@
                         <form @submit.prevent="handleSubmit">
                             <div class="form-group">
                                 <label class="control-label"
-                                    >Select Group</label
+                                >Select Group</label
                                 >
                                 <el-select
                                     class="d-block w-100"
@@ -38,7 +38,7 @@
                             </div>
                             <div class="form-group mb-0">
                                 <label class="control-label d-block"
-                                    >Access Lists</label
+                                >Access Lists</label
                                 >
                                 <div
                                     v-for="accessList in accessLists"
@@ -46,26 +46,26 @@
                                     class="form-check form-check-inline"
                                 >
                                     <label class="checkbox mr-2 mb-3"
-                                        ><input
-                                            type="checkbox"
-                                            v-model="selectedAccessLists"
-                                            :value="accessList.id"
-                                        /><span class="checkmark"></span
-                                        >{{ accessList.access_name }}
+                                    ><input
+                                        type="checkbox"
+                                        v-model="selectedAccessLists"
+                                        :value="accessList.id"
+                                    /><span class="checkmark"></span
+                                    >{{ accessList.access_name }}
                                     </label>
                                 </div>
                             </div>
                             <div class="form-group d-flex align-items-center">
                                 <label class="control-label m-0 mr-3"
-                                    >Status:</label
+                                >Status:</label
                                 >
                                 <label class="radio mr-2"
-                                    ><input
-                                        type="radio"
-                                        value="active"
-                                        v-model="formData.status"
-                                        required
-                                    /><span class="radio-mark"></span>Active
+                                ><input
+                                    type="radio"
+                                    value="active"
+                                    v-model="formData.status"
+                                    required
+                                /><span class="radio-mark"></span>Active
                                 </label>
                                 <label class="radio">
                                     <input
@@ -88,7 +88,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from "../../../axios";
 
 export default {
     data() {
@@ -103,7 +103,7 @@ export default {
             selectedAccessLists: [], // Track selected access lists
         };
     },
-    created() {
+    mounted() {
         this.fetchGroups();
         this.fetchAccessLists();
     },
@@ -140,7 +140,7 @@ export default {
                     response.data
                 );
                 // Navigate to the groups list route
-                this.$router.push({ name: "group-configs" });
+                this.$router.push({name: "group-configs"});
                 // Optionally, navigate to the list view or reset the form
             } catch (error) {
                 console.error("Error saving group configuration:", error);

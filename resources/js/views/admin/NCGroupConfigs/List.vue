@@ -90,7 +90,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from "../../../axios";
 import "datatables.net-dt/css/jquery.dataTables.min.css";
 import "datatables.net-dt/js/dataTables.dataTables";
 import noData from "../components/noData.vue";
@@ -106,45 +106,29 @@ export default {
             // access_lists: [],
         };
     },
-    created() {
+    mounted() {
         this.fetchGroupConfigs();
     },
     methods: {
         fetchGroupConfigs() {
-            axios
-                .get("/group-configs")
-                .then((response) => {
+            axios.get('/group-configs')
+                .then(response => {
                     this.groupConfigs = response.data;
                 })
-                .catch((error) => {
-                    console.error(
-                        "Error fetching group configurations:",
-                        error
-                    );
+                .catch(error => {
+                    console.error('Error fetching group configurations:', error);
                 });
         },
         confirmDelete(groupId) {
-            if (
-                confirm(
-                    "Are you sure you want to delete this group configuration?"
-                )
-            ) {
-                axios
-                    .delete(`/group-configs/${groupId}`)
+            if (confirm('Are you sure you want to delete this group configuration?')) {
+                axios.delete(`/group-configs/${groupId}`)
                     .then(() => {
                         // Optional: Remove deleted item from local data to reflect changes immediately
-                        this.groupConfigs = this.groupConfigs.filter(
-                            (item) => item.id !== groupId
-                        );
-                        console.log(
-                            "Group configuration deleted successfully."
-                        );
+                        this.groupConfigs = this.groupConfigs.filter(item => item.id !== groupId);
+                        console.log('Group configuration deleted successfully.');
                     })
-                    .catch((error) => {
-                        console.error(
-                            "Error deleting group configuration:",
-                            error
-                        );
+                    .catch(error => {
+                        console.error('Error deleting group configuration:', error);
                     });
             }
         },

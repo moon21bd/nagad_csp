@@ -4,13 +4,13 @@
             <router-link
                 class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
                 to="/admin/groups"
-                ><i class="icon-left"></i>
+            ><i class="icon-left"></i>
             </router-link>
             <h1 class="title m-0">Edit Groups</h1>
         </div>
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
-                <img src="/images/loader.gif" alt="" />
+                <img src="/images/loader.gif" alt=""/>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -27,15 +27,15 @@
                             </div>
                             <div class="form-group d-flex align-items-center">
                                 <label class="control-label m-0 mr-3"
-                                    >Status:</label
+                                >Status:</label
                                 >
                                 <label class="radio mr-2"
-                                    ><input
-                                        type="radio"
-                                        value="active"
-                                        v-model="formData.status"
-                                        required
-                                    /><span class="radio-mark"></span>Active
+                                ><input
+                                    type="radio"
+                                    value="active"
+                                    v-model="formData.status"
+                                    required
+                                /><span class="radio-mark"></span>Active
                                 </label>
                                 <label class="radio">
                                     <input
@@ -66,53 +66,44 @@
     </div>
 </template>
 <script>
-import axios from "axios";
+import axios from 'axios';
 
 export default {
     data() {
         return {
             isLoading: false,
             formData: {
-                name: "",
-                status: "active",
+                name: '',
+                status: 'active',
             },
-            formErrors: [],
+            formErrors: []
         };
     },
     methods: {
         async handleSubmit() {
             try {
                 this.formErrors = [];
-                if (!this.formData.name)
-                    this.formErrors.push("Group Name is required.");
-                if (!this.formData.status)
-                    this.formErrors.push("Status is required.");
+                if (!this.formData.name) this.formErrors.push('Group Name is required.');
+                if (!this.formData.status) this.formErrors.push('Status is required.');
 
                 if (this.formErrors.length > 0) return;
 
                 const groupId = this.$route.params.id;
-                const response = await axios.put(
-                    `/groups/${groupId}`,
-                    this.formData
-                );
-                console.log("Group updated successfully:", response.data);
+                const response = await axios.put(`/groups/${groupId}`, this.formData);
+                console.log('Group updated successfully:', response.data);
 
                 this.formData = {
-                    name: "",
-                    status: "active",
+                    name: '',
+                    status: 'active',
                 };
 
-                this.$router.push({ name: "groups" });
+                this.$router.push({name: 'groups'});
             } catch (error) {
-                console.error("Error updating group:", error);
+                console.error('Error updating group:', error);
                 if (error.response && error.response.data.errors) {
-                    this.formErrors = Object.values(
-                        error.response.data.errors
-                    ).flat();
+                    this.formErrors = Object.values(error.response.data.errors).flat();
                 } else {
-                    this.formErrors.push(
-                        "Failed to update group. Please try again later."
-                    );
+                    this.formErrors.push('Failed to update group. Please try again later.');
                 }
             }
         },
@@ -125,12 +116,12 @@ export default {
                     status: response.data.status,
                 };
             } catch (error) {
-                console.error("Error fetching group data:", error);
+                console.error('Error fetching group data:', error);
             }
-        },
+        }
     },
-    created() {
-        this.fetchGroupData();
-    },
+    mounted() {
+        this.fetchGroupData()
+    }
 };
 </script>

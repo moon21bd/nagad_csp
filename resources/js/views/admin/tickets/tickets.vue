@@ -23,7 +23,7 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4">
-                    <userInfo />
+                    <userInfo/>
                 </div>
                 <div class="col-md-8">
                     <h4 class="sub-title mb-2">
@@ -73,7 +73,7 @@
                             </div>
                             <div class="col-md-4 form-group">
                                 <label class="control-label"
-                                    >Sub-Category:</label
+                                >Sub-Category:</label
                                 >
                                 <select
                                     class="form-control"
@@ -95,7 +95,7 @@
                         <div class="form-row">
                             <div class="col-md-4 form-group">
                                 <label class="control-label"
-                                    >Incident Type</label
+                                >Incident Type</label
                                 >
                                 <div class="custom-style">
                                     <select
@@ -120,7 +120,7 @@
                             </div>
                             <div class="col-md-4 form-group">
                                 <label for="control-label"
-                                    >Victim Account No</label
+                                >Victim Account No</label
                                 >
                                 <input
                                     class="form-control"
@@ -131,7 +131,7 @@
                             </div>
                             <div class="col-md-4 form-group">
                                 <label for="control-label"
-                                    >Fraudster Account No</label
+                                >Fraudster Account No</label
                                 >
                                 <input
                                     class="form-control"
@@ -142,7 +142,7 @@
                             </div>
                             <div class="col-md-4 form-group">
                                 <label for="control-label"
-                                    >Brief of the Incident</label
+                                >Brief of the Incident</label
                                 >
                                 <input
                                     class="form-control"
@@ -153,7 +153,7 @@
 
                             <div class="col-md-4 form-group">
                                 <label for="control-label"
-                                    >Customer calling No</label
+                                >Customer calling No</label
                                 >
                                 <input
                                     class="form-control"
@@ -164,7 +164,7 @@
                             </div>
                             <div class="col-md-4 form-group">
                                 <label for="control-label"
-                                    >Fraudster Calling No</label
+                                >Fraudster Calling No</label
                                 >
                                 <input
                                     class="form-control"
@@ -175,7 +175,7 @@
                             </div>
                             <div class="col-md-4 form-group">
                                 <label class="control-label"
-                                    >Date & Time:</label
+                                >Date & Time:</label
                                 >
                                 <el-date-picker
                                     class="d-block w-100"
@@ -187,7 +187,7 @@
                             </div>
                             <div class="col-md-4 form-group">
                                 <label for="control-label"
-                                    >Transaction ID:</label
+                                >Transaction ID:</label
                                 >
                                 <input
                                     class="form-control"
@@ -198,7 +198,7 @@
                             </div>
                             <div class="col-md-4 form-group">
                                 <label class="control-label"
-                                    >Payment Channel</label
+                                >Payment Channel</label
                                 >
                                 <div class="custom-style">
                                     <select
@@ -217,7 +217,7 @@
                             </div>
                             <div class="col-md-4 form-group">
                                 <label for="control-label"
-                                    >Amount as Portal</label
+                                >Amount as Portal</label
                                 >
                                 <input
                                     class="form-control"
@@ -228,7 +228,7 @@
                             </div>
                             <div class="col-md-4 form-group">
                                 <label for="control-label"
-                                    >Amount as customer</label
+                                >Amount as customer</label
                                 >
                                 <input
                                     class="form-control"
@@ -240,7 +240,7 @@
 
                             <div class="col-md-4 form-group">
                                 <label class="control-label"
-                                    >Responsible Team:</label
+                                >Responsible Team:</label
                                 >
                                 <select
                                     class="form-control"
@@ -268,28 +268,28 @@
                             </div>
                             <div class="col-md-6 form-group">
                                 <label class="checkbox"
-                                    ><input
-                                        type="checkbox"
-                                        v-model="
+                                ><input
+                                    type="checkbox"
+                                    v-model="
                                             ticketsData.fraudulentAmountAvailability
                                         "
-                                        required
-                                    /><span class="checkmark"></span>Fraudulent
+                                    required
+                                /><span class="checkmark"></span>Fraudulent
                                     Amount Availability</label
                                 >
                             </div>
                             <div class="col-md-6 form-group">
                                 <label class="control-label"
-                                    >Do you agree?</label
+                                >Do you agree?</label
                                 >
                                 <div class="d-flex">
                                     <label class="radio mr-2"
-                                        ><input
-                                            type="radio"
-                                            id="yes"
-                                            value="1"
-                                            name="check"
-                                        /><span class="radio-mark"></span>Yes
+                                    ><input
+                                        type="radio"
+                                        id="yes"
+                                        value="1"
+                                        name="check"
+                                    /><span class="radio-mark"></span>Yes
                                     </label>
                                     <label class="radio">
                                         <input
@@ -313,9 +313,10 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from "../../../axios";
 
 import userInfo from "./components/userInfo.vue";
+
 export default {
     components: {
         userInfo,

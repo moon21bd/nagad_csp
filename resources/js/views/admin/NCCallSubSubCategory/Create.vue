@@ -133,40 +133,15 @@ export default {
         return {
             isLoading: false,
             subSubCategory: {
-                call_type_id: "",
+                call_type_id: null,
                 call_category_id: null,
                 call_sub_category_id: null,
-                call_sub_sub_category_name: "",
-                status: "active",
-            },
+                call_sub_sub_category_name: '',
+                status: 'active'
+            }
         };
     },
-    computed: {
-        callTypes() {
-            return this.$store.getters.callTypes;
-        },
-        callCategories() {
-            return this.$store.getters.callCategories;
-        },
-        callSubCategories() {
-            return this.$store.getters.callSubCategories;
-        },
-        callCategoriesForType() {
-            if (!this.subSubCategory.call_type_id) return [];
-            return this.callCategories.filter(
-                (category) =>
-                    category.call_type_id === this.subSubCategory.call_type_id
-            );
-        },
-        callSubCategoriesForCategory() {
-            if (!this.subSubCategory.call_category_id) return [];
-            return this.callSubCategories.filter(
-                (subCategory) =>
-                    subCategory.call_category_id ===
-                    this.subSubCategory.call_category_id
-            );
-        },
-    },
+
     methods: {
         async fetchCategories() {
             if (!this.subSubCategory.call_type_id) return;
@@ -174,26 +149,18 @@ export default {
                 // Optionally fetch categories if they haven't been fetched before.
                 // await this.$store.dispatch('fetchCallCategories');
             } catch (error) {
-                console.error("Error fetching call categories:", error);
+                console.error('Error fetching call categories:', error);
             }
         },
         async createSubSubCategory() {
             try {
-                await this.$store.dispatch(
-                    "createCallSubSubCategory",
-                    this.subSubCategory
-                );
-                this.$router.push("/admin/call-sub-sub-categories");
+                await this.$store.dispatch('globalStore/createCallSubSubCategory', this.subSubCategory);
+                this.$router.push('/admin/call-sub-sub-categories');
             } catch (error) {
-                console.error("Error creating sub sub-category:", error);
+                console.error('Error creating sub sub-category:', error);
             }
-        },
+        }
     },
-    created() {
-        // Fetch initial data
-        this.$store.dispatch("fetchCallTypes");
-        this.$store.dispatch("fetchCallCategories");
-        this.$store.dispatch("fetchCallSubCategories");
-    },
+
 };
 </script>

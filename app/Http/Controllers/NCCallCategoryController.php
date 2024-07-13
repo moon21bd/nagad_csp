@@ -15,7 +15,8 @@ class NCCallCategoryController extends Controller
      */
     public function index()
     {
-        $categories = NCCallCategory::all();
+        // $categories = NCCallCategory::all();
+        $categories = NCCallCategory::with(['callType', 'creator', 'updater', 'lastUpdater'])->get();
         return response()->json($categories);
     }
 
@@ -45,7 +46,23 @@ class NCCallCategoryController extends Controller
      */
     public function show($id)
     {
-        $category = NCCallCategory::findOrFail($id);
+        try {
+            $category = NCCallCategory::with(['callType', 'creator', 'updater', 'lastUpdater'])->findOrFail($id);
+            return response()->json($category);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['message' => 'Category not found'], 404);
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCategoryByCallTypeId($id)
+    {
+        $category = NCCallCategory::where('call_type_id', $id)->get();
         return response()->json($category);
     }
 

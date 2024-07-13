@@ -4,13 +4,13 @@
             <router-link
                 class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
                 to="/admin/call-sub-sub-categories"
-                ><i class="icon-left"></i>
+            ><i class="icon-left"></i>
             </router-link>
             <h1 class="title m-0">Edit Call Sub Sub Category</h1>
         </div>
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
-                <img src="/images/loader.gif" alt="" />
+                <img src="/images/loader.gif" alt=""/>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -40,7 +40,7 @@
                             </div>
                             <div class="form-group">
                                 <label class="control-label"
-                                    >Call Category</label
+                                >Call Category</label
                                 >
                                 <el-select
                                     class="d-block w-100"
@@ -60,7 +60,7 @@
                             </div>
                             <div class="form-group">
                                 <label class="control-label"
-                                    >Call Sub Category</label
+                                >Call Sub Category</label
                                 >
                                 <el-select
                                     class="d-block w-100"
@@ -84,7 +84,7 @@
                             </div>
                             <div class="form-group">
                                 <label class="control-label"
-                                    >Sub Sub Category Name</label
+                                >Sub Sub Category Name</label
                                 >
                                 <input
                                     type="text"
@@ -97,15 +97,15 @@
                             </div>
                             <div class="form-group d-flex align-items-center">
                                 <label class="control-label m-0 mr-3"
-                                    >Status:</label
+                                >Status:</label
                                 >
                                 <label class="radio mr-2"
-                                    ><input
-                                        type="radio"
-                                        value="active"
-                                        v-model="subSubCategory.status"
-                                        required
-                                    /><span class="radio-mark"></span>Active
+                                ><input
+                                    type="radio"
+                                    value="active"
+                                    v-model="subSubCategory.status"
+                                    required
+                                /><span class="radio-mark"></span>Active
                                 </label>
                                 <label class="radio">
                                     <input
@@ -128,47 +128,20 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import {mapGetters} from 'vuex';
 
 export default {
     data() {
         return {
             isLoading: false,
             subSubCategory: {
-                call_type_id: "",
+                call_type_id: null,
                 call_category_id: null,
                 call_sub_category_id: null,
-                call_sub_sub_category_name: "",
-                status: "",
-            },
+                call_sub_sub_category_name: '',
+                status: ''
+            }
         };
-    },
-    computed: {
-        ...mapGetters(["singleCallSubSubCategory"]),
-        callTypes() {
-            return this.$store.getters.callTypes;
-        },
-        callCategories() {
-            return this.$store.getters.callCategories;
-        },
-        callSubCategories() {
-            return this.$store.getters.callSubCategories;
-        },
-        callCategoriesForType() {
-            if (!this.subSubCategory.call_type_id) return [];
-            return this.callCategories.filter(
-                (category) =>
-                    category.call_type_id === this.subSubCategory.call_type_id
-            );
-        },
-        callSubCategoriesForCategory() {
-            if (!this.subSubCategory.call_category_id) return [];
-            return this.callSubCategories.filter(
-                (subCategory) =>
-                    subCategory.call_category_id ===
-                    this.subSubCategory.call_category_id
-            );
-        },
     },
     methods: {
         async fetchCategories() {
@@ -177,38 +150,20 @@ export default {
                 // Optionally fetch categories if they haven't been fetched before.
                 // await this.$store.dispatch('fetchCallCategories');
             } catch (error) {
-                console.error("Error fetching call categories:", error);
+                console.error('Error fetching call categories:', error);
             }
         },
         async updateSubSubCategory() {
             try {
-                await this.$store.dispatch("updateCallSubSubCategory", {
+                await this.$store.dispatch('updateCallSubSubCategory', {
                     id: this.$route.params.id,
-                    data: this.subSubCategory,
+                    data: this.subSubCategory
                 });
-                this.$router.push("/admin/call-sub-sub-categories");
+                this.$router.push('/admin/call-sub-sub-categories');
             } catch (error) {
-                console.error("Error updating sub sub-category:", error);
+                console.error('Error updating sub sub-category:', error);
             }
-        },
-    },
-    created() {
-        this.$store.dispatch("fetchCallTypes");
-        this.$store.dispatch("fetchCallCategories");
-        this.$store.dispatch("fetchCallSubCategories");
-        this.$store
-            .dispatch("fetchCallSubSubCategory", this.$route.params.id)
-            .then(() => {
-                const category = this.singleCallSubSubCategory;
-                this.subSubCategory.call_type_id = category.call_type_id;
-                this.subSubCategory.call_category_id =
-                    category.call_category_id;
-                this.subSubCategory.call_sub_category_id =
-                    category.call_sub_category_id;
-                this.subSubCategory.call_sub_sub_category_name =
-                    category.call_sub_sub_category_name;
-                this.subSubCategory.status = category.status;
-            });
-    },
+        }
+    }
 };
 </script>

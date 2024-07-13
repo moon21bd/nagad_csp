@@ -4,13 +4,13 @@
             <router-link
                 class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
                 to="/admin/call-types"
-                ><i class="icon-left"></i>
+            ><i class="icon-left"></i>
             </router-link>
             <h1 class="title m-0">Create Call Type</h1>
         </div>
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
-                <img src="/images/loader.gif" alt="" />
+                <img src="/images/loader.gif" alt=""/>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -18,7 +18,7 @@
                         <form @submit.prevent="createCallType">
                             <div class="form-group">
                                 <label class="control-label"
-                                    >Call Type Name</label
+                                >Call Type Name</label
                                 >
                                 <input
                                     class="form-control"
@@ -29,15 +29,15 @@
                             </div>
                             <div class="form-group d-flex align-items-center">
                                 <label class="control-label m-0 mr-3"
-                                    >Status:</label
+                                >Status:</label
                                 >
                                 <label class="radio mr-2"
-                                    ><input
-                                        type="radio"
-                                        value="active"
-                                        v-model="callType.status"
-                                        required
-                                    /><span class="radio-mark"></span>Active
+                                ><input
+                                    type="radio"
+                                    value="active"
+                                    v-model="callType.status"
+                                    required
+                                /><span class="radio-mark"></span>Active
                                 </label>
                                 <label class="radio">
                                     <input
@@ -48,9 +48,7 @@
                                     /><span class="radio-mark"></span>Inactive
                                 </label>
                             </div>
-                            <button class="btn btn-site" type="submit">
-                                Create
-                            </button>
+                            <button type="submit">Create</button>
                         </form>
                     </div>
                 </div>
@@ -60,31 +58,32 @@
 </template>
 
 <script>
+import axios from "../../../axios";
+
 export default {
     data() {
         return {
             isLoading: false,
             callType: {
-                call_type_name: "",
-                status: "active",
-                created_by: "",
-                updated_by: "",
-                last_updated_by: "",
-            },
+                call_type_name: '',
+                status: 'active',
+                created_by: '',
+                updated_by: '',
+                last_updated_by: '',
+            }
         };
     },
     methods: {
         async createCallType() {
-            this.isLoading = true;
             try {
-                await this.$store.dispatch("createCallType", this.callType);
-                this.$router.push("/admin/call-types");
+                await axios.post("/call-types", this.callType);
+                this.callType = {};
+                this.$router.push({name: "call-types-index"})
             } catch (error) {
                 console.error("Error creating call type:", error);
-            } finally {
-                this.isLoading = false;
             }
-        },
+        }
     },
+
 };
 </script>

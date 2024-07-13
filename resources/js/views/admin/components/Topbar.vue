@@ -47,7 +47,7 @@
                                 December 12, 2019
                             </div>
                             <span class="font-weight-bold"
-                                >A new monthly report is ready to
+                            >A new monthly report is ready to
                                 download!</span
                             >
                         </div>
@@ -84,7 +84,7 @@
                     <a
                         class="dropdown-item text-center small text-gray-500"
                         href="#"
-                        >Show All Alerts</a
+                    >Show All Alerts</a
                     >
                 </div>
             </li>
@@ -107,9 +107,10 @@
                         src="/images/user-avatar.png"
                     />
                     <span class="ml-2 d-none d-lg-inline text-gray-600 small"
-                        >{{ user.first_name }} {{ user.last_name }}
+                    >
+                            <span v-if="user">{{ user.name }}</span>
                         <i class="icon-down"></i
-                    ></span>
+                        ></span>
                 </a>
                 <!-- Dropdown - User Information -->
                 <div
@@ -139,17 +140,21 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import {mapActions, mapGetters} from "vuex";
 
 export default {
     name: "Topbar",
     computed: {
-        ...mapGetters(["user"]),
+        ...mapGetters('auth', ["user"]),
+        user() {
+            return this.$store.getters['auth/user'];
+        }
     },
     methods: {
+        ...mapActions('auth', ["setUser"]),
         logout() {
             localStorage.removeItem("token");
-            this.$store.dispatch("user", null);
+            this.setUser(null);
             this.$router.push("/login");
         },
     },

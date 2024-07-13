@@ -88,7 +88,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from "../../../axios";
 
 export default {
     data() {
@@ -104,19 +104,13 @@ export default {
             groupConfigId: null, // Group configuration ID passed via route params
         };
     },
-    created() {
-        this.groupConfigId = this.$route.params.id;
-        this.fetchGroupConfig();
-        this.fetchGroups(); // Fetch all groups
-        this.fetchAccessLists(); // Fetch all access lists
-    },
     methods: {
         async fetchGroupConfig() {
             try {
                 const response = await axios.get(
                     `/group-configs/${this.groupConfigId}`
                 );
-                console.log("Fetched group config:", response.data); // Debugging line
+                console.log("Fetched group config:", response.data);
 
                 if (response.data) {
                     this.formData.group_id = response.data.group_id;
