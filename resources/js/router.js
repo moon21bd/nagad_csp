@@ -1,14 +1,14 @@
 import Vue from "vue";
 
 import Router from "vue-router";
-import AdminLayout from "./views/admin/layout/index";
-import groupRouters from "./routers/nc-groups";
+import ncAccessLists from "./routers/nc-access-lists";
 import callCategoriesRouters from "./routers/nc-call-categories";
 import callSubCategoriesRouters from "./routers/nc-call-sub-categories";
 import callSubSubCategoriesRouters from "./routers/nc-call-sub-sub-categories";
 import callTypesRouters from "./routers/nc-call-types";
-import ncAccessLists from "./routers/nc-access-lists";
 import ncGroupConfigs from "./routers/nc-group-configs";
+import groupRouters from "./routers/nc-groups";
+import AdminLayout from "./views/admin/layout/index";
 import store from "./vuex";
 
 Vue.use(Router);
@@ -19,33 +19,33 @@ let router = new Router({
         {
             path: "/",
             name: "home",
-            component: () => import("./views/home/index.vue")
+            component: () => import("./views/home/index.vue"),
         },
         {
             path: "/login/:user_id?",
             name: "login",
-            component: () => import("./views/login/login.vue")
+            component: () => import("./views/login/login.vue"),
         },
         {
             path: "/register",
             name: "register",
-            component: () => import("./views/register/register.vue")
+            component: () => import("./views/register/register.vue"),
         },
         {
             path: "/verify/user/:id",
             name: "verify",
             props: true,
-            component: () => import("./views/verify/verify.vue")
+            component: () => import("./views/verify/verify.vue"),
         },
         {
             path: "/forgot-password",
             name: "forgot",
-            component: () => import("./views/forgot/forgot.vue")
+            component: () => import("./views/forgot/forgot.vue"),
         },
         {
             path: "/reset/:token",
             name: "reset",
-            component: () => import("./views/reset/index.vue")
+            component: () => import("./views/reset/index.vue"),
         },
         /**
          * Admin routes
@@ -56,8 +56,8 @@ let router = new Router({
             component: () => import("./views/admin/dashboard.vue"),
             meta: {
                 requiresAuth: true,
-                layout: AdminLayout
-            }
+                layout: AdminLayout,
+            },
         },
         {
             path: "/admin/components/buttons",
@@ -65,8 +65,8 @@ let router = new Router({
             component: () => import("./views/admin/buttons.vue"),
             meta: {
                 requiresAuth: true,
-                layout: AdminLayout
-            }
+                layout: AdminLayout,
+            },
         },
         {
             path: "/admin/components/cards",
@@ -74,8 +74,8 @@ let router = new Router({
             component: () => import("./views/admin/cards.vue"),
             meta: {
                 requiresAuth: true,
-                layout: AdminLayout
-            }
+                layout: AdminLayout,
+            },
         },
         {
             path: "/admin/utilities/colors",
@@ -83,8 +83,8 @@ let router = new Router({
             component: () => import("./views/admin/colors.vue"),
             meta: {
                 requiresAuth: true,
-                layout: AdminLayout
-            }
+                layout: AdminLayout,
+            },
         },
         {
             path: "/admin/utilities/borders",
@@ -92,8 +92,8 @@ let router = new Router({
             component: () => import("./views/admin/borders.vue"),
             meta: {
                 requiresAuth: true,
-                layout: AdminLayout
-            }
+                layout: AdminLayout,
+            },
         },
         {
             path: "/admin/utilities/animations",
@@ -101,8 +101,8 @@ let router = new Router({
             component: () => import("./views/admin/animations.vue"),
             meta: {
                 requiresAuth: true,
-                layout: AdminLayout
-            }
+                layout: AdminLayout,
+            },
         },
         {
             path: "/admin/utilities/other",
@@ -110,8 +110,8 @@ let router = new Router({
             component: () => import("./views/admin/other.vue"),
             meta: {
                 requiresAuth: true,
-                layout: AdminLayout
-            }
+                layout: AdminLayout,
+            },
         },
         {
             path: "/admin/pages/page-not-found",
@@ -119,8 +119,8 @@ let router = new Router({
             component: () => import("./views/admin/page-not-found.vue"),
             meta: {
                 requiresAuth: true,
-                layout: AdminLayout
-            }
+                layout: AdminLayout,
+            },
         },
         {
             path: "/admin/pages/blank",
@@ -128,8 +128,8 @@ let router = new Router({
             component: () => import("./views/admin/blank.vue"),
             meta: {
                 requiresAuth: true,
-                layout: AdminLayout
-            }
+                layout: AdminLayout,
+            },
         },
         {
             path: "/admin/charts",
@@ -137,8 +137,8 @@ let router = new Router({
             component: () => import("./views/admin/charts.vue"),
             meta: {
                 requiresAuth: true,
-                layout: AdminLayout
-            }
+                layout: AdminLayout,
+            },
         },
         {
             path: "/admin/tables",
@@ -158,6 +158,15 @@ let router = new Router({
                 layout: AdminLayout,
             },
         },
+        {
+            path: "/admin/users/create",
+            name: "users-create",
+            component: () => import("./views/admin/users/Create.vue"),
+            meta: {
+                requiresAuth: true,
+                layout: AdminLayout,
+            },
+        },
         ...groupRouters.options.routes,
         ...callCategoriesRouters.options.routes,
         ...callSubCategoriesRouters.options.routes,
@@ -169,7 +178,7 @@ let router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-    if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (to.matched.some((record) => record.meta.requiresAuth)) {
         if (store.getters.user) {
             next();
             return;
