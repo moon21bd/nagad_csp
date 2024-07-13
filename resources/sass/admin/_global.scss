@@ -24,6 +24,7 @@ a {
         overflow-x: hidden;
         padding-left: $sidebar-base-width;
         transition: all 0.25s cubic-bezier(0.09, 0.64, 0.31, 0.88);
+        min-height: 100dvh;
         #content {
             flex: 1 0 auto;
         }
@@ -70,6 +71,105 @@ a {
     }
 }
 
+.animate {
+    transition: all 0.3s linear;
+}
+.card {
+    border: none;
+    border-radius: 6px;
+    position: relative;
+    &-body {
+        padding: 20px;
+    }
+}
+%radio-check {
+    display: block;
+    position: relative;
+    margin-bottom: 0;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+%shape {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+    height: 18px;
+    width: 18px;
+    background: $white;
+    margin-right: 5px;
+    @extend .animate;
+}
+
+.checkbox {
+    @extend %radio-check;
+}
+
+.checkbox input,
+.radio input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+/* Create a custom checkbox */
+
+.checkmark {
+    @extend %shape;
+    border-radius: 2px;
+    border: 2px solid #666;
+    transform: translateY(-1px);
+}
+
+.checkbox input:checked ~ .checkmark {
+    background: $red;
+    border: 2px solid $red;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.checkbox input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.checkbox .checkmark:after {
+    left: 4px;
+    top: 0;
+    width: 6px;
+    height: 11px;
+    border: solid $white;
+    border-width: 0 2px 2px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+// Radio
+
+.radio {
+    @extend %radio-check;
+}
+.radio {
+    display: flex;
+    align-items: center;
+    font-weight: 500 !important;
+    font-size: 14px;
+}
+.radio-mark {
+    @extend %shape;
+    @include shadow(0 0 0 2px darken(#ddd, 10) inset);
+    border-radius: 50%;
+}
+
+.radio input:checked ~ .radio-mark {
+    @include shadow(0 0 0 10px $red inset);
+}
+
 input[type="text"]:-webkit-autofill,
 input[type="tel"]:-webkit-autofill input[type="password"]:-webkit-autofill {
     -webkit-background-clip: text;
@@ -102,4 +202,252 @@ select.form-control {
     -moz-appearance: none;
     -webkit-appearance: none;
     appearance: none;
+}
+// table
+.table {
+    & > thead {
+        & > tr {
+            & > th {
+                border-top: none;
+                font-weight: 500 !important;
+                font-size: 14px;
+                background: #fff9f9;
+                &:first-child {
+                    border-radius: 4px 0 0 0;
+                }
+                &:last-child {
+                    border-radius: 0 4px 0 0;
+                }
+            }
+        }
+    }
+    & > tbody {
+        & > tr {
+            & > td {
+                font-weight: 400;
+                font-size: 14px;
+                color: $gray-600;
+                vertical-align: middle;
+                &:last-child {
+                    .btn {
+                        &-action {
+                            height: 30px;
+                            width: 30px;
+                            border-radius: 50%;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            padding: 0;
+                            border: none;
+                            margin-left: 8px;
+                            cursor: pointer;
+                            i {
+                                font-size: 16px;
+                            }
+                            &:hover {
+                                text-decoration: none;
+                            }
+                        }
+                        &-view {
+                            background-color: $gray-300;
+                            color: $cyan;
+                        }
+                        &-edit {
+                            background-color: #edf3f4;
+                            color: #5c5d61;
+                        }
+                        &-copy {
+                            background-color: rgba(155, 81, 224, 0.05);
+                            color: $teal;
+                        }
+                        &-trash {
+                            background-color: #fdf2f3;
+                            color: #dd2638;
+                        }
+                    }
+                }
+                .badge {
+                    text-transform: capitalize;
+                    font-size: 12px !important;
+                    min-width: 54px;
+                    font-weight: 500;
+                    &-common {
+                        color: #69738b !important;
+                        background-color: rgb(126 120 120 / 15%) !important;
+                    }
+                }
+            }
+        }
+    }
+    &.dataTable > thead > tr > th {
+        border-bottom: none;
+    }
+}
+.inactive {
+    color: $red !important;
+    background-color: rgba($red, 0.15) !important;
+}
+.active {
+    color: $teal !important;
+    background-color: rgba($teal, 0.15) !important;
+}
+// data table
+.dataTables_wrapper {
+    .dataTables_info,
+    .dataTables_length label {
+        font-size: 14px;
+        color: #969d9c !important;
+        font-weight: 400;
+    }
+    .dataTables_length select {
+        background: #fff url("/images/search-dropdown.svg") no-repeat;
+        background-position: calc(100% - 5px) center;
+        background-size: 8px;
+        cursor: default;
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        appearance: none;
+        min-width: 48px;
+        padding: 2px 6px !important;
+        border-color: #dee2e6 !important;
+    }
+    select,
+    input {
+        &:focus {
+            outline: none;
+            box-shadow: none;
+            border-color: darken(#ced4da, 05);
+        }
+    }
+    .dataTables_filter {
+        label {
+            font-size: 0;
+            margin-bottom: 10px;
+        }
+        input {
+            border: 1px solid #dee2e6 !important;
+            border-radius: 4px !important;
+            padding: 6px 5px 6px 25px !important;
+            margin-left: 0;
+            font-size: 14px;
+            background: #fff url("/images/search.svg") no-repeat;
+            background-position: 8px center;
+            background-size: 12px;
+        }
+    }
+    .dataTables_paginate {
+        padding-top: 0.5em !important;
+        color: $white !important;
+        .paginate_button {
+            width: 30px;
+            height: 30px;
+            border-radius: 50% !important;
+            background: #fff9f9 !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            padding: 0 !important;
+            border: 1px solid #ffe7e7 !important;
+            font-size: 14px;
+            margin-left: 5px !important;
+            &:active {
+                box-shadow: none !important;
+            }
+            &.current {
+                background: $red !important;
+                border-color: $red !important;
+            }
+            &:hover,
+            &:not(.current),
+            &:not(.current):hover {
+                color: $red !important;
+            }
+            &.previous,
+            &.next {
+                color: $red !important;
+                font-size: 0;
+                &::before {
+                    font-family: "nagad" !important;
+                    display: inline-block;
+                    font-size: 14px;
+                }
+                &.disabled {
+                    filter: grayscale(1);
+                }
+                &:not(.disabled):hover {
+                    color: $red !important;
+                }
+            }
+            &.previous {
+                &::before {
+                    content: "\e933";
+                }
+            }
+            &.next {
+                &::before {
+                    content: "\e934";
+                }
+            }
+        }
+    }
+}
+// element ui
+.el-input__inner {
+    border-color: #ced4da !important;
+}
+.el-select .el-input.is-focus .el-input__inner {
+    border-color: #bfc7cf !important;
+}
+.el-select-dropdown__item.selected {
+    color: $red !important;
+    font-weight: 500 !important;
+}
+.el-select-dropdown {
+    border: none !important;
+    box-shadow: 0 0 15px -5px rgba(11, 14, 102, 0.3) !important;
+}
+.password {
+    position: relative;
+    &-toggle {
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 100%;
+        width: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: $black;
+    }
+}
+
+.no-data {
+    text-align: center;
+    img {
+        height: 120px;
+        margin-bottom: 15px;
+    }
+    h3 {
+        font-size: 18px;
+        font-weight: 500;
+        color: $gray-500;
+        margin: 0;
+    }
+}
+.overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba($white, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-radius: 6px;
+    z-index: 9;
+    img {
+        height: 48px;
+    }
 }

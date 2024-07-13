@@ -1,46 +1,109 @@
 <template>
     <div>
-        <h2>Group Configurations</h2>
-
-        <router-link :to="{ name: 'create-group-config' }" class="btn btn-primary mb-3">Add Group Configuration
-        </router-link>
-
-        <table class="table">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Group Name</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="groupConfig in groupConfigs" :key="groupConfig.id">
-                <td>{{ groupConfig.id }}</td>
-                <td>{{ groupConfig.group.name }}</td>
-                <td>{{ groupConfig.status }}</td>
-                <td>
-                    <!-- Button to edit group configuration -->
-                    <router-link :to="{ name: 'edit-group-config', params: { id: groupConfig.id } }"
-                                 class="btn btn-sm btn-primary">Edit
-                    </router-link>
-
-                    <!-- Button to delete group configuration (if required) -->
-                    <button @click="confirmDelete(groupConfig.id)" class="btn btn-sm btn-danger">Delete</button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="common-heading d-flex align-items-center mb-3">
+            <h1 class="title">Group Configurations</h1>
+            <router-link
+                class="btn btn-site ml-auto"
+                :to="{ name: 'create-group-config' }"
+                ><i class="icon-plus"></i> New
+            </router-link>
+        </div>
+        <div class="card mb-4">
+            <div class="overlay" v-if="isLoading">
+                <img src="/images/loader.gif" alt="" />
+            </div>
+            <div class="card-body">
+                <div v-if="groupConfigs.length && !isLoading">
+                    <div class="table-responsive">
+                        <table id="dataTable" class="table border rounded">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Access Lists</th>
+                                    <th>Status</th>
+                                    <th class="text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    v-for="{
+                                        group,
+                                        id,
+                                        access_lists,
+                                        status,
+                                    } in groupConfigs"
+                                    :key="id"
+                                >
+                                    <td>{{ id }}</td>
+                                    <td>
+                                        {{ group.name }}
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="badge badge-common mr-2 my-1"
+                                            v-for="{
+                                                access_name,
+                                                id,
+                                            } in access_lists"
+                                            :key="id"
+                                        >
+                                            {{ access_name }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span
+                                            :class="
+                                                status === 'active'
+                                                    ? 'active'
+                                                    : 'inactive'
+                                            "
+                                            class="badge"
+                                            >{{ status }}</span
+                                        >
+                                    </td>
+                                    <td class="text-right">
+                                        <router-link
+                                            class="btn-action btn-edit"
+                                            :to="{
+                                                name: 'edit-group-config',
+                                                params: { id },
+                                            }"
+                                            ><i class="icon-edit-pen"></i
+                                        ></router-link>
+                                        <a
+                                            class="btn-action btn-trash"
+                                            @click.prevent="confirmDelete(id)"
+                                        >
+                                            <i class="icon-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <no-data v-else />
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
-import axios from 'axios';
-
+import axios from "../../../axios";
+import "datatables.net-dt/css/jquery.dataTables.min.css";
+import "datatables.net-dt/js/dataTables.dataTables";
+import noData from "../components/noData.vue";
 export default {
+    components: {
+        noData,
+    },
     data() {
         return {
-            groupConfigs: []
+            isLoading: false,
+            status: "active",
+            groupConfigs: [],
+            // access_lists: [],
         };
     },
     mounted() {
@@ -68,7 +131,19 @@ export default {
                         console.error('Error deleting group configuration:', error);
                     });
             }
-        }
-    }
+        },
+        initializeDataTable() {
+            this.$nextTick(() => {
+                $("#dataTable").DataTable();
+            });
+        },
+    },
+    watch: {
+        groupConfigs(newValue) {
+            if (newValue.length) {
+                this.initializeDataTable();
+            }
+        },
+    },
 };
 </script>

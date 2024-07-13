@@ -6,13 +6,14 @@
             to="/"
         >
             <i class="icon-logo sidebar-brand-icon"></i>
-            <!--<img class="sidebar-brand-logo" src="/images/logo.svg" alt="" />-->
+            <img class="sidebar-brand-logo" src="/images/logo.svg" alt="" />
         </router-link>
         <div class="sidebar-nav">
             <el-menu
                 :default-active="activeIndex"
                 class="el-menu-vertical-demo"
-                :unique-opened="true">
+                :unique-opened="true"
+            >
                 <el-menu-item index="/admin">
                     <router-link to="/admin">
                         <i class="icon-grid"></i>
@@ -40,7 +41,7 @@
                 <el-menu-item index="/admin/call-types">
                     <router-link to="/admin/call-types">
                         <i class="icon-phone"></i>
-                        <span>Call Types</span>
+                        <span>Call Type</span>
                     </router-link>
                 </el-menu-item>
                 <el-menu-item index="/admin/users">

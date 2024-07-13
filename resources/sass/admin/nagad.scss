@@ -16,96 +16,7 @@
 @import "login.scss";
 @import "error.scss";
 @import "footer.scss";
-.animate {
-    transition: all 0.3s linear;
-}
-%radio-check {
-    display: block;
-    position: relative;
-    margin-bottom: 0;
-    cursor: pointer;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
 
-%shape {
-    position: relative;
-    display: inline-block;
-    vertical-align: middle;
-    height: 18px;
-    width: 18px;
-    background: $white;
-    margin-right: 5px;
-    @extend .animate;
-}
-
-.checkbox {
-    @extend %radio-check;
-}
-
-.checkbox input,
-.radio input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-}
-/* Create a custom checkbox */
-
-.checkmark {
-    @extend %shape;
-    border-radius: 2px;
-    border: 2px solid #666;
-    transform: translateY(-1px);
-}
-
-.checkbox input:checked ~ .checkmark {
-    background: $red;
-    border: 2px solid $red;
-}
-
-.checkmark:after {
-    content: "";
-    position: absolute;
-    display: none;
-}
-
-.checkbox input:checked ~ .checkmark:after {
-    display: block;
-}
-
-.checkbox .checkmark:after {
-    left: 4px;
-    top: 0;
-    width: 6px;
-    height: 11px;
-    border: solid $white;
-    border-width: 0 2px 2px 0;
-    -webkit-transform: rotate(45deg);
-    -ms-transform: rotate(45deg);
-    transform: rotate(45deg);
-}
-// Radio
-
-.radio {
-    @extend %radio-check;
-}
-.radio {
-    display: flex;
-    align-items: center;
-    font-weight: 500 !important;
-    font-size: 14px;
-}
-.radio-mark {
-    @extend %shape;
-    @include shadow(0 0 0 2px darken(#ddd, 10) inset);
-    border-radius: 50%;
-}
-
-.radio input:checked ~ .radio-mark {
-    @include shadow(0 0 0 10px $red inset);
-}
 .bg-red {
     background: $red;
 }
@@ -132,6 +43,7 @@ body {
         background: $black;
     }
 }
+
 .verify-user {
     position: relative;
     .form-control {
@@ -191,13 +103,7 @@ body {
         transform: rotate(-180deg);
     }
 }
-.card {
-    border: none;
-    border-radius: 6px;
-    &-body {
-        padding: 20px;
-    }
-}
+
 .transaction-list {
     border: 1px solid #ddd;
     border-radius: 12px;
@@ -226,6 +132,7 @@ body {
         }
     }
 }
+
 @media all and (min-width: 992px) {
     ::-webkit-scrollbar,
     .sidebar::-webkit-scrollbar {

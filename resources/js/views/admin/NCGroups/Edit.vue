@@ -1,26 +1,77 @@
 <template>
     <div>
-        <form @submit.prevent="handleSubmit">
-            <input v-model="formData.name" type="text" placeholder="Group Name">
-            <select v-model="formData.status">
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-            </select>
-            <button type="submit">Update Group</button>
-        </form>
-
-        <ul v-if="formErrors.length">
-            <li v-for="error in formErrors" :key="error">{{ error }}</li>
-        </ul>
+        <div class="common-heading d-flex align-items-center mb-3">
+            <router-link
+                class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
+                to="/admin/groups"
+            ><i class="icon-left"></i>
+            </router-link>
+            <h1 class="title m-0">Edit Groups</h1>
+        </div>
+        <div class="card mb-4">
+            <div class="overlay" v-if="isLoading">
+                <img src="/images/loader.gif" alt=""/>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <form @submit.prevent="handleSubmit">
+                            <div class="form-group">
+                                <label class="control-label">Groups Name</label>
+                                <input
+                                    class="form-control"
+                                    v-model="formData.name"
+                                    type="text"
+                                    required
+                                />
+                            </div>
+                            <div class="form-group d-flex align-items-center">
+                                <label class="control-label m-0 mr-3"
+                                >Status:</label
+                                >
+                                <label class="radio mr-2"
+                                ><input
+                                    type="radio"
+                                    value="active"
+                                    v-model="formData.status"
+                                    required
+                                /><span class="radio-mark"></span>Active
+                                </label>
+                                <label class="radio">
+                                    <input
+                                        type="radio"
+                                        value="inactive"
+                                        v-model="formData.status"
+                                        required
+                                    /><span class="radio-mark"></span>Inactive
+                                </label>
+                            </div>
+                            <button class="btn btn-site" type="submit">
+                                Update
+                            </button>
+                        </form>
+                        <ul class="list-group" v-if="formErrors.length">
+                            <li
+                                class="list-group-item list-group-item-danger"
+                                v-for="error in formErrors"
+                                :key="error"
+                            >
+                                {{ error }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
-
 <script>
 import axios from 'axios';
 
 export default {
     data() {
         return {
+            isLoading: false,
             formData: {
                 name: '',
                 status: 'active',
