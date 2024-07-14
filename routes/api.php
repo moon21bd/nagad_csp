@@ -88,6 +88,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::get('call-sub-by-call-cat-id/{ctid}/{ccid}', [NCCallSubCategoryController::class, 'getCallSubCatByCallAndCategoryId']);
 
+    Route::get('get-required-fields/{ctid}/{ccid}/{cscid}', [NCRequiredConfigController::class, 'getRequiredFieldConfigsData']);
+
+    Route::get('get-required-field-by-sub-cat-id/{id}', [NCRequiredConfigController::class, 'getRequiredFieldConfigBySubCatId']);
+
+
     // for nagad api
     Route::apiResources([
         'groups' => NCGroupController::class,

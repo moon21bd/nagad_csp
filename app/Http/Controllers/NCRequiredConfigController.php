@@ -136,11 +136,18 @@ class NCRequiredConfigController extends Controller
         return response()->json(['message' => 'Deleted successfully']);
     }
 
-    public function getNcFiledConfigDataByConfigId($id)
+    public function getRequiredFieldConfigsData($callTypeId, $callCategoryId, $callSubCategoryId)
     {
-        $data = NCRequiredFieldConfig::where('call_sub_category_id', $id)->get();
-        if ($data) {
-            return json_encode($data);
-        }
+        $requiredFieldConfigs = NCRequiredFieldConfig::where(['call_type_id' => $callTypeId, 'call_category_id' => $callCategoryId, 'call_sub_category_id' => $callSubCategoryId])
+            ->get();
+
+        return response()->json($requiredFieldConfigs);
+
+    }
+
+    public function getRequiredFieldConfigBySubCatId($id)
+    {
+        $requiredFieldConfigs = NCRequiredFieldConfig::where('call_sub_category_id', $id)->get();
+        return response()->json($requiredFieldConfigs);
     }
 }

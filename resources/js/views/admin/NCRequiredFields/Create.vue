@@ -47,7 +47,7 @@
                     <option value="datetime">DateTime</option>
                 </select>
             </div>
-            <div class="form-group">
+            <div class="form-group" v-if="inputType ==='select'">
                 <label for="name">Input Value</label>
                 <input type="text" v-model="inputValue" class="form-control" id="" placeholder="Enter Input Value">
             </div>
@@ -75,8 +75,6 @@ export default {
         return {
             name: '',
             statusValue: '',
-            actionUrl: 'store_config',
-            apiUrl: '',
             callTypeId: null,
             callCategoryId: null,
             callSubCategoryId: null,

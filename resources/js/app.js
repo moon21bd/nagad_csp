@@ -16,12 +16,15 @@ import store from './store';
 import {ToastPlugin} from 'bootstrap-vue';
 import Permissions from './mixins/Permissions';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
+import VeeValidate from 'vee-validate';
 
 window.Vue = require('vue').default;
 
 Vue.use(Toasted);
 Vue.use(ElementUI, {locale});
 Vue.use(ToastPlugin);
+
+Vue.use(VeeValidate);
 
 Vue.mixin(Permissions);
 
