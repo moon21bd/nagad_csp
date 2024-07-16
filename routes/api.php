@@ -14,7 +14,8 @@ use App\Http\Controllers\{
     AuthController,
     RolesController,
     PermissionsController,
-    UsersController
+    UsersController,
+    NCRequiredConfigController
 };
 
 /*
@@ -28,7 +29,18 @@ use App\Http\Controllers\{
 |
 */
 
-// from another project
+
+/*
+// Resource Controller Methods
+
+GET /users → index method
+GET /users/create → create method
+POST /users → store method
+GET /users/{user} → show method
+GET /users/{user}/edit → edit method
+PUT /users/{user} → update method
+PATCH /users/{user} → update method
+DELETE /users/{user} → destroy method*/
 
 //Route::post('/login', [AuthController::class, 'login']);
 //Route::post('/register',[AuthController::class,'register']);
@@ -53,9 +65,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     //roles routes
     Route::get('roles', [RolesController::class, 'roles']);
-    Route::post('roles/{id}', [RolesController::class, 'getRoleById']);
+    Route::get('role/{id}', [RolesController::class, 'getRoleById']);
     Route::post('role/save', [RolesController::class, 'store']);
-    Route::delete('roles/delete/{id}', [RolesController::class, 'destroy']);
+    Route::put('role/update/{id}', [RolesController::class, 'update']);
+    Route::delete('role/delete/{id}', [RolesController::class, 'destroy']);
 
     //permissions routes
     Route::get('permissions', [PermissionsController::class, 'permissions']);
@@ -74,6 +87,13 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::get('get-category/{id}', [NCCallCategoryController::class, 'getCategoryByCallTypeId']);
 
+    Route::get('call-sub-by-call-cat-id/{ctid}/{ccid}', [NCCallSubCategoryController::class, 'getCallSubCatByCallAndCategoryId']);
+
+    Route::get('get-required-fields/{ctid}/{ccid}/{cscid}', [NCRequiredConfigController::class, 'getRequiredFieldConfigsData']);
+
+    Route::get('get-required-field-by-sub-cat-id/{id}', [NCRequiredConfigController::class, 'getRequiredFieldConfigBySubCatId']);
+
+
     // for nagad api
     Route::apiResources([
         'groups' => NCGroupController::class,
@@ -83,5 +103,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         'call-sub-sub-categories' => NCCallSubSubCategoryController::class,
         'access-lists' => NCAccessListController::class,
         'group-configs' => NCGroupConfigsController::class,
+        'required-fields-configs' => NCRequiredConfigController::class,
     ]);
 });

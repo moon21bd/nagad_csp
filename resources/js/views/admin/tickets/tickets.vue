@@ -1,30 +1,30 @@
 <template>
     <div class="card mb-4">
-        <div class="card-header">
-            <h1 class="title mb-3">Customer Information</h1>
-            <div class="d-flex">
-                <form action="" class="verify-user mr-0 mr-md-3">
-                    <input
-                        class="form-control"
-                        type="tel"
-                        v-model="mobileNo"
-                        name="customer"
-                        placeholder="Customer Account No"
-                        required
-                    />
-                    <button class="btn"><i class="icon-search"></i></button>
-                </form>
-                <div class="verified-user d-flex">
-                    <i class="icon-phone-call"></i>
-                    <h5>In Call..<span>+8801987654321</span></h5>
-                </div>
-            </div>
-        </div>
+        <!--<div class="card-header">
+                    <h1 class="title mb-3">Customer Information</h1>
+                    <div class="d-flex">
+                        <form action="" class="verify-user mr-0 mr-md-3">
+                            <input
+                                class="form-control"
+                                type="tel"
+                                v-model="mobileNo"
+                                name="customer"
+                                placeholder="Customer Account No"
+                                required
+                            />
+                            <button class="btn"><i class="icon-search"></i></button>
+                        </form>
+                        <div class="verified-user d-flex">
+                            <i class="icon-phone-call"></i>
+                            <h5>In Call..<span>+8801987654321</span></h5>
+                        </div>
+                    </div>
+                </div>-->
         <div class="card-body">
             <div class="row">
-                <div class="col-md-4">
+                <!--<div class="col-md-4">
                     <userInfo/>
-                </div>
+                </div>-->
                 <div class="col-md-8">
                     <h4 class="sub-title mb-2">
                         <i class="icon-tickets text-danger"></i> Create Ticket
@@ -32,275 +32,88 @@
                     <form ref="ticketForm" @submit.prevent="handleSubmit">
                         <div class="form-row">
                             <div class="col-md-4 form-group">
-                                <label class="control-label">Call Type</label>
+                                <label class="control-label">Service Type</label>
                                 <div class="custom-style">
                                     <select
                                         class="form-control"
-                                        v-model="ticketsData.callType"
-                                        required
+                                        v-model="ticketInfos.callTypeId"
+                                        @change="fetchCategories" required
                                     >
-                                        <option value="" disabled>
-                                            Select Call Type
-                                        </option>
-                                        <option value="Service Request">
-                                            Service Request
-                                        </option>
-                                        <option value="Complaint">
-                                            Complaint
+                                        <option :value="null" disabled>Service Type</option>
+                                        <option v-for="type in callTypes" :key="type.id" :value="type.id">
+                                            {{ type.call_type_name }}
                                         </option>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-4 form-group">
-                                <label class="control-label">Category:</label>
+                                <label class="control-label">Service Category:</label>
                                 <select
                                     class="form-control"
-                                    name=""
-                                    v-model="ticketsData.category"
-                                    @change="getSubcategories"
+                                    v-model="ticketInfos.callCategoryId"
+                                    @change="fetchSubCategory" required
                                 >
-                                    <option value="" disabled>
-                                        Select Category
-                                    </option>
-                                    <option
-                                        v-for="{ name, id } in categories"
-                                        :key="id"
-                                        :value="name"
-                                    >
-                                        {{ name }}
+
+                                    <option :value="null" disabled>Service Category</option>
+                                    <option v-for="category in callCategories"
+                                            :key="category.id"
+                                            :value="category.id">
+                                        {{ category.call_category_name }}
                                     </option>
                                 </select>
                             </div>
                             <div class="col-md-4 form-group">
                                 <label class="control-label"
-                                >Sub-Category:</label
+                                >Service Sub-Category:</label
                                 >
                                 <select
                                     class="form-control"
-                                    v-model="ticketsData.subCategory"
+                                    v-model="ticketInfos.callSubCategoryId" @change="fetchRequiredFields" required
                                 >
-                                    <option value="" disabled>
-                                        Select Sub-Category
-                                    </option>
-                                    <option
-                                        v-for="subCategory in subCategories"
-                                        :key="subCategory"
-                                        :value="subCategory"
-                                    >
-                                        {{ subCategory }}
+                                    <option :value="null" disabled>Select Call Sub Category</option>
+                                    <option v-for="subCategory in callSubCategories"
+                                            :key="subCategory.id"
+                                            :value="subCategory.id">
+                                        {{ subCategory.call_sub_category_name }}
                                     </option>
                                 </select>
                             </div>
                         </div>
+
                         <div class="form-row">
-                            <div class="col-md-4 form-group">
-                                <label class="control-label"
-                                >Incident Type</label
-                                >
-                                <div class="custom-style">
-                                    <select
-                                        class="form-control"
-                                        v-model="ticketsData.incidentType"
-                                        required
-                                    >
-                                        <option value="" disabled>
-                                            Select Incident Type
-                                        </option>
-                                        <option value="Attempt">Attempt</option>
-                                        <option value="Activity">
-                                            Activity
-                                        </option>
-                                        <option value="GD">GD</option>
-                                        <option value="Hundi">Hundi</option>
-                                        <option value="Below 500">
-                                            Below 500
-                                        </option>
-                                    </select>
+
+                            <div v-for="(data, index) in requiredFields" v-if="requiredFields" :key="index">
+                                <div class="form-group" v-if="data.input_type === 'select'">
+                                    <label class="control-label" for="input_field_name">{{
+                                            data.input_field_name
+                                        }}</label>
+
+                                    <div class="custom-style">
+                                        <select class="form-control"
+                                                v-model="ticketInfos.requiredField[data.id + '|' + data.input_field_name]">
+                                            <option v-for="option in inputTypeValues[index].input_value"
+                                                    :value="option">{{ option }}
+                                            </option>
+                                        </select>
+                                    </div>
+
                                 </div>
-                            </div>
-                            <div class="col-md-4 form-group">
-                                <label for="control-label"
-                                >Victim Account No</label
-                                >
-                                <input
-                                    class="form-control"
-                                    type="text"
-                                    v-model="ticketsData.victimAccountNo"
-                                    required
-                                />
-                            </div>
-                            <div class="col-md-4 form-group">
-                                <label for="control-label"
-                                >Fraudster Account No</label
-                                >
-                                <input
-                                    class="form-control"
-                                    type="text"
-                                    v-model="ticketsData.fraudsterAccountNo"
-                                    required
-                                />
-                            </div>
-                            <div class="col-md-4 form-group">
-                                <label for="control-label"
-                                >Brief of the Incident</label
-                                >
-                                <input
-                                    class="form-control"
-                                    type="text"
-                                    v-model="ticketsData.incidentBrief"
-                                />
+                                <div class="form-group" v-else-if="data.input_type === 'datetime'">
+                                    <label class="control-label"
+                                           for="exampleFormControlSelect1">{{ data.input_field_name }}</label>
+                                    <datetime class="form-control" format="YYYY-MM-DD h:i:s"
+                                              v-model="ticketInfos.requiredField[data.id + '|' + data.input_field_name]"></datetime>
+
+                                </div>
+                                <div class="form-group" v-else>
+                                    <label class="control-label" for="name">{{ data.input_field_name }}</label>
+                                    <input type="text"
+                                           v-model="ticketInfos.requiredField[data.id + '|' + data.input_field_name]"
+                                           class="form-control"
+                                           :placeholder="'Enter ' + data.input_field_name">
+                                </div>
                             </div>
 
-                            <div class="col-md-4 form-group">
-                                <label for="control-label"
-                                >Customer calling No</label
-                                >
-                                <input
-                                    class="form-control"
-                                    type="text"
-                                    v-model="ticketsData.customerCallingNo"
-                                    required
-                                />
-                            </div>
-                            <div class="col-md-4 form-group">
-                                <label for="control-label"
-                                >Fraudster Calling No</label
-                                >
-                                <input
-                                    class="form-control"
-                                    type="text"
-                                    v-model="ticketsData.fraudsterCallingNo"
-                                    required
-                                />
-                            </div>
-                            <div class="col-md-4 form-group">
-                                <label class="control-label"
-                                >Date & Time:</label
-                                >
-                                <el-date-picker
-                                    class="d-block w-100"
-                                    v-model="ticketsData.dateTime"
-                                    type="datetime"
-                                    placeholder="Select date and time"
-                                >
-                                </el-date-picker>
-                            </div>
-                            <div class="col-md-4 form-group">
-                                <label for="control-label"
-                                >Transaction ID:</label
-                                >
-                                <input
-                                    class="form-control"
-                                    type="text"
-                                    v-model="ticketsData.transactionID"
-                                    required
-                                />
-                            </div>
-                            <div class="col-md-4 form-group">
-                                <label class="control-label"
-                                >Payment Channel</label
-                                >
-                                <div class="custom-style">
-                                    <select
-                                        class="form-control"
-                                        v-model="ticketsData.paymentChannel"
-                                        required
-                                    >
-                                        <option value="" disabled>
-                                            Select Payment Channel
-                                        </option>
-                                        <option value="Apps">Apps</option>
-                                        <option value="Ussd">Ussd</option>
-                                        <option value="E-Com">E-Com</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-4 form-group">
-                                <label for="control-label"
-                                >Amount as Portal</label
-                                >
-                                <input
-                                    class="form-control"
-                                    type="text"
-                                    v-model="ticketsData.amountAsPortal"
-                                    required
-                                />
-                            </div>
-                            <div class="col-md-4 form-group">
-                                <label for="control-label"
-                                >Amount as customer</label
-                                >
-                                <input
-                                    class="form-control"
-                                    type="text"
-                                    v-model="ticketsData.amountAsCustomer"
-                                    required
-                                />
-                            </div>
-
-                            <div class="col-md-4 form-group">
-                                <label class="control-label"
-                                >Responsible Team:</label
-                                >
-                                <select
-                                    class="form-control"
-                                    name=""
-                                    v-model="ticketsData.responsibleTeam"
-                                >
-                                    <option value="" disabled>
-                                        Select Team
-                                    </option>
-                                    <option
-                                        v-for="{ name, id } in groups"
-                                        :key="id"
-                                        :value="name"
-                                    >
-                                        {{ name }}
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="col-md-12 form-group">
-                                <label for="control-label">Remarks</label>
-                                <textarea
-                                    class="form-control"
-                                    v-model="ticketsData.remarks"
-                                ></textarea>
-                            </div>
-                            <div class="col-md-6 form-group">
-                                <label class="checkbox"
-                                ><input
-                                    type="checkbox"
-                                    v-model="
-                                            ticketsData.fraudulentAmountAvailability
-                                        "
-                                    required
-                                /><span class="checkmark"></span>Fraudulent
-                                    Amount Availability</label
-                                >
-                            </div>
-                            <div class="col-md-6 form-group">
-                                <label class="control-label"
-                                >Do you agree?</label
-                                >
-                                <div class="d-flex">
-                                    <label class="radio mr-2"
-                                    ><input
-                                        type="radio"
-                                        id="yes"
-                                        value="1"
-                                        name="check"
-                                    /><span class="radio-mark"></span>Yes
-                                    </label>
-                                    <label class="radio">
-                                        <input
-                                            type="radio"
-                                            id="no"
-                                            value="0"
-                                            name="check"
-                                        /><span class="radio-mark"></span>No
-                                    </label>
-                                </div>
-                            </div>
                         </div>
                         <button class="btn btn-site" type="submit">
                             Submit
@@ -315,15 +128,30 @@
 <script>
 import axios from "../../../axios";
 
-import userInfo from "./components/userInfo.vue";
+// import userInfo from "./components/userInfo.vue";
+import datetime from 'vuejs-datetimepicker';
 
 export default {
     components: {
-        userInfo,
+        // userInfo,
+        datetime
     },
-
     name: "Tickets",
     data: () => ({
+
+        requiredFields: [],
+        selectOptionValue: [],
+        callTypes: [],
+        callCategories: [],
+        callSubCategories: [],
+
+        ticketInfos: {
+            callTypeId: null,
+            callCategoryId: null,
+            callSubCategoryId: null,
+            requiredField: []
+        },
+
         tickets: "Tickets",
         mobileNo: "",
         ticketsData: {
@@ -350,64 +178,90 @@ export default {
         subCategories: [],
         groups: [],
     }),
-
+    mounted() {
+        this.fetchCallTypes()
+    },
     methods: {
-        async getCategories() {
+        async fetchCallTypes() {
             try {
-                const response = await axios.get(
-                    "http://localhost:3000/categories"
-                );
-                this.categories = response.data;
+                const response = await axios.get("/call-types");
+                this.requiredFields = [];
+                this.callSubCategories = [];
+                this.ticketInfos.callSubCategoryId = null;
+                this.callTypes = response.data;
             } catch (error) {
-                console.log(error);
+                console.error("Error fetching call types:", error);
             }
         },
-
-        getSubcategories() {
-            this.subCategories =
-                this.categories.find(
-                    (category) => category.name === this.ticketsData.category
-                )?.subcategories ?? [];
-        },
-        async getGroups() {
+        async fetchCategories() {
             try {
-                const response = await axios.get(
-                    "http://localhost:3000/groups"
-                );
-                this.groups = response.data;
+                const response = await axios.get(`/get-category/${this.ticketInfos.callTypeId}`);
+                this.requiredFields = [];
+                this.callSubCategories = [];
+                this.ticketInfos.callSubCategoryId = null;
+                this.callCategories = response.data;
+
             } catch (error) {
-                console.log(error);
+                console.error('Error fetching call categories:', error);
+            }
+        },
+        async fetchSubCategory() {
+            try {
+                const response = await axios.get(`/call-sub-by-call-cat-id/${this.ticketInfos.callTypeId}/${this.ticketInfos.callCategoryId}`);
+
+                this.callSubCategories = response.data;
+            } catch (error) {
+                console.error('Error fetching call sub categories:', error);
+            }
+        },
+        async submit() {
+            console.log('this.ticketInfos', this.ticketInfos);
+        },
+        fetchRequiredFieldsByCategory() {
+            return new Promise((resolve, reject) => {
+                axios
+                    .get(`get-required-field-by-sub-cat-id/${this.ticketInfos.callSubCategoryId}`)
+                    .then((response) => {
+                        resolve(response)
+                    })
+                    .catch((error) => {
+                        reject(error)
+                    })
+                    .finally(() => {
+                    })
+            })
+        },
+        async fetchRequiredFields() {
+            await this.fetchRequiredFieldsByCategory().then(response => {
+                this.requiredFields = response.data
+                this.generateInputTypes(response.data)
+            })
+        },
+        generateInputTypes(value) {
+            this.inputTypeValues = value
+            for (let i = 0; i < value.length; i++) {
+                if (value[i].input_type === 'select') {
+                    this.inputTypeValues[i].input_value = value[i].input_value.split(",")
+                }
+                this.inputTypeValues[i].input_validation = value[i].input_validation.split(",")
+
             }
         },
         async handleSubmit() {
+            console.log('handleSubmit Called', this.ticketInfos)
             try {
-                await axios.post(
+                /*await axios.post(
                     "http://localhost:3000/tickets",
                     this.ticketsData
                 );
                 alert("Form submitted successfully");
                 this.$refs.ticketForm.reset();
-                this.resetForm();
+                this.resetForm();*/
             } catch (error) {
                 console.log("There was an error submitting the form!");
             }
         },
 
-        resetForm() {
-            this.ticketsData = {
-                callType: "",
-                category: "",
-                subCategory: "",
-                incidentType: "",
-                paymentChannel: "",
-                responsibleTeam: "",
-            };
-            this.subCategories = [];
-        },
-    },
-    created() {
-        this.getCategories();
-        this.getGroups();
-    },
+    }
 };
 </script>
