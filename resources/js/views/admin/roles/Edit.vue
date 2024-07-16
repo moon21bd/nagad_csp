@@ -6,7 +6,7 @@
                 to="/admin/roles"
             ><i class="icon-left"></i>
             </router-link>
-            <h1 class="title m-0">Edit Roles</h1>
+            <h1 class="title m-0">Edit Role</h1>
         </div>
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
@@ -68,8 +68,6 @@ export default {
 
                 const response = await axios.put(`/role/update/${this.id}`, this.formData);
 
-                // console.log('Role updated successfully:', response.data);
-
                 this.formData = {
                     name: '',
                 };
@@ -80,7 +78,7 @@ export default {
                 if (error.response && error.response.data.errors) {
                     this.formErrors = Object.values(error.response.data.errors).flat();
                 } else {
-                    this.formErrors.push('Failed to update group. Please try again later.');
+                    this.formErrors.push('Failed to update role. Please try again later.');
                 }
             }
         },
