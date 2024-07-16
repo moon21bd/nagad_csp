@@ -1,30 +1,30 @@
 <template>
     <div class="card mb-4">
-        <!--<div class="card-header">
-                    <h1 class="title mb-3">Customer Information</h1>
-                    <div class="d-flex">
-                        <form action="" class="verify-user mr-0 mr-md-3">
-                            <input
-                                class="form-control"
-                                type="tel"
-                                v-model="mobileNo"
-                                name="customer"
-                                placeholder="Customer Account No"
-                                required
-                            />
-                            <button class="btn"><i class="icon-search"></i></button>
-                        </form>
-                        <div class="verified-user d-flex">
-                            <i class="icon-phone-call"></i>
-                            <h5>In Call..<span>+8801987654321</span></h5>
-                        </div>
-                    </div>
-                </div>-->
+        <div class="card-header">
+            <h1 class="title mb-3">Customer Information</h1>
+            <div class="d-flex">
+                <form action="" class="verify-user mr-0 mr-md-3">
+                    <input
+                        class="form-control"
+                        type="tel"
+                        v-model="mobileNo"
+                        name="customer"
+                        placeholder="Customer Account No"
+                        required
+                    />
+                    <button class="btn"><i class="icon-search"></i></button>
+                </form>
+                <div class="verified-user d-flex">
+                    <i class="icon-phone-call"></i>
+                    <h5>In Call..<span>+8801987654321</span></h5>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
             <div class="row">
-                <!--<div class="col-md-4">
+                <div class="col-md-4">
                     <userInfo/>
-                </div>-->
+                </div>
                 <div class="col-md-8">
                     <h4 class="sub-title mb-2">
                         <i class="icon-tickets text-danger"></i> Create Ticket
@@ -87,23 +87,31 @@
                                     <label class="control-label" for="input_field_name">{{
                                             data.input_field_name
                                         }}</label>
-
-                                    <div class="custom-style">
-                                        <select class="form-control"
-                                                v-model="ticketInfos.requiredField[data.id + '|' + data.input_field_name]">
-                                            <option v-for="option in inputTypeValues[index].input_value"
-                                                    :value="option">{{ option }}
-                                            </option>
-                                        </select>
-                                    </div>
+                                    <el-select
+                                        class="d-block w-100"
+                                        v-model="ticketInfos.requiredField[data.id + '|' + data.input_field_name]"
+                                        required
+                                        filterable
+                                        placeholder="Select Type"
+                                    >
+                                        <el-option v-for="option in inputTypeValues[index].input_value"
+                                                   :value="option">{{ option }}
+                                        </el-option>
+                                    </el-select>
 
                                 </div>
                                 <div class="form-group" v-else-if="data.input_type === 'datetime'">
                                     <label class="control-label"
                                            for="exampleFormControlSelect1">{{ data.input_field_name }}</label>
-                                    <datetime class="form-control" format="YYYY-MM-DD h:i:s"
-                                              v-model="ticketInfos.requiredField[data.id + '|' + data.input_field_name]"></datetime>
 
+                                    <el-date-picker
+                                        class="d-block w-100"
+                                        format="YYYY-MM-DD h:i:s"
+                                        v-model="ticketInfos.requiredField[data.id + '|' + data.input_field_name]"
+                                        type="datetime"
+                                        placeholder="Select date and time"
+                                    >
+                                    </el-date-picker>
                                 </div>
                                 <div class="form-group" v-else>
                                     <label class="control-label" for="name">{{ data.input_field_name }}</label>
@@ -128,12 +136,12 @@
 <script>
 import axios from "../../../axios";
 
-// import userInfo from "./components/userInfo.vue";
+import userInfo from "./components/userInfo.vue";
 import datetime from 'vuejs-datetimepicker';
 
 export default {
     components: {
-        // userInfo,
+        userInfo,
         datetime
     },
     name: "Tickets",
