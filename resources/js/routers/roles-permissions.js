@@ -10,7 +10,7 @@ const RolesCreate = () => import('../views/admin/roles/Create.vue')
 const RolesList = () => import('../views/admin/roles/List.vue')
 const RolesEdit = () => import('../views/admin/roles/Edit.vue')
 const Permissions = () => import('../components/Permissions.vue')
-const Users = () => import('../components/Users.vue')
+const Users = () => import('../views/admin/users/Create.vue')
 
 export default [
     {

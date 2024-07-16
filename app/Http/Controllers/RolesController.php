@@ -82,9 +82,10 @@ class RolesController extends Controller
 
     public function update(Request $request, $roleId)
     {
+        dd($request->all(),$roleId );
         $role = Role::findById($roleId);
         $roleName = $request->input('name');
-        dd($roleName);
+        // dd($roleName);
         $role->name = $roleName;
         $role->save();
 
