@@ -65,9 +65,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     //roles routes
     Route::get('roles', [RolesController::class, 'roles']);
-    Route::post('roles/{id}', [RolesController::class, 'getRoleById']);
+    Route::get('role/{id}', [RolesController::class, 'getRoleById']);
     Route::post('role/save', [RolesController::class, 'store']);
-    Route::delete('roles/delete/{id}', [RolesController::class, 'destroy']);
+    Route::put('role/update/{id}', [RolesController::class, 'update']);
+    Route::delete('role/delete/{id}', [RolesController::class, 'destroy']);
 
     //permissions routes
     Route::get('permissions', [PermissionsController::class, 'permissions']);

@@ -13,20 +13,29 @@ import Toasted from 'vue-toasted';
 import './axios';
 import router from './router';
 import store from './store';
-import {ToastPlugin} from 'bootstrap-vue';
 import Permissions from './mixins/Permissions';
-import 'bootstrap-vue/dist/bootstrap-vue.css';
 import VeeValidate from 'vee-validate';
 
 window.Vue = require('vue').default;
 
 Vue.use(Toasted);
 Vue.use(ElementUI, {locale});
-Vue.use(ToastPlugin);
+// Vue.use(ToastPlugin);
 
 Vue.use(VeeValidate);
 
 Vue.mixin(Permissions);
+
+// Register global toast function
+Vue.prototype.$showToast = function(message, options = {}) {
+    this.$toasted.show(message, {
+        theme: options.theme || "toasted-primary",
+        position: options.position || "top-right",
+        duration: options.duration || 5000,
+        type: options.type || 'default', // 'default', 'info', 'success', 'error'
+        ...options
+    });
+};
 
 // Registering Vue Components
 Vue.component('app', require('./App.vue').default);
