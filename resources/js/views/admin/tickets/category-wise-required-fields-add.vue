@@ -1,138 +1,198 @@
 <template>
     <div>
-        <form>
-            <!-- Call Type Select -->
-            <div class="form-group">
-                <label for="name">Call Type</label>
-                <select
-                    v-model="ticketInfos.callTypeId"
-                    @change="fetchCategories"
-                    required
-                >
-                    <option :value="null" disabled>Service Type</option>
-                    <option
-                        v-for="types in callTypes"
-                        :key="types.id"
-                        :value="types.id"
-                    >
-                        {{ types.call_type_name }}
-                    </option>
-                </select>
+        <div class="common-heading d-flex align-items-center mb-3">
+            <h1 class="title m-0">Required fields configuration</h1>
+        </div>
+        <div class="card mb-4">
+            <div class="overlay" v-if="isLoading">
+                <img src="/images/loader.gif" alt="" />
             </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <form>
+                            <div class="form-row">
+                                <div class="col-md-4 form-group">
+                                    <label class="control-label"
+                                        >Call Type <sup>*</sup></label
+                                    >
+                                    <div class="custom-style">
+                                        <select
+                                            class="form-control"
+                                            v-model="ticketInfos.callTypeId"
+                                            @change="fetchCategories"
+                                            required
+                                        >
+                                            <option :value="null" disabled>
+                                                Select Call Type
+                                            </option>
+                                            <option
+                                                v-for="types in callTypes"
+                                                :key="types.id"
+                                                :value="types.id"
+                                            >
+                                                {{ types.call_type_name }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label class="control-label"
+                                        >Call Category <sup>*</sup></label
+                                    >
 
-            <!-- Call Category Select -->
+                                    <el-select
+                                        class="d-block w-100"
+                                        v-model="ticketInfos.callCategoryId"
+                                        required
+                                        filterable
+                                        @change="fetchSubCategory"
+                                        placeholder="Select Call Category"
+                                    >
+                                        <el-option
+                                            v-for="category in callCategories"
+                                            :key="category.id"
+                                            :label="category.call_category_name"
+                                            :value="category.id"
+                                        >
+                                        </el-option>
+                                    </el-select>
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label class="control-label"
+                                        >Call Sub Category Id
+                                        <sup>*</sup></label
+                                    >
 
-            <div class="form-group">
-                <label for="name">Call Category</label>
-                <select
-                    v-model="ticketInfos.callCategoryId"
-                    @change="fetchSubCategory"
-                    required
-                >
-                    <option :value="null" disabled>Service Category</option>
-                    <option
-                        v-for="category in callCategories"
-                        :key="category.id"
-                        :value="category.id"
-                    >
-                        {{ category.call_category_name }}
-                    </option>
-                </select>
-            </div>
+                                    <el-select
+                                        class="d-block w-100"
+                                        v-model="ticketInfos.callSubCategoryId"
+                                        @change="fetchRequiredFields"
+                                        required
+                                        filterable
+                                        placeholder="Select Call Sub Category"
+                                    >
+                                        <el-option
+                                            v-for="subCategory in callSubCategories"
+                                            :key="subCategory.id"
+                                            :label="
+                                                subCategory.call_sub_category_name
+                                            "
+                                            :value="subCategory.id"
+                                        >
+                                        </el-option>
+                                    </el-select>
+                                </div>
+                                <!-- Dynamic Inputs -->
+                                <div v-if="requiredFields" class="col-md-12">
+                                    <div class="form-row">
+                                        <div
+                                            class="col-md-6"
+                                            v-for="(
+                                                data, index
+                                            ) in requiredFields"
+                                            :key="index"
+                                        >
+                                            <div
+                                                class="form-group"
+                                                v-if="
+                                                    data.input_type === 'select'
+                                                "
+                                            >
+                                                <label for="input_field_name">{{
+                                                    data.input_field_name
+                                                }}</label>
+                                                <select
+                                                    class="form-control"
+                                                    v-model="
+                                                        ticketInfos
+                                                            .requiredField[
+                                                            data.id +
+                                                                '|' +
+                                                                data.input_field_name
+                                                        ]
+                                                    "
+                                                >
+                                                    <option
+                                                        v-for="(
+                                                            options, index
+                                                        ) in inputTypeValues[
+                                                            index
+                                                        ].input_value"
+                                                        :value="options"
+                                                        :key="index"
+                                                    >
+                                                        {{ options }}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div
+                                                class="form-group"
+                                                v-else-if="
+                                                    data.input_type ===
+                                                    'datetime'
+                                                "
+                                            >
+                                                <label
+                                                    for="exampleFormControlSelect1"
+                                                    >{{
+                                                        data.input_field_name
+                                                    }}</label
+                                                >
 
-            <!-- Call Sub Category Select -->
-
-            <div class="form-group">
-                <label for="name">Service Sub Category</label>
-                <select
-                    v-model="ticketInfos.callSubCategoryId"
-                    @change="fetchRequiredFields"
-                    required
-                >
-                    <option :value="null" disabled>
-                        Select Call Sub Category
-                    </option>
-                    <option
-                        v-for="subCategory in callSubCategories"
-                        :key="subCategory.id"
-                        :value="subCategory.id"
-                    >
-                        {{ subCategory.call_sub_category_name }}
-                    </option>
-                </select>
-            </div>
-
-            <!-- Dynamic Inputs -->
-            <div v-if="requiredFields">
-                <div v-for="(data, index) in requiredFields" :key="index">
-                    <div class="form-group" v-if="data.input_type === 'select'">
-                        <label for="input_field_name">{{
-                            data.input_field_name
-                        }}</label>
-                        <select
-                            class="form-control"
-                            v-model="
-                                ticketInfos.requiredField[
-                                    data.id + '|' + data.input_field_name
-                                ]
-                            "
-                        >
-                            <option
-                                v-for="(options, index) in inputTypeValues[
-                                    index
-                                ].input_value"
-                                :value="options"
-                                :key="index"
+                                                <el-date-picker
+                                                    class="d-block w-100"
+                                                    format="YYYY-MM-DD h:i:s"
+                                                    v-model="
+                                                        ticketInfos
+                                                            .requiredField[
+                                                            data.id +
+                                                                '|' +
+                                                                data.input_field_name
+                                                        ]
+                                                    "
+                                                    type="datetime"
+                                                    placeholder="Select date and time"
+                                                >
+                                                </el-date-picker>
+                                            </div>
+                                            <div class="form-group" v-else>
+                                                <label for="name">{{
+                                                    data.input_field_name
+                                                }}</label>
+                                                <input
+                                                    type="text"
+                                                    v-model="
+                                                        ticketInfos
+                                                            .requiredField[
+                                                            data.id +
+                                                                '|' +
+                                                                data.input_field_name
+                                                        ]
+                                                    "
+                                                    class="form-control"
+                                                    :placeholder="
+                                                        'Enter ' +
+                                                        data.input_field_name
+                                                    "
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button
+                                type="submit"
+                                @click.prevent="submit"
+                                class="btn btn-site"
                             >
-                                {{ options }}
-                            </option>
-                        </select>
-                    </div>
-                    <div
-                        class="form-group"
-                        v-else-if="data.input_type === 'datetime'"
-                    >
-                        <label for="exampleFormControlSelect1">{{
-                            data.input_field_name
-                        }}</label>
-
-                        <el-date-picker
-                            class="d-block w-100"
-                            format="YYYY-MM-DD h:i:s"
-                            v-model="
-                                ticketInfos.requiredField[
-                                    data.id + '|' + data.input_field_name
-                                ]
-                            "
-                            type="datetime"
-                            placeholder="Select date and time"
-                        >
-                        </el-date-picker>
-                    </div>
-                    <div class="form-group" v-else>
-                        <label for="name">{{ data.input_field_name }}</label>
-                        <input
-                            type="text"
-                            v-model="
-                                ticketInfos.requiredField[
-                                    data.id + '|' + data.input_field_name
-                                ]
-                            "
-                            class="form-control"
-                            :placeholder="'Enter ' + data.input_field_name"
-                        />
+                                Save
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
-
-            <button
-                type="submit"
-                @click.prevent="submit"
-                class="btn btn-primary"
-            >
-                Save
-            </button>
-        </form>
+        </div>
     </div>
 </template>
 
@@ -141,6 +201,7 @@ export default {
     name: "subCategoryDetailsAdd",
     data() {
         return {
+            isLoading: false,
             requiredFields: [],
             inputTypeValues: [],
             callTypes: [],

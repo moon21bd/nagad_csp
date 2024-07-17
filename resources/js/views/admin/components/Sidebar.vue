@@ -6,7 +6,7 @@
             to="/"
         >
             <i class="icon-logo sidebar-brand-icon"></i>
-            <!--            <img class="sidebar-brand-logo" src="/images/logo.svg" alt="" />-->
+            <img class="sidebar-brand-logo" src="/images/logo.svg" alt="" />
         </router-link>
         <div class="sidebar-nav">
             <el-menu
