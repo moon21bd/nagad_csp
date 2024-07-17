@@ -44,7 +44,7 @@ export default [
         },
     },
     {
-        name: "role-edit",
+        name: "roles-edit",
         path: "/admin/role/:id/edit",
         component: RolesEdit,
         meta: {

@@ -4,18 +4,38 @@
             <router-link
                 class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
                 to="/admin/roles/list"
-            ><i class="icon-left"></i>
+                ><i class="icon-left"></i>
             </router-link>
             <h1 class="title m-0">Create Role</h1>
         </div>
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
-                <img src="/images/loader.gif" alt=""/>
+                <img src="/images/loader.gif" alt="" />
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
                         <form @submit.prevent="saveRole">
+                            <div class="form-group">
+                                <label class="control-label"
+                                    >Select Group</label
+                                >
+                                <el-select
+                                    class="d-block w-100"
+                                    v-model="formData.group_id"
+                                    nullable
+                                    filterable
+                                    placeholder="Select Group"
+                                >
+                                    <el-option
+                                        v-for="group in groups"
+                                        :key="group.id"
+                                        :label="group.name"
+                                        :value="group.id"
+                                    >
+                                    </el-option>
+                                </el-select>
+                            </div>
                             <div class="form-group">
                                 <label class="control-label">Role Name</label>
                                 <input
@@ -26,7 +46,9 @@
                                 />
                             </div>
 
-                            <span v-if="formErrors.name" class="text-danger">{{ formErrors.name[0] }}</span>
+                            <span v-if="formErrors.name" class="text-danger">{{
+                                formErrors.name[0]
+                            }}</span>
 
                             <button class="btn btn-site" type="submit">
                                 Create
@@ -49,10 +71,14 @@ export default {
             isLoading: false,
             formData: {
                 name: "",
+                group_id: null,
             },
-
+            groups: [],
             formErrors: [],
         };
+    },
+    mounted() {
+        this.fetchGroups();
     },
     methods: {
         async handleSubmit() {
@@ -72,11 +98,11 @@ export default {
                 // Clear the form data
                 this.formData = {
                     name: "",
-                    status: "active",
+                    group_id: null,
                 };
 
                 // Navigate to the groups list route
-                this.$router.push({name: "groups"});
+                this.$router.push({ name: "groups" });
             } catch (error) {
                 console.error("Error creating group:", error);
                 if (error.response && error.response.data.errors) {
@@ -90,38 +116,48 @@ export default {
                 }
             }
         },
+        async fetchGroups() {
+            try {
+                const response = await axios.get("/groups");
+                this.groups = response.data;
+            } catch (error) {
+                console.error("Error fetching groups:", error);
+            }
+        },
         async saveRole() {
             this.isError = false;
 
             if (!this.formData.name) {
-                this.errors.name = ['Role name is required'];
+                this.errors.name = ["Role name is required"];
                 this.isError = true;
             } else {
-                this.errors.name = '';
+                this.errors.name = "";
             }
 
             if (this.isError) {
                 return false;
             } else {
-                this.errors.name = '';
+                this.errors.name = "";
             }
 
-            this.isLoading = true
-            await axios.post('/role/save', this.formData).then(({data}) => {
-
-                Vue.prototype.$showToast(data.message, {
-                    title: data.message,
-                    toaster: `b-toaster-top-right`,
-                    variant: 'success'
+            this.isLoading = true;
+            await axios
+                .post("/role/save", this.formData)
+                .then(({ data }) => {
+                    Vue.prototype.$showToast(data.message, {
+                        title: data.message,
+                        toaster: `b-toaster-top-right`,
+                        variant: "success",
+                    });
+                    this.$router.push({ name: "roles-index" });
+                })
+                .catch(({ response: { data } }) => {
+                    console.log("data.errors", data);
+                    this.errors = data.errors;
+                    console.log("data.errors");
+                    this.isLoading = false;
+                    //
                 });
-                this.$router.push({name: 'roles-index'})
-            }).catch(({response: {data}}) => {
-                console.log('data.errors', data)
-                this.errors = data.errors;
-                console.log('data.errors')
-                this.isLoading = false;
-                //
-            })
         },
     },
 };
