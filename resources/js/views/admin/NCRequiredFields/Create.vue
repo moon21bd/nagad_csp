@@ -1,94 +1,248 @@
 <template>
     <div>
-        <form @submit.prevent="createRequiredFields">
-            <div class="form-group">
-                <label for="name">Call Type Id</label>
-                <select v-model="callTypeId" @change="fetchCategories" required>
-                    <option :value="null" disabled>Select Call Type</option>
-                    <option v-for="type in callTypes" :key="type.id" :value="type.id">
-                        {{ type.call_type_name }}
-                    </option>
-                </select>
+        <div class="common-heading d-flex align-items-center mb-3">
+            <router-link
+                class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
+                to="/admin/required-fields-config"
+                ><i class="icon-left"></i>
+            </router-link>
+            <h1 class="title m-0">Required fields configuration</h1>
+        </div>
+        <div class="card mb-4">
+            <div class="overlay" v-if="isLoading">
+                <img src="/images/loader.gif" alt="" />
             </div>
-            <div class="form-group">
-                <label for="name">Call Category Id</label>
-                <select v-model="callCategoryId" @change="fetchSubCategory" required>
-                    <option :value="null" disabled>Select Call Category</option>
-                    <option v-for="category in callCategories"
-                            :key="category.id"
-                            :value="category.id">
-                        {{ category.call_category_name }}
-                    </option>
-                </select>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <form @submit.prevent="createRequiredFields">
+                            <div class="form-row">
+                                <div class="col-md-4 form-group">
+                                    <label class="control-label"
+                                        >Call Type Id <sup>*</sup></label
+                                    >
+                                    <div class="custom-style">
+                                        <select
+                                            class="form-control"
+                                            v-model="callTypeId"
+                                            @change="fetchCategories"
+                                            required
+                                        >
+                                            <option :value="null" disabled>
+                                                Select Call Type
+                                            </option>
+                                            <option
+                                                v-for="types in callTypes"
+                                                :key="types.id"
+                                                :value="types.id"
+                                            >
+                                                {{ types.call_type_name }}
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label class="control-label"
+                                        >Call Category Id <sup>*</sup></label
+                                    >
+
+                                    <el-select
+                                        class="d-block w-100"
+                                        v-model="callCategoryId"
+                                        required
+                                        filterable
+                                        @change="fetchSubCategory"
+                                        placeholder="Select Call Category"
+                                    >
+                                        <el-option
+                                            v-for="category in callCategories"
+                                            :key="category.id"
+                                            :label="category.call_category_name"
+                                            :value="category.id"
+                                        >
+                                        </el-option>
+                                    </el-select>
+                                </div>
+                                <div class="col-md-4 form-group">
+                                    <label class="control-label"
+                                        >Call Sub Category Id
+                                        <sup>*</sup></label
+                                    >
+                                    <!-- <select
+                                        v-model="callSubCategoryId"
+                                        required
+                                    >
+                                        <option :value="null" disabled>
+                                            Select Call Sub Category
+                                        </option>
+                                        <option
+                                            v-for="subCategory in callSubCategories"
+                                            :key="subCategory.id"
+                                            :value="subCategory.id"
+                                        >
+                                            {{
+                                                subCategory.call_sub_category_name
+                                            }}
+                                        </option>
+                                    </select> -->
+
+                                    <el-select
+                                        class="d-block w-100"
+                                        v-model="callSubCategoryId"
+                                        required
+                                        filterable
+                                        placeholder="Select Call Sub Category"
+                                    >
+                                        <el-option
+                                            v-for="subCategory in callSubCategories"
+                                            :key="subCategory.id"
+                                            :label="
+                                                subCategory.call_sub_category_name
+                                            "
+                                            :value="subCategory.id"
+                                        >
+                                        </el-option>
+                                    </el-select>
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label class="control-label"
+                                        >Input Field Name</label
+                                    >
+                                    <input
+                                        type="text"
+                                        v-model="inputFiledName"
+                                        class="form-control"
+                                        id=""
+                                        placeholder="Enter Input Field Name"
+                                    />
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label class="control-label"
+                                        >Choose Input Type</label
+                                    >
+                                    <select
+                                        class="form-control"
+                                        v-model="inputType"
+                                        id=""
+                                    >
+                                        <option value="select">
+                                            Select/Option
+                                        </option>
+                                        <option value="integer">Number</option>
+                                        <option value="varchar">String</option>
+                                        <option value="text">Text</option>
+                                        <option value="datetime">
+                                            DateTime
+                                        </option>
+                                    </select>
+                                </div>
+                                <div
+                                    class="col-md-12 form-group"
+                                    v-if="inputType === 'select'"
+                                >
+                                    <label class="control-label"
+                                        >Input Value</label
+                                    >
+                                    <input
+                                        type="text"
+                                        v-model="inputValue"
+                                        class="form-control"
+                                        id=""
+                                        placeholder="Enter Input Value"
+                                    />
+                                </div>
+                                <div class="col-md-12 form-group">
+                                    <label class="control-label"
+                                        >Input Validation Rules</label
+                                    >
+                                    <input
+                                        type="text"
+                                        v-model="inputValidation"
+                                        class="form-control"
+                                        id=""
+                                        placeholder="Enter Input Validation Rules"
+                                    />
+                                    <small class="form-text text-muted"
+                                        >We'll never share your email with
+                                        anyone else.</small
+                                    >
+                                </div>
+                                <!-- <div class="col-md-12 form-group">
+                                    <label for="exampleFormControlSelect1"
+                                        >Status</label
+                                    >
+                                    <select
+                                        class="form-control"
+                                        v-model="statusValue"
+                                        id="status"
+                                    >
+                                        <option value="active" selected>
+                                            Active
+                                        </option>
+                                        <option value="inactive">
+                                            Inactive
+                                        </option>
+                                    </select>
+                                </div> -->
+                                <div
+                                    class="form-group d-flex align-items-center"
+                                >
+                                    <label class="control-label m-0 mr-3"
+                                        >Status:</label
+                                    >
+                                    <label class="radio mr-2"
+                                        ><input
+                                            type="radio"
+                                            value="active"
+                                            v-model="statusValue"
+                                            required
+                                        /><span class="radio-mark"></span>Active
+                                    </label>
+                                    <label class="radio">
+                                        <input
+                                            type="radio"
+                                            value="inactive"
+                                            v-model="statusValue"
+                                            required
+                                        /><span class="radio-mark"></span
+                                        >Inactive
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-site">
+                                Save
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="name">Call Sub Category Id</label>
-                <select v-model="callSubCategoryId" required>
-                    <option :value="null" disabled>Select Call Sub Category</option>
-                    <option v-for="subCategory in callSubCategories"
-                            :key="subCategory.id"
-                            :value="subCategory.id">
-                        {{ subCategory.call_sub_category_name }}
-                    </option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="name">Input Field Name</label>
-                <input type="text" v-model="inputFiledName" class="form-control" id=""
-                       placeholder="Enter Input Field Name">
-            </div>
-            <div class="form-group">
-                <label for="exampleFormControlSelect1">Input Type</label>
-                <select class="form-control" v-model="inputType" id="">
-                    <option value="select">Select/Option</option>
-                    <option value="integer">Number</option>
-                    <option value="varchar">String</option>
-                    <option value="text">Text</option>
-                    <option value="datetime">DateTime</option>
-                </select>
-            </div>
-            <div class="form-group" v-if="inputType ==='select'">
-                <label for="name">Input Value</label>
-                <input type="text" v-model="inputValue" class="form-control" id="" placeholder="Enter Input Value">
-            </div>
-            <div class="form-group">
-                <label for="name">Input Validation Rules</label>
-                <input type="text" v-model="inputValidation" class="form-control" id=""
-                       placeholder="Enter Input Validation Rules">
-            </div>
-            <div class="form-group">
-                <label for="exampleFormControlSelect1">Status</label>
-                <select class="form-control" v-model="statusValue" id="status">
-                    <option value="active" selected>Active</option>
-                    <option value="inactive">Inactive</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Save</button>
-        </form>
+        </div>
     </div>
 </template>
 
 <script>
 export default {
-    name: 'Create',
+    name: "Create",
     data() {
         return {
-            name: '',
-            statusValue: '',
+            isLoading: false,
+            name: "",
+            statusValue: "",
             callTypeId: null,
             callCategoryId: null,
             callSubCategoryId: null,
-            inputValue: '',
-            inputType: '',
-            inputFiledName: '',
-            inputValidation: 'required,',
+            inputValue: "",
+            inputType: "",
+            inputFiledName: "",
+            inputValidation: "required,",
             callTypes: [],
             callCategories: {},
             callSubCategories: {},
-        }
+        };
     },
     mounted() {
-        this.fetchCallTypes()
+        this.fetchCallTypes();
     },
     methods: {
         async fetchCallTypes() {
@@ -101,19 +255,23 @@ export default {
         },
         async fetchCategories() {
             try {
-                const response = await axios.get(`/get-category/${this.callTypeId}`);
+                const response = await axios.get(
+                    `/get-category/${this.callTypeId}`
+                );
                 this.callCategories = response.data;
-                console.log('call category', this.callCategories)
+                console.log("call category", this.callCategories);
             } catch (error) {
-                console.error('Error fetching call categories:', error);
+                console.error("Error fetching call categories:", error);
             }
         },
         async fetchSubCategory() {
             try {
-                const response = await axios.get(`/call-sub-by-call-cat-id/${this.callTypeId}/${this.callCategoryId}`);
+                const response = await axios.get(
+                    `/call-sub-by-call-cat-id/${this.callTypeId}/${this.callCategoryId}`
+                );
                 this.callSubCategories = response.data;
             } catch (error) {
-                console.error('Error fetching call sub categories:', error);
+                console.error("Error fetching call sub categories:", error);
             }
         },
         async createRequiredFields() {
@@ -126,16 +284,15 @@ export default {
                     inputValue: this.inputValue,
                     inputType: this.inputType,
                     inputValidation: this.inputValidation,
-                    statusValue: this.statusValue
+                    statusValue: this.statusValue,
                 };
-                await axios.post('/required-fields-configs', postData);
+                await axios.post("/required-fields-configs", postData);
                 // this.category = {};
-                this.$router.push({name: "required-fields-config-index"})
+                this.$router.push({ name: "required-fields-config-index" });
             } catch (error) {
-                console.error('Error creating required fields config:', error);
+                console.error("Error creating required fields config:", error);
             }
         },
-
-    }
-}
+    },
+};
 </script>

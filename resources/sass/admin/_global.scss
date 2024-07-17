@@ -229,6 +229,7 @@ select.form-control {
                 color: $gray-600;
                 vertical-align: middle;
                 &:last-child {
+                    white-space: nowrap;
                     .btn {
                         &-action {
                             height: 30px;
