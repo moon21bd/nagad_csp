@@ -47,7 +47,7 @@
                                 December 12, 2019
                             </div>
                             <span class="font-weight-bold"
-                            >A new monthly report is ready to
+                                >A new monthly report is ready to
                                 download!</span
                             >
                         </div>
@@ -84,7 +84,7 @@
                     <a
                         class="dropdown-item text-center small text-gray-500"
                         href="#"
-                    >Show All Alerts</a
+                        >Show All Alerts</a
                     >
                 </div>
             </li>
@@ -106,11 +106,10 @@
                         class="img-profile rounded-circle"
                         src="/images/user-avatar.png"
                     />
-                    <span class="ml-2 d-none d-lg-inline text-gray-600 small"
-                    >
-                            <span v-if="user">{{ user.name }}</span>
+                    <span class="ml-2 d-none d-lg-inline text-gray-600 small">
+                        <span v-if="user">{{ user.name }}</span>
                         <i class="icon-down"></i
-                        ></span>
+                    ></span>
                 </a>
                 <!-- Dropdown - User Information -->
                 <div
@@ -140,22 +139,38 @@
 </template>
 
 <script>
-import {mapActions, mapGetters} from "vuex";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
     name: "Topbar",
     computed: {
-        ...mapGetters('auth', ["user"]),
+        ...mapGetters("auth", ["user"]),
         user() {
-            return this.$store.getters['auth/user'];
-        }
+            return this.$store.getters["auth/user"];
+        },
     },
     methods: {
-        ...mapActions('auth', ["setUser"]),
+        ...mapActions("auth", ["setUser"]),
         logout() {
             localStorage.removeItem("token");
+            this.logoutSend(this.$store.state.auth.user.id);
             this.setUser(null);
             this.$router.push("/login");
+        },
+        async logoutSend(id) {
+            console.log("logoutSend Called", id);
+            await axios
+                .post("/logout", { id })
+                .then(({ data }) => {
+                    console.log("logout-message", data);
+                })
+                .catch(({ response: { data } }) => {
+                    console.log("data", data);
+                    this.errors = data.errors;
+                })
+                .finally(() => {
+                    //
+                });
         },
     },
 };

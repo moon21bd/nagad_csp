@@ -21,10 +21,17 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
+        'group_id',
+        'parent_id',
+        'mobile_no',
         'name',
-        'first_name',
-        'last_name',
+        'user_type',
+        'api_token',
         'email',
+        'created_by',
+        'updated_by',
+        'status',
+        'avatar',
         'password',
     ];
 
@@ -57,15 +64,8 @@ class User extends Authenticatable
         return config('auth.must_verify_email');
     }
 
-    /*public function groups()
+    public function user_activity()
     {
-        return $this->belongsToMany(NCGroup::class, 'nc_user_groups', 'user_id', 'group_id');
+        return $this->belongsTo(UserActivity::class, 'user_id');
     }
-
-    public function hasPermissionForPath($path)
-    {
-        return $this->groups->pluck('permissions')->flatten()->contains(function ($permission) use ($path) {
-            return $permission->path && str_is($permission->path, $path);
-        });
-    }*/
 }

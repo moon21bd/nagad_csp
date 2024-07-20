@@ -1,6 +1,8 @@
 <template>
     <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light nav-fill w-100">
+        <nav
+            class="navbar navbar-expand-lg navbar-light bg-light nav-fill w-100"
+        >
             <div class="container">
                 <button
                     class="navbar-toggler"
@@ -18,17 +20,26 @@
                     <ul class="navbar-nav mt-2 mt-lg-0 ml-auto" v-if="!user">
                         <li class="nav-item active">
                             <router-link class="nav-link" to="/login"
-                            >Login <span class="sr-only">(current)</span></router-link
+                                >Login
+                                <span class="sr-only"
+                                    >(current)</span
+                                ></router-link
                             >
                         </li>
                         <li class="nav-item">
-                            <router-link class="nav-link" to="/register">Sign Up</router-link>
+                            <router-link class="nav-link" to="/register"
+                                >Sign Up</router-link
+                            >
                         </li>
                     </ul>
                     <ul class="navbar-nav mt-2 mt-lg-0 ml-auto" v-if="user">
                         <li class="nav-item active">
-                            <a class="nav-link" href="javascript:void(0)" @click="logout"
-                            >Logout <span class="sr-only">(current)</span></a
+                            <a
+                                class="nav-link"
+                                href="javascript:void(0)"
+                                @click="logout"
+                                >Logout
+                                <span class="sr-only">(current)</span></a
                             >
                         </li>
                     </ul>
@@ -39,21 +50,20 @@
 </template>
 
 <script>
-import {mapGetters} from "vuex";
+import { mapGetters } from "vuex";
 
 export default {
     name: "Nav",
     methods: {
         logout() {
             localStorage.removeItem("token");
-            // this.$store.dispatch("globalStore/user", null);
-            commit('SET_USER', {});
-            commit('SET_AUTHENTICATED', false);
+            commit("SET_USER", {});
+            commit("SET_AUTHENTICATED", false);
             this.$router.push("/login");
         },
     },
     computed: {
-        ...mapGetters('globalStore', ["user"]),
+        ...mapGetters("globalStore", ["user"]),
     },
 };
 </script>

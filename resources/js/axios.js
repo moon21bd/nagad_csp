@@ -1,18 +1,18 @@
-import axios from 'axios';
-import store from './store';
-import router from './router';
-import Vue from 'vue';
+import axios from "axios";
+import store from "./store";
+import router from "./router";
+import Vue from "vue";
 
-// Adding Axios Response Interceptor
+// Adding Axios Response Interceptor For Auto Logout
 axios.interceptors.response.use(
-    response => response,
-    error => {
-        console.log('ERROR::', error)
+    (response) => response,
+    (error) => {
+        console.log("ERROR::", error.response && error.response.status === 401);
         if (error.response && error.response.status === 401) {
             localStorage.removeItem("token");
-            store.dispatch("user", null).then(() => {
-                console.log('Hello to Login');
-                router.push({name: 'login'});
+            store.dispatch("auth/logout").then(() => {
+                console.log("Hello to Login");
+                router.push({ name: "login" });
             });
         }
         return Promise.reject(error);
@@ -20,21 +20,23 @@ axios.interceptors.response.use(
 );
 
 axios.interceptors.response.use(
-    response => response,
-    error => {
-
+    (response) => response,
+    (error) => {
         if (error.response.status === 403) {
             // console.log('error.response.', error.response.data?.error)
-            Vue.prototype.$showToast('You are not authorized to perform this action.', {
-                variant: 'error'
-            });
+            Vue.prototype.$showToast(
+                "You are not authorized to perform this action.",
+                {
+                    variant: "error",
+                }
+            );
         }
         return Promise.reject(error);
     }
 );
 
 axios.defaults.baseURL = "/api/";
-axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
-
+axios.defaults.headers.common["Authorization"] =
+    "Bearer " + localStorage.getItem("token");
 
 export default axios;

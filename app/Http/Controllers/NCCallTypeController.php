@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\NCCallTypeResource;
 use App\Models\NCCallType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,10 +10,10 @@ class NCCallTypeController extends Controller
 {
     /*function __construct()
     {
-        $this->middleware('permission:call-types-list|call-types-create|call-types-edit|call-types-delete', ['only' => ['index', 'store']]);
-        $this->middleware('permission:call-types-create', ['only' => ['create', 'store']]);
-        $this->middleware('permission:call-types-edit', ['only' => ['edit', 'store']]);
-        $this->middleware('permission:call-types-delete', ['only' => ['destroy']]);
+    $this->middleware('permission:call-types-list|call-types-create|call-types-edit|call-types-delete', ['only' => ['index', 'store']]);
+    $this->middleware('permission:call-types-create', ['only' => ['create', 'store']]);
+    $this->middleware('permission:call-types-edit', ['only' => ['edit', 'store']]);
+    $this->middleware('permission:call-types-delete', ['only' => ['destroy']]);
     }*/
 
     public function index()
@@ -27,7 +26,7 @@ class NCCallTypeController extends Controller
     {
         $validatedData = $request->validate([
             'call_type_name' => 'required|string|max:128',
-            'status' => 'required|in:active,inactive'
+            'status' => 'required|in:active,inactive',
         ]);
         $validatedData['created_by'] = Auth::id();
         $ncCallType = NCCallType::create($validatedData);

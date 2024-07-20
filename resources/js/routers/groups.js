@@ -1,8 +1,9 @@
 import AdminLayout from "../views/admin/layout/index.vue";
 
-const Index = () => import("../views/admin/NCGroups/List.vue");
-const Create = () => import("../views/admin/NCGroups/Create.vue");
-const Edit = () => import("../views/admin/NCGroups/Edit.vue");
+const Index = () => import("../views/admin/Groups/List.vue");
+const Create = () => import("../views/admin/Groups/Create.vue");
+const Edit = () => import("../views/admin/Groups/Edit.vue");
+const ManageGroupRoles = () => import("../views/admin/Groups/ManageRoles.vue");
 
 export default [
     {
@@ -27,6 +28,15 @@ export default [
         path: "/admin/groups/:id/edit",
         name: "editGroup",
         component: Edit,
+        meta: {
+            requiresAuth: true,
+            layout: AdminLayout,
+        },
+    },
+    {
+        path: "/admin/groups/:id/roles",
+        name: "manageGroupRoles",
+        component: ManageGroupRoles,
         meta: {
             requiresAuth: true,
             layout: AdminLayout,

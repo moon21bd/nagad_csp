@@ -15,7 +15,7 @@ class AddGroupIdInUsersTable extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->unsignedBigInteger('group_id')->nullable()->after('id');
-            $table->foreign('group_id')->references('id')->on('nc_groups')->onDelete('cascade');
+            $table->foreign('group_id')->references('id')->on('groups')->onDelete('cascade');
         });
     }
 

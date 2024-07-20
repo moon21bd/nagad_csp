@@ -3,6 +3,7 @@ import Router from "vue-router";
 
 import defaultRoutes from "./routers/default";
 import rolesPermissions from "./routers/roles-permissions";
+import userRoutes from "./routers/users";
 import callCategory from "./routers/call-category";
 import callSubCategory from "./routers/call-sub-category";
 import callSubSubCategory from "./routers/call-sub-sub-category";
@@ -19,6 +20,7 @@ let router = new Router({
     mode: "history",
     routes: [
         ...defaultRoutes,
+        ...userRoutes,
         ...callTypes,
         ...accessLists,
         ...groups,
@@ -27,17 +29,16 @@ let router = new Router({
         ...callSubSubCategory,
         ...groupConfigs,
         ...rolesPermissions,
-        ...requiredConfigs
-
-    ]
+        ...requiredConfigs,
+    ],
 });
 
 router.beforeEach((to, from, next) => {
-    if (to.matched.some(record => record.meta.requiresAuth)) {
-        if (!store.getters['auth/authenticated']) {
+    if (to.matched.some((record) => record.meta.requiresAuth)) {
+        if (!store.getters["auth/authenticated"]) {
             next({
-                path: '/login',
-                query: {redirect: to.fullPath}
+                path: "/login",
+                query: { redirect: to.fullPath },
             });
         } else {
             next();

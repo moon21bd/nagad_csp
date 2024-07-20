@@ -1,22 +1,18 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api;
-use App\Http\Controllers\{
-    NCGroupController,
-    NCCallCategoryController,
-    NCCallTypeController,
-    NCCallSubCategoryController,
-    NCCallSubSubCategoryController,
-    NCAccessListController,
-    NCGroupConfigsController,
-    AuthController,
-    RolesController,
-    PermissionsController,
-    UsersController,
-    NCRequiredConfigController
-};
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GroupController;
+use App\Http\Controllers\GroupRoleController;
+use App\Http\Controllers\NCCallCategoryController;
+use App\Http\Controllers\NCCallSubCategoryController;
+use App\Http\Controllers\NCCallSubSubCategoryController;
+use App\Http\Controllers\NCCallTypeController;
+use App\Http\Controllers\NCRequiredConfigController;
+use App\Http\Controllers\PermissionsController;
+use App\Http\Controllers\RolesController;
+use App\Http\Controllers\UsersController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,8 +23,7 @@ use App\Http\Controllers\{
 | routes are loaded by the RouteServiceProvider within a group which
 | is assigned the "api" middleware group. Enjoy building your API!
 |
-*/
-
+ */
 
 /*
 // Resource Controller Methods
@@ -49,14 +44,14 @@ Route::post('/resetpassword', [AuthController::class, 'resetpassword']);
 Route::post('/logout', [AuthController::class, 'logout']);
 
 Route::post('login', [Api\AuthController::class, 'login']);
-Route::post('register', [Api\RegisterController::class, 'register']);
+// Route::post('register', [Api\RegisterController::class, 'register']);
 Route::post('forgot', [Api\ForgotController::class, 'forgot']);
 Route::post('reset', [Api\ForgotController::class, 'reset']);
 Route::get('email/resend/{user}', [Api\VerifyController::class, 'resend'])->name('verification.resend');
-Route::get('email/verify/{id}', [Api\VerifyController::class, 'verify'])->name('verification.verify');; // Make sure to keep this as your route name
+Route::get('email/verify/{id}', [Api\VerifyController::class, 'verify'])->name('verification.verify'); // Make sure to keep this as your route name
 
 /*Route::group(['middleware' => ['auth:api']], function () {
-    Route::get('user', [Api\AuthController::class, 'user']);
+Route::get('user', [Api\AuthController::class, 'user']);
 });*/
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
@@ -88,21 +83,21 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('get-category/{id}', [NCCallCategoryController::class, 'getCategoryByCallTypeId']);
 
     Route::get('call-sub-by-call-cat-id/{ctid}/{ccid}', [NCCallSubCategoryController::class, 'getCallSubCatByCallAndCategoryId']);
-
     Route::get('get-required-fields/{ctid}/{ccid}/{cscid}', [NCRequiredConfigController::class, 'getRequiredFieldConfigsData']);
-
     Route::get('get-required-field-by-sub-cat-id/{id}', [NCRequiredConfigController::class, 'getRequiredFieldConfigBySubCatId']);
 
+    Route::post('groups/{group}/roles', [GroupRoleController::class, 'assignRoles']);
+    Route::delete('groups/{group}/roles/{role}', [GroupRoleController::class, 'removeRoles']);
+
+    Route::post('user/register', [AuthController::class, 'register']);
 
     // for nagad api
     Route::apiResources([
-        'groups' => NCGroupController::class,
+        'groups' => GroupController::class,
         'call-categories' => NCCallCategoryController::class,
         'call-types' => NCCallTypeController::class,
         'call-sub-categories' => NCCallSubCategoryController::class,
         'call-sub-sub-categories' => NCCallSubSubCategoryController::class,
-        'access-lists' => NCAccessListController::class,
-        'group-configs' => NCGroupConfigsController::class,
         'required-fields-configs' => NCRequiredConfigController::class,
     ]);
 });

@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\User;
-use Illuminate\Http\Request;
-use App\Http\Requests\LoginRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
+use App\Models\User;
+use App\Models\UserActivity;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use App\Http\Requests\RegisterRequest;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
@@ -21,12 +20,18 @@ class AuthController extends Controller
                 /** @var User $user */
                 $user = Auth::user();
                 $token = $user->createToken('authToken')->plainTextToken;
-                // dd($user, $token);
+
                 if (config('auth.must_verify_email') && !$user->hasVerifiedEmail()) {
                     return response([
-                        'message' => 'Email must be verified.'
+                        'message' => 'Email must be verified.',
                     ], 401);
                 }
+
+                // log the last successfull login into user_activities table for corresponding relationship.
+                // make relationship for user_activities file -- not done
+                $updateData['last_login'] = $updateData['last_online'] = Carbon::now();
+                $userActivity = UserActivity::findOrFail($user->id);
+                $userActivity->update($updateData);
 
                 $user['roles'] = $user->getAllPermissions();
                 Log::info('USER: ' . json_encode($user));
@@ -39,13 +44,13 @@ class AuthController extends Controller
                 return response([
                     'message' => 'Successfully loggedIn.',
                     'token' => $token,
-                    'user' => $user
+                    'user' => $user,
                 ]);
 
             }
         } catch (\Exception $e) {
             return response([
-                'message' => 'Internal error, please try again later.' //$e->getMessage()
+                'message' => 'Internal error, please try again later.', //$e->getMessage()
             ], 400);
         }
 
@@ -71,8 +76,8 @@ class AuthController extends Controller
     }
 
     /*public function user()
-    {
-        Log::info('user method called', Auth::user());
-        return response()->json(Auth::user());
-    }*/
+{
+Log::info('user method called', Auth::user());
+return response()->json(Auth::user());
+}*/
 }

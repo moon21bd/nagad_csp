@@ -13,10 +13,9 @@ class CreateGroupsTable extends Migration
      */
     public function up()
     {
-        Schema::create('nc_groups', function (Blueprint $table) {
+        Schema::create('groups', function (Blueprint $table) {
             $table->id()->autoIncrement()->unsigned();
             $table->string('name', 128);
-            $table->integer('role_id');
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('updated_by')->nullable();
@@ -32,6 +31,6 @@ class CreateGroupsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('nc_groups');
+        Schema::dropIfExists('groups');
     }
 }

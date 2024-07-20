@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
-
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use App\Models\Role;
 use DB;
+use Illuminate\Http\Request;
+use Spatie\Permission\Models\Permission;
 
 class RolesController extends Controller
 {
-    function __construct()
+    public function __construct()
     {
 //        $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index', 'store']]);
 //        $this->middleware('permission:role-create', ['only' => ['create', 'store']]);
@@ -28,11 +27,7 @@ class RolesController extends Controller
     public function roles(Request $request)
     {
         $roles = Role::all();
-        return response()->json([
-            'title' => 'Success.',
-            'message' => 'Roles List.',
-            'roles' => $roles
-        ], 200);
+        return response()->json($roles);
 
     }
 
@@ -46,16 +41,16 @@ class RolesController extends Controller
     {
         $this->validate($request, [
             'name' => 'required|unique:roles,name',
-            'group_id' => 'required|unique:roles,name',
         ]);
         $msg = 'Role created successfully.';
-        $role = Role::create(['name' => $request->input('name'), 'guard_name' => 'api']);
+        $role = Role::create(['name' => $request->input('name'),
+            'guard_name' => 'api']);
 
         // $role->syncPermissions($request->input('rolePermissions'));
 
         return response()->json([
             'title' => $msg,
-            'message' => $msg
+            'message' => $msg,
         ], 200);
 
     }
@@ -77,16 +72,14 @@ class RolesController extends Controller
         return response()->json([
             'title' => 'Success.',
             'message' => 'Role Details.',
-            'role' => $role
+            'role' => $role,
         ], 200);
     }
 
     public function update(Request $request, $roleId)
     {
-        dd($request->all(),$roleId );
         $role = Role::findById($roleId);
         $roleName = $request->input('name');
-        // dd($roleName);
         $role->name = $roleName;
         $role->save();
 
@@ -106,7 +99,7 @@ class RolesController extends Controller
         return response()->json([
             'title' => 'Success.',
             'message' => 'Role Deleted.',
-            'data' => ''
+            'data' => '',
         ], 200);
     }
 }

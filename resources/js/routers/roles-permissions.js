@@ -1,26 +1,14 @@
 import AdminLayout from "../views/admin/layout/index.vue";
 
-const Profile = () => import("../components/Profile.vue");
 const Roles = () => import("../components/Roles.vue");
 const Permissions = () => import("../components/Permissions.vue");
-const PermissionsAssign = () => import("../components/PermissionsAssign.vue");
-const RolesCreate = () => import("../views/admin/roles/Create.vue");
-const RolesList = () => import("../views/admin/roles/List.vue");
-const RolesEdit = () => import("../views/admin/roles/Edit.vue");
-const Users = () => import("../views/admin/users/Create.vue");
+const RolesCreate = () => import("../views/admin/Roles/Create.vue");
+const RolesList = () => import("../views/admin/Roles/List.vue");
+const RolesEdit = () => import("../views/admin/Roles/Edit.vue");
+const PermissionsAssign = () =>
+    import("../views/admin/Roles/PermissionsAssign.vue");
 
 export default [
-    {
-        name: "profile",
-        path: "/admin/profile",
-        component: Profile,
-        meta: {
-            title: "Profile",
-            middleware: "auth",
-            requiresAuth: true,
-            layout: AdminLayout,
-        },
-    },
     {
         name: "roles-create",
         path: "/admin/roles/create",
@@ -66,6 +54,17 @@ export default [
         },
     },
     {
+        name: "roles-assign-permissions",
+        path: "/admin/roles/:id/assign/permissions",
+        component: PermissionsAssign,
+        meta: {
+            title: "Roles",
+            middleware: "auth",
+            requiresAuth: true,
+            layout: AdminLayout,
+        },
+    },
+    {
         name: "permissions",
         path: "/admin/permissions",
         component: Permissions,
@@ -82,17 +81,6 @@ export default [
         component: PermissionsAssign,
         meta: {
             title: "PermissionsAssign",
-            middleware: "auth",
-            requiresAuth: true,
-            layout: AdminLayout,
-        },
-    },
-    {
-        name: "users",
-        path: "/admin/users",
-        component: Users,
-        meta: {
-            title: "Users",
             middleware: "auth",
             requiresAuth: true,
             layout: AdminLayout,

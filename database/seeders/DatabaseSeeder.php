@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Database\Seeder;
 use App\Models\User;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
@@ -74,8 +74,6 @@ class SuperAdminUserSeeder extends Seeder
         // Create a super admin user
         $user = User::create([
             'name' => 'Super Admin',
-            'first_name' => 'Raqibul',
-            'last_name' => 'Hasan',
             'email' => 'rhmoon21@gmail.com',
             'password' => Hash::make('12345678'),
         ]);
