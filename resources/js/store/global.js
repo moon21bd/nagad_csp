@@ -16,43 +16,41 @@ export default {
         callSubSubCategories: [],
         callSubSubCategory: {},
         subCategory: null,
-        accessLists: []
+        accessLists: [],
     },
     getters: {
         groups: (state) => state.groups,
         callTypes: (state) => state.callTypes,
         callCategories: (state) => state.callCategories,
-        callSubCategories: state => state.callSubCategories,
+        callSubCategories: (state) => state.callSubCategories,
         allCallSubSubCategories: (state) => state.callSubSubCategories,
         singleCallSubSubCategory: (state) => state.callSubSubCategory,
-        getSubCategory: state => state.subCategory,
-        accessLists: state => state.accessLists,
+        getSubCategory: (state) => state.subCategory,
+        accessLists: (state) => state.accessLists,
         hasPermission: (state) => (permissionName) => {
             return state.permissions.includes(permissionName);
-        }
+        },
     },
     actions: {
-
-
-        async updateCallCategory({commit}, categoryData) {
+        async updateCallCategory({ commit }, categoryData) {
             try {
-                const response = await axios.put(`/call-categories/${categoryData.id}`, categoryData);
-                commit('updateCallCategory', response.data);
+                const response = await axios.put(
+                    `/call-categories/${categoryData.id}`,
+                    categoryData
+                );
+                commit("updateCallCategory", response.data);
             } catch (error) {
-                console.error('Error updating call category:', error);
+                console.error("Error updating call category:", error);
             }
         },
-        async deleteCallCategory({commit}, categoryId) {
+        async deleteCallCategory({ commit }, categoryId) {
             try {
                 await axios.delete(`/call-categories/${categoryId}`);
-                commit('removeCallCategory', categoryId);
+                commit("removeCallCategory", categoryId);
             } catch (error) {
-                console.error('Error deleting call category:', error);
+                console.error("Error deleting call category:", error);
             }
         },
-
-
-
 
         /*async createCallType({dispatch}, callTypeData) {
             try {
@@ -62,55 +60,61 @@ export default {
                 console.error("Error creating call type:", error);
             }
         },*/
-        async updateCallType({commit}, callType) {
+        async updateCallType({ commit }, callType) {
             try {
-                const response = await axios.put(`/call-types/${callType.id}`, callType);
-                commit('updateCallType', response.data);
+                const response = await axios.put(
+                    `/call-types/${callType.id}`,
+                    callType
+                );
+                commit("updateCallType", response.data);
             } catch (error) {
-                console.error('Error updating call type:', error);
+                console.error("Error updating service type:", error);
             }
         },
-        async deleteCallType({commit}, callTypeId) {
+        async deleteCallType({ commit }, callTypeId) {
             try {
                 await axios.delete(`/call-types/${callTypeId}`);
                 commit("removeCallType", callTypeId);
             } catch (error) {
-                console.error("Error deleting call type:", error);
+                console.error("Error deleting service type:", error);
             }
         },
 
-        async fetchCallSubSubCategory({commit}, id) {
+        async fetchCallSubSubCategory({ commit }, id) {
             const response = await axios.get(`/call-sub-sub-categories/${id}`);
-            commit('setCallSubSubCategory', response.data);
+            commit("setCallSubSubCategory", response.data);
         },
-        async createCallSubSubCategory({dispatch}, data) {
-            await axios.post('/call-sub-sub-categories', data);
-            dispatch('fetchCallSubSubCategories');
+        async createCallSubSubCategory({ dispatch }, data) {
+            await axios.post("/call-sub-sub-categories", data);
+            dispatch("fetchCallSubSubCategories");
         },
-        async updateCallSubSubCategory({dispatch}, {id, data}) {
+        async updateCallSubSubCategory({ dispatch }, { id, data }) {
             await axios.put(`/call-sub-sub-categories/${id}`, data);
-            dispatch('fetchCallSubSubCategories');
+            dispatch("fetchCallSubSubCategories");
         },
-        async deleteCallSubSubCategory({dispatch}, id) {
+        async deleteCallSubSubCategory({ dispatch }, id) {
             await axios.delete(`/call-sub-sub-categories/${id}`);
-            dispatch('fetchCallSubSubCategories');
+            dispatch("fetchCallSubSubCategories");
         },
-        async fetchCallSubCategory({commit}, subCategoryId) {
+        async fetchCallSubCategory({ commit }, subCategoryId) {
             try {
-                console.log('subCategoryId', subCategoryId)
-                const response = await axios.get(`/call-sub-categories/${subCategoryId}`);
+                console.log("subCategoryId", subCategoryId);
+                const response = await axios.get(
+                    `/call-sub-categories/${subCategoryId}`
+                );
                 const subCategory = response.data;
-                commit('setSubCategory', subCategory);
+                commit("setSubCategory", subCategory);
                 return subCategory;
             } catch (error) {
                 throw new Error(`Error fetching sub-category: ${error}`);
             }
-        }, async fetchAccessLists({commit}) {
+        },
+        async fetchAccessLists({ commit }) {
             try {
-                const response = await axios.get('/access-lists');
-                commit('setAccessLists', response.data);
+                const response = await axios.get("/access-lists");
+                commit("setAccessLists", response.data);
             } catch (error) {
-                console.error('Error fetching access lists:', error);
+                console.error("Error fetching access lists:", error);
             }
         },
     },
@@ -119,7 +123,7 @@ export default {
             state.groups = groups;
         },
         removeGroup(state, groupId) {
-            state.groups = state.groups.filter(group => group.id !== groupId);
+            state.groups = state.groups.filter((group) => group.id !== groupId);
         },
         setCallCategories(state, callCategories) {
             state.callCategories = callCategories;
@@ -128,13 +132,17 @@ export default {
             state.callCategories.push(newCategory);
         },
         updateCallCategory(state, updatedCategory) {
-            const index = state.callCategories.findIndex(category => category.id === updatedCategory.id);
+            const index = state.callCategories.findIndex(
+                (category) => category.id === updatedCategory.id
+            );
             if (index !== -1) {
                 Vue.set(state.callCategories, index, updatedCategory);
             }
         },
         removeCallCategory(state, categoryId) {
-            state.callCategories = state.callCategories.filter(category => category.id !== categoryId);
+            state.callCategories = state.callCategories.filter(
+                (category) => category.id !== categoryId
+            );
         },
         setCallSubCategories(state, callSubCategories) {
             state.callSubCategories = callSubCategories;
@@ -143,28 +151,38 @@ export default {
             state.callSubCategories.push(newSubCategory);
         },
         updateCallSubCategory(state, updatedSubCategory) {
-            const index = state.callSubCategories.findIndex(subCategory => subCategory.id === updatedSubCategory.id);
+            const index = state.callSubCategories.findIndex(
+                (subCategory) => subCategory.id === updatedSubCategory.id
+            );
             if (index !== -1) {
                 Vue.set(state.callSubCategories, index, updatedSubCategory);
             }
         },
         removeCallSubCategory(state, subCategoryId) {
-            state.callSubCategories = state.callSubCategories.filter(subCategory => subCategory.id !== subCategoryId);
+            state.callSubCategories = state.callSubCategories.filter(
+                (subCategory) => subCategory.id !== subCategoryId
+            );
         },
         /*setCallTypes(state, callTypes) {
             state.callTypes = callTypes;
         },*/
         updateCallType(state, updatedCallType) {
-            const index = state.callTypes.findIndex(type => type.id === updatedCallType.id);
+            const index = state.callTypes.findIndex(
+                (type) => type.id === updatedCallType.id
+            );
             if (index !== -1) {
                 Vue.set(state.callTypes, index, updatedCallType);
             }
         },
         removeCallType(state, callTypeId) {
-            state.callTypes = state.callTypes.filter((type) => type.id !== callTypeId);
+            state.callTypes = state.callTypes.filter(
+                (type) => type.id !== callTypeId
+            );
         },
-        setCallSubSubCategories: (state, callSubSubCategories) => (state.callSubSubCategories = callSubSubCategories),
-        setCallSubSubCategory: (state, callSubSubCategory) => (state.callSubSubCategory = callSubSubCategory),
+        setCallSubSubCategories: (state, callSubSubCategories) =>
+            (state.callSubSubCategories = callSubSubCategories),
+        setCallSubSubCategory: (state, callSubSubCategory) =>
+            (state.callSubSubCategory = callSubSubCategory),
         setSubCategory(state, subCategory) {
             state.subCategory = subCategory;
             state.subCategory.call_type = subCategory.call_type || null;
@@ -172,6 +190,6 @@ export default {
         },
         setAccessLists(state, accessLists) {
             state.accessLists = accessLists;
-        }
-    }
-}
+        },
+    },
+};

@@ -16,7 +16,9 @@ class NCCallCategoryController extends Controller
     public function index()
     {
         // $categories = NCCallCategory::all();
-        $categories = NCCallCategory::with(['callType', 'creator', 'updater', 'lastUpdater'])->get();
+        $categories = NCCallCategory::with(['callType', 'creator', 'updater', 'lastUpdater'])
+            ->orderByDesc('id')
+            ->get();
         return response()->json($categories);
     }
 
@@ -60,9 +62,11 @@ class NCCallCategoryController extends Controller
      * @param int $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getCategoryByCallTypeId($id)
+    public function getActiveCategoryByCallTypeId($id)
     {
-        $category = NCCallCategory::where('call_type_id', $id)->get();
+        $category = NCCallCategory::where(['call_type_id' => $id, 'status' => 'active'])
+            ->orderByDesc('created_at')
+            ->get();
         return response()->json($category);
     }
 
@@ -99,4 +103,14 @@ class NCCallCategoryController extends Controller
         $category->delete();
         return response()->json(null, 204);
     }
+
+    public function getActiveServiceCategory()
+    {
+        $categories = NCCallCategory::with(['callType', 'creator', 'updater', 'lastUpdater'])
+            ->where('status', 'active')
+            ->orderByDesc('created_at')
+            ->get();
+        return response()->json($categories);
+    }
+
 }

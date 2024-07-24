@@ -3,10 +3,10 @@
         <div class="common-heading d-flex align-items-center mb-3">
             <router-link
                 class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
-                to="/admin/call-types"
+                :to="{ name: 'service-types-index' }"
                 ><i class="icon-left"></i>
             </router-link>
-            <h1 class="title m-0">Create Call Type</h1>
+            <h1 class="title m-0">Create Service Type</h1>
         </div>
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
@@ -18,7 +18,7 @@
                         <form @submit.prevent="createCallType">
                             <div class="form-group">
                                 <label class="control-label"
-                                    >Call Type Name</label
+                                    >Service Type Name<sup>*</sup></label
                                 >
                                 <input
                                     class="form-control"
@@ -80,9 +80,9 @@ export default {
             try {
                 await axios.post("/call-types", this.callType);
                 this.callType = {};
-                this.$router.push({ name: "call-types-index" });
+                this.$router.push({ name: "service-types-index" });
             } catch (error) {
-                console.error("Error creating call type:", error);
+                console.error("Error creating service type:", error);
             }
         },
     },

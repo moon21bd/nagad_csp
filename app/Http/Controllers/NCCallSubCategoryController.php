@@ -10,7 +10,9 @@ class NCCallSubCategoryController extends Controller
 {
     public function index()
     {
-        $subCategories = NCCallSubCategory::with('callType', 'callCategory')->get();
+        $subCategories = NCCallSubCategory::with('callType', 'callCategory')
+            ->orderByDesc('id')
+            ->get();
         return response()->json($subCategories);
     }
 
@@ -22,7 +24,10 @@ class NCCallSubCategoryController extends Controller
 
     public function getCallSubCatByCallAndCategoryId($callTypeId, $callCategoryId)
     {
-        $subCategory = NCCallSubCategory::with('callType', 'callCategory')->where(['call_type_id' => $callTypeId, 'call_category_id' => $callCategoryId])->get();
+        $subCategory = NCCallSubCategory::with('callType', 'callCategory')
+            ->where(['call_type_id' => $callTypeId, 'call_category_id' => $callCategoryId])
+            ->orderByDesc('id')
+            ->get();
         return response()->json($subCategory);
     }
 

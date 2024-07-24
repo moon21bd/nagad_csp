@@ -222,7 +222,7 @@ export default {
     methods: {
         async fetchCallTypes() {
             try {
-                const response = await axios.get("/call-types");
+                const response = await axios.get("/get-service-types");
                 this.requiredFields = [];
                 this.callSubCategories = [];
                 this.ticketInfos.callSubCategoryId = null;

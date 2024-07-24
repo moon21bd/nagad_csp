@@ -7,8 +7,8 @@ export default [
         component: () => import("../views/admin/NCRequiredFields/Create.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout
-        }
+            layout: AdminLayout,
+        },
     },
     {
         path: "/admin/required-fields-config",
@@ -16,8 +16,8 @@ export default [
         component: () => import("../views/admin/NCRequiredFields/List.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout
-        }
+            layout: AdminLayout,
+        },
     },
     {
         path: "/admin/required-fields-config/edit/:id",
@@ -25,27 +25,19 @@ export default [
         component: () => import("../views/admin/NCRequiredFields/Edit.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout
-        }
+            layout: AdminLayout,
+        },
     },
-    /*{
-        path: "/admin/tickets/required-fields/add",
-        name: "tickets-required-fields-add",
-        component: () => import("../views/admin/tickets/--showRequiredFields.vue"),
-        meta: {
-            requiresAuth: true,
-            layout: AdminLayout
-        }
-    },*/
     {
         path: "/admin/tickets/required-fields/add",
         name: "tickets-required-fields-add",
-        component: () => import("../views/admin/tickets/category-wise-required-fields-add.vue"),
+        component: () =>
+            import(
+                "../views/admin/Tickets/category-wise-required-fields-add.vue"
+            ),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout
-        }
+            layout: AdminLayout,
+        },
     },
-
-
 ];

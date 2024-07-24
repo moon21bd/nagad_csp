@@ -4,33 +4,37 @@ export default [
     {
         path: "/",
         name: "home",
-        component: () => import("../views/login/login.vue")
+        component: () => import("../views/admin/dashboard.vue"),
+        meta: {
+            requiresAuth: true,
+            layout: AdminLayout,
+        },
     },
     {
         path: "/login/:user_id?",
         name: "login",
-        component: () => import("../views/login/login.vue")
+        component: () => import("../views/login/login.vue"),
     },
     {
         path: "/register",
         name: "register",
-        component: () => import("../views/register/register.vue")
+        component: () => import("../views/register/register.vue"),
     },
     {
         path: "/verify/user/:id",
         name: "verify",
         props: true,
-        component: () => import("../views/verify/verify.vue")
+        component: () => import("../views/verify/verify.vue"),
     },
     {
         path: "/forgot-password",
         name: "forgot",
-        component: () => import("../views/forgot/forgot.vue")
+        component: () => import("../views/forgot/forgot.vue"),
     },
     {
         path: "/reset/:token",
         name: "reset",
-        component: () => import("../views/reset/index.vue")
+        component: () => import("../views/reset/index.vue"),
     },
     /**
      * Admin routes
@@ -41,8 +45,8 @@ export default [
         component: () => import("../views/admin/dashboard.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout
-        }
+            layout: AdminLayout,
+        },
     },
     {
         path: "/admin/components/buttons",
@@ -50,8 +54,8 @@ export default [
         component: () => import("../views/admin/buttons.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout
-        }
+            layout: AdminLayout,
+        },
     },
     {
         path: "/admin/components/cards",
@@ -59,8 +63,8 @@ export default [
         component: () => import("../views/admin/cards.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout
-        }
+            layout: AdminLayout,
+        },
     },
     {
         path: "/admin/utilities/colors",
@@ -68,8 +72,8 @@ export default [
         component: () => import("../views/admin/colors.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout
-        }
+            layout: AdminLayout,
+        },
     },
     {
         path: "/admin/utilities/borders",
@@ -77,8 +81,8 @@ export default [
         component: () => import("../views/admin/borders.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout
-        }
+            layout: AdminLayout,
+        },
     },
     {
         path: "/admin/utilities/animations",
@@ -86,8 +90,8 @@ export default [
         component: () => import("../views/admin/animations.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout
-        }
+            layout: AdminLayout,
+        },
     },
     {
         path: "/admin/utilities/other",
@@ -95,8 +99,8 @@ export default [
         component: () => import("../views/admin/other.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout
-        }
+            layout: AdminLayout,
+        },
     },
     {
         path: "/admin/pages/page-not-found",
@@ -104,8 +108,8 @@ export default [
         component: () => import("../views/admin/page-not-found.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout
-        }
+            layout: AdminLayout,
+        },
     },
     {
         path: "/admin/pages/blank",
@@ -113,8 +117,8 @@ export default [
         component: () => import("../views/admin/blank.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout
-        }
+            layout: AdminLayout,
+        },
     },
     {
         path: "/admin/charts",
@@ -122,8 +126,8 @@ export default [
         component: () => import("../views/admin/charts.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout
-        }
+            layout: AdminLayout,
+        },
     },
     {
         path: "/admin/tables",
@@ -131,16 +135,16 @@ export default [
         component: () => import("../views/admin/tables.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout
-        }
+            layout: AdminLayout,
+        },
     },
     {
         path: "/admin/tickets",
         name: "tickets",
-        component: () => import("../views/admin/tickets/tickets.vue"),
+        component: () => import("../views/admin/Tickets/Tickets.vue"),
         meta: {
             requiresAuth: true,
             layout: AdminLayout,
         },
-    }
+    },
 ];

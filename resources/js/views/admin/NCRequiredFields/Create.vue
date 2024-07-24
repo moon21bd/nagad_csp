@@ -3,10 +3,10 @@
         <div class="common-heading d-flex align-items-center mb-3">
             <router-link
                 class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
-                to="/admin/required-fields-config"
+                :to="{ name: 'required-fields-config-index' }"
                 ><i class="icon-left"></i>
             </router-link>
-            <h1 class="title m-0">Required fields configuration</h1>
+            <h1 class="title m-0">Required Fields Configurations</h1>
         </div>
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
@@ -19,7 +19,7 @@
                             <div class="form-row">
                                 <div class="col-md-4 form-group">
                                     <label class="control-label"
-                                        >Call Type Id <sup>*</sup></label
+                                        >Service Type<sup>*</sup></label
                                     >
                                     <div class="custom-style">
                                         <select
@@ -29,7 +29,7 @@
                                             required
                                         >
                                             <option :value="null" disabled>
-                                                Select Call Type
+                                                Select Service Type
                                             </option>
                                             <option
                                                 v-for="types in callTypes"
@@ -43,7 +43,7 @@
                                 </div>
                                 <div class="col-md-4 form-group">
                                     <label class="control-label"
-                                        >Call Category Id <sup>*</sup></label
+                                        >Service Category<sup>*</sup></label
                                     >
 
                                     <el-select
@@ -52,7 +52,7 @@
                                         required
                                         filterable
                                         @change="fetchSubCategory"
-                                        placeholder="Select Call Category"
+                                        placeholder="Select Service Category"
                                     >
                                         <el-option
                                             v-for="category in callCategories"
@@ -65,33 +65,16 @@
                                 </div>
                                 <div class="col-md-4 form-group">
                                     <label class="control-label"
-                                        >Call Sub Category Id
+                                        >Service Sub Category
                                         <sup>*</sup></label
                                     >
-                                    <!-- <select
-                                        v-model="callSubCategoryId"
-                                        required
-                                    >
-                                        <option :value="null" disabled>
-                                            Select Call Sub Category
-                                        </option>
-                                        <option
-                                            v-for="subCategory in callSubCategories"
-                                            :key="subCategory.id"
-                                            :value="subCategory.id"
-                                        >
-                                            {{
-                                                subCategory.call_sub_category_name
-                                            }}
-                                        </option>
-                                    </select> -->
 
                                     <el-select
                                         class="d-block w-100"
                                         v-model="callSubCategoryId"
                                         required
                                         filterable
-                                        placeholder="Select Call Sub Category"
+                                        placeholder="Select Service Sub Category"
                                     >
                                         <el-option
                                             v-for="subCategory in callSubCategories"
@@ -106,7 +89,7 @@
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >Input Field Name</label
+                                        >Input Field Name<sup>*</sup></label
                                     >
                                     <input
                                         type="text"
@@ -118,12 +101,11 @@
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >Choose Input Type</label
+                                        >Choose Input Type<sup>*</sup></label
                                     >
                                     <select
                                         class="form-control"
                                         v-model="inputType"
-                                        id=""
                                     >
                                         <option value="select">
                                             Select/Option
@@ -141,7 +123,7 @@
                                     v-if="inputType === 'select'"
                                 >
                                     <label class="control-label"
-                                        >Input Value</label
+                                        >Input Value<sup>*</sup></label
                                     >
                                     <input
                                         type="text"
@@ -153,7 +135,9 @@
                                 </div>
                                 <div class="col-md-12 form-group">
                                     <label class="control-label"
-                                        >Input Validation Rules</label
+                                        >Input Validation/Rules<sup
+                                            >*</sup
+                                        ></label
                                     >
                                     <input
                                         type="text"
@@ -162,33 +146,18 @@
                                         id=""
                                         placeholder="Enter Input Validation Rules"
                                     />
-                                    <small class="form-text text-muted"
-                                        >We'll never share your email with
-                                        anyone else.</small
+                                    <small
+                                        v-if="help"
+                                        class="form-text text-muted"
+                                        >Help text goes here</small
                                     >
                                 </div>
-                                <!-- <div class="col-md-12 form-group">
-                                    <label for="exampleFormControlSelect1"
-                                        >Status</label
-                                    >
-                                    <select
-                                        class="form-control"
-                                        v-model="statusValue"
-                                        id="status"
-                                    >
-                                        <option value="active" selected>
-                                            Active
-                                        </option>
-                                        <option value="inactive">
-                                            Inactive
-                                        </option>
-                                    </select>
-                                </div> -->
+
                                 <div
                                     class="form-group d-flex align-items-center"
                                 >
                                     <label class="control-label m-0 mr-3"
-                                        >Status:</label
+                                        >Status<sup>*</sup></label
                                     >
                                     <label class="radio mr-2"
                                         ><input
@@ -223,7 +192,7 @@
 
 <script>
 export default {
-    name: "Create",
+    name: "NCRequiredFieldsCreate",
     data() {
         return {
             isLoading: false,
@@ -247,10 +216,10 @@ export default {
     methods: {
         async fetchCallTypes() {
             try {
-                const response = await axios.get("/call-types");
+                const response = await axios.get("/get-service-types");
                 this.callTypes = response.data;
             } catch (error) {
-                console.error("Error fetching call types:", error);
+                console.error("Error fetching service types:", error);
             }
         },
         async fetchCategories() {

@@ -7,7 +7,7 @@
                     <input
                         class="form-control"
                         type="tel"
-                        v-model="mobileNo"
+                        v-model="callerMobileNo"
                         name="customer"
                         placeholder="Customer Account No"
                         required
@@ -33,71 +33,72 @@
                         <div class="form-row">
                             <div class="col-md-4 form-group">
                                 <label class="control-label"
-                                    >Service Type</label
+                                    >Service Type<sup>*</sup></label
                                 >
                                 <div class="custom-style">
-                                    <select
-                                        class="form-control"
+                                    <el-select
+                                        class="d-block w-100"
                                         v-model="ticketInfos.callTypeId"
                                         @change="fetchCategories"
                                         required
+                                        filterable
+                                        placeholder="Select Type"
                                     >
-                                        <option :value="null" disabled>
-                                            Service Type
-                                        </option>
-                                        <option
+                                        <el-option
                                             v-for="type in callTypes"
                                             :key="type.id"
+                                            :label="type.call_type_name"
                                             :value="type.id"
                                         >
-                                            {{ type.call_type_name }}
-                                        </option>
-                                    </select>
+                                        </el-option>
+                                    </el-select>
                                 </div>
                             </div>
                             <div class="col-md-4 form-group">
                                 <label class="control-label"
-                                    >Service Category:</label
+                                    >Service Category<sup>*</sup></label
                                 >
-                                <select
-                                    class="form-control"
+
+                                <el-select
+                                    class="d-block w-150"
                                     v-model="ticketInfos.callCategoryId"
                                     @change="fetchSubCategory"
                                     required
+                                    filterable
+                                    placeholder="Select Category"
                                 >
-                                    <option :value="null" disabled>
-                                        Service Category
-                                    </option>
-                                    <option
+                                    <el-option
                                         v-for="category in callCategories"
                                         :key="category.id"
+                                        :label="category.call_category_name"
                                         :value="category.id"
                                     >
-                                        {{ category.call_category_name }}
-                                    </option>
-                                </select>
+                                    </el-option>
+                                </el-select>
                             </div>
                             <div class="col-md-4 form-group">
                                 <label class="control-label"
-                                    >Service Sub-Category:</label
+                                    >Service Sub Category<sup>*</sup></label
                                 >
-                                <select
-                                    class="form-control"
+
+                                <el-select
+                                    class="d-block w-150"
                                     v-model="ticketInfos.callSubCategoryId"
                                     @change="fetchRequiredFields"
                                     required
+                                    filterable
+                                    placeholder="Select Sub Category"
                                 >
-                                    <option :value="null" disabled>
-                                        Select Call Sub Category
-                                    </option>
-                                    <option
+                                    <el-option
                                         v-for="subCategory in callSubCategories"
                                         :key="subCategory.id"
+                                        :label="
+                                            subCategory.call_sub_category_name
+                                        "
                                         :value="subCategory.id"
                                     >
-                                        {{ subCategory.call_sub_category_name }}
-                                    </option>
-                                </select>
+                                    </el-option>
+                                </el-select>
                             </div>
                         </div>
 
@@ -154,7 +155,6 @@
 
                                         <el-date-picker
                                             class="d-block w-100"
-                                            format="YYYY-MM-DD h:i:s"
                                             v-model="
                                                 ticketInfos.requiredField[
                                                     data.id +
@@ -191,6 +191,20 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="form-row">
+                            <div class="col-md-12 form-group">
+                                <label class="control-label"
+                                    >Comments<sup>*</sup></label
+                                >
+                                <textarea
+                                    class="form-control"
+                                    v-model="ticketInfos.comments"
+                                    required
+                                ></textarea>
+                            </div>
+                        </div>
+
                         <button class="btn btn-site" type="submit">
                             Submit
                         </button>
@@ -204,7 +218,7 @@
 <script>
 import axios from "../../../axios";
 
-import userInfo from "./components/userInfo.vue";
+// import userInfo from "./components/userInfo.vue";
 
 export default {
     /* components: {
@@ -212,8 +226,9 @@ export default {
     }, */
     name: "Tickets",
     data: () => ({
+        callerMobileNo: "",
+        //id: this.$route.params.id,
         requiredFields: [],
-        selectOptionValue: [],
         callTypes: [],
         callCategories: [],
         callSubCategories: [],
@@ -222,34 +237,9 @@ export default {
             callTypeId: null,
             callCategoryId: null,
             callSubCategoryId: null,
-            requiredField: [],
+            requiredField: {},
+            comments: "",
         },
-
-        tickets: "Tickets",
-        mobileNo: "",
-        ticketsData: {
-            callType: "",
-            category: "",
-            subCategory: "",
-            incidentType: "",
-            incidentBrief: "",
-            victimAccountNo: "",
-            fraudsterAccountNo: "",
-            customerCallingNo: "",
-            fraudsterCallingNo: "",
-            dateTime: "",
-            transactionID: "",
-            paymentChannel: "",
-            amountAsPortal: null,
-            amountAsCustomer: null,
-            fraudulentAmountAvailability: false,
-            responsibleTeam: "",
-            remarks: "",
-        },
-
-        categories: [],
-        subCategories: [],
-        groups: [],
     }),
     mounted() {
         this.fetchCallTypes();
@@ -257,7 +247,7 @@ export default {
     methods: {
         async fetchCallTypes() {
             try {
-                const response = await axios.get("/call-types");
+                const response = await axios.get("/get-service-types");
                 this.requiredFields = [];
                 this.callSubCategories = [];
                 this.ticketInfos.callSubCategoryId = null;
@@ -276,7 +266,7 @@ export default {
                 this.ticketInfos.callSubCategoryId = null;
                 this.callCategories = response.data;
             } catch (error) {
-                console.error("Error fetching call categories:", error);
+                console.error("Error fetching categories:", error);
             }
         },
         async fetchSubCategory() {
@@ -287,11 +277,8 @@ export default {
 
                 this.callSubCategories = response.data;
             } catch (error) {
-                console.error("Error fetching call sub categories:", error);
+                console.error("Error fetching sub categories:", error);
             }
-        },
-        async submit() {
-            console.log("this.ticketInfos", this.ticketInfos);
         },
         fetchRequiredFieldsByCategory() {
             return new Promise((resolve, reject) => {
@@ -326,15 +313,26 @@ export default {
             }
         },
         async handleSubmit() {
-            console.log("handleSubmit Called", this.ticketInfos);
+            console.log(
+                "handleSubmit Called",
+                this.ticketInfos.requiredField,
+                "msisdn",
+                this.$route.query.msisdn
+            );
             try {
-                /*await axios.post(
-                    "http://localhost:3000/tickets",
-                    this.ticketsData
+                // assigning mobile no from query param
+                this.ticketInfos.callerMobileNo =
+                    this.$route.query?.msisdn || null;
+
+                const response = await axios.post("/tickets", this.ticketInfos);
+                console.log(
+                    "Form submitted successfully, resp: ",
+                    response.data
                 );
-                alert("Form submitted successfully");
+                return false;
+
                 this.$refs.ticketForm.reset();
-                this.resetForm();*/
+                this.resetForm();
             } catch (error) {
                 console.log("There was an error submitting the form!");
             }

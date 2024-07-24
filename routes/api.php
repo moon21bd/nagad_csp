@@ -9,6 +9,8 @@ use App\Http\Controllers\NCCallSubCategoryController;
 use App\Http\Controllers\NCCallSubSubCategoryController;
 use App\Http\Controllers\NCCallTypeController;
 use App\Http\Controllers\NCRequiredConfigController;
+use App\Http\Controllers\NCServiceTypeConfigController;
+use App\Http\Controllers\NCTicketController;
 use App\Http\Controllers\PermissionsController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UsersController;
@@ -75,12 +77,13 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('user', [AuthController::class, 'user']);
 
     //users routes
-    Route::get('users', [UsersController::class, 'users']);
-    Route::post('users/{id}', [UsersController::class, 'getUserById']);
+    Route::get('users', [UsersController::class, 'index']);
+    Route::get('user/{id}', [UsersController::class, 'getUserById']);
+    Route::put('user/{id}', [UsersController::class, 'edit']);
     Route::post('usersdata/save', [UsersController::class, 'store']);
     Route::delete('users/delete/{id}', [UsersController::class, 'destroy']);
 
-    Route::get('get-category/{id}', [NCCallCategoryController::class, 'getCategoryByCallTypeId']);
+    Route::get('get-category/{id}', [NCCallCategoryController::class, 'getActiveCategoryByCallTypeId']);
 
     Route::get('call-sub-by-call-cat-id/{ctid}/{ccid}', [NCCallSubCategoryController::class, 'getCallSubCatByCallAndCategoryId']);
     Route::get('get-required-fields/{ctid}/{ccid}/{cscid}', [NCRequiredConfigController::class, 'getRequiredFieldConfigsData']);
@@ -91,13 +94,18 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::post('user/register', [AuthController::class, 'register']);
 
+    Route::get('get-service-types', [NCCallTypeController::class, 'getActiveCallType']);
+    Route::get('get-service-category', [NCCallCategoryController::class, 'getActiveServiceCategory']);
+
     // for nagad api
     Route::apiResources([
+        'tickets' => NCTicketController::class,
         'groups' => GroupController::class,
         'call-categories' => NCCallCategoryController::class,
         'call-types' => NCCallTypeController::class,
         'call-sub-categories' => NCCallSubCategoryController::class,
         'call-sub-sub-categories' => NCCallSubSubCategoryController::class,
         'required-fields-configs' => NCRequiredConfigController::class,
+        'service-type-config' => NCServiceTypeConfigController::class,
     ]);
 });

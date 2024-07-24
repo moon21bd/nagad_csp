@@ -3,14 +3,14 @@
         <div class="common-heading d-flex align-items-center mb-3">
             <router-link
                 class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
-                to="/admin/call-types"
-            ><i class="icon-left"></i>
+                :to="{ name: 'service-types-index' }"
+                ><i class="icon-left"></i>
             </router-link>
-            <h1 class="title m-0">Edit Call Type</h1>
+            <h1 class="title m-0">Edit Service Type</h1>
         </div>
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
-                <img src="/images/loader.gif" alt=""/>
+                <img src="/images/loader.gif" alt="" />
             </div>
             <div class="card-body">
                 <div class="row">
@@ -18,7 +18,7 @@
                         <form @submit.prevent="updateCallType">
                             <div class="form-group">
                                 <label class="control-label"
-                                >Call Type Name</label
+                                    >Service Type Name<sup>*</sup></label
                                 >
                                 <input
                                     class="form-control"
@@ -29,15 +29,15 @@
                             </div>
                             <div class="form-group d-flex align-items-center">
                                 <label class="control-label m-0 mr-3"
-                                >Status:</label
+                                    >Status<sup>*</sup></label
                                 >
                                 <label class="radio mr-2"
-                                ><input
-                                    type="radio"
-                                    value="active"
-                                    v-model="callType.status"
-                                    required
-                                /><span class="radio-mark"></span>Active
+                                    ><input
+                                        type="radio"
+                                        value="active"
+                                        v-model="callType.status"
+                                        required
+                                    /><span class="radio-mark"></span>Active
                                 </label>
                                 <label class="radio">
                                     <input
@@ -67,13 +67,13 @@ export default {
         return {
             isLoading: false,
             callType: {
-                call_type_name: '',
-                status: 'active',
-                created_by: '',
-                updated_by: '',
-                last_updated_by: '',
+                call_type_name: "",
+                status: "active",
+                created_by: "",
+                updated_by: "",
+                last_updated_by: "",
             },
-            id: this.$route.params.id
+            id: this.$route.params.id,
         };
     },
     async created() {
@@ -82,24 +82,24 @@ export default {
     methods: {
         async fetchCallType() {
             try {
-                const response = await axios.get('/call-types/' + this.id);
-                this.callType = response.data
-                console.log('response', response.data)
+                const response = await axios.get("/call-types/" + this.id);
+                this.callType = response.data;
+                console.log("response", response.data);
             } catch (error) {
-                console.error('Error fetching call type:', error);
+                console.error("Error fetching service type:", error);
             }
         },
         async updateCallType() {
             try {
                 await axios.put(`/call-types/${this.id}`, this.callType);
-                this.$router.push({name: "call-types-index"})
+                this.$router.push({ name: "service-types-index" });
             } catch (error) {
-                console.error('Error updating call type:', error);
+                console.error("Error updating service type:", error);
             }
-        }
+        },
     },
     mounted() {
-        this.fetchCallType()
-    }
+        this.fetchCallType();
+    },
 };
 </script>

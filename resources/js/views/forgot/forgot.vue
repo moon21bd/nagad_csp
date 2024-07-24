@@ -45,7 +45,7 @@
                     </div>
 
                     <div class="text-center">
-                        <router-link class="small" to="/login"
+                        <router-link class="small" :to="{ name: 'login' }"
                             >Already have an account? Login!</router-link
                         >
                     </div>

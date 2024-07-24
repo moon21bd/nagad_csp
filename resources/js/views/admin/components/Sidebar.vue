@@ -3,7 +3,7 @@
         <!-- Sidebar - Brand -->
         <router-link
             class="sidebar-brand d-flex align-items-center justify-content-center"
-            to="/"
+            :to="{ name: 'admin' }"
         >
             <i class="icon-logo sidebar-brand-icon"></i>
             <!-- <img class="sidebar-brand-logo" src="/images/logo.svg" alt="" /> -->
@@ -14,19 +14,70 @@
                 class="el-menu-vertical-demo"
                 :unique-opened="true"
             >
-                <el-menu-item index="/admin">
-                    <router-link to="/admin">
+                <el-menu-item index="dashboard">
+                    <router-link :to="{ name: 'admin' }">
                         <i class="icon-grid"></i>
                         <span>Dashboard</span>
                     </router-link>
                 </el-menu-item>
-                <el-menu-item index="/admin/tickets">
-                    <router-link to="/admin/tickets">
+
+                <el-menu-item index="service-types-index">
+                    <router-link :to="{ name: 'service-types-index' }">
+                        <i class="icon-phone"></i>
+                        <span>Service Type</span>
+                    </router-link>
+                </el-menu-item>
+
+                <el-menu-item index="service-categories-index">
+                    <router-link :to="{ name: 'service-categories-index' }">
+                        <i class="icon-phone"></i>
+                        <span>Service Categories</span>
+                    </router-link>
+                </el-menu-item>
+
+                <el-menu-item index="service-sub-categories-index">
+                    <router-link :to="{ name: 'service-sub-categories-index' }">
+                        <i class="icon-phone"></i>
+                        <span>Service Sub Categories</span>
+                    </router-link>
+                </el-menu-item>
+
+                <el-menu-item index="service-type-config-add">
+                    <router-link :to="{ name: 'service-type-config-add' }">
+                        <i class="icon-sliders"></i>
+                        <span>Service Type Configs</span>
+                    </router-link>
+                </el-menu-item>
+
+                <el-menu-item index="groups-index">
+                    <router-link :to="{ name: 'groups-index' }">
+                        <i class="icon-user-settings"></i>
+                        <span>Group Configs</span>
+                    </router-link>
+                </el-menu-item>
+
+                <el-menu-item index="required-fields-config-index">
+                    <router-link :to="{ name: 'required-fields-config-index' }">
+                        <i class="icon-sliders"></i>
+                        <span>Required Fields Configs</span>
+                    </router-link>
+                </el-menu-item>
+
+                <el-menu-item index="tickets-index">
+                    <router-link :to="{ name: 'tickets' }">
                         <i class="icon-tickets"></i>
                         <span>Tickets</span>
                     </router-link>
                 </el-menu-item>
-                <el-menu-item index="/admin/download">
+
+                <el-menu-item index="tickets-required-fields-add">
+                    <router-link :to="{ name: 'tickets-required-fields-add' }">
+                        <i class="icon-ticket-fill"></i>
+                        <span>Ticket wise Required Fields</span>
+                    </router-link>
+                </el-menu-item>
+
+                <!-- <el-menu-item index="/admin/download">
                     <router-link to="/admin/download">
                         <i class="icon-download"></i>
                         <span>Ticket Download</span>
@@ -37,25 +88,20 @@
                         <i class="icon-briefcase"></i>
                         <span>Back Office</span>
                     </router-link>
-                </el-menu-item>
-                <el-menu-item index="/admin/call-types">
-                    <router-link to="/admin/call-types">
-                        <i class="icon-phone"></i>
-                        <span>Call Type</span>
-                    </router-link>
-                </el-menu-item>
-                <el-menu-item index="/admin/users">
-                    <router-link to="/admin/users">
+                </el-menu-item> -->
+
+                <el-menu-item index="admin-user-index">
+                    <router-link :to="{ name: 'user-index' }">
                         <i class="icon-users"></i>
                         <span>Users</span>
                     </router-link>
                 </el-menu-item>
-                <el-menu-item index="/admin/roles">
+                <!-- <el-menu-item index="/admin/roles">
                     <router-link to="/admin/roles">
                         <i class="icon-phone"></i>
                         <span>Roles</span>
                     </router-link>
-                </el-menu-item>
+                </el-menu-item> -->
 
                 <el-submenu index="1" class="all-dashboard">
                     <template slot="title">

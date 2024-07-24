@@ -6,8 +6,8 @@ const Edit = () => import("../views/admin/NCCallSubCategory/Edit.vue");
 
 export default [
     {
-        path: "/admin/call-sub-categories",
-        name: "call-sub-categories-index",
+        path: "/admin/service-sub-categories",
+        name: "service-sub-categories-index",
         component: Index,
         meta: {
             requiresAuth: true,
@@ -15,8 +15,8 @@ export default [
         },
     },
     {
-        path: "/admin/call-sub-categories/create",
-        name: "call-sub-categories-create",
+        path: "/admin/service-sub-categories/create",
+        name: "service-sub-categories-create",
         component: Create,
         meta: {
             requiresAuth: true,
@@ -24,8 +24,8 @@ export default [
         },
     },
     {
-        path: "/admin/call-sub-categories/edit/:id",
-        name: "call-sub-categories-edit",
+        path: "/admin/service-sub-categories/edit/:id",
+        name: "service-sub-categories-edit",
         component: Edit,
         meta: {
             requiresAuth: true,

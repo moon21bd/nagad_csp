@@ -19,6 +19,22 @@ class AuthController extends Controller
             if (Auth::attempt($request->only('email', 'password'))) {
                 /** @var User $user */
                 $user = Auth::user();
+
+                // Check if user is active
+                if ($user->status !== 'Active') {
+                    Auth::logout();
+
+                    $userActivity = UserActivity::where('user_id', $user->id)->firstOrFail();
+
+                    $userActivity->failed_logins++;
+                    $userActivity->last_failed_login = now();
+                    $userActivity->save();
+
+                    return response([
+                        'message' => 'Your account status is Pending. Please contact with your system administrator.',
+                    ], 401);
+                }
+
                 $token = $user->createToken('authToken')->plainTextToken;
 
                 if (config('auth.must_verify_email') && !$user->hasVerifiedEmail()) {
@@ -49,6 +65,7 @@ class AuthController extends Controller
 
             }
         } catch (\Exception $e) {
+            dd($e->getMessage());
             return response([
                 'message' => 'Internal error, please try again later.', //$e->getMessage()
             ], 400);

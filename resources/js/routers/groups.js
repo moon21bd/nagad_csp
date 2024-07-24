@@ -8,7 +8,7 @@ const ManageGroupRoles = () => import("../views/admin/Groups/ManageRoles.vue");
 export default [
     {
         path: "/admin/groups",
-        name: "groups",
+        name: "groups-index",
         component: Index,
         meta: {
             requiresAuth: true,

@@ -14,6 +14,7 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens, HasRoles;
     protected $guard_name = 'api';
+
     // protected $appends = ['must_verify_email'];
     /**
      * The attributes that are mass assignable.
@@ -64,8 +65,16 @@ class User extends Authenticatable
         return config('auth.must_verify_email');
     }
 
+    public function group()
+    {
+        return $this->belongsTo(Group::class, 'group_id');
+    }
     public function user_activity()
     {
-        return $this->belongsTo(UserActivity::class, 'user_id');
+        return $this->belongsTo(UserActivity::class, 'id', 'user_id');
+    }
+    public function user_details()
+    {
+        return $this->belongsTo(UserDetail::class, 'id', 'user_id');
     }
 }

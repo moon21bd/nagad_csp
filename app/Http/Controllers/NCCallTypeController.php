@@ -35,8 +35,8 @@ class NCCallTypeController extends Controller
 
     public function show($id)
     {
-        $group = NCCallType::findOrFail($id);
-        return response()->json($group);
+        $callTypes = NCCallType::findOrFail($id);
+        return response()->json($callTypes);
     }
 
     public function update(Request $request, $id)
@@ -54,7 +54,20 @@ class NCCallTypeController extends Controller
 
     public function destroy($id)
     {
+
         NCCallType::destroy($id);
+        /* $callCategory = NCCallCategory::where('call_type_id', $id);
+        $callCategory->delete();
+        $callSubCategory = NCCallSubCategory::where('call_type_id', $id);
+        $callSubCategory->delete(); */
         return response()->json(null, 204);
+    }
+
+    public function getActiveCallType()
+    {
+        $ncCallType = NCCallType::where('status', 'active')
+        // ->orderByDesc('id')
+            ->get();
+        return response()->json($ncCallType);
     }
 }

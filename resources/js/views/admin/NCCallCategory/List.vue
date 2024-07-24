@@ -4,32 +4,45 @@
             <h1 class="title">Service Categories</h1>
             <router-link
                 class="btn btn-site ml-auto"
-                to="/admin/call-categories/create"
-            ><i class="icon-plus"></i> New
+                :to="{ name: 'service-categories-create' }"
+                ><i class="icon-plus"></i> New
             </router-link>
         </div>
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
-                <img src="/images/loader.gif" alt=""/>
+                <img src="/images/loader.gif" alt="" />
             </div>
             <div class="card-body">
                 <div v-if="callCategories.length && !isLoading">
                     <div class="table-responsive">
                         <table id="dataTable" class="table border rounded">
                             <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Service Type</th>
-                                <th>Status</th>
-                                <th class="text-right">Action</th>
-                            </tr>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Service Type</th>
+                                    <th>Status</th>
+                                    <th class="text-right">Action</th>
+                                </tr>
                             </thead>
                             <tbody>
-
-                            <tr v-for="callCategory in callCategories" :key="callCategory.id">
-                                <td>{{ callCategory.call_category_name }}</td>
-                                <td>{{ callCategory.call_type?.call_type_name || 'N/A' }}</td>
-                                <td>
+                                <tr
+                                    v-for="callCategory in callCategories"
+                                    :key="callCategory.id"
+                                >
+                                    <td>
+                                        {{ callCategory.id }}
+                                    </td>
+                                    <td>
+                                        {{ callCategory.call_category_name }}
+                                    </td>
+                                    <td>
+                                        {{
+                                            callCategory.call_type
+                                                ?.call_type_name || "N/A"
+                                        }}
+                                    </td>
+                                    <td>
                                         <span
                                             :class="
                                                 callCategory.status === 'active'
@@ -37,28 +50,33 @@
                                                     : 'inactive'
                                             "
                                             class="badge"
-                                        >{{ callCategory.status }}</span
+                                            >{{ callCategory.status }}</span
                                         >
-                                </td>
-                                <td class="text-right">
-                                    <router-link
-                                        class="btn-action btn-edit"
-                                        :to="{name: 'call-categories-edit', params: { id: callCategory.id },}"
-                                    ><i class="icon-edit-pen"></i
-                                    ></router-link>
-                                    <a
-                                        class="btn-action btn-trash"
-                                        @click.prevent="deleteCategory(callCategory.id)"
-                                    >
-                                        <i class="icon-trash"></i>
-                                    </a>
-                                </td>
-                            </tr>
+                                    </td>
+                                    <td class="text-right">
+                                        <router-link
+                                            class="btn-action btn-edit"
+                                            :to="{
+                                                name: 'service-categories-edit',
+                                                params: { id: callCategory.id },
+                                            }"
+                                            ><i class="icon-edit-pen"></i
+                                        ></router-link>
+                                        <a
+                                            class="btn-action btn-trash"
+                                            @click.prevent="
+                                                deleteCategory(callCategory.id)
+                                            "
+                                        >
+                                            <i class="icon-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-                <no-data v-else/>
+                <no-data v-else />
             </div>
         </div>
     </div>
@@ -77,7 +95,7 @@ export default {
     data() {
         return {
             isLoading: false,
-            callCategories: []
+            callCategories: [],
         };
     },
 
@@ -85,20 +103,24 @@ export default {
         async fetchCallCategories() {
             try {
                 const response = await axios.get("/call-categories");
-                console.log('response.data', response.data)
+                console.log("response.data", response.data);
                 this.callCategories = response.data;
             } catch (error) {
-                console.error("Error fetching call categories:", error);
+                console.error("Error fetching service categories:", error);
             }
         },
         async deleteCategory(categoryId) {
             try {
-                if (confirm('Are you sure you want to delete this call category?')) {
+                if (
+                    confirm(
+                        "Are you sure you want to delete this service category?"
+                    )
+                ) {
                     await axios.delete(`/call-categories/${categoryId}`);
-                    this.fetchCallCategories()
+                    this.fetchCallCategories();
                 }
             } catch (error) {
-                console.error('Error deleting call category:', error);
+                console.error("Error deleting service category:", error);
             }
         },
         initializeDataTable() {
@@ -108,7 +130,7 @@ export default {
         },
     },
     mounted() {
-        this.fetchCallCategories()
+        this.fetchCallCategories();
     },
     watch: {
         callCategories(newValue, oldValue) {

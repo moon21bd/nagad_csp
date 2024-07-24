@@ -1,10 +1,10 @@
 <template>
     <div>
         <div class="common-heading d-flex align-items-center mb-3">
-            <h1 class="title">Required Fields Config</h1>
+            <h1 class="title">Required Fields Configurations</h1>
             <router-link
                 class="btn btn-site ml-auto"
-                to="/admin/required-fields-config/add"
+                :to="{ name: 'required-fields-config-add' }"
                 ><i class="icon-plus"></i> New
             </router-link>
         </div>
@@ -18,13 +18,14 @@
                         <table id="dataTable" class="table border rounded">
                             <thead>
                                 <tr>
-                                    <th>Call Type</th>
-                                    <th>Call Category</th>
-                                    <th>Call Sub Category</th>
-                                    <th>Input Filed</th>
+                                    <th>ID</th>
+                                    <th>Type</th>
+                                    <th>Category</th>
+                                    <th>Sub-Category</th>
+                                    <th>Input Field</th>
                                     <th>Input Type</th>
                                     <th>Input Value</th>
-                                    <th>Input Validation</th>
+                                    <th>Input Rules</th>
                                     <th>Status</th>
                                     <th class="text-right">Action</th>
                                 </tr>
@@ -44,6 +45,7 @@
                                     } in requiredFieldsConfigs"
                                     :key="id"
                                 >
+                                    <td>{{ id }}</td>
                                     <td>
                                         {{
                                             call_type
@@ -91,7 +93,10 @@
                                     <td class="text-right">
                                         <router-link
                                             class="btn-action btn-edit"
-                                            :to="`/admin/required-fields-config/edit/${id}`"
+                                            :to="{
+                                                name: 'required-fields-config-edit-edit',
+                                                params: { id },
+                                            }"
                                             ><i class="icon-edit-pen"></i
                                         ></router-link>
                                         <a

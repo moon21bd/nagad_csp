@@ -64,7 +64,9 @@
                                     /><span class="checkmark"></span>Remember
                                     Me</label
                                 >
-                                <router-link class="small" to="/forgot-password"
+                                <router-link
+                                    class="small"
+                                    :to="{ name: 'forgot' }"
                                     >Forgot Password?
                                 </router-link>
                             </div>

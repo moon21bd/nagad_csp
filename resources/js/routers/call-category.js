@@ -6,8 +6,8 @@ const Edit = () => import("../views/admin/NCCallCategory/Edit.vue");
 
 export default [
     {
-        path: "/admin/call-categories",
-        name: "call-categories-index",
+        path: "/admin/service-categories",
+        name: "service-categories-index",
         component: Index,
         meta: {
             requiresAuth: true,
@@ -15,8 +15,8 @@ export default [
         },
     },
     {
-        path: "/admin/call-categories/create",
-        name: "call-categories-create",
+        path: "/admin/service-categories/create",
+        name: "service-categories-create",
         component: Create,
         meta: {
             requiresAuth: true,
@@ -24,8 +24,8 @@ export default [
         },
     },
     {
-        path: "/admin/call-categories/edit/:id",
-        name: "call-categories-edit",
+        path: "/admin/service-categories/edit/:id",
+        name: "service-categories-edit",
         component: Edit,
         meta: {
             requiresAuth: true,
