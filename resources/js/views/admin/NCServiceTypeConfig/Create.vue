@@ -19,9 +19,7 @@
                                 <div class="custom-style">
                                     <el-select
                                         class="d-block w-100"
-                                        v-model="
-                                            serviceTypeConfigInfos.callTypeId
-                                        "
+                                        v-model="configurationInfos.callTypeId"
                                         @change="fetchCategories"
                                         required
                                         filterable
@@ -44,9 +42,7 @@
 
                                 <el-select
                                     class="d-block w-150"
-                                    v-model="
-                                        serviceTypeConfigInfos.callCategoryId
-                                    "
+                                    v-model="configurationInfos.callCategoryId"
                                     @change="fetchSubCategory"
                                     required
                                     filterable
@@ -69,7 +65,7 @@
                                 <el-select
                                     class="d-block w-150"
                                     v-model="
-                                        serviceTypeConfigInfos.callSubCategoryId
+                                        configurationInfos.callSubCategoryId
                                     "
                                     @change="fetchRequiredFields"
                                     required
@@ -107,7 +103,7 @@
                                         <el-select
                                             class="d-block w-100"
                                             v-model="
-                                                serviceTypeConfigInfos
+                                                configurationInfos
                                                     .requiredField[
                                                     data.id +
                                                         '|' +
@@ -144,7 +140,7 @@
                                         <el-date-picker
                                             class="d-block w-100"
                                             v-model="
-                                                serviceTypeConfigInfos
+                                                configurationInfos
                                                     .requiredField[
                                                     data.id +
                                                         '|' +
@@ -165,7 +161,7 @@
                                         <input
                                             type="text"
                                             v-model="
-                                                serviceTypeConfigInfos
+                                                configurationInfos
                                                     .requiredField[
                                                     data.id +
                                                         '|' +
@@ -182,28 +178,58 @@
                             </div>
                         </div>
 
+                        <!-- Group wise TATHours Section -->
                         <div class="form-row">
-                            <div class="col-md-4 form-group">
-                                <label class="control-label"
-                                    >Group/Team Lists<sup>*</sup></label
+                            <div class="left-side-mal">
+                                <ul>
+                                    <li v-for="group in groups" :key="group.id">
+                                        <input
+                                            type="checkbox"
+                                            :value="group"
+                                            v-model="group.isChecked"
+                                            @change="handleGroupChange(group)"
+                                        />
+                                        {{ group.name }}
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="right-side-mal">
+                                <div
+                                    v-for="group in selectedGroups"
+                                    :key="group.id"
+                                    class="selected-group"
                                 >
-                                <el-select
-                                    v-model="serviceTypeConfigInfos.groupIds"
-                                    multiple
-                                    collapse-tags
-                                    placeholder="Select Group/Team"
-                                    style="width: 240px"
-                                >
-                                    <el-option
-                                        v-for="group in groups"
-                                        :key="group.id"
-                                        :label="group.name"
-                                        :value="group.id"
+                                    <span>{{ group.name }}</span>
+                                    <input
+                                        type="number"
+                                        v-model.number="group.tatHours"
+                                        @input="checkNegative(group)"
+                                        placeholder="Enter TAT hours"
                                     />
-                                </el-select>
+                                    <span>hours</span>
+                                    <button
+                                        type="button"
+                                        @click="incrementTatHours(group)"
+                                    >
+                                        +
+                                    </button>
+                                    <button
+                                        type="button"
+                                        @click="decrementTatHours(group)"
+                                    >
+                                        -
+                                    </button>
+                                    <button
+                                        type="button"
+                                        @click="removeGroup(group.id)"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
+                        <!-- Popup message Section -->
                         <div class="form-row">
                             <div
                                 class="col-md-6 form-group d-flex align-items-center"
@@ -217,7 +243,7 @@
                                         value="yes"
                                         name="is_show_popup_msg"
                                         v-model="
-                                            serviceTypeConfigInfos.is_show_popup_msg
+                                            configurationInfos.is_show_popup_msg
                                         "
                                         v-validate="'required'"
                                     /><span class="radio-mark"></span>Yes
@@ -228,7 +254,7 @@
                                         value="no"
                                         name="is_show_popup_msg"
                                         v-model="
-                                            serviceTypeConfigInfos.is_show_popup_msg
+                                            configurationInfos.is_show_popup_msg
                                         "
                                         v-validate="'required'"
                                     /><span class="radio-mark"></span>No
@@ -240,20 +266,347 @@
                                     {{ errors.first("gender") }}
                                 </div>
                             </div>
+
+                            <!-- Additional Popup Messages -->
+                            <div
+                                v-if="
+                                    configurationInfos.is_show_popup_msg ===
+                                    'yes'
+                                "
+                            >
+                                <button
+                                    type="button"
+                                    @click="showMessageBox = true"
+                                    :disabled="
+                                        configurationInfos.popupMessages
+                                            .length >= maxMessages
+                                    "
+                                >
+                                    Add Popup Message
+                                </button>
+                                <span
+                                    v-if="
+                                        configurationInfos.popupMessages
+                                            .length >= maxMessages
+                                    "
+                                >
+                                    (Maximum of {{ maxMessages }} messages
+                                    allowed)
+                                </span>
+
+                                <!-- Message Box -->
+                                <div v-if="showMessageBox" class="message-box">
+                                    <textarea
+                                        v-model="newPopupMessage"
+                                        placeholder="Enter additional popup message"
+                                        class="form-control"
+                                    ></textarea>
+                                    <button
+                                        type="button"
+                                        @click="addPopupMessage"
+                                    >
+                                        Add Message
+                                    </button>
+                                    <button
+                                        type="button"
+                                        @click="showMessageBox = false"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+
+                                <!-- Display additional popup messages -->
+                                <ul
+                                    v-if="
+                                        configurationInfos.popupMessages.length
+                                    "
+                                >
+                                    <li
+                                        v-for="(
+                                            message, index
+                                        ) in configurationInfos.popupMessages"
+                                        :key="index"
+                                    >
+                                        {{ message }}
+                                        <button
+                                            type="button"
+                                            @click="removePopupMessage(index)"
+                                        >
+                                            Remove
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
 
+                        <!-- Notification Channel Section -->
                         <div class="form-row">
+                            <div class="col-md-6 form-group">
+                                <label class="control-label"
+                                    >Notification Channels</label
+                                >
+                                <div>
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            value="sms"
+                                            v-model="
+                                                selectedNotificationChannels
+                                            "
+                                            @change="
+                                                handleNotificationChannelChange
+                                            "
+                                        />
+                                        SMS
+                                    </label>
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            value="email"
+                                            v-model="
+                                                selectedNotificationChannels
+                                            "
+                                            @change="
+                                                handleNotificationChannelChange
+                                            "
+                                        />
+                                        Email
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            v-if="selectedNotificationChannels.includes('sms')"
+                        >
+                            <div class="form-row">
+                                <div class="col-md-6 form-group">
+                                    <label class="control-label"
+                                        >SMS Config ID</label
+                                    >
+                                    <el-select
+                                        v-model="
+                                            configurationInfos.sms_config_id
+                                        "
+                                        filterable
+                                        placeholder="Select SMS Config"
+                                    >
+                                        <el-option
+                                            v-for="sms in smsConfigs"
+                                            :key="sms.id"
+                                            :label="sms.name"
+                                            :value="sms.id"
+                                        ></el-option>
+                                    </el-select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            v-if="
+                                selectedNotificationChannels.includes('email')
+                            "
+                        >
+                            <div class="form-row">
+                                <div class="col-md-6 form-group">
+                                    <label class="control-label"
+                                        >Email Config ID</label
+                                    >
+                                    <el-select
+                                        v-model="
+                                            configurationInfos.email_config_id
+                                        "
+                                        filterable
+                                        placeholder="Select Email Config"
+                                    >
+                                        <el-option
+                                            v-for="email in emailConfigs"
+                                            :key="email.id"
+                                            :label="email.name"
+                                            :value="email.id"
+                                        ></el-option>
+                                    </el-select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Escalation Section -->
+                        <div class="form-row">
+                            <div
+                                class="col-md-6 form-group d-flex align-items-center"
+                            >
+                                <label class="control-label m-0 mr-3"
+                                    >Escalation</label
+                                >
+                                <label class="radio mr-2">
+                                    <input
+                                        type="radio"
+                                        value="yes"
+                                        name="is_escalation"
+                                        v-model="
+                                            configurationInfos.is_escalation
+                                        "
+                                    />
+                                    <span class="radio-mark"></span>Yes
+                                </label>
+                                <label class="radio">
+                                    <input
+                                        type="radio"
+                                        value="no"
+                                        name="is_escalation"
+                                        v-model="
+                                            configurationInfos.is_escalation
+                                        "
+                                    />
+                                    <span class="radio-mark"></span>No
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Show Attachment Section -->
+                        <div class="form-row">
+                            <div
+                                class="col-md-6 form-group d-flex align-items-center"
+                            >
+                                <label class="control-label m-0 mr-3"
+                                    >Show Attachment</label
+                                >
+                                <label class="radio mr-2">
+                                    <input
+                                        type="radio"
+                                        value="yes"
+                                        name="is_show_attachment"
+                                        v-model="
+                                            configurationInfos.is_show_attachment
+                                        "
+                                    />
+                                    <span class="radio-mark"></span>Yes
+                                </label>
+                                <label class="radio">
+                                    <input
+                                        type="radio"
+                                        value="no"
+                                        name="is_show_attachment"
+                                        v-model="
+                                            configurationInfos.is_show_attachment
+                                        "
+                                    />
+                                    <span class="radio-mark"></span>No
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Verification Check Section -->
+                        <div class="form-row">
+                            <div
+                                class="col-md-6 form-group d-flex align-items-center"
+                            >
+                                <label class="control-label m-0 mr-3"
+                                    >Verification Check</label
+                                >
+                                <label class="radio mr-2">
+                                    <input
+                                        type="radio"
+                                        value="yes"
+                                        name="is_verification_check"
+                                        v-model="
+                                            configurationInfos.is_verification_check
+                                        "
+                                    />
+                                    <span class="radio-mark"></span>Yes
+                                </label>
+                                <label class="radio">
+                                    <input
+                                        type="radio"
+                                        value="no"
+                                        name="is_verification_check"
+                                        v-model="
+                                            configurationInfos.is_verification_check
+                                        "
+                                    />
+                                    <span class="radio-mark"></span>No
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Customer Behavior Check Section -->
+                        <div class="form-row">
+                            <div
+                                class="col-md-6 form-group d-flex align-items-center"
+                            >
+                                <label class="control-label m-0 mr-3"
+                                    >Customer Behavior Check</label
+                                >
+                                <label class="radio mr-2">
+                                    <input
+                                        type="radio"
+                                        value="yes"
+                                        name="customer_behavior_check"
+                                        v-model="
+                                            configurationInfos.customer_behavior_check
+                                        "
+                                    />
+                                    <span class="radio-mark"></span>Yes
+                                </label>
+                                <label class="radio">
+                                    <input
+                                        type="radio"
+                                        value="no"
+                                        name="customer_behavior_check"
+                                        v-model="
+                                            configurationInfos.customer_behavior_check
+                                        "
+                                    />
+                                    <span class="radio-mark"></span>No
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Bulk Ticket Close Permissions Section -->
+                        <div class="form-row">
+                            <div
+                                class="col-md-6 form-group d-flex align-items-center"
+                            >
+                                <label class="control-label m-0 mr-3"
+                                    >Bulk Ticket Close Permissions</label
+                                >
+                                <label class="radio mr-2">
+                                    <input
+                                        type="radio"
+                                        value="yes"
+                                        name="bulk_ticket_close_perms"
+                                        v-model="
+                                            configurationInfos.bulk_ticket_close_perms
+                                        "
+                                    />
+                                    <span class="radio-mark"></span>Yes
+                                </label>
+                                <label class="radio">
+                                    <input
+                                        type="radio"
+                                        value="no"
+                                        name="bulk_ticket_close_perms"
+                                        v-model="
+                                            configurationInfos.bulk_ticket_close_perms
+                                        "
+                                    />
+                                    <span class="radio-mark"></span>No
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- <div class="form-row">
                             <div class="col-md-12 form-group">
                                 <label class="control-label"
                                     >Comments<sup>*</sup></label
                                 >
                                 <textarea
                                     class="form-control"
-                                    v-model="serviceTypeConfigInfos.comments"
+                                    v-model="configurationInfos.comments"
                                     required
                                 ></textarea>
                             </div>
-                        </div>
+                        </div> -->
 
                         <button class="btn btn-site" type="submit">
                             Submit
@@ -276,21 +629,79 @@ export default {
         callTypes: [],
         callCategories: [],
         callSubCategories: [],
-
-        serviceTypeConfigInfos: {
-            groupIds: null,
+        selectedGroups: [],
+        smsConfigs: [], // Array of SMS config options
+        emailConfigs: [], // Array of Email config options
+        selectedNotificationChannels: [], // Array to manage selected notification channels
+        showMessageBox: false, // Controls the visibility of the message box
+        newPopupMessage: "", // Holds the new popup message input
+        maxMessages: 3, // Maximum number of popup messages allowed
+        configurationInfos: {
             callTypeId: null,
             callCategoryId: null,
             callSubCategoryId: null,
             requiredField: {},
+            selectedGroups: [],
+            sms_config_id: null,
+            email_config_id: null,
+            selectedNotificationChannels: [],
             comments: "",
+            is_show_popup_msg: "no",
+            popupMessages: [], // Array to hold additional messages
+            is_escalation: "no",
+            is_show_attachment: "no",
+            is_verification_check: "no",
+            customer_behavior_check: "no",
+            bulk_ticket_close_perms: "no",
         },
     }),
     mounted() {
         this.fetchGroups();
         this.fetchCallTypes();
+        this.fetchSmsConfigs();
+        this.fetchEmailConfigs();
     },
     methods: {
+        checkNegative(group) {
+            if (group.tatHours < 0) {
+                group.tatHours = 0;
+            }
+        },
+        incrementTatHours(group) {
+            // Ensure that group is a valid object
+            if (group) {
+                group.tatHours = (group.tatHours || 0) + 1;
+            }
+        },
+        decrementTatHours(group) {
+            // Ensure that group is a valid object and tatHours is positive
+            if (group && (group.tatHours || 0) > 0) {
+                group.tatHours = (group.tatHours || 0) - 1;
+            }
+        },
+        handleGroupChange(group) {
+            if (group.isChecked) {
+                this.addGroup(group);
+            } else {
+                this.removeGroup(group.id);
+            }
+        },
+        addGroup(group) {
+            if (!this.selectedGroups.some((g) => g.id === group.id)) {
+                this.selectedGroups.push({ ...group, tatHours: 0 });
+            }
+        },
+        removeGroup(id) {
+            this.selectedGroups = this.selectedGroups.filter(
+                (group) => group.id !== id
+            );
+            this.groups = this.groups.map((group) => {
+                if (group.id === id) {
+                    group.isChecked = false;
+                }
+                return group;
+            });
+        },
         async fetchGroups() {
             try {
                 const response = await axios.get("/groups");
@@ -304,7 +715,7 @@ export default {
                 const response = await axios.get("/get-service-types");
                 this.requiredFields = [];
                 this.callSubCategories = [];
-                this.serviceTypeConfigInfos.callSubCategoryId = null;
+                this.configurationInfos.callSubCategoryId = null;
                 this.callTypes = response.data;
             } catch (error) {
                 console.error("Error fetching call types:", error);
@@ -313,11 +724,11 @@ export default {
         async fetchCategories() {
             try {
                 const response = await axios.get(
-                    `/get-category/${this.serviceTypeConfigInfos.callTypeId}`
+                    `/get-category/${this.configurationInfos.callTypeId}`
                 );
                 this.requiredFields = [];
                 this.callSubCategories = [];
-                this.serviceTypeConfigInfos.callSubCategoryId = null;
+                this.configurationInfos.callSubCategoryId = null;
                 this.callCategories = response.data;
             } catch (error) {
                 console.error("Error fetching categories:", error);
@@ -326,7 +737,7 @@ export default {
         async fetchSubCategory() {
             try {
                 const response = await axios.get(
-                    `/call-sub-by-call-cat-id/${this.serviceTypeConfigInfos.callTypeId}/${this.serviceTypeConfigInfos.callCategoryId}`
+                    `/call-sub-by-call-cat-id/${this.configurationInfos.callTypeId}/${this.configurationInfos.callCategoryId}`
                 );
 
                 this.callSubCategories = response.data;
@@ -338,7 +749,7 @@ export default {
             return new Promise((resolve, reject) => {
                 axios
                     .get(
-                        `get-required-field-by-sub-cat-id/${this.serviceTypeConfigInfos.callSubCategoryId}`
+                        `get-required-field-by-sub-cat-id/${this.configurationInfos.callSubCategoryId}`
                     )
                     .then((response) => {
                         resolve(response);
@@ -367,32 +778,114 @@ export default {
             }
         },
         async handleSubmit() {
-            console.log(
-                "handleSubmit Called",
-                this.serviceTypeConfigInfos.requiredField,
-                "msisdn",
-                this.$route.query.msisdn
-            );
+            console.log("handleSubmit Called");
             try {
-                // assigning mobile no from query param
-                this.serviceTypeConfigInfos.callerMobileNo =
+                // Adding selected groups with TAT hours to configurationInfos
+                this.configurationInfos.selectedGroups =
+                    this.selectedGroups.map((group) => ({
+                        id: group.id,
+                        tatHours: group.tatHours,
+                    }));
+                console.log(
+                    "this.configurationInfos",
+                    this.configurationInfos,
+                    this.configurationInfos.selectedNotificationChannels
+                );
+                /* this.configurationInfos.callerMobileNo =
                     this.$route.query?.msisdn || null;
-
                 const response = await axios.post(
                     "/tickets",
-                    this.serviceTypeConfigInfos
+                    this.configurationInfos
                 );
                 console.log(
                     "Form submitted successfully, resp: ",
                     response.data
                 );
-                return false;
-
-                this.$refs.ticketForm.reset();
-                this.resetForm();
+                this.resetForm(); */
             } catch (error) {
-                console.log("There was an error submitting the form!");
+                console.error("There was an error submitting the form:", error);
             }
+        },
+        addPopupMessage() {
+            if (
+                this.newPopupMessage &&
+                this.configurationInfos.popupMessages.length < this.maxMessages
+            ) {
+                this.configurationInfos.popupMessages.push(
+                    this.newPopupMessage
+                );
+                this.newPopupMessage = ""; // Clear input field
+                this.showMessageBox = false; // Hide message box
+            }
+        },
+        removePopupMessage(index) {
+            this.configurationInfos.popupMessages.splice(index, 1);
+        },
+        async fetchSmsConfigs() {
+            try {
+                // const response = await axios.get("/sms-configs");
+                // this.smsConfigs = response.data;
+                this.smsConfigs = [{ id: 1, name: "NAGAD" }];
+            } catch (error) {
+                console.error("Error fetching SMS configs:", error);
+            }
+        },
+        async fetchEmailConfigs() {
+            try {
+                // const response = await axios.get("/email-configs");
+                // this.emailConfigs = response.data;
+                this.emailConfigs = [{ id: 1, name: "noreply-NAGAD" }];
+            } catch (error) {
+                console.error("Error fetching Email configs:", error);
+            }
+        },
+        handleNotificationChannelChange() {
+            console.log(
+                "Selected Notification Channels:",
+                this.selectedNotificationChannels
+            );
+
+            this.configurationInfos.selectedNotificationChannels = [
+                ...this.selectedNotificationChannels,
+            ];
+            console.log(
+                "Configuration Infos After Update:",
+                this.configurationInfos
+            );
+
+            // Update configurationInfos based on selected notification channels
+            // Reset config IDs if channels are deselected
+            if (!this.selectedNotificationChannels.includes("sms")) {
+                this.configurationInfos.sms_config_id = null;
+            }
+            if (!this.selectedNotificationChannels.includes("email")) {
+                this.configurationInfos.email_config_id = null;
+            }
+        },
+        resetForm() {
+            this.configurationInfos = {
+                callTypeId: null,
+                callCategoryId: null,
+                callSubCategoryId: null,
+                requiredField: {},
+                comments: "",
+                is_show_popup_msg: "no",
+                popupMessages: [],
+                is_escalation: "no",
+                is_show_attachment: "no",
+                is_verification_check: "no",
+                customer_behavior_check: "no",
+                bulk_ticket_close_perms: "no",
+                sms_config_id: null,
+                email_config_id: null,
+                selectedNotificationChannels: [],
+            };
+            this.selectedGroups = [];
+            this.selectedNotificationChannels = [];
+            this.groups = this.groups.map((group) => ({
+                ...group,
+                isChecked: false,
+            }));
         },
     },
 };

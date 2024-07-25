@@ -139,11 +139,13 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
 
 export default {
     name: "Topbar",
     computed: {
+        ...mapState("auth", ["user"]),
+
         ...mapGetters("auth", ["user"]),
         user() {
             return this.$store.getters["auth/user"];
@@ -151,10 +153,17 @@ export default {
     },
     methods: {
         ...mapActions("auth", ["setUser"]),
-        logout() {
+        /* logout() {
             localStorage.removeItem("token");
             this.logoutSend(this.$store.state.auth.user.id);
+            this.$store.dispatch("auth/logout");
             this.setUser(null);
+            this.$router.push("/login");
+        }, */
+        logout() {
+            this.logoutSend(this.$store.state.auth.user.id);
+
+            this.$store.dispatch("auth/logout");
             this.$router.push("/login");
         },
         async logoutSend(id) {

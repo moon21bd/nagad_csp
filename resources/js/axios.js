@@ -1,7 +1,9 @@
 import axios from "axios";
 import store from "./store";
+// import store from "@/store";
 import router from "./router";
 import Vue from "vue";
+import renewToken from "./utils/tokenService";
 
 // Adding Axios Response Interceptor For Auto Logout
 axios.interceptors.response.use(
@@ -34,6 +36,36 @@ axios.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+// Add a request interceptor
+/* axios.interceptors.request.use(
+    async (config) => {
+        console.log("interceptors called", config);
+        const token = store.getters["auth/token"];
+        if (token) {
+            const tokenExpiration = store.getters["auth/tokenExpiration"];
+            const now = new Date().getTime();
+            if (tokenExpiration - now < 5 * 60 * 1000) {
+                // Less than 5 minutes to expiry
+                await renewToken();
+            }
+            console.log(
+                "tokenExpiration",
+                "before",
+                token,
+                "after",
+                store.getters["auth/token"]
+            );
+            config.headers[
+                "Authorization"
+            ] = `Bearer ${store.getters["auth/token"]}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+); */
 
 axios.defaults.baseURL = "/api/";
 axios.defaults.headers.common["Authorization"] =
