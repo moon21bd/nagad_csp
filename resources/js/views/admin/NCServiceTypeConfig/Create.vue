@@ -86,100 +86,49 @@
                         </div>
 
                         <div class="form-row">
-                            <div v-if="requiredFields">
+                            <!-- Display required fields -->
+                            <div v-if="requiredFields.length > 0">
+                                <p>Required Fields:</p>
                                 <div
-                                    v-for="(data, index) in requiredFields"
+                                    v-for="(field, index) in requiredFields"
                                     :key="index"
+                                    class="d-flex justify-content-between align-items-center mb-2"
                                 >
-                                    <div
-                                        class="form-group"
-                                        v-if="data.input_type === 'select'"
-                                    >
-                                        <label
-                                            class="control-label"
-                                            for="input_field_name"
-                                            >{{ data.input_field_name }}</label
-                                        >
-                                        <el-select
-                                            class="d-block w-100"
-                                            v-model="
-                                                configurationInfos
-                                                    .requiredField[
-                                                    data.id +
-                                                        '|' +
-                                                        data.input_field_name
-                                                ]
-                                            "
-                                            required
-                                            filterable
-                                            placeholder="Select Type"
-                                        >
-                                            <el-option
-                                                v-for="(
-                                                    options, index
-                                                ) in inputTypeValues[index]
-                                                    .input_value"
-                                                :value="options"
-                                                :key="index"
-                                                >{{ options }}
-                                            </el-option>
-                                        </el-select>
-                                    </div>
-                                    <div
-                                        class="form-group"
-                                        v-else-if="
-                                            data.input_type === 'datetime'
+                                    <span>{{ field.input_field_name }}</span>
+                                    <button
+                                        type="button"
+                                        @click="
+                                            confirmRemoveRequiredField(index)
                                         "
+                                        class="btn btn-danger btn-sm"
                                     >
-                                        <label
-                                            class="control-label"
-                                            for="exampleFormControlSelect1"
-                                            >{{ data.input_field_name }}</label
-                                        >
-
-                                        <el-date-picker
-                                            class="d-block w-100"
-                                            v-model="
-                                                configurationInfos
-                                                    .requiredField[
-                                                    data.id +
-                                                        '|' +
-                                                        data.input_field_name
-                                                ]
-                                            "
-                                            type="datetime"
-                                            placeholder="Select date and time"
-                                        >
-                                        </el-date-picker>
-                                    </div>
-                                    <div class="form-group" v-else>
-                                        <label
-                                            class="control-label"
-                                            for="name"
-                                            >{{ data.input_field_name }}</label
-                                        >
-                                        <input
-                                            type="text"
-                                            v-model="
-                                                configurationInfos
-                                                    .requiredField[
-                                                    data.id +
-                                                        '|' +
-                                                        data.input_field_name
-                                                ]
-                                            "
-                                            class="form-control"
-                                            :placeholder="
-                                                'Enter ' + data.input_field_name
-                                            "
-                                        />
-                                    </div>
+                                        Remove
+                                    </button>
                                 </div>
+
+                                <router-link
+                                    class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
+                                    :to="{
+                                        name: 'required-fields-config-add',
+                                        params: {
+                                            cti: this.configurationInfos
+                                                .callTypeId,
+                                            cci: this.configurationInfos
+                                                .callCategoryId,
+                                            csci: this.configurationInfos
+                                                .callSubCategoryId,
+                                        },
+                                    }"
+                                >
+                                    <i class="icon-plus"></i> Add New
+                                </router-link>
                             </div>
                         </div>
 
                         <!-- Group wise TATHours Section -->
                         <div class="form-row">
+                            <p>Group wise TAT Hours</p>
+
                             <div class="left-side-mal">
                                 <ul>
                                     <li v-for="group in groups" :key="group.id">
@@ -595,19 +544,6 @@
                             </div>
                         </div>
 
-                        <!-- <div class="form-row">
-                            <div class="col-md-12 form-group">
-                                <label class="control-label"
-                                    >Comments<sup>*</sup></label
-                                >
-                                <textarea
-                                    class="form-control"
-                                    v-model="configurationInfos.comments"
-                                    required
-                                ></textarea>
-                            </div>
-                        </div> -->
-
                         <button class="btn btn-site" type="submit">
                             Submit
                         </button>
@@ -640,12 +576,10 @@ export default {
             callTypeId: null,
             callCategoryId: null,
             callSubCategoryId: null,
-            requiredField: {},
             selectedGroups: [],
             sms_config_id: null,
             email_config_id: null,
             selectedNotificationChannels: [],
-            comments: "",
             is_show_popup_msg: "no",
             popupMessages: [], // Array to hold additional messages
             is_escalation: "no",
@@ -654,6 +588,7 @@ export default {
             customer_behavior_check: "no",
             bulk_ticket_close_perms: "no",
         },
+        fieldIndexToRemove: null,
     }),
     mounted() {
         this.fetchGroups();
@@ -762,21 +697,13 @@ export default {
         },
         async fetchRequiredFields() {
             await this.fetchRequiredFieldsByCategory().then((response) => {
-                this.requiredFields = response.data;
-                this.generateInputTypes(response.data);
+                this.requiredFields = response.data.map((field) => ({
+                    id: field.id,
+                    input_field_name: field.input_field_name,
+                }));
             });
         },
-        generateInputTypes(value) {
-            this.inputTypeValues = value;
-            for (let i = 0; i < value.length; i++) {
-                if (value[i].input_type === "select") {
-                    this.inputTypeValues[i].input_value =
-                        value[i].input_value.split(",");
-                }
-                this.inputTypeValues[i].input_validation =
-                    value[i].input_validation.split(",");
-            }
-        },
+
         async handleSubmit() {
             console.log("handleSubmit Called");
             try {
@@ -786,22 +713,27 @@ export default {
                         id: group.id,
                         tatHours: group.tatHours,
                     }));
-                console.log(
-                    "this.configurationInfos",
-                    this.configurationInfos,
-                    this.configurationInfos.selectedNotificationChannels
-                );
-                /* this.configurationInfos.callerMobileNo =
-                    this.$route.query?.msisdn || null;
+
+                // Extract only the IDs from requiredFields and convert to a comma-separated string
+                const requiredFieldIds = this.requiredFields
+                    .map((field) => field.id)
+                    .join(",");
+
+                // Prepare the payload for the API call
+                const payload = {
+                    ...this.configurationInfos,
+                    requiredFieldIds, // Add the comma-separated string to the payload
+                };
                 const response = await axios.post(
-                    "/tickets",
-                    this.configurationInfos
+                    "/service-type-config",
+                    payload
                 );
                 console.log(
                     "Form submitted successfully, resp: ",
                     response.data
                 );
-                this.resetForm(); */
+                this.$refs.serviceTypeConfigForm.reset();
+                this.resetForm();
             } catch (error) {
                 console.error("There was an error submitting the form:", error);
             }
@@ -834,24 +766,15 @@ export default {
             try {
                 // const response = await axios.get("/email-configs");
                 // this.emailConfigs = response.data;
-                this.emailConfigs = [{ id: 1, name: "noreply-NAGAD" }];
+                this.emailConfigs = [{ id: 1, name: "noreply@nagad.com.bd" }];
             } catch (error) {
                 console.error("Error fetching Email configs:", error);
             }
         },
         handleNotificationChannelChange() {
-            console.log(
-                "Selected Notification Channels:",
-                this.selectedNotificationChannels
-            );
-
             this.configurationInfos.selectedNotificationChannels = [
                 ...this.selectedNotificationChannels,
             ];
-            console.log(
-                "Configuration Infos After Update:",
-                this.configurationInfos
-            );
 
             // Update configurationInfos based on selected notification channels
             // Reset config IDs if channels are deselected
@@ -862,13 +785,53 @@ export default {
                 this.configurationInfos.email_config_id = null;
             }
         },
+        confirmRemoveRequiredField(index) {
+            const isConfirmed = window.confirm(
+                "Are you sure you want to remove this field?"
+            );
+            if (isConfirmed) {
+                this.removeRequiredField(index);
+            }
+        },
+        async removeRequiredField(index) {
+            try {
+                // Check if index is valid
+                if (index < 0 || index >= this.requiredFields.length) {
+                    console.error("Index out of bounds");
+                    return;
+                }
+
+                const field = this.requiredFields[index];
+                if (!field || !field.id) {
+                    console.error("Field or field.id is undefined");
+                    return;
+                }
+
+                // Make DELETE request to remove field from server
+                await axios.delete(`/required-fields-configs/${field.id}`);
+
+                // Remove field from the array
+                this.requiredFields.splice(index, 1);
+
+                // Ensure reactivity
+                this.requiredFields = [...this.requiredFields];
+
+                // Update configurationInfos.requiredFields
+                this.configurationInfos.requiredFields =
+                    this.requiredFields.map((field) => ({
+                        id: field.id,
+                        input_field_name: field.input_field_name,
+                    }));
+            } catch (error) {
+                console.error("Error removing required field:", error);
+            }
+        },
+
         resetForm() {
             this.configurationInfos = {
                 callTypeId: null,
                 callCategoryId: null,
                 callSubCategoryId: null,
-                requiredField: {},
-                comments: "",
                 is_show_popup_msg: "no",
                 popupMessages: [],
                 is_escalation: "no",

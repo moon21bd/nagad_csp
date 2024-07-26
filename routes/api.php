@@ -111,6 +111,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     ]);
 });
 
+// for renewing token
 Route::middleware('auth:sanctum')->post('/renew-token', function (Request $request) {
     $user = $request->user();
     // $token = $user->createToken('authToken')->plainTextToken;

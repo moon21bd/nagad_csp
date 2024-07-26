@@ -36,50 +36,45 @@ class NCServiceTypeConfigController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
+
         $validated = $request->validate([
             'callTypeId' => 'required|exists:nc_call_types,id',
             'callCategoryId' => 'required|exists:nc_call_categories,id',
             'callSubCategoryId' => 'required|exists:nc_call_sub_categories,id',
-            'callerMobileNo' => 'required', // this will be generate dynamically from frontend after found the solution for params value get
-            'requiredField' => 'nullable|array',
-            'comments' => 'nullable|string',
-            'attachment' => 'nullable|string',
+            'selectedGroups' => 'required', // this will be generate dynamically from frontend after found the solution for params value get
+            'sms_config_id' => 'nullable|integer',
+            'email_config_id' => 'nullable|integer',
+            'selectedNotificationChannels' => 'nullable|array',
+            'is_show_popup_msg' => 'nullable|string',
+            'popupMessages' => 'nullable|array',
+            'is_escalation' => 'nullable|string',
+            'is_show_attachment' => 'nullable|string',
+            'is_verification_check' => 'nullable|string',
+            'customer_behavior_check' => 'nullable|string',
+            'bulk_ticket_close_perms' => 'nullable|string',
+            'requiredFieldIds' => 'nullable|string',
         ]);
 
-        $requiredFields = [];
-        foreach ($validated['requiredField'] ?? [] as $item => $value) {
-            list($id, $field) = explode('|', $item);
-            $requiredFields[] = [
-                'id' => (int) $id,
-                'field' => $field,
-                'value' => $value,
-            ];
-        }
-
         $configArr = [
-            'uuid' => uniqid(), // after internet restortion ramsey/uuid will be applied
             'call_type_id' => $validated['callTypeId'],
             'call_category_id' => $validated['callCategoryId'],
             'call_sub_category_id' => $validated['callSubCategoryId'],
-            'caller_mobile_no' => $validated['callerMobileNo'], // $validated['caller_mobile_no'],
-            'required_fields' => json_encode($requiredFields), //$validated['requiredField'],
-            'group_id' => 1, // this will assign from responsible team mapping tables later
-            'assign_to_group_id' => 1, // this will also assign from responsible team mapping tables later
-            'assign_by_id' => 1, // this will also assign from responsible team mapping tables later
-            'is_ticket_reassign' => 0, // if assigned then this will populate
-            'comments' => $validated['comments'], // $validated['comments'],
-            'sla_status' => 'NORMAL',
-            'attachment' => null,
-            'ticket_notification_status' => 1,
-            'is_customer_notified' => 0,
-            'ticket_status' => (empty($requiredFields)) ? 'CLOSED' : 'PENDING', // this will populate from various team
-            'ticket_channel' => 'PANEL',
-            'ticket_created_by' => Auth::id(),
-            'ticket_updated_by' => Auth::id(),
-            'ticket_last_updated_by' => null,
-            'ticket_created_at' => Carbon::now(),
-            'ticket_updated_at' => Carbon::now(),
+            'responsible_groups_with_tats' => $validated['selectedGroups'],
+            'required_fields_ids' => $validated['requiredFieldIds'],
+            'is_escalation' => $validated['is_escalation'],
+            'is_show_attachment' => $validated['is_show_attachment'],
+            'is_show_popup_msg' => $validated['is_show_popup_msg'],
+            'popup_msg_texts' => json_encode($validated['popupMessages']),
+            'notification_channels' => $validated['selectedNotificationChannels'],
+            'sms_config_id' => $validated['sms_config_id'],
+            'email_config_id' => $validated['email_config_id'],
+            'is_verification_check' => $validated['is_verification_check'],
+            'customer_behavior_check' => $validated['customer_behavior_check'],
+            'bulk_ticket_close_perms' => $validated['bulk_ticket_close_perms'],
+            'status' => 'active',
+            'created_by' => Auth::id(),
+            'updated_by' => Auth::id(),
+            'last_updated_by' => Auth::id(),
         ];
 
         $ticket = NCServiceTypeConfig::create($configArr);

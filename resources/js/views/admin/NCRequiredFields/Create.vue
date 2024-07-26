@@ -22,23 +22,22 @@
                                         >Service Type<sup>*</sup></label
                                     >
                                     <div class="custom-style">
-                                        <select
-                                            class="form-control"
+                                        <el-select
+                                            class="d-block w-100"
                                             v-model="callTypeId"
                                             @change="fetchCategories"
                                             required
+                                            filterable
+                                            placeholder="Select Service Type"
                                         >
-                                            <option :value="null" disabled>
-                                                Select Service Type
-                                            </option>
-                                            <option
+                                            <el-option
                                                 v-for="types in callTypes"
                                                 :key="types.id"
+                                                :label="types.call_type_name"
                                                 :value="types.id"
                                             >
-                                                {{ types.call_type_name }}
-                                            </option>
-                                        </select>
+                                            </el-option>
+                                        </el-select>
                                     </div>
                                 </div>
                                 <div class="col-md-4 form-group">

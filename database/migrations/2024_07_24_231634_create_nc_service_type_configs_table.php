@@ -19,13 +19,12 @@ class CreateNCServiceTypeConfigsTable extends Migration
             $table->integer('call_category_id')->unsigned()->nullable();
             $table->integer('call_sub_category_id')->unsigned()->nullable();
             $table->json('responsible_groups_with_tats')->nullable();
-            $table->text('required_fields_group_ids')->nullable(); // group concate will be applied here.
+            $table->text('required_fields_ids')->nullable(); // group concate will be applied here.
             $table->enum('is_escalation', ['yes', 'no'])->nullable();
             $table->enum('is_show_attachment', ['yes', 'no'])->nullable();
             $table->enum('is_show_popup_msg', ['yes', 'no'])->nullable();
             $table->text('popup_msg_texts')->nullable(); // can be multiple
-            $table->enum('notification_channel', ['SMS', 'EMAIL', 'SOCKET']);
-
+            $table->json('notification_channels')->nullable();
             $table->integer('notification_config_id')->unsigned()->nullable();
             $table->integer('sms_config_id')->unsigned()->nullable();
             $table->integer('email_config_id')->unsigned()->nullable();

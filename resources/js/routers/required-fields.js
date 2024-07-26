@@ -2,7 +2,8 @@ import AdminLayout from "../views/admin/layout/index.vue";
 
 export default [
     {
-        path: "/admin/required-fields-config/add",
+        // path: "/admin/required-fields-config/add",
+        path: "/admin/required-fields-config/add/:cti?/:cci?/:csci?",
         name: "required-fields-config-add",
         component: () => import("../views/admin/NCRequiredFields/Create.vue"),
         meta: {
