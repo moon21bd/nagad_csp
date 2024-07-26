@@ -82,7 +82,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from "../../axios";
 import * as notify from "../../utils/notify.js";
 
 export default {
@@ -124,9 +124,19 @@ export default {
                     email: this.email,
                     password: this.password,
                 });
-                localStorage.setItem("token", response.data.token);
+                const token = response.data.token;
+                console.log("token", token);
+                localStorage.setItem("token", token);
+
                 this.$store.dispatch("auth/setUser", response.data.user);
+                // this.$store.commit("auth/setUser", response.data.user);
+                this.$store.commit("auth/SET_TOKEN", token);
+
                 // console.log('userList', this.$store.state.auth.user); // Log the user object
+
+                axios.defaults.headers.common[
+                    "Authorization"
+                ] = `Bearer ${token}`;
                 this.$router.push("/admin");
             } catch (error) {
                 notify.authError(error);

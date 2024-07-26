@@ -14,6 +14,7 @@ use App\Http\Controllers\NCTicketController;
 use App\Http\Controllers\PermissionsController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UsersController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -108,4 +109,13 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         'required-fields-configs' => NCRequiredConfigController::class,
         'service-type-config' => NCServiceTypeConfigController::class,
     ]);
+});
+
+// for renewing token
+Route::middleware('auth:sanctum')->post('/renew-token', function (Request $request) {
+    $user = $request->user();
+    // $token = $user->createToken('authToken')->plainTextToken;
+    $token = $user->createToken('Personal Access Token')->plainTextToken;
+
+    return response()->json(['token' => $token]);
 });

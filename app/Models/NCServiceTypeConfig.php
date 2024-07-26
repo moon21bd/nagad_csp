@@ -15,12 +15,12 @@ class NCServiceTypeConfig extends Model
         'call_category_id',
         'call_sub_category_id',
         'responsible_groups_with_tats',
-        'required_fields_group_ids',
+        'required_fields_ids',
         'is_escalation',
         'is_show_attachment',
         'is_show_popup_msg',
         'popup_msg_texts',
-        'notification_channel',
+        'notification_channels',
         'notification_config_id',
         'sms_config_id',
         'email_config_id',
@@ -31,5 +31,9 @@ class NCServiceTypeConfig extends Model
         'created_by',
         'updated_by',
         'last_updated_by',
+    ];
+    protected $casts = [
+        'notification_channels' => 'array', // Cast to JSON
+        'responsible_groups_with_tats' => 'array', // Cast to JSON
     ];
 }
