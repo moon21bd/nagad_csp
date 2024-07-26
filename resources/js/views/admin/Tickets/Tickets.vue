@@ -1,6 +1,6 @@
 <template>
     <div class="card mb-4">
-        <!-- <div class="card-header">
+        <div class="card-header">
             <h1 class="title mb-3">Customer Information</h1>
             <div class="d-flex">
                 <form action="" class="verify-user mr-0 mr-md-3">
@@ -19,12 +19,12 @@
                     <h5>In Call..<span>+8801987654321</span></h5>
                 </div>
             </div>
-        </div> -->
+        </div>
         <div class="card-body">
             <div class="row">
-                <!-- <div class="col-md-4">
+                <div class="col-md-4">
                     <userInfo />
-                </div> -->
+                </div>
                 <div class="col-md-8">
                     <h4 class="sub-title mb-2">
                         <i class="icon-tickets text-danger"></i> Create Ticket
@@ -45,10 +45,10 @@
                                         placeholder="Select Type"
                                     >
                                         <el-option
-                                            v-for="type in callTypes"
-                                            :key="type.id"
-                                            :label="type.call_type_name"
-                                            :value="type.id"
+                                            v-for="types in callTypes"
+                                            :key="types.id"
+                                            :label="types.call_type_name"
+                                            :value="types.id"
                                         >
                                         </el-option>
                                     </el-select>
@@ -218,15 +218,16 @@
 <script>
 import axios from "../../../axios";
 
-// import userInfo from "./components/userInfo.vue";
+import userInfo from "./components/userInfo.vue";
 
 export default {
-    /* components: {
+    components: {
         userInfo,
-    }, */
+    },
     name: "Tickets",
     data: () => ({
         callerMobileNo: "",
+        callerPrevTickets: false,
         //id: this.$route.params.id,
         requiredFields: [],
         callTypes: [],

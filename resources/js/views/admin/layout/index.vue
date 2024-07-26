@@ -24,7 +24,10 @@
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; 2024</span>
+                        <span
+                            >Copyright &copy;
+                            {{ new Date().getFullYear() }}</span
+                        >
                     </div>
                 </div>
             </footer>
@@ -55,7 +58,7 @@ export default {
         sbadmin2.init();
     },
     computed: {
-        ...mapGetters('auth', ["user"]),
+        ...mapGetters("auth", ["user"]),
     },
 };
 </script>
