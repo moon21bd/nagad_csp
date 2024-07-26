@@ -179,3 +179,18 @@ export default {
     },
 };
 </script>
+<style>
+.table.dataTable > thead > tr > th {
+    white-space: nowrap;
+}
+.table > thead > tr > th:last-child,
+.table > tbody > tr > td:last-child {
+    white-space: nowrap;
+    position: sticky;
+    right: 0;
+    background: #fff;
+}
+.table > thead > tr > th:last-child {
+    background: #fff9f9;
+}
+</style>

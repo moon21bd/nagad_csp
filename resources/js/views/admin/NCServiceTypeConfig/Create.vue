@@ -2,16 +2,15 @@
     <div class="card mb-4">
         <div class="card-body">
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-10">
                     <h4 class="sub-title mb-2">
-                        <i class="icon-sliders text-danger"></i> Service Type
-                        Configurations
+                        <i class="icon-sliders"></i> Service Type Configurations
                     </h4>
                     <form
                         ref="serviceTypeConfigForm"
                         @submit.prevent="handleSubmit"
                     >
-                        <div class="form-row">
+                        <div class="row">
                             <div class="col-md-4 form-group">
                                 <label class="control-label"
                                     >Service Type<sup>*</sup></label
@@ -26,10 +25,10 @@
                                         placeholder="Select Type"
                                     >
                                         <el-option
-                                            v-for="type in callTypes"
-                                            :key="type.id"
-                                            :label="type.call_type_name"
-                                            :value="type.id"
+                                            v-for="types in callTypes"
+                                            :key="types.id"
+                                            :label="types.call_type_name"
+                                            :value="types.id"
                                         >
                                         </el-option>
                                     </el-select>
@@ -85,29 +84,43 @@
                             </div>
                         </div>
 
-                        <div class="form-row">
+                        <div>
                             <!-- Display required fields -->
-                            <div v-if="requiredFields.length > 0">
-                                <p>Required Fields:</p>
-                                <div
-                                    v-for="(field, index) in requiredFields"
-                                    :key="index"
-                                    class="d-flex justify-content-between align-items-center mb-2"
+                            <div
+                                class="form-group"
+                                v-if="requiredFields.length > 0"
+                            >
+                                <label class="control-label"
+                                    >Required Fields</label
                                 >
-                                    <span>{{ field.input_field_name }}</span>
-                                    <button
-                                        type="button"
-                                        @click="
-                                            confirmRemoveRequiredField(index)
-                                        "
-                                        class="btn btn-danger btn-sm"
+                                <div class="form-row pop-msg">
+                                    <div
+                                        class="col-md-6"
+                                        v-for="(field, index) in requiredFields"
+                                        :key="index"
                                     >
-                                        Remove
-                                    </button>
+                                        <div
+                                            class="d-flex justify-content-between align-items-center rounded p-2 border mb-2"
+                                        >
+                                            <span>{{
+                                                field.input_field_name
+                                            }}</span>
+                                            <button
+                                                type="button"
+                                                @click="
+                                                    confirmRemoveRequiredField(
+                                                        index
+                                                    )
+                                                "
+                                                class="btn btn-danger btn-sm"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-
                                 <router-link
-                                    class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
+                                    class="btn btn-site mt-2"
                                     :to="{
                                         name: 'required-fields-config-add',
                                         params: {
@@ -126,66 +139,68 @@
                         </div>
 
                         <!-- Group wise TATHours Section -->
-                        <div class="form-row">
-                            <p>Group wise TAT Hours</p>
-
-                            <div class="left-side-mal">
-                                <ul>
+                        <div class="form-group">
+                            <label class="control-label"
+                                >Group wise TAT Hours</label
+                            >
+                            <div class="group-tat-list">
+                                <ul class="d-flex p-0">
                                     <li v-for="group in groups" :key="group.id">
-                                        <input
-                                            type="checkbox"
-                                            :value="group"
-                                            v-model="group.isChecked"
-                                            @change="handleGroupChange(group)"
-                                        />
-                                        {{ group.name }}
+                                        <label class="group-tat">
+                                            <input
+                                                type="checkbox"
+                                                :value="group"
+                                                v-model="group.isChecked"
+                                                @change="
+                                                    handleGroupChange(group)
+                                                "
+                                            />
+                                            <div class="group-tat-label">
+                                                {{ group.name }}
+                                            </div>
+                                        </label>
                                     </li>
                                 </ul>
                             </div>
-                            <div class="right-side-mal">
+                            <div class="selected-group">
                                 <div
                                     v-for="group in selectedGroups"
                                     :key="group.id"
-                                    class="selected-group"
+                                    class="selected-group-item"
                                 >
                                     <span>{{ group.name }}</span>
-                                    <input
-                                        type="number"
-                                        v-model.number="group.tatHours"
-                                        @input="checkNegative(group)"
-                                        placeholder="Enter TAT hours"
-                                    />
-                                    <span>hours</span>
+                                    <div class="tat-hour">
+                                        <button
+                                            class="btn icon-minus"
+                                            type="button"
+                                            @click="decrementTatHours(group)"
+                                        ></button>
+                                        <input
+                                            type="number"
+                                            v-model.number="group.tatHours"
+                                            @input="checkNegative(group)"
+                                        />hr
+                                        <button
+                                            class="btn icon-plus"
+                                            type="button"
+                                            @click="incrementTatHours(group)"
+                                        ></button>
+                                    </div>
+
                                     <button
-                                        type="button"
-                                        @click="incrementTatHours(group)"
-                                    >
-                                        +
-                                    </button>
-                                    <button
-                                        type="button"
-                                        @click="decrementTatHours(group)"
-                                    >
-                                        -
-                                    </button>
-                                    <button
+                                        class="btn btn-site ml-auto"
                                         type="button"
                                         @click="removeGroup(group.id)"
                                     >
-                                        Remove
+                                        <i class="icon-trash"></i> Remove
                                     </button>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Popup message Section -->
-                        <div class="form-row">
-                            <div
-                                class="col-md-6 form-group d-flex align-items-center"
-                            >
-                                <label class="control-label m-0 mr-3"
-                                    >Popup Message</label
-                                >
+                        <div class="form-group">
+                            <label class="control-label">Popup Message</label>
+                            <div class="d-flex mb-3">
                                 <label class="radio mr-2"
                                     ><input
                                         type="radio"
@@ -208,12 +223,6 @@
                                         v-validate="'required'"
                                     /><span class="radio-mark"></span>No
                                 </label>
-                                <div
-                                    class="text-danger"
-                                    v-show="errors.has('gender')"
-                                >
-                                    {{ errors.first("gender") }}
-                                </div>
                             </div>
 
                             <!-- Additional Popup Messages -->
@@ -223,68 +232,78 @@
                                     'yes'
                                 "
                             >
-                                <button
-                                    type="button"
-                                    @click="showMessageBox = true"
-                                    :disabled="
-                                        configurationInfos.popupMessages
-                                            .length >= maxMessages
-                                    "
-                                >
-                                    Add Popup Message
-                                </button>
-                                <span
-                                    v-if="
-                                        configurationInfos.popupMessages
-                                            .length >= maxMessages
-                                    "
-                                >
-                                    (Maximum of {{ maxMessages }} messages
-                                    allowed)
-                                </span>
-
-                                <!-- Message Box -->
-                                <div v-if="showMessageBox" class="message-box">
-                                    <textarea
-                                        v-model="newPopupMessage"
-                                        placeholder="Enter additional popup message"
-                                        class="form-control"
-                                    ></textarea>
-                                    <button
-                                        type="button"
-                                        @click="addPopupMessage"
-                                    >
-                                        Add Message
-                                    </button>
-                                    <button
-                                        type="button"
-                                        @click="showMessageBox = false"
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
-
-                                <!-- Display additional popup messages -->
-                                <ul
+                                <div
+                                    class="pop-msg"
                                     v-if="
                                         configurationInfos.popupMessages.length
                                     "
                                 >
-                                    <li
+                                    <div
                                         v-for="(
                                             message, index
                                         ) in configurationInfos.popupMessages"
                                         :key="index"
+                                        class="d-flex justify-content-between align-items-center rounded p-2 border mb-3"
                                     >
-                                        {{ message }}
+                                        <span>{{ message }}</span>
                                         <button
                                             type="button"
                                             @click="removePopupMessage(index)"
+                                            class="btn btn-danger btn-sm"
                                         >
                                             Remove
                                         </button>
-                                    </li>
-                                </ul>
+                                    </div>
+                                </div>
+                                <!-- Message Box -->
+                                <div
+                                    v-if="showMessageBox"
+                                    class="my-3 border-bottom pb-3"
+                                >
+                                    <textarea
+                                        v-model="newPopupMessage"
+                                        placeholder="Enter additional popup message"
+                                        class="form-control mb-3"
+                                    ></textarea>
+                                    <button
+                                        class="btn btn-site mr-2"
+                                        type="button"
+                                        @click="showMessageBox = false"
+                                    >
+                                        <i class="icon-trash"></i> Cancel
+                                    </button>
+                                    <button
+                                        class="btn btn-site"
+                                        style="background: #000"
+                                        type="button"
+                                        @click="addPopupMessage"
+                                    >
+                                        <i class="icon-plus"></i> Add
+                                    </button>
+                                </div>
+
+                                <div>
+                                    <button
+                                        class="btn btn-site"
+                                        type="button"
+                                        @click="showMessageBox = true"
+                                        :disabled="
+                                            configurationInfos.popupMessages
+                                                .length >= maxMessages
+                                        "
+                                    >
+                                        <i class="icon-plus"></i> New
+                                    </button>
+                                    <span
+                                        v-if="
+                                            configurationInfos.popupMessages
+                                                .length >= maxMessages
+                                        "
+                                    >
+                                        (Maximum of {{ maxMessages }} messages
+                                        allowed)
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
@@ -294,8 +313,8 @@
                                 <label class="control-label"
                                     >Notification Channels</label
                                 >
-                                <div>
-                                    <label>
+                                <div class="d-flex">
+                                    <label class="checkbox mr-3">
                                         <input
                                             type="checkbox"
                                             value="sms"
@@ -305,10 +324,11 @@
                                             @change="
                                                 handleNotificationChannelChange
                                             "
-                                        />
-                                        SMS
-                                    </label>
-                                    <label>
+                                        /><span class="checkmark"></span
+                                        >SMS</label
+                                    >
+
+                                    <label class="checkbox">
                                         <input
                                             type="checkbox"
                                             value="email"
@@ -318,229 +338,209 @@
                                             @change="
                                                 handleNotificationChannelChange
                                             "
-                                        />
-                                        Email
-                                    </label>
+                                        /><span class="checkmark"></span
+                                        >Email</label
+                                    >
                                 </div>
                             </div>
                         </div>
 
-                        <div
-                            v-if="selectedNotificationChannels.includes('sms')"
-                        >
-                            <div class="form-row">
-                                <div class="col-md-6 form-group">
-                                    <label class="control-label"
-                                        >SMS Config ID</label
-                                    >
-                                    <el-select
-                                        v-model="
-                                            configurationInfos.sms_config_id
-                                        "
-                                        filterable
-                                        placeholder="Select SMS Config"
-                                    >
-                                        <el-option
-                                            v-for="sms in smsConfigs"
-                                            :key="sms.id"
-                                            :label="sms.name"
-                                            :value="sms.id"
-                                        ></el-option>
-                                    </el-select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div
-                            v-if="
-                                selectedNotificationChannels.includes('email')
-                            "
-                        >
-                            <div class="form-row">
-                                <div class="col-md-6 form-group">
-                                    <label class="control-label"
-                                        >Email Config ID</label
-                                    >
-                                    <el-select
-                                        v-model="
-                                            configurationInfos.email_config_id
-                                        "
-                                        filterable
-                                        placeholder="Select Email Config"
-                                    >
-                                        <el-option
-                                            v-for="email in emailConfigs"
-                                            :key="email.id"
-                                            :label="email.name"
-                                            :value="email.id"
-                                        ></el-option>
-                                    </el-select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Escalation Section -->
                         <div class="form-row">
                             <div
-                                class="col-md-6 form-group d-flex align-items-center"
+                                class="col-md-6 form-group"
+                                v-if="
+                                    selectedNotificationChannels.includes('sms')
+                                "
                             >
+                                <label class="control-label"
+                                    >SMS Config ID</label
+                                >
+                                <el-select
+                                    class="w-100"
+                                    v-model="configurationInfos.sms_config_id"
+                                    filterable
+                                    placeholder="Select SMS Config"
+                                >
+                                    <el-option
+                                        v-for="sms in smsConfigs"
+                                        :key="sms.id"
+                                        :label="sms.name"
+                                        :value="sms.id"
+                                    ></el-option>
+                                </el-select>
+                            </div>
+                            <div
+                                class="col-md-6 form-group"
+                                v-if="
+                                    selectedNotificationChannels.includes(
+                                        'email'
+                                    )
+                                "
+                            >
+                                <label class="control-label"
+                                    >Email Config ID</label
+                                >
+                                <el-select
+                                    class="w-100"
+                                    v-model="configurationInfos.email_config_id"
+                                    filterable
+                                    placeholder="Select Email Config"
+                                >
+                                    <el-option
+                                        v-for="email in emailConfigs"
+                                        :key="email.id"
+                                        :label="email.name"
+                                        :value="email.id"
+                                    ></el-option>
+                                </el-select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="col-md-4 form-group">
                                 <label class="control-label m-0 mr-3"
                                     >Escalation</label
                                 >
-                                <label class="radio mr-2">
-                                    <input
-                                        type="radio"
-                                        value="yes"
-                                        name="is_escalation"
-                                        v-model="
-                                            configurationInfos.is_escalation
-                                        "
-                                    />
-                                    <span class="radio-mark"></span>Yes
-                                </label>
-                                <label class="radio">
-                                    <input
-                                        type="radio"
-                                        value="no"
-                                        name="is_escalation"
-                                        v-model="
-                                            configurationInfos.is_escalation
-                                        "
-                                    />
-                                    <span class="radio-mark"></span>No
-                                </label>
+                                <div class="d-flex">
+                                    <label class="radio mr-2">
+                                        <input
+                                            type="radio"
+                                            value="yes"
+                                            name="is_escalation"
+                                            v-model="
+                                                configurationInfos.is_escalation
+                                            "
+                                        />
+                                        <span class="radio-mark"></span>Yes
+                                    </label>
+                                    <label class="radio">
+                                        <input
+                                            type="radio"
+                                            value="no"
+                                            name="is_escalation"
+                                            v-model="
+                                                configurationInfos.is_escalation
+                                            "
+                                        />
+                                        <span class="radio-mark"></span>No
+                                    </label>
+                                </div>
                             </div>
-                        </div>
-
-                        <!-- Show Attachment Section -->
-                        <div class="form-row">
-                            <div
-                                class="col-md-6 form-group d-flex align-items-center"
-                            >
+                            <div class="col-md-4 form-group">
                                 <label class="control-label m-0 mr-3"
                                     >Show Attachment</label
                                 >
-                                <label class="radio mr-2">
-                                    <input
-                                        type="radio"
-                                        value="yes"
-                                        name="is_show_attachment"
-                                        v-model="
-                                            configurationInfos.is_show_attachment
-                                        "
-                                    />
-                                    <span class="radio-mark"></span>Yes
-                                </label>
-                                <label class="radio">
-                                    <input
-                                        type="radio"
-                                        value="no"
-                                        name="is_show_attachment"
-                                        v-model="
-                                            configurationInfos.is_show_attachment
-                                        "
-                                    />
-                                    <span class="radio-mark"></span>No
-                                </label>
+                                <div class="d-flex">
+                                    <label class="radio mr-2">
+                                        <input
+                                            type="radio"
+                                            value="yes"
+                                            name="is_show_attachment"
+                                            v-model="
+                                                configurationInfos.is_show_attachment
+                                            "
+                                        />
+                                        <span class="radio-mark"></span>Yes
+                                    </label>
+                                    <label class="radio">
+                                        <input
+                                            type="radio"
+                                            value="no"
+                                            name="is_show_attachment"
+                                            v-model="
+                                                configurationInfos.is_show_attachment
+                                            "
+                                        />
+                                        <span class="radio-mark"></span>No
+                                    </label>
+                                </div>
                             </div>
-                        </div>
-
-                        <!-- Verification Check Section -->
-                        <div class="form-row">
-                            <div
-                                class="col-md-6 form-group d-flex align-items-center"
-                            >
+                            <div class="col-md-4 form-group">
                                 <label class="control-label m-0 mr-3"
                                     >Verification Check</label
                                 >
-                                <label class="radio mr-2">
-                                    <input
-                                        type="radio"
-                                        value="yes"
-                                        name="is_verification_check"
-                                        v-model="
-                                            configurationInfos.is_verification_check
-                                        "
-                                    />
-                                    <span class="radio-mark"></span>Yes
-                                </label>
-                                <label class="radio">
-                                    <input
-                                        type="radio"
-                                        value="no"
-                                        name="is_verification_check"
-                                        v-model="
-                                            configurationInfos.is_verification_check
-                                        "
-                                    />
-                                    <span class="radio-mark"></span>No
-                                </label>
+                                <div class="d-flex">
+                                    <label class="radio mr-2">
+                                        <input
+                                            type="radio"
+                                            value="yes"
+                                            name="is_verification_check"
+                                            v-model="
+                                                configurationInfos.is_verification_check
+                                            "
+                                        />
+                                        <span class="radio-mark"></span>Yes
+                                    </label>
+                                    <label class="radio">
+                                        <input
+                                            type="radio"
+                                            value="no"
+                                            name="is_verification_check"
+                                            v-model="
+                                                configurationInfos.is_verification_check
+                                            "
+                                        />
+                                        <span class="radio-mark"></span>No
+                                    </label>
+                                </div>
                             </div>
-                        </div>
-
-                        <!-- Customer Behavior Check Section -->
-                        <div class="form-row">
-                            <div
-                                class="col-md-6 form-group d-flex align-items-center"
-                            >
+                            <div class="col-md-4 form-group">
                                 <label class="control-label m-0 mr-3"
                                     >Customer Behavior Check</label
                                 >
-                                <label class="radio mr-2">
-                                    <input
-                                        type="radio"
-                                        value="yes"
-                                        name="customer_behavior_check"
-                                        v-model="
-                                            configurationInfos.customer_behavior_check
-                                        "
-                                    />
-                                    <span class="radio-mark"></span>Yes
-                                </label>
-                                <label class="radio">
-                                    <input
-                                        type="radio"
-                                        value="no"
-                                        name="customer_behavior_check"
-                                        v-model="
-                                            configurationInfos.customer_behavior_check
-                                        "
-                                    />
-                                    <span class="radio-mark"></span>No
-                                </label>
+                                <div class="d-flex">
+                                    <label class="radio mr-2">
+                                        <input
+                                            type="radio"
+                                            value="yes"
+                                            name="customer_behavior_check"
+                                            v-model="
+                                                configurationInfos.customer_behavior_check
+                                            "
+                                        />
+                                        <span class="radio-mark"></span>Yes
+                                    </label>
+                                    <label class="radio">
+                                        <input
+                                            type="radio"
+                                            value="no"
+                                            name="customer_behavior_check"
+                                            v-model="
+                                                configurationInfos.customer_behavior_check
+                                            "
+                                        />
+                                        <span class="radio-mark"></span>No
+                                    </label>
+                                </div>
                             </div>
-                        </div>
-
-                        <!-- Bulk Ticket Close Permissions Section -->
-                        <div class="form-row">
-                            <div
-                                class="col-md-6 form-group d-flex align-items-center"
-                            >
+                            <div class="col-md-4 form-group">
                                 <label class="control-label m-0 mr-3"
                                     >Bulk Ticket Close Permissions</label
                                 >
-                                <label class="radio mr-2">
-                                    <input
-                                        type="radio"
-                                        value="yes"
-                                        name="bulk_ticket_close_perms"
-                                        v-model="
-                                            configurationInfos.bulk_ticket_close_perms
-                                        "
-                                    />
-                                    <span class="radio-mark"></span>Yes
-                                </label>
-                                <label class="radio">
-                                    <input
-                                        type="radio"
-                                        value="no"
-                                        name="bulk_ticket_close_perms"
-                                        v-model="
-                                            configurationInfos.bulk_ticket_close_perms
-                                        "
-                                    />
-                                    <span class="radio-mark"></span>No
-                                </label>
+                                <div class="d-flex">
+                                    <label class="radio mr-2">
+                                        <input
+                                            type="radio"
+                                            value="yes"
+                                            name="bulk_ticket_close_perms"
+                                            v-model="
+                                                configurationInfos.bulk_ticket_close_perms
+                                            "
+                                        />
+                                        <span class="radio-mark"></span>Yes
+                                    </label>
+                                    <label class="radio">
+                                        <input
+                                            type="radio"
+                                            value="no"
+                                            name="bulk_ticket_close_perms"
+                                            v-model="
+                                                configurationInfos.bulk_ticket_close_perms
+                                            "
+                                        />
+                                        <span class="radio-mark"></span>No
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
@@ -624,6 +624,7 @@ export default {
         addGroup(group) {
             if (!this.selectedGroups.some((g) => g.id === group.id)) {
                 this.selectedGroups.push({ ...group, tatHours: 0 });
+                // this.selectedGroups.scrollIntoView();
             }
         },
         removeGroup(id) {

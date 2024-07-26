@@ -72,6 +72,7 @@ body {
     i {
         font-size: 24px;
         color: $black;
+        line-height: 20px;
     }
     h5 {
         font-size: 13px;
@@ -79,6 +80,44 @@ body {
         span {
             display: block;
         }
+    }
+}
+.btn-prev-tickets {
+    cursor: pointer;
+    padding: 10px 15px;
+    color: $white;
+    background: $red;
+    border-radius: 40px;
+    transition: all 0.3s linear;
+    display: flex;
+    align-items: center;
+    line-height: 21px;
+    i {
+        transition: all 0.3s linear;
+        display: inline-flex;
+        margin-left: 5px;
+    }
+    &:hover {
+        background: $black;
+        text-decoration: none;
+        color: $white;
+    }
+    &.show {
+        background: $black;
+        i {
+            transform: rotate(180deg);
+        }
+    }
+}
+.prev-table thead th {
+    border-bottom: none;
+}
+.customer-info {
+    padding: 15px;
+    background: #fff9f9;
+    border-radius: 12px;
+    .control-label {
+        margin-bottom: 0;
     }
 }
 .registered-customer {
@@ -106,7 +145,7 @@ body {
 
 .transaction-list {
     border: 1px solid #ddd;
-    border-radius: 12px;
+    border-radius: 6px;
     padding: 15px 5px 15px 15px;
     ul {
         padding: 0 5px 0 0;
@@ -165,7 +204,86 @@ body {
         }
     }
 }
-
+.group-tat-label {
+    padding: 6px 10px 5px;
+    border-radius: 30px;
+    color: #868aa8;
+    border: 1.5px solid #868aa8;
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    transition: all 0.3s linear;
+}
+.group-tat {
+    margin: 0;
+    input {
+        display: none;
+        &:checked + .group-tat-label {
+            border-color: $red !important;
+            background-color: $red !important;
+            color: $white;
+        }
+    }
+    &-list {
+        ul {
+            flex-wrap: wrap;
+            li {
+                list-style: none;
+                flex-wrap: wrap;
+            }
+        }
+    }
+}
+.tat-hour {
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    input[type="number"] {
+        -moz-appearance: textfield;
+    }
+    background: #fff;
+    border: 1px solid #333;
+    border-radius: 30px;
+    margin-left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    input {
+        width: 32px;
+        text-align: center;
+        font-weight: 500;
+        border: none;
+        background: none;
+        line-height: 1;
+    }
+    input:focus,
+    button:focus {
+        outline: none;
+        box-shadow: none;
+    }
+}
+.selected-group {
+    &-item {
+        display: grid;
+        padding: 10px;
+        background: #fff9f9;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        align-items: center;
+        font-size: 15px;
+        border: 1px solid #fbe5e5;
+        grid-template-columns: 230px 150px 1fr;
+    }
+}
+.pop-msg {
+    font-size: 14px;
+}
 @media all and (min-width: 992px) {
     ::-webkit-scrollbar,
     .sidebar::-webkit-scrollbar {
