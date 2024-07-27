@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -84,13 +85,38 @@ class UsersController extends Controller
     {
         $user = User::findOrFail($id);
 
+        // Validate the input
         $validatedData = $request->validate([
             'group_id' => 'required',
             'status' => 'required|in:Active,Inactive,Pending',
+            'avatar' => 'nullable|string', // Make avatar nullable
         ]);
 
-        // $validatedData['group_id'] = $validatedData['status'] = Auth::id();
+        // Log the received avatar data for debugging
+        Log::info('Received avatar data: ', ['avatar' => $validatedData['avatar']]);
+
+        // Handle the avatar update
+        if (!empty($validatedData['avatar'])) {
+            $avatarPath = saveAndGetAvatar($validatedData['avatar']);
+
+            // Log the new avatar path
+            Log::info('New avatar path: ', ['avatarPath' => $avatarPath]);
+
+            // Only update the avatar if it's not empty
+            if ($avatarPath) {
+                $validatedData['avatar'] = $avatarPath;
+            } else {
+                // Remove the avatar field if saving failed
+                unset($validatedData['avatar']);
+            }
+        } else {
+            // If avatar is not provided or is empty, remove it from the update data
+            unset($validatedData['avatar']);
+        }
+
+        // Update the user with validated data
         $user->update($validatedData);
+
         return response()->json($user);
     }
 

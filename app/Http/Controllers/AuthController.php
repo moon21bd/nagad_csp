@@ -73,7 +73,7 @@ class AuthController extends Controller
                 'group_id' => $validatedData['group_id'],
                 'mobile_no' => $validatedData['mobile_no'],
                 'email' => $validatedData['email'],
-                'avatar' => $this->saveAndGetAvatar($validatedData['avatar']),
+                'avatar' => saveAndGetAvatar($validatedData['avatar']),
                 'password' => Hash::make($validatedData['password']),
                 'created_by' => $authUserId,
                 'updated_by' => $authUserId,
@@ -123,21 +123,21 @@ class AuthController extends Controller
 
     }
 
-    protected function saveAndGetAvatar($avatar)
+    /* protected function saveAndGetAvatar($avatar)
     {
-        if (!isset($avatar) && !$avatar) {
-            return null;
-        }
-
-        $imageParts = explode(";base64,", $avatar);
-        $imageTypeAux = explode("image/", $imageParts[0]);
-        $extension = $imageTypeAux[1];
-        $imageBase64 = base64_decode($imageParts[1]);
-        $fileNameToStore = uniqid() . '.' . $extension;
-        $file = public_path('uploads/') . "images/profile/" . $fileNameToStore;
-        file_put_contents($file, $imageBase64);
-        return "images/profile/" . $fileNameToStore;
+    if (!isset($avatar) && !$avatar) {
+    return null;
     }
+
+    $imageParts = explode(";base64,", $avatar);
+    $imageTypeAux = explode("image/", $imageParts[0]);
+    $extension = $imageTypeAux[1];
+    $imageBase64 = base64_decode($imageParts[1]);
+    $fileNameToStore = uniqid() . '.' . $extension;
+    $file = public_path('uploads/') . "images/profile/" . $fileNameToStore;
+    file_put_contents($file, $imageBase64);
+    return "images/profile/" . $fileNameToStore;
+    } */
 
     /**
      * login the user.

@@ -17,12 +17,12 @@
                     <div class="col-md-8">
                         <form @submit.prevent="handleSubmit">
                             <div class="row">
-                                <!-- <div class="col-md-12 form-group">
+                                <div class="col-md-12 form-group">
                                     <label class="avatar">
                                         <input
                                             type="file"
                                             name="avatar"
-                                            v-validate="'required|image'"
+                                            v-validate="'image'"
                                             @change="handleFileUpload"
                                             accept="image/x-png,image/jpg,image/jpeg"
                                         />
@@ -41,7 +41,7 @@
                                     >
                                         {{ errors.first("avatar") }}
                                     </div>
-                                </div> -->
+                                </div>
                                 <div class="col-md-12 form-group">
                                     <label class="control-label"
                                         >Select Group</label
@@ -227,6 +227,7 @@
                                             autocomplete="off"
                                             id="password"
                                             name="password"
+                                            ref="password"
                                             v-model="user.password"
                                             class="form-control"
                                             placeholder="Password"
@@ -268,6 +269,7 @@
                                             autocomplete="off"
                                             name="confirmPassword"
                                             v-model="user.confirmPassword"
+                                            data-vv-as="password"
                                             class="form-control"
                                             placeholder="confirm password"
                                             :type="
@@ -435,10 +437,12 @@ export default {
             confirmPassword: false,
             groups: [],
             formErrors: [],
+            temp_avatar: null,
             user: {
                 group_id: null,
                 status: "Pending",
-                temp_avatar: "/images/user-avatar.png",
+                // temp_avatar: "/images/user-avatar.png",
+
                 user_details: {
                     employee_name: "",
                     employee_id: "",
@@ -485,10 +489,15 @@ export default {
                 this.groups = [];
             }
         },
+        setUserData(user) {
+            console.log("user", user);
+            this.temp_avatar = user.avatar_url;
+        },
         async fetchUser() {
             try {
                 const response = await axios.get(`/user/${this.id}`);
                 this.user = response.data.data;
+                this.setUserData(response.data.data);
             } catch (error) {
                 console.error("Error fetching user:", error);
                 this.user = {};

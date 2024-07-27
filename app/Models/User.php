@@ -55,6 +55,9 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    // Assuming 'avatar' is the column name in your users table that stores the file path of the avatar
+    protected $appends = ['avatar_url'];
+
     /**
      * Determine if the user is an administrator.
      *
@@ -76,5 +79,11 @@ class User extends Authenticatable
     public function user_details()
     {
         return $this->belongsTo(UserDetail::class, 'id', 'user_id');
+    }
+
+    public function getAvatarUrlAttribute()
+    {
+        // Modify the path according to your storage setup, this example assumes public disk
+        return $this->avatar ? asset('uploads/' . $this->avatar) : null;
     }
 }

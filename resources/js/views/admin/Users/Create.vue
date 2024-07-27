@@ -212,14 +212,15 @@
                                     <label class="control-label"
                                         >Password</label
                                     >
+
                                     <div class="password">
                                         <input
-                                            autocomplete="off"
                                             id="password"
                                             name="password"
                                             v-model="formData.password"
                                             class="form-control"
                                             placeholder="Password"
+                                            ref="password"
                                             :type="
                                                 showPassword
                                                     ? 'text'
@@ -265,7 +266,10 @@
                                                     ? 'text'
                                                     : 'password'
                                             "
-                                            v-validate="'required|min:8|max:25'"
+                                            v-validate="
+                                                'required|confirmed:password|min:8|max:25'
+                                            "
+                                            data-vv-as="password"
                                         />
                                         <span
                                             class="password-toggle"

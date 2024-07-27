@@ -124,3 +124,43 @@ if (!function_exists('isJson')) {
         return (json_last_error() === JSON_ERROR_NONE);
     }
 }
+
+if (!function_exists('saveAndGetAvatar')) {
+
+    // Define the constant for the image directory path
+    define('IMAGE_DIRECTORY', 'images/profile/');
+
+    function saveAndGetAvatar($avatar)
+    {
+        if (empty($avatar)) {
+            return null;
+        }
+
+        // Extract the base64 part of the image
+        $imageParts = explode(";base64,", $avatar);
+        if (count($imageParts) !== 2) {
+            return null; // Invalid base64 image
+        }
+
+        // Extract image type and decode the base64 image
+        $imageType = explode("image/", $imageParts[0])[1] ?? null;
+        if (!$imageType) {
+            return null; // Invalid image type
+        }
+
+        $imageBase64 = base64_decode($imageParts[1]);
+        if ($imageBase64 === false) {
+            return null; // Failed to decode base64
+        }
+
+        // Generate a unique filename and save the image
+        $fileNameToStore = uniqid() . '.' . $imageType;
+        $filePath = public_path('uploads/' . IMAGE_DIRECTORY . $fileNameToStore);
+
+        if (file_put_contents($filePath, $imageBase64) === false) {
+            return null; // Failed to save file
+        }
+
+        return IMAGE_DIRECTORY . $fileNameToStore;
+    }
+}
