@@ -1,16 +1,16 @@
 <template>
     <div class="login-container align-items-center">
         <div class="login-img vh-100 align-self-start">
-            <!-- <img
+            <img
                 class="img-fluid vh-100"
                 src="/images/login-bg-sm.png"
                 alt=""
-            /> -->
-            <img
+            />
+            <!-- <img
                 class="img-fluid vh-100"
                 src="https://images.unsplash.com/photo-1719776049588-e1997c9066dd?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt=""
-            />
+            /> -->
         </div>
         <div class="login-box">
             <div class="d-flex justify-content-center">
