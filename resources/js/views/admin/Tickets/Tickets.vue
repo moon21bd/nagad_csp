@@ -1,8 +1,8 @@
 <template>
     <div class="card mb-4">
-        <!-- <div class="card-header">
+        <div class="card-header">
             <h1 class="title mb-3">Customer Information</h1>
-            <div class="d-flex">
+            <div class="d-flex align-items-center">
                 <form action="" class="verify-user mr-0 mr-md-3">
                     <input
                         class="form-control"
@@ -18,14 +18,54 @@
                     <i class="icon-phone-call"></i>
                     <h5>In Call..<span>+8801987654321</span></h5>
                 </div>
+
+                <a
+                    class="btn-prev-tickets ml-auto"
+                    :class="{ show: callerPrevTickets }"
+                    @click.prevent="showPrevTickets()"
+                >
+                    Previous Tickets <i class="icon-arrow-down-circle"></i>
+                </a>
             </div>
-        </div> -->
+        </div>
         <div class="card-body">
+            <div v-if="callerPrevTickets">
+                <div class="table-responsive">
+                    <table class="table prev-table border rounded">
+                        <thead>
+                            <tr>
+                                <th>Service Type</th>
+                                <th>Service Category</th>
+                                <th>Service Sub Category</th>
+                                <th class="text-right">Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Complaint</td>
+                                <td>PIN Related</td>
+                                <td>Fraud Attempt</td>
+                                <td class="text-right">
+                                    Fraud incident was solved
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Service Request</td>
+                                <td>Merchant Payment Related</td>
+                                <td>SSL Commerz Fraud Issue</td>
+                                <td class="text-right">
+                                    SSL Commerz solved the issue
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
             <div class="row">
-                <!-- <div class="col-md-4">
+                <div class="col-md-3">
                     <userInfo />
-                </div> -->
-                <div class="col-md-8">
+                </div>
+                <div class="col-md-9">
                     <h4 class="sub-title mb-2">
                         <i class="icon-tickets text-danger"></i> Create Ticket
                     </h4>
@@ -45,10 +85,10 @@
                                         placeholder="Select Type"
                                     >
                                         <el-option
-                                            v-for="type in callTypes"
-                                            :key="type.id"
-                                            :label="type.call_type_name"
-                                            :value="type.id"
+                                            v-for="types in callTypes"
+                                            :key="types.id"
+                                            :label="types.call_type_name"
+                                            :value="types.id"
                                         >
                                         </el-option>
                                     </el-select>
@@ -102,9 +142,10 @@
                             </div>
                         </div>
 
-                        <div class="form-row">
-                            <div v-if="requiredFields">
+                        <div v-if="requiredFields">
+                            <div class="form-row">
                                 <div
+                                    class="col-md-4"
                                     v-for="(data, index) in requiredFields"
                                     :key="index"
                                 >
@@ -218,15 +259,16 @@
 <script>
 import axios from "../../../axios";
 
-// import userInfo from "./components/userInfo.vue";
+import userInfo from "./components/userInfo.vue";
 
 export default {
-    /* components: {
+    components: {
         userInfo,
-    }, */
+    },
     name: "Tickets",
     data: () => ({
         callerMobileNo: "",
+        callerPrevTickets: false,
         //id: this.$route.params.id,
         requiredFields: [],
         callTypes: [],
@@ -245,6 +287,9 @@ export default {
         this.fetchCallTypes();
     },
     methods: {
+        showPrevTickets() {
+            this.callerPrevTickets = !this.callerPrevTickets;
+        },
         async fetchCallTypes() {
             try {
                 const response = await axios.get("/get-service-types");

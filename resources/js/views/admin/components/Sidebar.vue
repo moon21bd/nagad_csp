@@ -2,11 +2,11 @@
     <aside class="bg-white sidebar sidebar-light">
         <!-- Sidebar - Brand -->
         <router-link
-            class="sidebar-brand d-flex align-items-center justify-content-center"
+            class="sidebar-brand d-flex align-items-center"
             :to="{ name: 'admin' }"
         >
-            <i class="icon-logo sidebar-brand-icon"></i>
-            <!-- <img class="sidebar-brand-logo" src="/images/logo.svg" alt="" /> -->
+            <i class="icon-logo sidebar-brand-icon mx-auto"></i>
+            <img class="sidebar-brand-logo" src="/images/logo.svg" alt="" />
         </router-link>
         <div class="sidebar-nav">
             <el-menu
@@ -30,21 +30,21 @@
 
                 <el-menu-item index="service-categories-index">
                     <router-link :to="{ name: 'service-categories-index' }">
-                        <i class="icon-phone"></i>
+                        <i class="icon-pull"></i>
                         <span>Service Categories</span>
                     </router-link>
                 </el-menu-item>
 
                 <el-menu-item index="service-sub-categories-index">
                     <router-link :to="{ name: 'service-sub-categories-index' }">
-                        <i class="icon-phone"></i>
+                        <i class="icon-branch"></i>
                         <span>Service Sub Categories</span>
                     </router-link>
                 </el-menu-item>
 
                 <el-menu-item index="service-type-config-add">
                     <router-link :to="{ name: 'service-type-config-add' }">
-                        <i class="icon-sliders"></i>
+                        <i class="icon-settings"></i>
                         <span>Service Type Configs</span>
                     </router-link>
                 </el-menu-item>
@@ -72,7 +72,7 @@
 
                 <el-menu-item index="tickets-required-fields-add">
                     <router-link :to="{ name: 'tickets-required-fields-add' }">
-                        <i class="icon-ticket-fill"></i>
+                        <i class="icon-ticket"></i>
                         <span>Ticket wise Required Fields</span>
                     </router-link>
                 </el-menu-item>
@@ -136,22 +136,22 @@
                     </el-menu-item-group>
                 </el-submenu>
                 <!-- <el-submenu index="2">
-                <template slot="title">
-                    <i class="icon-grid"></i>
-                    <span>Navigator One</span>
-                </template>
-                <el-menu-item-group title="Group One">
-                    <el-menu-item index="2-1">item one</el-menu-item>
-                    <el-menu-item index="2-2">item one</el-menu-item>
-                </el-menu-item-group>
-                <el-menu-item-group title="Group Two">
-                    <el-menu-item index="2-3">item three</el-menu-item>
-                </el-menu-item-group>
-                <el-submenu index="2-4">
-                    <template slot="title">item four</template>
-                    <el-menu-item index="2-4-1">item one</el-menu-item>
-                </el-submenu>
-            </el-submenu> -->
+                    <template slot="title">
+                        <i class="icon-grid"></i>
+                        <span>Navigator One</span>
+                    </template>
+                    <el-menu-item-group title="Group One">
+                        <el-menu-item index="2-1">item one</el-menu-item>
+                        <el-menu-item index="2-2">item one</el-menu-item>
+                    </el-menu-item-group>
+                    <el-menu-item-group title="Group Two">
+                        <el-menu-item index="2-3">item three</el-menu-item>
+                    </el-menu-item-group>
+                    <el-submenu index="2-4">
+                        <template slot="title">item four</template>
+                        <el-menu-item index="2-4-1">item one</el-menu-item>
+                    </el-submenu>
+                </el-submenu> -->
             </el-menu>
         </div>
     </aside>

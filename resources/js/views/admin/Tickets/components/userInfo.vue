@@ -1,35 +1,35 @@
 <template>
-    <div v-if="isRegistered">
+    <div v-if="isRegistered" class="customer-info">
         <h4 class="sub-title mb-2 registered-customer">
             <i class="icon-user-check"></i> Registered
         </h4>
         <div class="form-group">
             <label class="control-label">Customer Name</label>
-            <div class="form-control">{{ users.customerName }}</div>
+            <div class="form-control-plaintext">{{ users.customerName }}</div>
         </div>
         <div class="form-group">
             <label class="control-label">NID Card No</label>
-            <div class="form-control">{{ users.nidCard }}</div>
+            <div class="form-control-plaintext">{{ users.nidCard }}</div>
         </div>
         <div class="form-group">
             <label class="control-label">Father’s Name</label>
-            <div class="form-control">{{ users.fathersName }}</div>
+            <div class="form-control-plaintext">{{ users.fathersName }}</div>
         </div>
         <div class="form-group">
             <label class="control-label">Mother’s Name</label>
-            <div class="form-control">{{ users.mothersName }}</div>
+            <div class="form-control-plaintext">{{ users.mothersName }}</div>
         </div>
         <div class="form-group">
             <label class="control-label">Date of Birth</label>
-            <div class="form-control">{{ users.birthDate }}</div>
+            <div class="form-control-plaintext">{{ users.birthDate }}</div>
         </div>
         <div class="form-group">
             <label class="control-label">Address</label>
-            <div class="form-control">{{ users.address }}</div>
+            <div class="form-control-plaintext">{{ users.address }}</div>
         </div>
-        <div class="form-group">
+        <div class="form-group m-0">
             <label class="control-label">Transaction Details</label>
-            <div class="transaction-list">
+            <div class="transaction-list mt-2">
                 <ul>
                     <li
                         v-for="(transaction, index) in users.transactionDetails"
@@ -45,6 +45,7 @@
         </div>
     </div>
     <div v-else class="no-date">
+        <img src="/images/no-data.svg" alt="No Data Found" />
         <h3>No data found</h3>
     </div>
 </template>

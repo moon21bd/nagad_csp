@@ -94,6 +94,9 @@
 
     &-brand {
         height: $topbar-base-height;
+        border-bottom: 1px solid #e9f0f9;
+        margin: 0 -15px;
+        padding: 0 20px;
         &:hover {
             text-decoration: none;
         }
