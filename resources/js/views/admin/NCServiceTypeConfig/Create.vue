@@ -704,7 +704,8 @@ export default {
             });
         },
 
-        async handleSubmit() {
+        /* async handleSubmit() {
+
             console.log("handleSubmit Called");
             try {
                 // Adding selected groups with TAT hours to configurationInfos
@@ -736,6 +737,51 @@ export default {
                 this.resetForm();
             } catch (error) {
                 console.error("There was an error submitting the form:", error);
+            }
+        }, */
+        async handleSubmit() {
+            console.log("handleSubmit Called");
+            try {
+                // Adding selected groups with TAT hours to configurationInfos
+                this.configurationInfos.selectedGroups =
+                    this.selectedGroups.map((group) => ({
+                        id: group.id,
+                        tatHours: group.tatHours,
+                    }));
+
+                // Extract only the IDs from requiredFields and convert to a comma-separated string
+                const requiredFieldIds = this.requiredFields
+                    .map((field) => field.id)
+                    .join(",");
+
+                // Prepare the payload for the API call
+                const payload = {
+                    ...this.configurationInfos,
+                    requiredFieldIds, // Add the comma-separated string to the payload
+                };
+                const response = await axios.post(
+                    "/service-type-config",
+                    payload
+                );
+                console.log(
+                    "Form submitted successfully, resp: ",
+                    response.data
+                );
+
+                // Use the global toast function
+                this.$showToast("Form submitted successfully", {
+                    type: "success",
+                });
+
+                this.$refs.serviceTypeConfigForm.reset();
+                this.resetForm();
+            } catch (error) {
+                console.error("There was an error submitting the form:", error);
+
+                // Use the global toast function
+                this.$showToast("There was an error submitting the form", {
+                    type: "error",
+                });
             }
         },
         addPopupMessage() {
