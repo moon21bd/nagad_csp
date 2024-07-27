@@ -42,8 +42,8 @@
                     </router-link>
                 </el-menu-item>
 
-                <el-menu-item index="service-type-config-add">
-                    <router-link :to="{ name: 'service-type-config-add' }">
+                <el-menu-item index="service-type-config-index">
+                    <router-link :to="{ name: 'service-type-config-index' }">
                         <i class="icon-settings"></i>
                         <span>Service Type Configs</span>
                     </router-link>

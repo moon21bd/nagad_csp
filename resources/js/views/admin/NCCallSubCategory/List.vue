@@ -136,7 +136,9 @@ export default {
         },
         initializeDataTable() {
             this.$nextTick(() => {
-                $("#dataTable").DataTable();
+                $("#dataTable").DataTable({
+                    order: [[0, "desc"]],
+                });
             });
         },
     },

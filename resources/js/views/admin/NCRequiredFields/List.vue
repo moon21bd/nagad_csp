@@ -94,7 +94,7 @@
                                         <router-link
                                             class="btn-action btn-edit"
                                             :to="{
-                                                name: 'required-fields-config-edit-edit',
+                                                name: 'required-fields-config-edit',
                                                 params: { id },
                                             }"
                                             ><i class="icon-edit-pen"></i
@@ -163,7 +163,9 @@ export default {
         },
         initializeDataTable() {
             this.$nextTick(() => {
-                $("#dataTable").DataTable();
+                $("#dataTable").DataTable({
+                    order: [[0, "desc"]],
+                });
             });
         },
     },

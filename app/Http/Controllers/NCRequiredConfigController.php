@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\NCCallSubCategory;
-use App\Models\NCCallSubSubCategory;
 use App\Models\NCRequiredFieldConfig;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -52,7 +50,7 @@ class NCRequiredConfigController extends Controller
             'status' => $input['statusValue'],
             'created_by' => Auth::id(),
             'updated_by' => Auth::id(),
-            'last_updated_by' => Auth::id()
+            'last_updated_by' => Auth::id(),
         ]);
     }
 
@@ -88,20 +86,6 @@ class NCRequiredConfigController extends Controller
      * @param \App\Models\NCRequiredFieldConfig $ncRequiredFieldConfig
      * @return \Illuminate\Http\Response
      */
-    /* public function update(Request $request, $id)
-     {
-         $requiredConfig = NCRequiredFieldConfig::findOrFail($id);
-
-         $validated = $request->validate([
-
-         ]);
-
-         $validated['updated_by'] = Auth::id();
-         $validated['last_updated_by'] = Auth::id();
-         $requiredConfig->update($validated);
-         return response()->json($requiredConfig);
-
-     }*/
 
     public function update(Request $request, $id)
     {
@@ -130,8 +114,8 @@ class NCRequiredConfigController extends Controller
      */
     public function destroy($id)
     {
-        $filedConfig = NCRequiredFieldConfig::findOrFail($id);
-        $filedConfig->delete();
+        $fieldConfig = NCRequiredFieldConfig::findOrFail($id);
+        $fieldConfig->delete();
 
         return response()->json(['message' => 'Deleted successfully']);
     }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\Rule;
 
 class NCServiceTypeConfig extends Model
 {
@@ -32,8 +33,37 @@ class NCServiceTypeConfig extends Model
         'updated_by',
         'last_updated_by',
     ];
+
+    public function rules()
+    {
+        return [
+            'callTypeId' => ['required', 'exists:nc_call_types,id'],
+            'callCategoryId' => ['required', 'exists:nc_call_categories,id'],
+            'callSubCategoryId' => ['required', 'exists:nc_call_sub_categories,id'],
+            Rule::unique('nc_service_type_configs')->where(function ($query) {
+                return $query->where('call_type_id', $this->callTypeId)
+                    ->where('call_category_id', $this->callCategoryId)
+                    ->where('call_sub_category_id', $this->callSubCategoryId);
+            }),
+        ];
+    }
     protected $casts = [
         'notification_channels' => 'array', // Cast to JSON
         'responsible_groups_with_tats' => 'array', // Cast to JSON
     ];
+
+    public function callType()
+    {
+        return $this->belongsTo(NCCallType::class, 'call_type_id');
+    }
+
+    public function callCategory()
+    {
+        return $this->belongsTo(NCCallCategory::class, 'call_category_id');
+    }
+
+    public function callSubCategory()
+    {
+        return $this->belongsTo(NCCallSubCategory::class, 'call_sub_category_id');
+    }
 }

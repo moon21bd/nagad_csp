@@ -117,7 +117,9 @@ export default {
         },
         initializeDataTable() {
             this.$nextTick(() => {
-                $("#dataTable").DataTable();
+                $("#dataTable").DataTable({
+                    order: [[0, "desc"]],
+                });
             });
         },
     },
@@ -125,7 +127,7 @@ export default {
         this.fetchUsers();
     },
     watch: {
-        fetchUsers(newValue, oldValue) {
+        users(newValue) {
             if (newValue.length) {
                 this.initializeDataTable();
             }
@@ -133,3 +135,18 @@ export default {
     },
 };
 </script>
+<style>
+.table.dataTable > thead > tr > th {
+    white-space: nowrap;
+}
+.table > thead > tr > th:last-child,
+.table > tbody > tr > td:last-child {
+    white-space: nowrap;
+    position: sticky;
+    right: 0;
+    background: #fff;
+}
+.table > thead > tr > th:last-child {
+    background: #fff9f9;
+}
+</style>
