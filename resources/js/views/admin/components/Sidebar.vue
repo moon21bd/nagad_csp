@@ -6,7 +6,7 @@
             :to="{ name: 'admin' }"
         >
             <i class="icon-logo sidebar-brand-icon mx-auto"></i>
-            <img class="sidebar-brand-logo" src="/images/logo.svg" alt="" />
+            <!-- <img class="sidebar-brand-logo" src="/images/logo.svg" alt="" /> -->
         </router-link>
         <div class="sidebar-nav">
             <el-menu
