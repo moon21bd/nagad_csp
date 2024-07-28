@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\AgentHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Models\User;
@@ -9,12 +10,197 @@ use App\Models\UserActivity;
 use App\Models\UserDetail;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
+    protected $registrationChannel = "WEB";
+
     protected $requiresLocationGroups = [3, 4];
+
+    protected $agentHelper;
+
+    public function __construct(AgentHelper $agentHelper)
+    {
+        $this->agentHelper = $agentHelper;
+    }
+
+    /**
+     * Register the new user.
+     *
+     * @param array $request
+     * @return json array response
+     */
+    public function register(Request $request)
+    {
+        $validator = Validator::make($request->all(), $this->registrationRules(), $this->phoneValidationErrorMessages());
+
+        if ($validator->fails()) {
+            return $this->sendValidationError($validator);
+        }
+
+        try {
+            $validatedData = $request->all();
+            $authUserId = Auth::id();
+
+            $user = $this->createUser($validatedData, $authUserId);
+            $this->createUserDetail($validatedData, $user->id);
+            $this->createUserActivity($request, $user->id);
+
+        } catch (\Exception $e) {
+            Log::error('USER-REGISTRATION-ERROR: ' . $e->getMessage());
+
+            return response()->json([
+                'title' => 'Failed to register.',
+                'message' => 'User registration failed.',
+            ], Response::HTTP_PRECONDITION_FAILED);
+        }
+
+        return response()->json([
+            'title' => 'Successfully registered.',
+            'message' => 'User successfully registered.',
+        ], Response::HTTP_OK);
+    }
+
+    protected function registrationRules()
+    {
+        return [
+            'group_id' => 'required',
+            'employee_name' => 'required',
+            'employee_id' => 'required',
+            'employee_user_id' => 'required',
+            'nid_card_no' => 'required',
+            'birth_date' => 'required|date',
+            'mobile_no' => $this->phoneValidationRules() . "|unique:users",
+            'address' => 'required',
+            'gender' => 'required',
+            'status' => 'nullable',
+            'avatar' => 'required|string',
+            'email' => 'required|string|email|unique:users',
+            'password' => 'required|min:8|max:25',
+        ];
+    }
+
+    protected function sendValidationError($validator)
+    {
+        $message = "";
+        foreach ($validator->errors()->getMessages() ?? [] as $value) {
+            $message .= ' ' . $value[0];
+        }
+
+        $error = [
+            'title' => 'Validation Error',
+            'message' => $message,
+        ];
+
+        return $this->sendError($error);
+    }
+
+    protected function createUser($data, $authUserId)
+    {
+        return User::create([
+            'name' => $data['employee_name'],
+            'parent_id' => $authUserId,
+            'group_id' => $data['group_id'],
+            'mobile_no' => $data['mobile_no'],
+            'email' => $data['email'],
+            'avatar' => saveAndGetAvatar($data['avatar']),
+            'password' => Hash::make($data['password']),
+            'created_by' => $authUserId,
+            'updated_by' => $authUserId,
+        ]);
+    }
+
+    protected function createUserDetail($data, $userId)
+    {
+        UserDetail::create([
+            'user_id' => $userId,
+            'employee_id' => $data['employee_id'],
+            'employee_name' => $data['employee_name'],
+            'employee_user_id' => $data['employee_user_id'],
+            'nid_card_no' => $data['nid_card_no'],
+            'registered_channel' => $this->registrationChannel,
+            'gender' => $data['gender'],
+            'birth_date' => date('Y-m-d', strtotime($data['birth_date'])),
+            'address' => $data['address'],
+            'last_update_date' => Carbon::now(),
+        ]);
+    }
+
+    protected function createUserActivity($request, $userId)
+    {
+        UserActivity::create([
+            'user_id' => $userId,
+            'login_device_name' => $this->agentHelper->getDeviceName(),
+            'browser' => $this->agentHelper->getBrowser(),
+            'creator_ip' => getIPAddress(),
+            'creator_device' => $this->agentHelper->getDeviceName(),
+            'last_update_date' => Carbon::now(),
+        ]);
+    }
+
+    protected function updateUserActivity(User $user)
+    {
+        $userActivity = UserActivity::findOrFail($user->id);
+        $userActivity->update([
+            'last_login' => Carbon::now(),
+            'browser' => $this->agentHelper->getBrowser(),
+            'login_device_name' => $this->agentHelper->getDeviceName(),
+            'last_online' => Carbon::now(),
+        ]);
+    }
+
+    /**
+     * Logged-in user's details with roles and permissions
+     *
+     * @param array $request
+     * @return json array response
+     */
+    public function user(Request $request)
+    {
+        $user = User::find(Auth::user()->id);
+        $user['roles'] = $user->getAllPermissions();
+        Log::info('USER: ' . json_encode($user));
+
+        $permissions = $user['roles']->pluck('name');
+        $user['cando'] = $permissions;
+        Log::info('PERMISSIONS: ' . json_encode($permissions) . ' USER: ' . json_encode($user));
+
+        return response()->json($user);
+    }
+
+    /**
+     * Logout
+     *
+     * @param array $request
+     * @return json array response
+     */
+    public function logout(Request $request)
+    {
+        $userId = $request->id;
+        $userActivity = UserActivity::findOrFail($userId);
+        $userActivity->update([
+            'last_logout' => Carbon::now(),
+            'last_update_date' => Carbon::now(),
+        ]);
+
+        if ($user = Auth::user()) {
+            $user->tokens->each(function ($token) {
+                $token->delete();
+            });
+            return response()->json('Successfully logged out');
+        }
+
+        return response()->json('User not authenticated', 401);
+    }
+
+    /*
+     * Login related methods start --->>>
+     */
 
     public function login(LoginRequest $request)
     {
@@ -74,17 +260,6 @@ class AuthController extends Controller
         return response(['message' => 'Successfully logged in.', 'token' => $token, 'user' => $user, 'cando' => $permissions]);
     }
 
-    public function user(Request $request)
-    {
-        $user = User::find(Auth::user()->id);
-        $permissions = $this->getUserPermissions($user);
-
-        Log::info('USER: ' . json_encode($user));
-        Log::info('PERMISSIONS: ' . json_encode($permissions));
-
-        return response()->json($user);
-    }
-
     protected function incrementFailedLogins(User $user)
     {
         $userActivity = UserActivity::where('user_id', $user->id)->firstOrFail();
@@ -95,12 +270,6 @@ class AuthController extends Controller
     protected function mustVerifyEmail(User $user)
     {
         return config('auth.must_verify_email') && !$user->hasVerifiedEmail();
-    }
-
-    protected function updateUserActivity(User $user)
-    {
-        $userActivity = UserActivity::findOrFail($user->id);
-        $userActivity->update(['last_login' => Carbon::now(), 'last_online' => Carbon::now()]);
     }
 
     protected function updateUserLocation(User $user, $location)
@@ -119,145 +288,9 @@ class AuthController extends Controller
         $user['cando'] = $permissions;
         return $permissions;
     }
+
+    /*
+ * Login related methods end <<<---
+ */
+
 }
-
-// namespace App\Http\Controllers\Api;
-
-// class AuthController extends Controller
-// {
-// protected $requiresLocationGroups = [3, 4];
-// public function login(LoginRequest $request)
-// {
-//     try {
-//         if (Auth::attempt($request->only('email', 'password'))) {
-//             /** @var User $user */
-//             $user = Auth::user();
-
-//             // Check if user is active
-//             if ($user->status !== 'Active') {
-//                 Auth::logout();
-
-//                 $userActivity = UserActivity::where('user_id', $user->id)->firstOrFail();
-
-//                 $userActivity->failed_logins++;
-//                 $userActivity->last_failed_login = now();
-//                 $userActivity->save();
-
-//                 return response([
-//                     'message' => 'Your account status is Pending. Please contact with your system administrator.',
-//                 ], 401);
-//             }
-
-//             // Check if the user belongs to a specific group that requires location prompting
-//             if (in_array($user->group_id, $this->requiresLocationGroups)) {
-//                 return response([
-//                     'message' => 'Location is required.',
-//                     'requiresLocation' => true,
-//                     'user' => $user,
-//                 ]);
-//             }
-
-//             $token = $user->createToken('authToken')->plainTextToken;
-
-//             if (config('auth.must_verify_email') && !$user->hasVerifiedEmail()) {
-//                 return response([
-//                     'message' => 'Email must be verified.',
-//                 ], 401);
-//             }
-
-//             // log the last successfull login into user_activities table for corresponding relationship.
-//             // make relationship for user_activities file -- not done
-//             $updateData['last_login'] = $updateData['last_online'] = Carbon::now();
-//             $userActivity = UserActivity::findOrFail($user->id);
-//             $userActivity->update($updateData);
-
-//             $user['roles'] = $user->getAllPermissions();
-//             Log::info('USER: ' . json_encode($user));
-//             $permissions = [];
-//             foreach ($user['roles'] as $roles) {
-//                 $permissions[] = $roles['name'];
-//             }
-//             $user['cando'] = $permissions;
-
-//             return response([
-//                 'message' => 'Successfully loggedIn.',
-//                 'token' => $token,
-//                 'user' => $user,
-//             ]);
-
-//         }
-//     } catch (\Exception $e) {
-//         dd($e->getMessage());
-//         return response([
-//             'message' => 'Internal error, please try again later.', //$e->getMessage()
-//         ], 400);
-//     }
-
-//     return response([
-//         'title' => 'Invalid login details',
-//         'message' => 'Invalid login details',
-//     ], 401);
-// }
-
-// public function completeLogin(Request $request)
-// {
-//     $userId = $request->input('userId');
-//     $location = $request->input('location');
-
-//     /** @var User $user */
-//     $user = User::findOrFail($userId);
-
-//     // Proceed with the usual login process
-//     $token = $user->createToken('authToken')->plainTextToken;
-
-//     if (config('auth.must_verify_email') && !$user->hasVerifiedEmail()) {
-//         return response([
-//             'message' => 'Email must be verified.',
-//         ], 401);
-//     }
-
-//     // Log the last successful login into user_activities table for corresponding relationship
-//     $updateData['last_login'] = $updateData['last_online'] = Carbon::now();
-//     $userActivity = UserActivity::findOrFail($user->id);
-//     $userActivity->update($updateData);
-
-//     // Update the user's location if necessary
-//     // $user->location = $location;
-//     // $user->save();
-
-//     $userDetailsArr['lat'] = $location['latitude'];
-//     $userDetailsArr['lon'] = $location['longitude'];
-//     $userDetails = UserDetail::findOrFail($user->id);
-//     $userDetails->update($userDetailsArr);
-
-//     $user['roles'] = $user->getAllPermissions();
-//     Log::info('USER: ' . json_encode($user));
-//     $permissions = [];
-//     foreach ($user['roles'] as $roles) {
-//         $permissions[] = $roles['name'];
-//     }
-//     $user['cando'] = $permissions;
-
-//     return response([
-//         'message' => 'Successfully logged in.',
-//         'token' => $token,
-//         'user' => $user,
-//     ]);
-// }
-
-// public function user(Request $request)
-// {
-//     $user = User::find(Auth::user()->id);
-//     $user['roles'] = $user->getAllPermissions();
-//     Log::info('USER: ' . json_encode($user));
-//     $permissions = [];
-//     foreach ($user['roles'] as $roles) {
-//         $permissions[] = $roles['name'];
-//     }
-//     $user['cando'] = $permissions;
-//     Log::info('PERMISSIONS: ' . json_encode($permissions) . ' USER: ' . json_encode($user));
-
-//     return response()->json($user);
-// }
-
-// }

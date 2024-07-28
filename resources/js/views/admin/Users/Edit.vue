@@ -218,88 +218,7 @@
                                         {{ errors.first("email") }}
                                     </div>
                                 </div>
-                                <!-- <div class="col-md-6 form-group">
-                                    <label class="control-label"
-                                        >Password</label
-                                    >
-                                    <div class="password">
-                                        <input
-                                            autocomplete="off"
-                                            id="password"
-                                            name="password"
-                                            ref="password"
-                                            v-model="user.password"
-                                            class="form-control"
-                                            placeholder="Password"
-                                            :type="
-                                                showPassword
-                                                    ? 'text'
-                                                    : 'password'
-                                            "
-                                            v-validate="
-                                                'required|min:8|max:25|alpha_num'
-                                            "
-                                        />
-                                        <span
-                                            class="password-toggle"
-                                            @click="togglePassword"
-                                        >
-                                            <i
-                                                :class="{
-                                                    'icon-eye-off':
-                                                        showPassword,
-                                                    'icon-eye': !showPassword,
-                                                }"
-                                            ></i>
-                                        </span>
-                                        <div
-                                            class="text-danger"
-                                            v-show="errors.has('password')"
-                                        >
-                                            {{ errors.first("password") }}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 form-group">
-                                    <label class="control-label"
-                                        >Confirm Password</label
-                                    >
-                                    <div class="password">
-                                        <input
-                                            autocomplete="off"
-                                            name="confirmPassword"
-                                            v-model="user.confirmPassword"
-                                            data-vv-as="password"
-                                            class="form-control"
-                                            placeholder="confirm password"
-                                            :type="
-                                                confirmPassword
-                                                    ? 'text'
-                                                    : 'password'
-                                            "
-                                            v-validate="'required|min:8|max:25'"
-                                        />
-                                        <span
-                                            class="password-toggle"
-                                            @click="toggleConfirmPassword"
-                                        >
-                                            <i
-                                                :class="{
-                                                    'icon-eye-off':
-                                                        confirmPassword,
-                                                    'icon-eye':
-                                                        !confirmPassword,
-                                                }"
-                                            ></i>
-                                        </span>
-                                    </div>
-                                    <div
-                                        class="text-danger"
-                                        v-show="errors.has('confirmPassword')"
-                                    >
-                                        {{ errors.first("confirmPassword") }}
-                                    </div>
-                                </div> -->
+
                                 <div class="col-md-12 form-group">
                                     <label class="control-label">Address</label>
                                     <textarea
@@ -382,31 +301,6 @@
                                         >Pending
                                     </label>
                                 </div>
-
-                                <!-- <div
-                                    class="form-group d-flex align-items-center"
-                                >
-                                    <label class="control-label m-0 mr-3"
-                                        >Status<sup>*</sup></label
-                                    >
-                                    <label class="radio mr-2">
-                                        <input
-                                            type="radio"
-                                            value="Active"
-                                            v-model="user.status"
-                                            required
-                                        /><span class="radio-mark"></span>Active
-                                    </label>
-                                    <label class="radio">
-                                        <input
-                                            type="radio"
-                                            value="Inactive"
-                                            v-model="user.status"
-                                            required
-                                        /><span class="radio-mark"></span
-                                        >Inactive
-                                    </label>
-                                </div> -->
                             </div>
 
                             <span
@@ -441,8 +335,6 @@ export default {
             user: {
                 group_id: null,
                 status: "Pending",
-                // temp_avatar: "/images/user-avatar.png",
-
                 user_details: {
                     employee_name: "",
                     employee_id: "",
@@ -454,13 +346,12 @@ export default {
                 },
                 mobile_no: "",
                 email: "",
-                //password: "",
-                //confirmPassword: "",
             },
-            id: this.$route.params.id,
+            id: null,
         };
     },
     created() {
+        this.id = this.$route.params.id;
         this.fetchGroups();
         this.fetchUser();
     },

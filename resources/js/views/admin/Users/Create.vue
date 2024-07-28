@@ -260,7 +260,7 @@
                                             name="confirmPassword"
                                             v-model="formData.confirmPassword"
                                             class="form-control"
-                                            placeholder="confirm password"
+                                            placeholder="Confirm password"
                                             :type="
                                                 confirmPassword
                                                     ? 'text'

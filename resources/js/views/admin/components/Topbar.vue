@@ -116,7 +116,7 @@
                     class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                     aria-labelledby="userDropdown"
                 >
-                    <a class="dropdown-item" href="#">
+                    <a class="dropdown-item" href="/admin/profile">
                         <i class="icon-user mr-2 text-gray-600"></i>
                         Profile
                     </a>
