@@ -83,7 +83,6 @@
 
 <script>
 import axios from "../../axios";
-import * as notify from "../../utils/notify.js";
 
 export default {
     name: "Login",
@@ -112,11 +111,7 @@ export default {
             this.verificationAlertClasses["alert-danger"] = true;
         }
     },
-    computed: {
-        /*user() {
-            return this.$store.state.auth.user;
-        }*/
-    },
+
     methods: {
         async login() {
             try {
@@ -124,23 +119,96 @@ export default {
                     email: this.email,
                     password: this.password,
                 });
-                const token = response.data.token;
-                console.log("token", token);
-                localStorage.setItem("token", token);
 
-                this.$store.dispatch("auth/setUser", response.data.user);
-                // this.$store.commit("auth/setUser", response.data.user);
-                this.$store.commit("auth/SET_TOKEN", token);
+                const user = response.data.user;
 
-                // console.log('userList', this.$store.state.auth.user); // Log the user object
+                if (response.data.requiresLocation) {
+                    try {
+                        const location = await this.getLocation();
+                        const locationResponse = await axios.post(
+                            "complete-login",
+                            {
+                                userId: user.id,
+                                location,
+                            }
+                        );
 
-                axios.defaults.headers.common[
-                    "Authorization"
-                ] = `Bearer ${token}`;
-                this.$router.push("/admin");
+                        const token = locationResponse.data.token;
+                        console.log("token", token);
+                        localStorage.setItem("token", token);
+
+                        this.$store.dispatch(
+                            "auth/setUser",
+                            locationResponse.data.user
+                        );
+                        this.$store.commit("auth/SET_TOKEN", token);
+
+                        axios.defaults.headers.common[
+                            "Authorization"
+                        ] = `Bearer ${token}`;
+                        this.$router.push("/admin");
+                    } catch (locationError) {
+                        // console.error("Error getting location:", locationError);
+                        if (locationError.code === 1) {
+                            this.notifyAuthError(
+                                "Location access denied. Please enable location services to proceed."
+                            );
+                        } else {
+                            this.notifyAuthError(
+                                "Error getting location. Please try again."
+                            );
+                        }
+                    }
+                } else {
+                    const token = response.data.token;
+                    console.log("token", token);
+                    localStorage.setItem("token", token);
+
+                    this.$store.dispatch("auth/setUser", response.data.user);
+                    this.$store.commit("auth/SET_TOKEN", token);
+
+                    axios.defaults.headers.common[
+                        "Authorization"
+                    ] = `Bearer ${token}`;
+                    this.$router.push("/admin");
+                }
             } catch (error) {
-                notify.authError(error);
+                // console.error("Login error:", error);
+                this.notifyAuthError(
+                    error.response && error.response.data
+                        ? error.response.data.message
+                        : "Login failed. Please try again."
+                );
             }
+        },
+        getLocation() {
+            return new Promise((resolve, reject) => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            resolve({
+                                latitude: position.coords.latitude,
+                                longitude: position.coords.longitude,
+                            });
+                        },
+                        (error) => {
+                            reject(error);
+                        }
+                    );
+                } else {
+                    reject(
+                        new Error(
+                            "Geolocation is not supported by this browser."
+                        )
+                    );
+                }
+            });
+        },
+        notifyAuthError(message) {
+            this.$showToast(message, {
+                title: "Error",
+                variant: "danger",
+            });
         },
     },
 };

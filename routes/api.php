@@ -44,9 +44,11 @@ DELETE /users/{user} → destroy method*/
 //Route::post('/register',[AuthController::class,'register']);
 Route::post('/forgetpassword', [AuthController::class, 'forgetpassword']);
 Route::post('/resetpassword', [AuthController::class, 'resetpassword']);
-Route::post('/logout', [AuthController::class, 'logout']);
 
 Route::post('login', [Api\AuthController::class, 'login']);
+// this route used to complete the login with latitude and longitude
+Route::post('complete-login', [Api\AuthController::class, 'completeLogin']);
+
 // Route::post('register', [Api\RegisterController::class, 'register']);
 Route::post('forgot', [Api\ForgotController::class, 'forgot']);
 Route::post('reset', [Api\ForgotController::class, 'reset']);
@@ -59,8 +61,10 @@ Route::get('user', [Api\AuthController::class, 'user']);
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
 
-    // from another project
+    // authentication routes
+    Route::post('/logout', [AuthController::class, 'logout']);
 
+    // from another project
     //roles routes
     Route::get('roles', [RolesController::class, 'roles']);
     Route::get('role/{id}', [RolesController::class, 'getRoleById']);
@@ -85,7 +89,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::delete('users/delete/{id}', [UsersController::class, 'destroy']);
 
     Route::get('get-category/{id}', [NCCallCategoryController::class, 'getActiveCategoryByCallTypeId']);
-
     Route::get('call-sub-by-call-cat-id/{ctid}/{ccid}', [NCCallSubCategoryController::class, 'getCallSubCatByCallAndCategoryId']);
     Route::get('get-required-fields/{ctid}/{ccid}/{cscid}', [NCRequiredConfigController::class, 'getRequiredFieldConfigsData']);
     Route::get('get-required-field-by-sub-cat-id/{id}', [NCRequiredConfigController::class, 'getRequiredFieldConfigBySubCatId']);

@@ -244,11 +244,15 @@ class AuthController extends Controller
         $userActivity = UserActivity::findOrFail($userId);
         $userActivity->update($updateData);
 
-        // deleting the existing tokens of authenticated user.
-        Auth::user()->tokens->each(function ($token, $key) {
-            $token->delete();
-        });
-        return response()->json('Successfully logged out');
+        // Check if the user is authenticated before deleting tokens.
+        if ($user = Auth::user()) {
+            $user->tokens->each(function ($token, $key) {
+                $token->delete();
+            });
+            return response()->json('Successfully logged out');
+        }
+
+        return response()->json('User not authenticated', 401);
     }
 
     /**
