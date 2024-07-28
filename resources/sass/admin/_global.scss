@@ -539,3 +539,9 @@ select.form-control {
     transform: translateX(10px);
     opacity: 0;
 }
+.modal {
+    &-content {
+        border: none;
+        border-radius: 8px;
+    }
+}
