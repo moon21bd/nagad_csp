@@ -38,6 +38,73 @@
             </ul>
         </div>
 
+        <div class="row card-equal">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <h2 class="sub-title text-danger m-0">
+                                Ticket Status
+                            </h2>
+                            <el-select
+                                class="ml-auto"
+                                v-model="monthTickets"
+                                placeholder="Select Month"
+                            >
+                                <el-option
+                                    v-for="month in months"
+                                    :key="month.value"
+                                    :label="month.label"
+                                    :value="month.value"
+                                >
+                                </el-option>
+                            </el-select>
+                        </div>
+                        <div class="dashboard-charts">
+                            <vue-highcharts
+                                :options="ticketsStatus"
+                            ></vue-highcharts>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="sub-title text-danger mb-5">Today Status</h2>
+                        <div class="today-status">
+                            <ul>
+                                <li class="open-tickets">
+                                    <h3><span>Total Ticket</span> 339</h3>
+                                    <i class="icon-tickets"></i>
+                                </li>
+                                <li class="progress-tickets">
+                                    <h3><span>Work in Progress</span> 30</h3>
+                                    <i class="icon-loader"></i>
+                                </li>
+                                <li class="close-tickets">
+                                    <h3><span>Close Ticket</span> 130</h3>
+                                    <i class="icon-check-circle"></i>
+                                </li>
+                                <li class="total-query">
+                                    <h3><span>Total Query</span> 133</h3>
+                                    <i class="icon-help"></i>
+                                </li>
+                                <li class="total-compliance">
+                                    <h3><span>Total Compliance</span> 150</h3>
+                                    <i class="icon-alert-triangle"></i>
+                                </li>
+                                <li class="total-tequest">
+                                    <h3><span>Total S.Request</span> 50</h3>
+                                    <i class="icon-headphones"></i>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="card mb-4">
             <div class="card-body">
                 <div class="d-flex align-items-center">
@@ -61,15 +128,13 @@
                 <div class="row">
                     <div
                         class="col-md-12"
-                        v-for="(chartOptions, index) in chartOptionsList"
+                        v-for="(chartOptions, index) in totalQueries"
                         :key="index"
                     >
                         <div class="dashboard-charts">
-                            <template>
-                                <vue-highcharts
-                                    :options="chartOptions"
-                                ></vue-highcharts>
-                            </template>
+                            <vue-highcharts
+                                :options="chartOptions"
+                            ></vue-highcharts>
                         </div>
                     </div>
                 </div>
@@ -87,6 +152,7 @@ export default {
     },
     data: () => ({
         monthValue: "",
+        monthTickets: "",
         months: [
             {
                 value: "January",
@@ -137,7 +203,96 @@ export default {
                 label: "December",
             },
         ],
-        chartOptionsList: [
+        ticketsStatus: {
+            chart: {
+                type: "pie",
+                options3d: {
+                    enabled: true,
+                    alpha: 45,
+                },
+            },
+
+            legend: {
+                enabled: true,
+                layout: "vertical",
+                align: "right",
+                verticalAlign: "middle",
+                itemMarginTop: 10,
+                itemMarginBottom: 10,
+                labelFormatter: function () {
+                    return `${this.percentage.toFixed(0)}% - ${this.name}`;
+                },
+                style: {
+                    fontSize: "14px",
+                    fontFamily: "Inter, sans-serif",
+                    color: "#003049",
+                },
+            },
+            title: {
+                text: null,
+            },
+            credits: {
+                enabled: false,
+            },
+            plotOptions: {
+                pie: {
+                    innerSize: "50%",
+                    depth: 45,
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true,
+                        distance: -30,
+                        format: "{point.percentage:.0f}%",
+                        style: {
+                            fontSize: "16px",
+                            fontFamily: "Inter, sans-serif",
+                            color: "white",
+                            textOutline: "none",
+                        },
+                    },
+                    showInLegend: true,
+                },
+                series: {
+                    allowPointSelect: true,
+                    cursor: "pointer",
+                    borderRadius: 8,
+                },
+            },
+            series: [
+                {
+                    name: "Status",
+                    colorByPoint: true,
+                    data: [
+                        {
+                            name: "Open Ticket",
+                            y: 20,
+                            color: "#003049",
+                        },
+                        {
+                            name: "In Progress Ticket",
+                            y: 20,
+                            color: "#D62828",
+                        },
+                        {
+                            name: "Resolved Ticket",
+                            y: 10,
+                            color: "#F77F00",
+                        },
+                        {
+                            name: "Close Ticket",
+                            y: 30,
+                            color: "#EC4176",
+                        },
+                        {
+                            name: "Reopen Ticket",
+                            y: 20,
+                            color: "#543884",
+                        },
+                    ],
+                },
+            ],
+        },
+        totalQueries: [
             {
                 chart: {
                     type: "column",
@@ -419,3 +574,4 @@ export default {
     }),
 };
 </script>
+<style></style>

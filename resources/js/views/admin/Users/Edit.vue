@@ -32,6 +32,12 @@
                                             v-bind:src="temp_avatar"
                                             alt="avatar"
                                         />
+                                        <img
+                                            v-else
+                                            src="/images/user-avatar.png"
+                                            alt="avatar"
+                                        />
+
                                         <i class="icon-camera"></i>
                                     </label>
 
@@ -237,29 +243,35 @@
                                 </div>
 
                                 <div class="col-md-6 form-group">
-                                    <label class="control-label m-0 mr-3"
-                                        >Gender</label
-                                    >
-                                    <label class="radio mr-2"
-                                        ><input
-                                            type="radio"
-                                            value="Male"
-                                            name="gender"
-                                            v-model="user.user_details.gender"
-                                            v-validate="'required'"
-                                            disabled
-                                        /><span class="radio-mark"></span>Male
-                                    </label>
-                                    <label class="radio">
-                                        <input
-                                            type="radio"
-                                            value="Female"
-                                            name="gender"
-                                            v-model="user.user_details.gender"
-                                            v-validate="'required'"
-                                            disabled
-                                        /><span class="radio-mark"></span>Female
-                                    </label>
+                                    <label class="control-label">Gender</label>
+                                    <div class="d-flex">
+                                        <label class="radio mr-2"
+                                            ><input
+                                                type="radio"
+                                                value="Male"
+                                                name="gender"
+                                                v-model="
+                                                    user.user_details.gender
+                                                "
+                                                v-validate="'required'"
+                                                disabled
+                                            /><span class="radio-mark"></span
+                                            >Male
+                                        </label>
+                                        <label class="radio">
+                                            <input
+                                                type="radio"
+                                                value="Female"
+                                                name="gender"
+                                                v-model="
+                                                    user.user_details.gender
+                                                "
+                                                v-validate="'required'"
+                                                disabled
+                                            /><span class="radio-mark"></span
+                                            >Female
+                                        </label>
+                                    </div>
                                     <div
                                         class="text-danger"
                                         v-show="errors.has('gender')"
@@ -268,45 +280,44 @@
                                     </div>
                                 </div>
                                 <div></div>
-                                <div
-                                    class="col-md-6 form-group d-flex align-items-center"
-                                >
-                                    <label class="control-label m-0 mr-3"
-                                        >Status</label
-                                    >
-                                    <label class="radio mr-2"
-                                        ><input
-                                            type="radio"
-                                            value="Active"
-                                            v-model="user.status"
-                                            required
-                                        /><span class="radio-mark"></span>Active
-                                    </label>
-                                    <label class="radio">
-                                        <input
-                                            type="radio"
-                                            value="Inactive"
-                                            v-model="user.status"
-                                            required
-                                        /><span class="radio-mark"></span
-                                        >Inactive
-                                    </label>
-                                    <label class="radio">
-                                        <input
-                                            type="radio"
-                                            value="Pending"
-                                            v-model="user.status"
-                                            required
-                                        /><span class="radio-mark"></span
-                                        >Pending
-                                    </label>
+                                <div class="col-md-6 form-group">
+                                    <label class="control-label">Status</label>
+                                    <div class="d-flex">
+                                        <label class="radio mr-2"
+                                            ><input
+                                                type="radio"
+                                                value="Active"
+                                                v-model="user.status"
+                                                required
+                                            /><span class="radio-mark"></span
+                                            >Active
+                                        </label>
+                                        <label class="radio mr-2">
+                                            <input
+                                                type="radio"
+                                                value="Inactive"
+                                                v-model="user.status"
+                                                required
+                                            /><span class="radio-mark"></span
+                                            >Inactive
+                                        </label>
+                                        <label class="radio">
+                                            <input
+                                                type="radio"
+                                                value="Pending"
+                                                v-model="user.status"
+                                                required
+                                            /><span class="radio-mark"></span
+                                            >Pending
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
 
-                            <span
+                            <small
                                 v-if="formErrors.message"
                                 class="text-danger"
-                                >{{ formErrors.message }}</span
+                                >{{ formErrors.message }}</small
                             >
 
                             <button class="btn btn-site" type="submit">

@@ -36,12 +36,12 @@
                                         <i class="icon-camera"></i>
                                     </label>
 
-                                    <div
+                                    <small
                                         class="text-danger"
                                         v-show="errors.has('avatar')"
                                     >
                                         {{ errors.first("avatar") }}
-                                    </div>
+                                    </small>
                                 </div>
                                 <div class="col-md-12 form-group">
                                     <label class="control-label"
@@ -63,12 +63,12 @@
                                         >
                                         </el-option>
                                     </el-select>
-                                    <div
+                                    <small
                                         class="text-danger"
                                         v-show="errors.has('group')"
                                     >
                                         {{ errors.first("group") }}
-                                    </div>
+                                    </small>
                                 </div>
 
                                 <div class="col-md-6 form-group">
@@ -88,12 +88,12 @@
                                         >{{ errors.employee_name[0] }}</span
                                     >
 
-                                    <div
+                                    <small
                                         class="text-danger"
                                         v-show="errors.has('employee_name')"
                                     >
                                         {{ errors.first("employee_name") }}
-                                    </div>
+                                    </small>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
@@ -106,12 +106,12 @@
                                         v-model="formData.employee_id"
                                         v-validate="'required'"
                                     />
-                                    <div
+                                    <small
                                         class="text-danger"
                                         v-show="errors.has('employee_id')"
                                     >
                                         {{ errors.first("employee_id") }}
-                                    </div>
+                                    </small>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label">User ID</label>
@@ -122,12 +122,12 @@
                                         v-model="formData.employee_user_id"
                                         v-validate="'required'"
                                     />
-                                    <div
+                                    <small
                                         class="text-danger"
                                         v-show="errors.has('employee_user_id')"
                                     >
                                         {{ errors.first("employee_user_id") }}
-                                    </div>
+                                    </small>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
@@ -142,12 +142,12 @@
                                             'required|numeric|min:10|max:15'
                                         "
                                     />
-                                    <div
+                                    <small
                                         class="text-danger"
                                         v-show="errors.has('nid_card_no')"
                                     >
                                         {{ errors.first("nid_card_no") }}
-                                    </div>
+                                    </small>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
@@ -162,12 +162,12 @@
                                         v-validate="'required'"
                                     >
                                     </el-date-picker>
-                                    <div
+                                    <small
                                         class="text-danger"
                                         v-show="errors.has('birth_date')"
                                     >
                                         {{ errors.first("birth_date") }}
-                                    </div>
+                                    </small>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
@@ -182,12 +182,12 @@
                                             'required|numeric|min:10|max:14'
                                         "
                                     />
-                                    <div
+                                    <small
                                         class="text-danger"
                                         v-show="errors.has('mobile_no')"
                                     >
                                         {{ errors.first("mobile_no") }}
-                                    </div>
+                                    </small>
                                 </div>
 
                                 <div class="col-md-12 form-group">
@@ -201,12 +201,12 @@
                                         v-model="formData.email"
                                         v-validate="'required|email'"
                                     />
-                                    <div
+                                    <small
                                         class="text-danger"
                                         v-show="errors.has('email')"
                                     >
                                         {{ errors.first("email") }}
-                                    </div>
+                                    </small>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
@@ -242,12 +242,12 @@
                                                 }"
                                             ></i>
                                         </span>
-                                        <div
+                                        <small
                                             class="text-danger"
                                             v-show="errors.has('password')"
                                         >
                                             {{ errors.first("password") }}
-                                        </div>
+                                        </small>
                                     </div>
                                 </div>
                                 <div class="col-md-6 form-group">
@@ -285,12 +285,12 @@
                                             ></i>
                                         </span>
                                     </div>
-                                    <div
+                                    <small
                                         class="text-danger"
                                         v-show="errors.has('confirmPassword')"
                                     >
                                         {{ errors.first("confirmPassword") }}
-                                    </div>
+                                    </small>
                                 </div>
                                 <div class="col-md-12 form-group">
                                     <label class="control-label">Address</label>
@@ -300,45 +300,48 @@
                                         v-model="formData.address"
                                         v-validate="'required'"
                                     ></textarea>
-                                    <div
+                                    <small
                                         class="text-danger"
                                         v-show="errors.has('address')"
                                     >
                                         {{ errors.first("address") }}
-                                    </div>
+                                    </small>
                                 </div>
 
-                                <div
-                                    class="col-md-6 form-group d-flex align-items-center"
-                                >
-                                    <label class="control-label m-0 mr-3"
-                                        >Gender</label
-                                    >
-                                    <label class="radio mr-2"
-                                        ><input
-                                            type="radio"
-                                            value="male"
-                                            name="gender"
-                                            v-model="formData.gender"
-                                            v-validate="'required'"
-                                        /><span class="radio-mark"></span>Male
-                                    </label>
-                                    <label class="radio">
-                                        <input
-                                            type="radio"
-                                            value="female"
-                                            name="gender"
-                                            v-model="formData.gender"
-                                            v-validate="'required'"
-                                        /><span class="radio-mark"></span>Female
-                                    </label>
-                                    <div
+                                <div class="col-md-12 form-group">
+                                    <div class="d-flex align-items-center">
+                                        <label class="control-label m-0 mr-3"
+                                            >Gender</label
+                                        >
+                                        <label class="radio mr-2"
+                                            ><input
+                                                type="radio"
+                                                value="male"
+                                                name="gender"
+                                                v-model="formData.gender"
+                                                v-validate="'required'"
+                                            /><span class="radio-mark"></span
+                                            >Male
+                                        </label>
+                                        <label class="radio">
+                                            <input
+                                                type="radio"
+                                                value="female"
+                                                name="gender"
+                                                v-model="formData.gender"
+                                                v-validate="'required'"
+                                            /><span class="radio-mark"></span
+                                            >Female
+                                        </label>
+                                    </div>
+                                    <small
                                         class="text-danger"
                                         v-show="errors.has('gender')"
                                     >
                                         {{ errors.first("gender") }}
-                                    </div>
+                                    </small>
                                 </div>
+
                                 <input
                                     type="hidden"
                                     value="inactive"
@@ -346,15 +349,17 @@
                                 />
                             </div>
 
-                            <span
-                                v-if="formErrors.message"
-                                class="text-danger"
-                                >{{ formErrors.message }}</span
-                            >
+                            <div v-if="formErrors.message" class="mb-3">
+                                <small class="text-danger">{{
+                                    formErrors.message
+                                }}</small>
+                            </div>
 
-                            <button class="btn btn-site" type="submit">
-                                Create
-                            </button>
+                            <div>
+                                <button class="btn btn-site" type="submit">
+                                    Create
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>

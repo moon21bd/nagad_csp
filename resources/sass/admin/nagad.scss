@@ -86,6 +86,58 @@ body {
         }
     }
 }
+.today-status {
+    ul {
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-gap: 1.5rem;
+        li {
+            background: $red;
+            padding: 15px;
+            display: block;
+            border-radius: 6px;
+            color: $white;
+            position: relative;
+            &.progress-tickets {
+                background: #260066;
+            }
+            &.close-tickets {
+                background: #34b669;
+            }
+            &.total-query {
+                background: #003049;
+            }
+            &.total-compliance {
+                background: #0b7c86;
+            }
+            &.total-tequest {
+                background: #f77f00;
+            }
+            i {
+                font-size: 32px;
+                position: absolute;
+                right: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                line-height: 32px;
+            }
+
+            h3 {
+                font-weight: 600;
+                font-size: 24px;
+                margin: 0;
+                span {
+                    font-weight: normal;
+                    display: block;
+                    font-size: 14px;
+                    margin-bottom: 5px;
+                }
+            }
+        }
+    }
+}
 .verify-user {
     position: relative;
     .form-control {

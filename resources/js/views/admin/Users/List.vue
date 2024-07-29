@@ -31,6 +31,7 @@
                                 <tr v-for="(item, key) in users" :key="key">
                                     <td>{{ item.id }}</td>
                                     <td :title="item.avatar">
+                                        <img :src="item.avatar" alt="" />
                                         {{ item.name }}
                                     </td>
                                     <td>
@@ -39,6 +40,11 @@
                                     <td>{{ item.group.name }}</td>
                                     <td>
                                         {{ item.user_activity.last_online }}
+                                        <!-- {{
+                                            new Date(
+                                                item.user_activity.last_online
+                                            ).toDateString()
+                                        }} -->
                                     </td>
                                     <td>
                                         <span
@@ -108,11 +114,14 @@ export default {
         },
         async fetchUsers() {
             try {
+                this.isLoading = true;
                 const response = await axios.get("/users");
                 console.log("response", response);
                 this.users = response.data.data;
             } catch (error) {
                 console.error("Error fetching users:", error);
+            } finally {
+                this.isLoading = false;
             }
         },
         initializeDataTable() {

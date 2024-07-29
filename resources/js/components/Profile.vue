@@ -1,19 +1,19 @@
 <template>
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-header">
-                        <h3>{{ user.name }}</h3>
-                    </div>
-                    <div class="card-body">
-                        <p class="mb-0">
-                            Email : <b>{{ user.email }}</b>
-                        </p>
-                        <p class="mb-0">
-                            Name : <b>{{ user.name }}</b>
-                        </p>
-                    </div>
+    <div>
+        <div class="common-heading d-flex align-items-center mb-3">
+            <h1 class="title">{{ user.name }}</h1>
+        </div>
+        <div class="card mb-4">
+            <div class="overlay" v-if="isLoading">
+                <img src="/images/loader.gif" alt="" />
+            </div>
+            <div class="card-body">
+                <div class="custom-list">
+                    <ul>
+                        <li><strong>Name</strong> {{ user.name }}</li>
+
+                        <li><strong>Email</strong> {{ user.email }}</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -21,11 +21,11 @@
 </template>
 
 <script>
-import { mapActions } from "vuex";
 export default {
     name: "profile",
     data() {
         return {
+            isLoading: false,
             user: this.$store.state.auth.user,
         };
     },
