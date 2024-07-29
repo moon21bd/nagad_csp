@@ -66,4 +66,8 @@ class NCServiceTypeConfig extends Model
     {
         return $this->belongsTo(NCCallSubCategory::class, 'call_sub_category_id');
     }
+    public function responsibleGroup()
+    {
+        return $this->hasMany(NCServiceResponsibleGroup::class, 'service_type_config_id', 'id');
+    }
 }

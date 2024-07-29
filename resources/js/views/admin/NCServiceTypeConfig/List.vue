@@ -55,9 +55,7 @@
                                     </td>
                                     <td>
                                         {{
-                                            jsonString(
-                                                config.responsible_groups_with_tats
-                                            )
+                                            jsonString(config.responsible_group)
                                         }}
                                     </td>
                                     <td>
@@ -137,7 +135,13 @@ export default {
             return _.capitalize(str);
         },
         jsonString(data) {
-            return JSON.stringify(data, null, 2); // Pretty print with 2 spaces
+            const transformedData = data.map((item) => ({
+                id: item.id,
+                name: item.group_name,
+                tatHours: item.tat_hours,
+            }));
+
+            return JSON.stringify(transformedData, null, 2);
         },
         async fetchServiceTypeConfigs() {
             this.isLoading = true;

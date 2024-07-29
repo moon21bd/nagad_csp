@@ -718,14 +718,32 @@ export default {
                         data.notification_channels || [],
                 };
 
-                this.selectedGroups = data.responsible_groups_with_tats.map(
+                /* this.selectedGroups = data.responsible_group.map(
                     (group) => ({
                         id: group.id,
                         name: group.name, // Add name to the selectedGroups
                         tatHours: group.tatHours,
                         isChecked: true, // Mark as checked since it's in the selected groups
                     })
-                );
+                ); */
+
+                // Check if responsible_group is not empty before mapping
+                if (
+                    data.responsible_group &&
+                    data.responsible_group.length > 0
+                ) {
+                    this.selectedGroups = data.responsible_group.map(
+                        (group) => ({
+                            id: group.group_id,
+                            name: group.group_name, // Add name to the selectedGroups
+                            tatHours: group.tat_hours,
+                            isChecked: true, // Mark as checked since it's in the selected groups
+                        })
+                    );
+                } else {
+                    // Handle empty case
+                    this.selectedGroups = []; // Set to an empty array or handle as needed
+                }
 
                 // Fetch groups and mark selected ones
                 await this.fetchGroups();
