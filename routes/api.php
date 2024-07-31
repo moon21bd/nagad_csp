@@ -76,6 +76,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::delete('groups/{group}/roles/{role}', [GroupRoleController::class, 'removeRoles']);
     Route::get('get-service-types', [NCCallTypeController::class, 'getActiveCallType']);
     Route::get('get-service-category', [NCCallCategoryController::class, 'getActiveServiceCategory']);
+    Route::get('get-service-type-configs/{cti}/{cci}/{csci}', [NCServiceTypeConfigController::class, 'getServiceTypeConfigs']);
 
     /*
     // Resource Controller Methods

@@ -3,6 +3,7 @@
         <div class="card-header">
             <h1 class="title mb-3">Customer Information</h1>
             <div class="d-flex align-items-center">
+                <!-- do not delete this -->
                 <!-- <form action="" class="verify-user mr-0 mr-md-3">
                     <input
                         class="form-control"
@@ -15,14 +16,14 @@
                     <button
                         class="btn"
                         data-toggle="modal"
-                        data-target="#exampleModal"
+                        data-target="#ticketSuccessPopup"
                     >
                         <i class="icon-search"></i>
                     </button>
                 </form> -->
                 <div class="verified-user d-flex">
                     <i class="icon-phone-call"></i>
-                    <h5>In Call..<span>+8801987654321</span></h5>
+                    <h5>In Call..<span>+8801710455990</span></h5>
                 </div>
 
                 <a
@@ -149,6 +150,17 @@
                             </div>
                         </div>
 
+                        <p>Required Fields Start</p>
+
+                        <!-- <button
+                            type="button"
+                            class="btn"
+                            data-toggle="modal"
+                            data-target="#ticketSuccessPopup"
+                        >
+                            <i class="icon-phone"></i> Modal
+                        </button> -->
+
                         <div v-if="requiredFields">
                             <div class="form-row">
                                 <div
@@ -238,18 +250,69 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="form-row">
+                                <div class="col-md-12 form-group">
+                                    <label class="control-label"
+                                        >Comments<sup>*</sup></label
+                                    >
+                                    <textarea
+                                        class="form-control"
+                                        v-model="ticketInfos.comments"
+                                        required
+                                    ></textarea>
+                                </div>
+                            </div>
                         </div>
+                        <p>Required Fields End</p>
 
                         <div class="form-row">
-                            <div class="col-md-12 form-group">
+                            <div
+                                v-if="
+                                    serviceTypeConfigs?.is_show_attachment ===
+                                    'yes'
+                                "
+                                class="col-md-4 form-group"
+                            >
                                 <label class="control-label"
-                                    >Comments<sup>*</sup></label
+                                    >Attachement<sup>*</sup></label
                                 >
-                                <textarea
-                                    class="form-control"
-                                    v-model="ticketInfos.comments"
-                                    required
-                                ></textarea>
+                                <input
+                                    type="file"
+                                    name="is_show_attachment"
+                                    @change="handleAttachmentFileUpload"
+                                />
+                            </div>
+
+                            <div
+                                v-if="
+                                    serviceTypeConfigs?.is_verification_check ===
+                                    'yes'
+                                "
+                                class="col-md-4 form-group"
+                            >
+                                <label class="control-label m-0 mr-3"
+                                    >Is Verified</label
+                                >
+                                <div class="d-flex">
+                                    <label class="radio mr-2">
+                                        <input
+                                            type="radio"
+                                            value="yes"
+                                            name="is_verified"
+                                            v-model="ticketInfos.is_verified"
+                                        />
+                                        <span class="radio-mark"></span>Yes
+                                    </label>
+                                    <label class="radio">
+                                        <input
+                                            type="radio"
+                                            value="no"
+                                            name="is_verified"
+                                            v-model="ticketInfos.is_verified"
+                                        />
+                                        <span class="radio-mark"></span>No
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
@@ -263,17 +326,18 @@
         <!-- Modal -->
         <div
             class="modal fade"
-            id="exampleModal"
+            id="ticketSuccessPopup"
             tabindex="-1"
             role="dialog"
-            aria-labelledby="exampleModalLabel"
+            data-backdrop="static"
+            aria-labelledby="ticketSuccessPopupLabel"
             aria-hidden="true"
         >
-            <div class="modal-dialog" role="document">
+            <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">
-                            Modal title
+                        <h5 class="modal-title" id="ticketSuccessPopupLabel">
+                            Ticket Created
                         </h5>
                         <button
                             type="button"
@@ -284,7 +348,7 @@
                             <i class="icon-close"></i>
                         </button>
                     </div>
-                    <div class="modal-body">...</div>
+                    <div class="modal-body">{{ modalBody }}</div>
                     <div class="modal-footer">
                         <button
                             type="button"
@@ -293,9 +357,9 @@
                         >
                             Close
                         </button>
-                        <button type="button" class="btn btn-primary">
+                        <!-- <button type="button" class="btn btn-primary">
                             Save changes
-                        </button>
+                        </button> -->
                     </div>
                 </div>
             </div>
@@ -316,24 +380,41 @@ export default {
     data: () => ({
         callerMobileNo: "",
         callerPrevTickets: false,
-        //id: this.$route.params.id,
+        // id: this.$route.params.id,
         requiredFields: [],
         callTypes: [],
         callCategories: [],
         callSubCategories: [],
-
+        serviceTypeConfigs: {},
         ticketInfos: {
             callTypeId: null,
             callCategoryId: null,
             callSubCategoryId: null,
             requiredField: {},
             comments: "",
+            attachement: "",
+            is_verified: "no",
         },
+        modalBody: "",
     }),
     mounted() {
         this.fetchCallTypes();
     },
     methods: {
+        showPopup(message) {
+            this.modalBody = message;
+            $("#ticketSuccessPopup").modal("show");
+        },
+        handleAttachmentFileUpload(event) {
+            console.log("event", event.target.files[0]);
+            ticketInfos.attachement = event.target.files[0];
+            /* let reader = new FileReader();
+            reader.readAsDataURL(event.target.files[0]);
+            reader.onload = () => {
+                this.formData.avatar = reader.result;
+                this.temp_avatar = reader.result;
+            }; */
+        },
         showPrevTickets() {
             this.callerPrevTickets = !this.callerPrevTickets;
         },
@@ -388,10 +469,30 @@ export default {
             });
         },
         async fetchRequiredFields() {
+            await this.getServiceTypeConfigByAllCat(
+                this.ticketInfos.callTypeId,
+                this.ticketInfos.callCategoryId,
+                this.ticketInfos.callSubCategoryId
+            ).then((response) => {
+                console.log("response.data.data", response.data);
+            });
+
             await this.fetchRequiredFieldsByCategory().then((response) => {
                 this.requiredFields = response.data;
                 this.generateInputTypes(response.data);
             });
+        },
+        async getServiceTypeConfigByAllCat(cti, cci, csci) {
+            try {
+                const response = await axios.get(
+                    `/get-service-type-configs/${this.ticketInfos.callTypeId}/${this.ticketInfos.callCategoryId}/${this.ticketInfos.callSubCategoryId}`
+                );
+                console.log("response.data", response.data.data);
+                this.serviceTypeConfigs = response.data.data;
+            } catch (error) {
+                this.serviceTypeConfigs = {};
+                console.error("Error fetching sub categories:", error);
+            }
         },
         generateInputTypes(value) {
             this.inputTypeValues = value;
@@ -405,6 +506,9 @@ export default {
             }
         },
         async handleSubmit() {
+            // this.showPopup("Form Submited.");
+
+            // return false;
             console.log(
                 "handleSubmit Called",
                 this.ticketInfos.requiredField,

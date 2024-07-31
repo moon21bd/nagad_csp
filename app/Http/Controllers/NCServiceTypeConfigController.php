@@ -258,4 +258,26 @@ class NCServiceTypeConfigController extends Controller
             ]);
         }
     }
+
+    public function getServiceTypeConfigs(int $callTypeId, int $callCategoryId, int $callSubCategoryId)
+    {
+        $serviceTypeConfig = NCServiceTypeConfig::where([
+            'call_type_id' => $callTypeId,
+            'call_category_id' => $callCategoryId,
+            'call_sub_category_id' => $callSubCategoryId,
+        ])->first();
+
+        if ($serviceTypeConfig) {
+            return response()->json([
+                'data' => $serviceTypeConfig,
+                'message' => 'Service type config found',
+            ], 200);
+        } else {
+            return response()->json([
+                'data' => null,
+                'message' => 'Service type config not found',
+            ], 200);
+        }
+    }
+
 }
