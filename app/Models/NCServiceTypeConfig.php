@@ -21,6 +21,8 @@ class NCServiceTypeConfig extends Model
         'is_show_attachment',
         'is_show_popup_msg',
         'popup_msg_texts',
+        'is_group_lead_notified',
+        'is_user_notified',
         'notification_channels',
         'notification_config_id',
         'sms_config_id',

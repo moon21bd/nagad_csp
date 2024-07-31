@@ -160,6 +160,8 @@ class NCServiceTypeConfigController extends Controller
             'is_verification_check' => 'nullable|string',
             'customer_behavior_check' => 'nullable|string',
             'bulk_ticket_close_perms' => 'nullable|string',
+            'is_user_notified' => 'nullable|string',
+            'is_group_lead_notified' => 'nullable|string',
             'requiredFieldIds' => 'nullable|string',
         ]);
     }
@@ -184,6 +186,8 @@ class NCServiceTypeConfigController extends Controller
             'is_show_popup_msg' => $validated['is_show_popup_msg'],
             'popup_msg_texts' => json_encode($validated['popupMessages']),
             'notification_channels' => $validated['selectedNotificationChannels'],
+            'is_user_notified' => $validated['is_user_notified'],
+            'is_group_lead_notified' => $validated['is_group_lead_notified'],
             'sms_config_id' => $validated['sms_config_id'],
             'email_config_id' => $validated['email_config_id'],
             'is_verification_check' => $validated['is_verification_check'],

@@ -3,7 +3,7 @@
         <div class="card-header">
             <h1 class="title mb-3">Customer Information</h1>
             <div class="d-flex align-items-center">
-                <form action="" class="verify-user mr-0 mr-md-3">
+                <!-- <form action="" class="verify-user mr-0 mr-md-3">
                     <input
                         class="form-control"
                         type="tel"
@@ -19,7 +19,7 @@
                     >
                         <i class="icon-search"></i>
                     </button>
-                </form>
+                </form> -->
                 <div class="verified-user d-flex">
                     <i class="icon-phone-call"></i>
                     <h5>In Call..<span>+8801987654321</span></h5>
@@ -69,9 +69,9 @@
             </div>
 
             <div class="row">
-                <div class="col-md-3">
+                <!-- <div class="col-md-3">
                     <userInfo />
-                </div>
+                </div> -->
                 <div class="col-md-9">
                     <h4 class="sub-title mb-2">
                         <i class="icon-tickets text-danger"></i> Create Ticket
@@ -306,11 +306,11 @@
 <script>
 import axios from "../../../axios";
 
-import userInfo from "./components/userInfo.vue";
+// import userInfo from "./components/userInfo.vue";
 
 export default {
     components: {
-        userInfo,
+        // userInfo,
     },
     name: "Tickets",
     data: () => ({

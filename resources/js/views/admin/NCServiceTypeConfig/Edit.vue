@@ -577,6 +577,66 @@
                                         </label>
                                     </div>
                                 </div>
+
+                                <div class="col-md-4 form-group">
+                                    <label class="control-label m-0 mr-3"
+                                        >Is Group Lead Notified</label
+                                    >
+                                    <div class="d-flex">
+                                        <label class="radio mr-2">
+                                            <input
+                                                type="radio"
+                                                value="yes"
+                                                name="is_group_lead_notified"
+                                                v-model="
+                                                    configurationInfos.is_group_lead_notified
+                                                "
+                                            />
+                                            <span class="radio-mark"></span>Yes
+                                        </label>
+                                        <label class="radio">
+                                            <input
+                                                type="radio"
+                                                value="no"
+                                                name="is_group_lead_notified"
+                                                v-model="
+                                                    configurationInfos.is_group_lead_notified
+                                                "
+                                            />
+                                            <span class="radio-mark"></span>No
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4 form-group">
+                                    <label class="control-label m-0 mr-3"
+                                        >Is User Notified</label
+                                    >
+                                    <div class="d-flex">
+                                        <label class="radio mr-2">
+                                            <input
+                                                type="radio"
+                                                value="yes"
+                                                name="is_user_notified"
+                                                v-model="
+                                                    configurationInfos.is_user_notified
+                                                "
+                                            />
+                                            <span class="radio-mark"></span>Yes
+                                        </label>
+                                        <label class="radio">
+                                            <input
+                                                type="radio"
+                                                value="no"
+                                                name="is_user_notified"
+                                                v-model="
+                                                    configurationInfos.is_user_notified
+                                                "
+                                            />
+                                            <span class="radio-mark"></span>No
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
 
                             <button class="btn btn-site" type="submit">
@@ -714,6 +774,8 @@ export default {
                     is_verification_check: data.is_verification_check,
                     customer_behavior_check: data.customer_behavior_check,
                     bulk_ticket_close_perms: data.bulk_ticket_close_perms,
+                    is_group_lead_notified: data.is_group_lead_notified,
+                    is_user_notified: data.is_user_notified,
                     selectedNotificationChannels:
                         data.notification_channels || [],
                 };
@@ -1009,6 +1071,8 @@ export default {
                 is_verification_check: "no",
                 customer_behavior_check: "no",
                 bulk_ticket_close_perms: "no",
+                is_group_lead_notified: "no",
+                is_user_notified: "no",
                 sms_config_id: null,
                 email_config_id: null,
                 selectedNotificationChannels: [],

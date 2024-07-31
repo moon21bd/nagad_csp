@@ -547,6 +547,7 @@
                                         </label>
                                     </div>
                                 </div>
+
                                 <div class="col-md-4 form-group">
                                     <label class="control-label m-0 mr-3"
                                         >Bulk Ticket Close Permissions</label
@@ -570,6 +571,66 @@
                                                 name="bulk_ticket_close_perms"
                                                 v-model="
                                                     configurationInfos.bulk_ticket_close_perms
+                                                "
+                                            />
+                                            <span class="radio-mark"></span>No
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4 form-group">
+                                    <label class="control-label m-0 mr-3"
+                                        >Is Group Lead Notified</label
+                                    >
+                                    <div class="d-flex">
+                                        <label class="radio mr-2">
+                                            <input
+                                                type="radio"
+                                                value="yes"
+                                                name="is_group_lead_notified"
+                                                v-model="
+                                                    configurationInfos.is_group_lead_notified
+                                                "
+                                            />
+                                            <span class="radio-mark"></span>Yes
+                                        </label>
+                                        <label class="radio">
+                                            <input
+                                                type="radio"
+                                                value="no"
+                                                name="is_group_lead_notified"
+                                                v-model="
+                                                    configurationInfos.is_group_lead_notified
+                                                "
+                                            />
+                                            <span class="radio-mark"></span>No
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4 form-group">
+                                    <label class="control-label m-0 mr-3"
+                                        >Is User Notified By SMS</label
+                                    >
+                                    <div class="d-flex">
+                                        <label class="radio mr-2">
+                                            <input
+                                                type="radio"
+                                                value="yes"
+                                                name="is_user_notified"
+                                                v-model="
+                                                    configurationInfos.is_user_notified
+                                                "
+                                            />
+                                            <span class="radio-mark"></span>Yes
+                                        </label>
+                                        <label class="radio">
+                                            <input
+                                                type="radio"
+                                                value="no"
+                                                name="is_user_notified"
+                                                v-model="
+                                                    configurationInfos.is_user_notified
                                                 "
                                             />
                                             <span class="radio-mark"></span>No
@@ -646,6 +707,8 @@ export default {
             is_verification_check: "no",
             customer_behavior_check: "no",
             bulk_ticket_close_perms: "no",
+            is_group_lead_notified: "no",
+            is_user_notified: "no",
         },
         fieldIndexToRemove: null,
         // errors: {}, // Object to store validation errors
@@ -836,49 +899,7 @@ export default {
                 }
             }
         },
-        /* async handleSubmit() {
-            // console.log("handleSubmit Called");
-            try {
-                // Adding selected groups with TAT hours to configurationInfos
-                this.configurationInfos.selectedGroups =
-                    this.selectedGroups.map((group) => ({
-                        id: group.id,
-                        name: group.name,
-                        tatHours: group.tatHours,
-                    }));
 
-                // Extract only the IDs from requiredFields and convert to a comma-separated string
-                const requiredFieldIds = this.requiredFields
-                    .map((field) => field.id)
-                    .join(",");
-
-                // Prepare the payload for the API call
-                const payload = {
-                    ...this.configurationInfos,
-                    requiredFieldIds, // Add the comma-separated string to the payload
-                };
-                const response = await axios.post(
-                    "/service-type-config",
-                    payload
-                );
-
-                // Use the global toast function
-                this.$showToast("Form submitted successfully", {
-                    type: "success",
-                });
-
-                this.$refs.serviceTypeConfigForm.reset();
-                this.resetForm();
-                this.$router.push({ name: "service-type-config-index" });
-            } catch (error) {
-                console.error("There was an error submitting the form:", error);
-
-                // Use the global toast function
-                this.$showToast("There was an error submitting the form", {
-                    type: "error",
-                });
-            }
-        }, */
         addPopupMessage() {
             if (
                 this.newPopupMessage &&
@@ -1062,6 +1083,8 @@ export default {
                 is_verification_check: "no",
                 customer_behavior_check: "no",
                 bulk_ticket_close_perms: "no",
+                is_group_lead_notified: "no",
+                is_user_notified: "no",
                 sms_config_id: null,
                 email_config_id: null,
                 selectedNotificationChannels: [],
