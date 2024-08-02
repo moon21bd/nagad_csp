@@ -121,7 +121,7 @@ export default {
                 const response = await axios.get("/call-sub-sub-categories");
                 this.callSubSubCategories = response.data;
             } catch (error) {
-                console.error("Error fetching call sub-categories:", error);
+                console.error("Error fetching service sub-categories:", error);
             }
         },
         async deleteSubSubCategory(id) {

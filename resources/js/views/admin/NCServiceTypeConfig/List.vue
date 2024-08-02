@@ -59,11 +59,15 @@
                                         }}
                                     </td>
                                     <td>
-                                        {{ capitalize(config.is_escalation) }}
+                                        {{
+                                            capitalizedMessage(
+                                                config.is_escalation
+                                            )
+                                        }}
                                     </td>
                                     <td>
                                         {{
-                                            capitalize(
+                                            capitalizedMessage(
                                                 config.is_show_attachment
                                             )
                                         }}
@@ -78,7 +82,9 @@
                                             "
                                             class="badge"
                                             >{{
-                                                capitalize(config.status)
+                                                capitalizedMessage(
+                                                    config.status
+                                                )
                                             }}</span
                                         >
                                     </td>
@@ -118,6 +124,7 @@ import _ from "lodash";
 import "datatables.net-dt/css/jquery.dataTables.min.css";
 import "datatables.net-dt/js/dataTables.dataTables";
 import noData from "../components/noData.vue";
+import { capitalize } from "../../../utils/common";
 
 export default {
     components: {
@@ -131,8 +138,11 @@ export default {
         };
     },
     methods: {
-        capitalize(str) {
+        /* capitalize(str) {
             return _.capitalize(str);
+        }, */
+        capitalizedMessage() {
+            return capitalize(this.message);
         },
         jsonString(data) {
             const transformedData = data.map((item) => ({

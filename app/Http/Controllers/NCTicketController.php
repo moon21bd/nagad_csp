@@ -3,12 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\NCTicket;
-use Carbon\Carbon;
+use App\Services\TicketService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class NCTicketController extends Controller
 {
+    protected $ticketService;
+
+    public function __construct(TicketService $ticketService)
+    {
+        $this->ticketService = $ticketService;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -16,7 +22,7 @@ class NCTicketController extends Controller
      */
     public function index()
     {
-        $tickets = NCTicket::all();
+        $tickets = $this->ticketService->getAllTickets();
         return response()->json($tickets);
     }
 
@@ -38,53 +44,21 @@ class NCTicketController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
+
         $validated = $request->validate([
             'callTypeId' => 'required|exists:nc_call_types,id',
             'callCategoryId' => 'required|exists:nc_call_categories,id',
             'callSubCategoryId' => 'required|exists:nc_call_sub_categories,id',
-            'callerMobileNo' => 'required', // this will be generate dynamically from frontend after found the solution for params value get
+            'callerMobileNo' => 'required|string',
             'requiredField' => 'nullable|array',
             'comments' => 'nullable|string',
             'attachment' => 'nullable|string',
+            // |mimes:jpeg,png,jpg,gif,pdf,doc,docx,xls,xlsx',
         ]);
+        // dd($validated);
 
-        $requiredFields = [];
-        foreach ($validated['requiredField'] ?? [] as $item => $value) {
-            list($id, $field) = explode('|', $item);
-            $requiredFields[] = [
-                'id' => (int) $id,
-                'field' => $field,
-                'value' => $value,
-            ];
-        }
+        $ticket = $this->ticketService->createTicket($validated);
 
-        $ticketArr = [
-            'uuid' => uniqid(), // after internet restortion ramsey/uuid will be applied
-            'call_type_id' => $validated['callTypeId'],
-            'call_category_id' => $validated['callCategoryId'],
-            'call_sub_category_id' => $validated['callSubCategoryId'],
-            'caller_mobile_no' => $validated['callerMobileNo'], // $validated['caller_mobile_no'],
-            'required_fields' => json_encode($requiredFields), //$validated['requiredField'],
-            'group_id' => 1, // this will assign from responsible team mapping tables later
-            'assign_to_group_id' => 1, // this will also assign from responsible team mapping tables later
-            'assign_by_id' => 1, // this will also assign from responsible team mapping tables later
-            'is_ticket_reassign' => 0, // if assigned then this will populate
-            'comments' => $validated['comments'], // $validated['comments'],
-            'sla_status' => 'NORMAL',
-            'attachment' => null,
-            'ticket_notification_status' => 1,
-            'is_customer_notified' => 0,
-            'ticket_status' => (empty($requiredFields)) ? 'CLOSED' : 'PENDING', // this will populate from various team
-            'ticket_channel' => 'PANEL',
-            'ticket_created_by' => Auth::id(),
-            'ticket_updated_by' => Auth::id(),
-            'ticket_last_updated_by' => null,
-            'ticket_created_at' => Carbon::now(),
-            'ticket_updated_at' => Carbon::now(),
-        ];
-
-        $ticket = NCTicket::create($ticketArr);
         return response()->json($ticket, 201);
     }
 
@@ -94,9 +68,11 @@ class NCTicketController extends Controller
      * @param  \App\Models\NCTicket  $nCTicket
      * @return \Illuminate\Http\Response
      */
-    public function show(NCTicket $nCTicket)
+    public function show($id)
     {
-        //
+        $ticket = NCTicket::where('id', $id)->first();
+        return response()->json($ticket, 200);
+
     }
 
     /**

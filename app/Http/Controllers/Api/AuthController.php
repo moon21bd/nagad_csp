@@ -108,7 +108,7 @@ class AuthController extends Controller
             'group_id' => $data['group_id'],
             'mobile_no' => $data['mobile_no'],
             'email' => $data['email'],
-            'avatar' => saveAndGetAvatar($data['avatar']),
+            'avatar' => uploadMediaGetPath($data['avatar']),
             'password' => Hash::make($data['password']),
             'created_by' => $authUserId,
             'updated_by' => $authUserId,

@@ -70,12 +70,12 @@
                     </router-link>
                 </el-menu-item>
 
-                <el-menu-item index="tickets-required-fields-add">
+                <!-- <el-menu-item index="tickets-required-fields-add">
                     <router-link :to="{ name: 'tickets-required-fields-add' }">
                         <i class="icon-ticket"></i>
                         <span>Ticket wise Required Fields</span>
                     </router-link>
-                </el-menu-item>
+                </el-menu-item> -->
 
                 <!-- <el-menu-item index="/admin/download">
                     <router-link to="/admin/download">
