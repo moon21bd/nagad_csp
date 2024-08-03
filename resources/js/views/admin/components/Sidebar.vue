@@ -64,7 +64,7 @@
                 </el-menu-item>
 
                 <el-menu-item index="tickets-index">
-                    <router-link :to="{ name: 'tickets' }">
+                    <router-link :to="{ name: 'ticket-index' }">
                         <i class="icon-tickets"></i>
                         <span>Tickets</span>
                     </router-link>

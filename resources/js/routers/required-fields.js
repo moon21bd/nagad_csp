@@ -29,16 +29,4 @@ export default [
             layout: AdminLayout,
         },
     },
-    {
-        path: "/admin/tickets/required-fields/add",
-        name: "tickets-required-fields-add",
-        component: () =>
-            import(
-                "../views/admin/Tickets/category-wise-required-fields-add.vue"
-            ),
-        meta: {
-            requiresAuth: true,
-            layout: AdminLayout,
-        },
-    },
 ];
