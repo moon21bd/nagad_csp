@@ -4,6 +4,7 @@ const Profile = () => import("../components/Profile.vue");
 const UserCreate = () => import("../views/admin/Users/Create.vue");
 const UserEdit = () => import("../views/admin/Users/Edit.vue");
 const UserList = () => import("../views/admin/Users/List.vue");
+const UserLogs = () => import("../components/Logs.vue");
 
 export default [
     {
@@ -45,6 +46,17 @@ export default [
         component: UserList,
         meta: {
             title: "User List",
+            middleware: "auth",
+            requiresAuth: true,
+            layout: AdminLayout,
+        },
+    },
+    {
+        name: "user-logs",
+        path: "/admin/user-logs",
+        component: UserLogs,
+        meta: {
+            title: "User Logs",
             middleware: "auth",
             requiresAuth: true,
             layout: AdminLayout,
