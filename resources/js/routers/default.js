@@ -138,13 +138,4 @@ export default [
             layout: AdminLayout,
         },
     },
-    {
-        path: "/admin/tickets",
-        name: "tickets",
-        component: () => import("../views/admin/Tickets/Tickets.vue"),
-        meta: {
-            requiresAuth: true,
-            layout: AdminLayout,
-        },
-    },
 ];

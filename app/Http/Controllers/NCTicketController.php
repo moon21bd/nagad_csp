@@ -55,7 +55,6 @@ class NCTicketController extends Controller
             'attachment' => 'nullable|string',
             // |mimes:jpeg,png,jpg,gif,pdf,doc,docx,xls,xlsx',
         ]);
-        // dd($validated);
 
         $ticket = $this->ticketService->createTicket($validated);
 
@@ -68,11 +67,23 @@ class NCTicketController extends Controller
      * @param  \App\Models\NCTicket  $nCTicket
      * @return \Illuminate\Http\Response
      */
+    /* public function show($id)
+    {
+    $ticket = NCTicket::with(['callType', 'callCategory', 'callSubCategory'])->where('id', $id)->first();
+    return response()->json($ticket, 200);
+
+    } */
+
     public function show($id)
     {
-        $ticket = NCTicket::where('id', $id)->first();
-        return response()->json($ticket, 200);
+        $ticket = NCTicket::with(['callType', 'callCategory', 'callSubCategory'])->where('id', $id)->first();
+        $statuses = $this->ticketService->getStatuses();
 
+        // Merge statuses into the ticket collection
+        $ticketCollection = collect($ticket);
+        $ticketCollection->put('statuses', $statuses);
+
+        return response()->json($ticketCollection, 200);
     }
 
     /**
@@ -93,9 +104,11 @@ class NCTicketController extends Controller
      * @param  \App\Models\NCTicket  $nCTicket
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, NCTicket $nCTicket)
+    public function update(Request $request, $id)
     {
-        //
+        $ticket = $this->ticketService->updateTicket($request, $id);
+        return response()->json($ticket, 200);
+
     }
 
     /**

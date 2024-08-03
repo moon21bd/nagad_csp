@@ -6,9 +6,13 @@ use App\Models\NCCallType;
 use App\Models\NCServiceResponsibleGroup;
 use App\Models\NCTicket;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Ramsey\Uuid\Uuid;
 
 class TicketService
@@ -17,16 +21,28 @@ class TicketService
     protected $notificationService;
     protected $groupService;
 
+    protected $authUserId;
+
+    // Ticket statuses arr
+    protected $statuses = [
+        ['value' => 'OPEN', 'label' => 'OPEN'],
+        ['value' => 'PENDING', 'label' => 'PENDING'],
+        ['value' => 'CLOSED', 'label' => 'CLOSED'],
+        ['value' => 'REOPEN', 'label' => 'REOPEN'],
+    ];
+
     public function __construct(ServiceTypeConfigService $serviceTypeConfigService, NotificationService $notificationService, GroupService $groupService)
     {
         $this->serviceTypeConfigService = $serviceTypeConfigService;
         $this->notificationService = $notificationService;
         $this->groupService = $groupService;
+        $this->authUserId = Auth::id();
     }
 
     public function getAllTickets()
     {
-        return NCTicket::all();
+        return NCTicket::with(['callType', 'callCategory', 'callSubCategory'])
+            ->get();
     }
 
     public function createTicket(array $validated)
@@ -77,6 +93,76 @@ class TicketService
             'status' => 'failed',
             'message' => 'Something went wrong creating ticket',
         ];
+    }
+
+    public function getStatuses()
+    {
+        return $this->statuses;
+    }
+
+    public function updateTicket(Request $request, $id)
+    {
+        $validated = $this->validateUpdateRequest($request);
+
+        $ticketArr = $this->prepareUpdateDataArray($validated);
+
+        try {
+            $ticket = NCTicket::findOrFail($id);
+            $ticket->update($ticketArr);
+
+            return [
+                'code' => Response::HTTP_OK,
+                'status' => 'success',
+                'message' => 'Ticket Updated.',
+                'data' => $ticket,
+            ];
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            return [
+                'code' => Response::HTTP_BAD_REQUEST,
+                'status' => 'failed',
+                'message' => 'Ticket Update Failed.',
+                'data' => $ticket,
+            ];
+        }
+    }
+
+    protected function handleQueryException(QueryException $e)
+    {
+        if ($e->getCode() == 23000) { // SQLSTATE[23000] for integrity constraint violation
+            return response()->json([
+                'message' => 'Duplicate entry detected for the given combination of call type, call category, and call sub-category.',
+            ], 400);
+        }
+
+        // Handle other types of query exceptions
+        return response()->json([
+            'message' => 'An error occurred while processing your request.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+
+    protected function validateUpdateRequest(Request $request)
+    {
+        return $request->validate([
+            'selectedStatus' => 'required|string',
+            'comments' => 'nullable|array',
+        ]);
+    }
+
+    protected function prepareUpdateDataArray(array $validated)
+    {
+        $dataArr = [
+            'ticket_status' => $validated['selectedStatus'],
+            'comments' => $validated['comments'],
+            'updated_by' => Auth::id(),
+            'ticket_updated_at' => Carbon::now(),
+            'ticket_updated_by' => Auth::id(),
+            'ticket_last_updated_by' => Auth::id(),
+            'last_updated_by' => Auth::id(),
+        ];
+
+        return $dataArr;
     }
 
     protected function prepareRequiredFields(array $requiredFields): array
@@ -153,4 +239,5 @@ class TicketService
         $groupIdsArray = explode(',', $groupIds);
         return $this->groupService->getGroupName($groupIdsArray);
     }
+
 }
