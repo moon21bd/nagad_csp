@@ -97,7 +97,7 @@ class UsersController extends Controller
 
         // Handle the avatar update
         if (!empty($validatedData['avatar'])) {
-            $avatarPath = saveAndGetAvatar($validatedData['avatar']);
+            $avatarPath = uploadMediaGetPath($validatedData['avatar']);
 
             // Log the new avatar path
             Log::info('New avatar path: ', ['avatarPath' => $avatarPath]);

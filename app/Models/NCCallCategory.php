@@ -23,7 +23,7 @@ class NCCallCategory extends Model
     protected $casts = [
         'call_type_id' => 'integer',
         'call_category_name' => 'string',
-        'status' => 'string'
+        'status' => 'string',
     ];
 
     public function creator()
@@ -44,5 +44,9 @@ class NCCallCategory extends Model
     public function callType()
     {
         return $this->belongsTo(NCCallType::class, 'call_type_id');
+    }
+    public function users()
+    {
+        return $this->hasMany(User::class, 'group_id');
     }
 }

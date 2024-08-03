@@ -5,8 +5,8 @@ use App\Http\Controllers\GroupController;
 use App\Http\Controllers\GroupRoleController;
 use App\Http\Controllers\NCCallCategoryController;
 use App\Http\Controllers\NCCallSubCategoryController;
-use App\Http\Controllers\NCCallSubSubCategoryController;
 use App\Http\Controllers\NCCallTypeController;
+use App\Http\Controllers\NCNotificationController;
 use App\Http\Controllers\NCRequiredConfigController;
 use App\Http\Controllers\NCServiceTypeConfigController;
 use App\Http\Controllers\NCTicketController;
@@ -94,11 +94,12 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // various resource apis
     Route::apiResources([
         'tickets' => NCTicketController::class,
+        'notifications' => NCNotificationController::class,
         'groups' => GroupController::class,
         'call-categories' => NCCallCategoryController::class,
         'call-types' => NCCallTypeController::class,
         'call-sub-categories' => NCCallSubCategoryController::class,
-        'call-sub-sub-categories' => NCCallSubSubCategoryController::class,
+        // 'call-sub-sub-categories' => NCCallSubSubCategoryController::class,
         'required-fields-configs' => NCRequiredConfigController::class,
         'service-type-config' => NCServiceTypeConfigController::class,
     ]);

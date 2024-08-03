@@ -229,7 +229,7 @@ export default {
                 this.callCategories = response.data;
                 console.log("call category", this.callCategories);
             } catch (error) {
-                console.error("Error fetching call categories:", error);
+                console.error("Error fetching service categories:", error);
             }
         },
         async fetchSubCategory() {
@@ -239,7 +239,7 @@ export default {
                 );
                 this.callSubCategories = response.data;
             } catch (error) {
-                console.error("Error fetching call sub categories:", error);
+                console.error("Error fetching service sub categories:", error);
             }
         },
         async createRequiredFields() {

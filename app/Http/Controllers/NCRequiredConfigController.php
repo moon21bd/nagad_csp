@@ -131,7 +131,9 @@ class NCRequiredConfigController extends Controller
 
     public function getRequiredFieldConfigBySubCatId($id)
     {
-        $requiredFieldConfigs = NCRequiredFieldConfig::where('call_sub_category_id', $id)->get();
+        $requiredFieldConfigs = NCRequiredFieldConfig::where('call_sub_category_id', $id)
+            ->get();
+
         return response()->json($requiredFieldConfigs);
     }
 }

@@ -136,9 +136,9 @@ export default {
                 call_type_id: null,
                 call_category_id: null,
                 call_sub_category_id: null,
-                call_sub_sub_category_name: '',
-                status: 'active'
-            }
+                call_sub_sub_category_name: "",
+                status: "active",
+            },
         };
     },
 
@@ -149,18 +149,20 @@ export default {
                 // Optionally fetch categories if they haven't been fetched before.
                 // await this.$store.dispatch('fetchCallCategories');
             } catch (error) {
-                console.error('Error fetching call categories:', error);
+                console.error("Error fetching service categories:", error);
             }
         },
         async createSubSubCategory() {
             try {
-                await this.$store.dispatch('globalStore/createCallSubSubCategory', this.subSubCategory);
-                this.$router.push('/admin/call-sub-sub-categories');
+                await this.$store.dispatch(
+                    "globalStore/createCallSubSubCategory",
+                    this.subSubCategory
+                );
+                this.$router.push("/admin/call-sub-sub-categories");
             } catch (error) {
-                console.error('Error creating sub sub-category:', error);
+                console.error("Error creating sub sub-category:", error);
             }
-        }
+        },
     },
-
 };
 </script>

@@ -132,7 +132,7 @@
                                 <el-select
                                     class="d-block w-150"
                                     v-model="ticketInfos.callSubCategoryId"
-                                    @change="fetchRequiredFields"
+                                    @change="onCategoryChange"
                                     required
                                     filterable
                                     placeholder="Select Sub Category"
@@ -149,17 +149,6 @@
                                 </el-select>
                             </div>
                         </div>
-
-                        <p>Required Fields Start</p>
-
-                        <!-- <button
-                            type="button"
-                            class="btn"
-                            data-toggle="modal"
-                            data-target="#ticketSuccessPopup"
-                        >
-                            <i class="icon-phone"></i> Modal
-                        </button> -->
 
                         <div v-if="requiredFields">
                             <div class="form-row">
@@ -263,7 +252,6 @@
                                 </div>
                             </div>
                         </div>
-                        <p>Required Fields End</p>
 
                         <div class="form-row">
                             <div
@@ -274,7 +262,7 @@
                                 class="col-md-4 form-group"
                             >
                                 <label class="control-label"
-                                    >Attachement<sup>*</sup></label
+                                    >Attachment<sup>*</sup></label
                                 >
                                 <input
                                     type="file"
@@ -392,7 +380,7 @@ export default {
             callSubCategoryId: null,
             requiredField: {},
             comments: "",
-            attachement: "",
+            attachment: "",
             is_verified: "no",
         },
         modalBody: "",
@@ -406,14 +394,12 @@ export default {
             $("#ticketSuccessPopup").modal("show");
         },
         handleAttachmentFileUpload(event) {
-            console.log("event", event.target.files[0]);
-            ticketInfos.attachement = event.target.files[0];
-            /* let reader = new FileReader();
+            // console.log("event", event.target.files[0]);
+            let reader = new FileReader();
             reader.readAsDataURL(event.target.files[0]);
             reader.onload = () => {
-                this.formData.avatar = reader.result;
-                this.temp_avatar = reader.result;
-            }; */
+                this.ticketInfos.attachment = reader.result;
+            };
         },
         showPrevTickets() {
             this.callerPrevTickets = !this.callerPrevTickets;
@@ -447,51 +433,47 @@ export default {
                 const response = await axios.get(
                     `/call-sub-by-call-cat-id/${this.ticketInfos.callTypeId}/${this.ticketInfos.callCategoryId}`
                 );
-
+                this.callSubCategories;
                 this.callSubCategories = response.data;
             } catch (error) {
                 console.error("Error fetching sub categories:", error);
             }
         },
-        fetchRequiredFieldsByCategory() {
-            return new Promise((resolve, reject) => {
-                axios
-                    .get(
-                        `get-required-field-by-sub-cat-id/${this.ticketInfos.callSubCategoryId}`
-                    )
-                    .then((response) => {
-                        resolve(response);
-                    })
-                    .catch((error) => {
-                        reject(error);
-                    })
-                    .finally(() => {});
-            });
+        async fetchRequiredFieldsByCategory() {
+            try {
+                const response = await axios.get(
+                    `get-required-field-by-sub-cat-id/${this.ticketInfos.callSubCategoryId}`
+                );
+                return response.data;
+            } catch (error) {
+                console.error("Error fetching required fields:", error);
+                throw error;
+            }
         },
         async fetchRequiredFields() {
-            await this.getServiceTypeConfigByAllCat(
-                this.ticketInfos.callTypeId,
-                this.ticketInfos.callCategoryId,
-                this.ticketInfos.callSubCategoryId
-            ).then((response) => {
-                console.log("response.data.data", response.data);
-            });
-
-            await this.fetchRequiredFieldsByCategory().then((response) => {
-                this.requiredFields = response.data;
-                this.generateInputTypes(response.data);
-            });
+            try {
+                const data = await this.fetchRequiredFieldsByCategory();
+                this.requiredFields = data;
+                this.generateInputTypes(data);
+            } catch (error) {
+                console.log(
+                    "An error occurred while fetching required fields."
+                );
+            }
         },
-        async getServiceTypeConfigByAllCat(cti, cci, csci) {
+        async getServiceTypeConfig() {
             try {
                 const response = await axios.get(
                     `/get-service-type-configs/${this.ticketInfos.callTypeId}/${this.ticketInfos.callCategoryId}/${this.ticketInfos.callSubCategoryId}`
                 );
-                console.log("response.data", response.data.data);
+                console.log(
+                    "getServiceTypeConfig-response",
+                    response.data.data
+                );
                 this.serviceTypeConfigs = response.data.data;
             } catch (error) {
-                this.serviceTypeConfigs = {};
                 console.error("Error fetching sub categories:", error);
+                this.serviceTypeConfigs = {};
             }
         },
         generateInputTypes(value) {
@@ -506,32 +488,47 @@ export default {
             }
         },
         async handleSubmit() {
-            // this.showPopup("Form Submited.");
-
-            // return false;
-            console.log(
-                "handleSubmit Called",
-                this.ticketInfos.requiredField,
-                "msisdn",
-                this.$route.query.msisdn
-            );
+            console.log("handleSubmit Called", this.ticketInfos);
             try {
-                // assigning mobile no from query param
+                // assigning mobile_no to ticketInfos [] from query param
                 this.ticketInfos.callerMobileNo =
                     this.$route.query?.msisdn || null;
 
                 const response = await axios.post("/tickets", this.ticketInfos);
-                console.log(
-                    "Form submitted successfully, resp: ",
-                    response.data
-                );
-                return false;
 
-                this.$refs.ticketForm.reset();
-                this.resetForm();
+                console.log("Form submitted successfully", response.data);
+                if (response.data.status === "success") {
+                    this.$refs.ticketForm.reset();
+                    this.resetForm();
+                    this.showPopup(
+                        `${response.data.message}. TicketId: ${response.data.data.ticketId}`
+                    );
+                }
             } catch (error) {
-                console.log("There was an error submitting the form!");
+                console.error("There was an error submitting the ticket!");
+                this.$showToast(
+                    "There was an error submitting the ticket form.",
+                    {
+                        type: "error",
+                    }
+                );
             }
+        },
+        async onCategoryChange() {
+            await this.fetchRequiredFields();
+            await this.getServiceTypeConfig();
+        },
+        resetForm() {
+            this.requiredFields = [];
+            this.ticketInfos = {
+                callTypeId: null,
+                callCategoryId: null,
+                callSubCategoryId: null,
+                requiredField: {},
+                comments: "",
+                attachment: "",
+                is_verified: "no",
+            };
         },
     },
 };

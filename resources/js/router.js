@@ -10,6 +10,7 @@ import callSubCategory from "./routers/call-sub-category";
 import groups from "./routers/groups";
 import requiredConfigs from "./routers/required-fields";
 import serviceTypeConfigs from "./routers/service-type-configs";
+import notifications from "./routers/notification";
 import store from "./store";
 
 Vue.use(Router);
@@ -26,6 +27,7 @@ let router = new Router({
         ...rolesPermissions,
         ...requiredConfigs,
         ...serviceTypeConfigs,
+        ...notifications,
     ],
 });
 

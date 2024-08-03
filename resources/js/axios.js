@@ -37,36 +37,6 @@ axios.interceptors.response.use(
     }
 );
 
-// Add a request interceptor
-/* axios.interceptors.request.use(
-    async (config) => {
-        console.log("interceptors called", config);
-        const token = store.getters["auth/token"];
-        if (token) {
-            const tokenExpiration = store.getters["auth/tokenExpiration"];
-            const now = new Date().getTime();
-            if (tokenExpiration - now < 5 * 60 * 1000) {
-                // Less than 5 minutes to expiry
-                await renewToken();
-            }
-            console.log(
-                "tokenExpiration",
-                "before",
-                token,
-                "after",
-                store.getters["auth/token"]
-            );
-            config.headers[
-                "Authorization"
-            ] = `Bearer ${store.getters["auth/token"]}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-); */
-
 axios.defaults.baseURL = "/api/";
 axios.defaults.withCredentials = true;
 
@@ -74,7 +44,7 @@ const csrfToken = document.head.querySelector('meta[name="csrf-token"]');
 if (csrfToken) {
     axios.defaults.headers.common["X-CSRF-TOKEN"] = csrfToken.content;
 } else {
-    console.error("CSRF token not found");
+    // console.error("CSRF token not found");
 }
 
 axios.defaults.headers.common["Authorization"] =

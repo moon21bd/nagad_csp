@@ -125,19 +125,16 @@ if (!function_exists('isJson')) {
     }
 }
 
-if (!function_exists('saveAndGetAvatar')) {
+if (!function_exists('uploadMediaGetPath')) {
 
-    // Define the constant for the image directory path
-    define('IMAGE_DIRECTORY', 'images/profile/');
-
-    function saveAndGetAvatar($avatar)
+    function uploadMediaGetPath($media, $path = 'images/profile')
     {
-        if (empty($avatar)) {
+        if (empty($media)) {
             return null;
         }
 
         // Extract the base64 part of the image
-        $imageParts = explode(";base64,", $avatar);
+        $imageParts = explode(";base64,", $media);
         if (count($imageParts) !== 2) {
             return null; // Invalid base64 image
         }
@@ -155,12 +152,12 @@ if (!function_exists('saveAndGetAvatar')) {
 
         // Generate a unique filename and save the image
         $fileNameToStore = uniqid() . '.' . $imageType;
-        $filePath = public_path('uploads/' . IMAGE_DIRECTORY . $fileNameToStore);
+        $filePath = public_path("uploads/" . $path . "/" . $fileNameToStore);
 
         if (file_put_contents($filePath, $imageBase64) === false) {
             return null; // Failed to save file
         }
 
-        return IMAGE_DIRECTORY . $fileNameToStore;
+        return $path . "/" . $fileNameToStore;
     }
 }
