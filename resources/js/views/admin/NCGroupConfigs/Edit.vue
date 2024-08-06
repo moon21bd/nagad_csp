@@ -25,7 +25,7 @@
                                     v-model="formData.group_id"
                                     required
                                     filterable
-                                    placeholder="Select Category"
+                                    placeholder="Select Group"
                                 >
                                     <el-option
                                         v-for="group in groups"

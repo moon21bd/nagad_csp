@@ -15,6 +15,7 @@ class NCServiceResponsibleGroup extends Model
         'call_category_id',
         'call_sub_category_id',
         'group_id',
+        'next_group_id',
         'group_name',
         'tat_hours',
         'status',

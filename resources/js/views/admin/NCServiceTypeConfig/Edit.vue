@@ -179,38 +179,62 @@
                                 </div>
                                 <div class="selected-group">
                                     <div
-                                        v-for="group in selectedGroups"
-                                        :key="group.id"
+                                        v-for="groupItem in selectedGroups"
+                                        :key="groupItem.id"
                                         class="selected-group-item"
                                     >
-                                        <span>{{ group.name }}</span>
+                                        <span>{{ groupItem.name }}</span>
                                         <div class="tat-hour">
                                             <button
                                                 class="btn icon-minus"
                                                 type="button"
                                                 @click="
-                                                    decrementTatHours(group)
+                                                    decrementTatHours(groupItem)
                                                 "
                                             ></button>
                                             <input
                                                 type="number"
                                                 name="tatHours"
-                                                v-model.number="group.tatHours"
-                                                @input="checkNegative(group)"
+                                                v-model.number="
+                                                    groupItem.tatHours
+                                                "
+                                                @input="
+                                                    checkNegative(groupItem)
+                                                "
                                             />hr
                                             <button
                                                 class="btn icon-plus"
                                                 type="button"
                                                 @click="
-                                                    incrementTatHours(group)
+                                                    incrementTatHours(groupItem)
                                                 "
                                             ></button>
+                                        </div>
+
+                                        <div class="next-group-select">
+                                            <el-select
+                                                class="d-block w-100"
+                                                v-model="groupItem.nextGroupId"
+                                                required
+                                                filterable
+                                                placeholder="Select Next Group"
+                                            >
+                                                <el-option
+                                                    v-for="groupItem in availableNextGroups(
+                                                        groupItem.id
+                                                    )"
+                                                    :key="groupItem.id"
+                                                    :label="groupItem.name"
+                                                    :value="groupItem.id"
+                                                >
+                                                </el-option>
+                                            </el-select>
                                         </div>
 
                                         <button
                                             class="btn btn-site ml-auto"
                                             type="button"
-                                            @click="removeGroup(group.id)"
+                                            @click="removeGroup(groupItem.id)"
                                         >
                                             <i class="icon-trash"></i> Remove
                                         </button>
@@ -218,6 +242,7 @@
                                 </div>
                             </div>
 
+                            <!-- Popup Messages -->
                             <div class="form-group">
                                 <label class="control-label"
                                     >Popup Message</label
@@ -374,6 +399,7 @@
                                 </div>
                             </div>
 
+                            <!-- Selected Notification Channels -->
                             <div class="form-row">
                                 <div
                                     class="col-md-6 form-group"
@@ -699,6 +725,9 @@ export default {
         this.fetchEmailConfigs();
     },
     methods: {
+        availableNextGroups(currentGroupId) {
+            return this.groups.filter((group) => group.id !== currentGroupId);
+        },
         openRequiredFieldsInNewTab() {
             const routeData = this.$router.resolve({
                 name: "required-fields-config-add",
@@ -737,7 +766,6 @@ export default {
         addGroup(group) {
             if (!this.selectedGroups.some((g) => g.id === group.id)) {
                 this.selectedGroups.push({ ...group, tatHours: 0 });
-                // this.selectedGroups.scrollIntoView();
             }
         },
         removeGroup(id) {
@@ -780,24 +808,21 @@ export default {
                         data.notification_channels || [],
                 };
 
-                /* this.selectedGroups = data.responsible_group.map(
-                    (group) => ({
-                        id: group.id,
-                        name: group.name, // Add name to the selectedGroups
-                        tatHours: group.tatHours,
-                        isChecked: true, // Mark as checked since it's in the selected groups
-                    })
-                ); */
-
                 // Check if responsible_group is not empty before mapping
                 if (
                     data.responsible_group &&
                     data.responsible_group.length > 0
                 ) {
+                    console.log(
+                        "data.responsible_group",
+                        data.responsible_group
+                    );
+
                     this.selectedGroups = data.responsible_group.map(
                         (group) => ({
                             id: group.group_id,
                             name: group.group_name, // Add name to the selectedGroups
+                            nextGroupId: group.next_group_id || null,
                             tatHours: group.tat_hours,
                             isChecked: true, // Mark as checked since it's in the selected groups
                         })
@@ -927,6 +952,7 @@ export default {
                         id: group.id,
                         name: group.name,
                         tatHours: group.tatHours,
+                        nextGroupId: group.nextGroupId,
                     }));
 
                 // Extract only the IDs from requiredFields and convert to a comma-separated string
