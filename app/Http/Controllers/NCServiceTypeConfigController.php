@@ -46,6 +46,7 @@ class NCServiceTypeConfigController extends Controller
         $configArr = $this->prepareConfigArray($validated);
 
         try {
+
             $serviceType = NCServiceTypeConfig::updateOrCreate(
                 [
                     'call_type_id' => $validated['callTypeId'],
@@ -248,6 +249,7 @@ class NCServiceTypeConfigController extends Controller
                 'call_category_id' => $callCategoryId,
                 'call_sub_category_id' => $callSubCategoryId,
                 'group_id' => $data['id'],
+                'next_group_id' => $data['nextGroupId'] ?? 0,
                 'service_type_config_id' => $serviceTypeConfigId,
                 'group_name' => $data['name'],
                 'tat_hours' => $data['tatHours'],

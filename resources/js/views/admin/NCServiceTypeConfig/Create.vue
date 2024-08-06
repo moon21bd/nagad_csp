@@ -21,6 +21,7 @@
                             @submit.prevent="handleSubmit"
                             novalidate
                         >
+                            <!-- Service Types (Wrap up) -->
                             <div class="row">
                                 <div class="col-md-4 form-group">
                                     <label class="control-label"
@@ -208,6 +209,29 @@
                                             ></button>
                                         </div>
 
+                                        <!-- Next Group Select -->
+                                        <div class="next-group-select">
+                                            <el-select
+                                                class="d-block w-100"
+                                                v-model="
+                                                    groupItem.next_group_id
+                                                "
+                                                required
+                                                filterable
+                                                placeholder="Select Next Group"
+                                            >
+                                                <el-option
+                                                    v-for="group in availableNextGroups(
+                                                        groupItem.id
+                                                    )"
+                                                    :key="group.id"
+                                                    :label="group.name"
+                                                    :value="group.id"
+                                                >
+                                                </el-option>
+                                            </el-select>
+                                        </div>
+
                                         <button
                                             class="btn btn-site ml-auto"
                                             type="button"
@@ -333,7 +357,6 @@
                                 </div>
                             </div>
 
-                            <!-- Notification Channel Section -->
                             <div class="form-row">
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
@@ -726,6 +749,9 @@ export default {
         this.fetchEmailConfigs();
     },
     methods: {
+        availableNextGroups(currentGroupId) {
+            return this.groups.filter((group) => group.id !== currentGroupId);
+        },
         openRequiredFieldsInNewTab() {
             const routeData = this.$router.resolve({
                 name: "required-fields-config-add",
@@ -765,7 +791,6 @@ export default {
         addGroup(group) {
             if (!this.selectedGroups.some((g) => g.id === group.id)) {
                 this.selectedGroups.push({ ...group, tatHours: 0 });
-                // this.selectedGroups.scrollIntoView();
             }
         },
         removeGroup(id) {
@@ -859,6 +884,7 @@ export default {
                         id: group.id,
                         name: group.name,
                         tatHours: group.tatHours,
+                        nextGroupId: group.next_group_id,
                     }));
 
                 // Extract only the IDs from requiredFields and convert to a comma-separated string
@@ -871,6 +897,9 @@ export default {
                     ...this.configurationInfos,
                     requiredFieldIds,
                 };
+
+                // console.log("payload", payload);
+                // return false;
 
                 // API call
                 const response = await axios.post(
@@ -1044,20 +1073,13 @@ export default {
                 return false;
             }
 
-            /* if (
-                this.configurationInfos.popupMessages.length > this.maxMessages
-            ) {
-                this.$showToast(
-                    `You can only have up to ${this.maxMessages} popup messages.`,
-                    { type: "error" }
-                );
-                return false;
-            } */
-
-            // Check if selectedGroups have valid entries
             if (
                 this.selectedGroups.some(
-                    (group) => !group.id || !group.name || !group.tatHours
+                    (group) =>
+                        !group.id ||
+                        !group.name ||
+                        group.tatHours === undefined ||
+                        group.tatHours === null
                 )
             ) {
                 this.$showToast(
