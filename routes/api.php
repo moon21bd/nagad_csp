@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api;
+use App\Http\Controllers\ClickActivityController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\GroupRoleController;
 use App\Http\Controllers\NCCallCategoryController;
@@ -93,13 +94,13 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     // various resource apis
     Route::apiResources([
+        'click-activity' => ClickActivityController::class,
         'tickets' => NCTicketController::class,
         'notifications' => NCNotificationController::class,
         'groups' => GroupController::class,
         'call-categories' => NCCallCategoryController::class,
         'call-types' => NCCallTypeController::class,
         'call-sub-categories' => NCCallSubCategoryController::class,
-        // 'call-sub-sub-categories' => NCCallSubSubCategoryController::class,
         'required-fields-configs' => NCRequiredConfigController::class,
         'service-type-config' => NCServiceTypeConfigController::class,
     ]);
