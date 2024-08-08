@@ -378,7 +378,11 @@ body {
         align-items: center;
         font-size: 15px;
         border: 1px solid #fbe5e5;
-        grid-template-columns: 230px 150px 1fr;
+        grid-template-columns: 230px 150px 250px 1fr;
+        gap: 10px;
+        .el-input__inner {
+            border-radius: 40px !important;
+        }
     }
 }
 .pop-msg {

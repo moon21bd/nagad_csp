@@ -14,7 +14,18 @@ a {
         outline: none;
     }
 }
-
+.nav-notify-heading {
+    color: #022429;
+    font-size: 14px;
+    line-height: 20px;
+    min-height: 44px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -moz-line-clamp: 2;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    font-weight: 500;
+}
 // Main page wrapper
 #wrapper {
     display: flex;

@@ -18,14 +18,14 @@
             class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
             aria-labelledby="alertsDropdown"
         >
-            <h6 class="dropdown-header">Notification Center</h6>
+            <h6 class="dropdown-header px-3">Notification Center</h6>
             <a
                 v-for="notification in notifications"
                 :key="notification.id"
-                class="dropdown-item d-flex align-items-center"
+                class="dropdown-item px-3 d-flex align-items-center"
                 :href="notification.link"
             >
-                <div class="mr-3">
+                <div class="mr-3 d-none">
                     <div
                         class="icon-circle"
                         :class="iconClass(notification.channel)"
@@ -40,7 +40,7 @@
                     <div class="small text-gray-500">
                         {{ timeAgo(notification.created_at) }}
                     </div>
-                    <span class="font-weight-bold">{{
+                    <span class="nav-notify-heading">{{
                         notification.message
                     }}</span>
                 </div>
@@ -54,20 +54,19 @@
             </a>
 
             <router-link
-                class="dropdown-item text-center small text-gray-500"
+                class="justify-content-center align-items-center p-2 d-flex small text-gray-500text-center small text-gray-500"
                 :to="{
                     name: 'notification-list',
                 }"
-                ><i class="icon-edit-pen"></i>Show All
-                Notifications</router-link
-            >
+                >Show All Notifications <i class="ml-1 icon-arrow-right"></i
+            ></router-link>
         </div>
     </li>
 </template>
 
 <script>
-import axios from "../../../axios";
 import { mapState } from "vuex";
+import axios from "../../../axios";
 import { timeAgo } from "../../../utils/common";
 
 export default {

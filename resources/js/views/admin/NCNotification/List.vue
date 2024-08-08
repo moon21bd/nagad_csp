@@ -44,9 +44,10 @@
                                     </td>
                                     <td>
                                         <a
+                                            style="white-space: nowrap"
                                             v-if="notify.link"
                                             :href="notify.link"
-                                            class="btn btn-primary"
+                                            class="btn btn-site"
                                             target="_blank"
                                             rel="noopener noreferrer"
                                         >
@@ -96,12 +97,11 @@
 </template>
 
 <script>
-import _ from "lodash";
 import "datatables.net-dt/css/jquery.dataTables.min.css";
 import "datatables.net-dt/js/dataTables.dataTables";
 import { mapState } from "vuex";
-import noData from "../components/noData.vue";
 import { capitalize, formatDateTime } from "../../../utils/common";
+import noData from "../components/noData.vue";
 
 export default {
     components: {

@@ -23,8 +23,10 @@
             }
         }
         &.nav-notify {
-            i {
-                font-size: 20px;
+            .dropdown-toggle {
+                i {
+                    font-size: 20px;
+                }
             }
         }
         // Counter for nav links and nav link image sizing

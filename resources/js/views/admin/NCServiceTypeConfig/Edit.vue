@@ -236,7 +236,7 @@
                                             type="button"
                                             @click="removeGroup(groupItem.id)"
                                         >
-                                            <i class="icon-trash"></i> Remove
+                                            <i class="icon-trash"></i>
                                         </button>
                                     </div>
                                 </div>
