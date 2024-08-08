@@ -6,20 +6,23 @@
 
 require("./bootstrap");
 
+import "./axios";
 import ElementUI from "element-ui";
 import locale from "element-ui/lib/locale/lang/en";
 import "element-ui/lib/theme-chalk/index.css";
 import VeeValidate from "vee-validate";
 import Toasted from "vue-toasted";
-import "./axios";
 import Permissions from "./mixins/Permissions";
 import router from "./router";
 import store from "./store";
+import trackClick from "./utils/clickTracker";
+
 window.Vue = require("vue").default;
 
 Vue.use(Toasted);
 Vue.use(ElementUI, { locale });
 // Vue.use(ToastPlugin);
+Vue.prototype.$trackClick = trackClick;
 
 Vue.use(VeeValidate, {
     fieldsBagName: "vee-fields",

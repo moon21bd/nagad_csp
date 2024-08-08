@@ -494,6 +494,13 @@ export default {
                 this.ticketInfos.callerMobileNo =
                     this.$route.query?.msisdn || null;
 
+                this.$trackClick(
+                    "ticket_create",
+                    JSON.stringify(this.ticketInfos),
+                    null,
+                    null
+                );
+
                 const response = await axios.post("/tickets", this.ticketInfos);
 
                 console.log("Form submitted successfully", response.data);
