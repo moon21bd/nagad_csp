@@ -71,11 +71,6 @@ class AuthController extends Controller
     {
 
         try {
-            // Validate the request data
-            $validatedData = $request->validate([
-                'old_password' => 'required|string',
-                'password' => 'required|string|min:8|max:25|confirmed',
-            ]);
 
             $validatedData = $request->validate([
                 'old_password' => 'required|string',
@@ -294,10 +289,10 @@ class AuthController extends Controller
             }
         } catch (\Exception $e) {
             Log::error('Login error: ' . $e->getMessage());
-            return response(['message' => 'Internal error, please try again later.'], 400);
+            return response(['message' => 'Internal error, please try again later.'], Response::HTTP_BAD_REQUEST);
         }
 
-        return response(['title' => 'Invalid login details', 'message' => 'Invalid login details'], 401);
+        return response(['title' => 'Invalid login details', 'message' => 'Invalid login details'], Response::HTTP_UNAUTHORIZED);
     }
 
     public function completeLogin(Request $request)
@@ -309,7 +304,7 @@ class AuthController extends Controller
         $user = User::findOrFail($userId);
         $token = $user->createToken('authToken')->plainTextToken;
         if ($this->mustVerifyEmail($user)) {
-            return response(['message' => 'Email must be verified.'], 401);
+            return response(['message' => 'Email must be verified.'], Response::HTTP_UNAUTHORIZED);
         }
 
         $this->updateUserActivity($user);

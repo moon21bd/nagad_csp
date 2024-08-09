@@ -187,6 +187,7 @@ export default {
         async changePassword() {
             this.apiErrors = []; // Clear previous errors
             const validated = await this.$validator.validateAll();
+
             if (validated) {
                 this.isLoading = true;
                 try {
@@ -197,11 +198,30 @@ export default {
                             this.password_confirmation.trim(),
                     });
 
-                    this.$toasted.show("Password updated successfully", {
-                        theme: "toasted-primary",
-                        position: "top-right",
-                        duration: 5000,
-                    });
+                    // Check if the response status is OK (200)
+                    if (response.status === 200) {
+                        // Reset form fields
+                        this.old_password = "";
+                        this.password = "";
+                        this.password_confirmation = "";
+                        // Reset validation errors
+                        this.apiErrors = [];
+
+                        this.$refs.changePasswordForm.reset();
+                        this.$router.push({ name: "home" });
+
+                        this.$toasted.show("Password updated successfully", {
+                            theme: "toasted-primary",
+                            position: "top-right",
+                            duration: 5000,
+                        });
+                    } else {
+                        // Handle unexpected response status if needed
+                        this.apiErrors.push(
+                            response.data?.message ||
+                                "An unexpected error occurred"
+                        );
+                    }
                 } catch (error) {
                     // Capture API error messages
                     if (error.response && error.response.data.errors) {
