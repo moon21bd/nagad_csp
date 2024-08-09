@@ -51,11 +51,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // change password
     Route::post('change-password', [Api\AuthController::class, 'changePassword']);
 
-    //roles routes
+    //roles related routes
     Route::get('roles', [RolesController::class, 'roles']);
     Route::get('role/{id}', [RolesController::class, 'getRoleById']);
-    Route::post('role/save', [RolesController::class, 'store']);
-    Route::put('role/update/{id}', [RolesController::class, 'update']);
+    Route::post('role/create', [RolesController::class, 'store']);
+    Route::put('role/{id}', [RolesController::class, 'update']);
     Route::delete('role/delete/{id}', [RolesController::class, 'destroy']);
 
     //permissions routes

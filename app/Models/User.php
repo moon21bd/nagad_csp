@@ -2,17 +2,19 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\HasRoles as RoleModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Ramsey\Uuid\Uuid as Generator;
 use Spatie\Permission\Traits\HasRoles;
 
 // class User extends Authenticatable implements MustVerifyEmail
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens, HasRoles;
+    use HasFactory, Notifiable, HasApiTokens, HasRoles, SoftDeletes;
     protected $guard_name = 'api';
 
     // protected $appends = ['must_verify_email'];
@@ -57,6 +59,23 @@ class User extends Authenticatable
 
     // Assuming 'avatar' is the column name in your users table that stores the file path of the avatar
     protected $appends = ['avatar_url'];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            try {
+                $model->uuid = str_replace('-', '', Generator::uuid4()->toString());
+            } catch (\Exception $e) {
+                abort(500);
+            }
+        });
+    }
+    public function model()
+    {
+        return $this->hasMany(RoleModel::class, 'model_id', 'id');
+    }
 
     /**
      * Determine if the user is an administrator.

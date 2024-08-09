@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Role;
-use DB;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Permission;
+
+// use Spatie\Permission\Models\Role;
 
 class RolesController extends Controller
 {
@@ -39,20 +42,25 @@ class RolesController extends Controller
      */
     public function store(Request $request)
     {
+        // Validate the incoming request
         $this->validate($request, [
-            'name' => 'required|unique:roles,name',
+            'name' => 'required|string|max:255|unique:roles,name',
+            'permissions' => 'required|array|min:1',
         ]);
-        $msg = 'Role created successfully.';
-        $role = Role::create(['name' => $request->input('name'),
-            'guard_name' => 'api']);
 
-        // $role->syncPermissions($request->input('rolePermissions'));
+        // Create the new role
+        $role = Role::create([
+            'name' => $request->input('name'),
+            'guard_name' => 'api',
+        ]);
+
+        // Assign permissions to the new role
+        $role->syncPermissions($request->input('permissions'));
 
         return response()->json([
-            'title' => $msg,
-            'message' => $msg,
-        ], 200);
-
+            'title' => 'Success',
+            'message' => 'Role created and permissions assigned successfully.',
+        ], 201);
     }
 
     /**
@@ -65,12 +73,22 @@ class RolesController extends Controller
     {
         $role = Role::find($id);
 
-        $role['rolePermissions'] = Permission::join("role_has_permissions", "role_has_permissions.permission_id", "=", "permissions.id")
-            ->where("role_has_permissions.role_id", $id)
-            ->pluck('id')->toArray();
+        if (!$role) {
+            return response()->json([
+                'title' => 'Error',
+                'message' => 'Role not found.',
+            ], 404);
+        }
+
+        $rolePermissions = Permission::join('role_has_permissions', 'role_has_permissions.permission_id', '=', 'permissions.id')
+            ->where('role_has_permissions.role_id', $id)
+            ->pluck('permissions.name')
+            ->toArray();
+
+        $role->rolePermissions = $rolePermissions;
 
         return response()->json([
-            'title' => 'Success.',
+            'title' => 'Success',
             'message' => 'Role Details.',
             'role' => $role,
         ], 200);
@@ -78,14 +96,28 @@ class RolesController extends Controller
 
     public function update(Request $request, $roleId)
     {
-        $role = Role::findById($roleId);
-        $roleName = $request->input('name');
-        $role->name = $roleName;
-        $role->save();
+        $this->validate($request, [
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('roles', 'name')->ignore($roleId),
+            ],
+        ]);
 
-        return response()->json(['message' => 'Role updated successfully']);
+        try {
+            $role = Role::findOrFail($roleId);
+            $roleName = $request->input('name');
+            $role->name = $roleName;
+            $role->save();
+
+            return response()->json(['message' => 'Role updated successfully']);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Role not found'], 404);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred'], 500);
+        }
     }
-
     /**
      * Delete role
      *
@@ -94,12 +126,22 @@ class RolesController extends Controller
      */
     public function destroy($id)
     {
-        DB::table("roles")->where('id', $id)->delete();
+        try {
+            $role = Role::findOrFail($id);
 
-        return response()->json([
-            'title' => 'Success.',
-            'message' => 'Role Deleted.',
-            'data' => '',
-        ], 200);
+            $role->delete();
+
+            return response()->json([
+                'title' => 'Success.',
+                'message' => 'Role Deleted.',
+                'data' => null,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'title' => 'Error.',
+                'message' => 'Unable to delete role.',
+                'data' => null,
+            ], 500);
+        }
     }
 }

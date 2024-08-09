@@ -18,33 +18,29 @@
                         <table id="dataTable" class="table border rounded">
                             <thead>
                                 <tr>
+                                    <th>ID</th>
                                     <th>Name</th>
                                     <th class="text-right">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="{ name, id } in roles" :key="id">
-                                    <td>{{ name }}</td>
+                                <tr v-for="role in roles" :key="role.id">
+                                    <td>{{ role.id }}</td>
+                                    <td>{{ role.name }}</td>
                                     <td class="text-right">
                                         <router-link
                                             class="btn-action btn-edit"
+                                            title="Update permissions"
                                             :to="{
-                                                name: 'roles-assign-permissions',
-                                                params: { id },
+                                                name: 'roles-edit',
+                                                params: { id: role.id },
                                             }"
                                             ><i class="icon-settings"></i
                                         ></router-link>
-                                        <router-link
-                                            class="btn-action btn-edit"
-                                            :to="{
-                                                name: 'roles-edit',
-                                                params: { id },
-                                            }"
-                                            ><i class="icon-edit-pen"></i
-                                        ></router-link>
                                         <a
+                                            title="Delete Role"
                                             class="btn-action btn-trash"
-                                            @click.prevent="deleteRole(id)"
+                                            @click.prevent="deleteRole(role.id)"
                                         >
                                             <i class="icon-trash"></i>
                                         </a>
@@ -74,16 +70,19 @@ export default {
         return {
             isLoading: false,
             roles: [],
+            dataTable: null,
         };
     },
     methods: {
         async fetchRoles() {
+            this.isLoading = true;
             try {
                 const response = await axios.get("/roles");
-                // console.log("response", response);
                 this.roles = response.data;
             } catch (error) {
                 console.error("Error fetching roles:", error);
+            } finally {
+                this.isLoading = false;
             }
         },
         async deleteRole(roleId) {
@@ -116,6 +115,7 @@ export default {
     },
 };
 </script>
+
 <style>
 .table.dataTable > thead > tr > th {
     white-space: nowrap;

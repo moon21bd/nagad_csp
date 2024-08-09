@@ -1,132 +1,218 @@
 <template>
     <div>
         <div class="common-heading d-flex align-items-center mb-3">
-            <router-link
-                class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
-                :to="{ name: 'roles-index' }"
-                ><i class="icon-left"></i>
-            </router-link>
-            <h1 class="title m-0">Create Role</h1>
+            <h1 class="title m-0">Create Role and Assign Permissions</h1>
         </div>
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
-                <img src="/images/loader.gif" alt="" />
+                <img src="/images/loader.gif" alt="Loading" />
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <form @submit.prevent="saveRole">
-                            <div class="form-group">
-                                <label class="control-label">Role Name</label>
-                                <input
-                                    class="form-control"
-                                    v-model="formData.name"
-                                    type="text"
-                                    required
-                                />
-                            </div>
-
-                            <span v-if="formErrors.name" class="text-danger">{{
-                                formErrors.name[0]
-                            }}</span>
-
-                            <button class="btn btn-site" type="submit">
-                                Create
-                            </button>
-                        </form>
+            <form @submit.prevent="saveRole">
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="roleName">Role Name</label>
+                        <input
+                            type="text"
+                            id="roleName"
+                            v-model="roleName"
+                            class="form-control"
+                            placeholder="Enter role name"
+                        />
+                        <span v-if="errors.name" class="text-danger">{{
+                            errors.name
+                        }}</span>
                     </div>
+                    <div class="permissions-assign">
+                        <div
+                            class="permissions-assign-box"
+                            v-for="(permissions, category) in permissionGroups"
+                            :key="category"
+                        >
+                            <h4>
+                                <label class="checkbox">
+                                    <input
+                                        type="checkbox"
+                                        :name="category"
+                                        :id="category"
+                                        :checked="areAllSelected(category)"
+                                        @change="toggleCategory(category)"
+                                    />
+                                    <span class="checkmark"></span>
+                                    {{ capitalizeCategory(category) }} Manage
+                                </label>
+                            </h4>
+                            <ul>
+                                <li
+                                    v-for="permission in permissions"
+                                    :key="permission.id"
+                                >
+                                    <label class="checkbox">
+                                        <input
+                                            type="checkbox"
+                                            :name="permission.name"
+                                            :id="permission.name"
+                                            :checked="
+                                                isSelected(permission.name)
+                                            "
+                                            @change="
+                                                togglePermission(
+                                                    permission.name
+                                                )
+                                            "
+                                        />
+                                        <span class="checkmark"></span>
+                                        {{ getLabel(permission.name) }}
+                                    </label>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <button
+                        type="submit"
+                        class="btn btn-site"
+                        :disabled="isLoading"
+                    >
+                        Save Role and Permissions
+                    </button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </template>
 
 <script>
-import axios from "../../../axios";
-import Vue from "vue";
-
 export default {
+    name: "Create",
     data() {
         return {
             isLoading: false,
-            formData: {
-                name: "",
-            },
-            formErrors: [],
+            permissions: [],
+            roleName: "",
+            selectedPermissions: [],
+            errors: {},
         };
     },
-
+    computed: {
+        permissionGroups() {
+            return this.permissions.reduce((groups, permission) => {
+                const category = permission.name.split("-")[0];
+                if (!groups[category]) groups[category] = [];
+                groups[category].push(permission);
+                return groups;
+            }, {});
+        },
+    },
     methods: {
-        async handleSubmit() {
+        capitalizeCategory(text) {
+            return text.charAt(0).toUpperCase() + text.slice(1);
+        },
+        getLabel(permissionName) {
+            return permissionName
+                .split("-")
+                .map((part, index) =>
+                    index === 0
+                        ? part.charAt(0).toUpperCase() + part.slice(1)
+                        : part
+                )
+                .join(" ");
+        },
+        isSelected(permissionName) {
+            return this.selectedPermissions.includes(permissionName);
+        },
+        togglePermission(permissionName) {
+            this.selectedPermissions = this.isSelected(permissionName)
+                ? this.selectedPermissions.filter((p) => p !== permissionName)
+                : [...this.selectedPermissions, permissionName];
+        },
+        areAllSelected(category) {
+            const categoryPermissions = this.permissions
+                .filter((p) => p.name.startsWith(category))
+                .map((p) => p.name);
+            return categoryPermissions.every((permission) =>
+                this.isSelected(permission)
+            );
+        },
+        toggleCategory(category) {
+            const categoryPermissions = this.permissions
+                .filter((p) => p.name.startsWith(category))
+                .map((p) => p.name);
+
+            this.selectedPermissions = this.areAllSelected(category)
+                ? this.selectedPermissions.filter(
+                      (p) => !categoryPermissions.includes(p)
+                  )
+                : [
+                      ...new Set([
+                          ...this.selectedPermissions,
+                          ...categoryPermissions,
+                      ]),
+                  ];
+        },
+        async fetchPermissions() {
+            this.isLoading = true;
             try {
-                this.formErrors = [];
-                if (!this.formData.name)
-                    this.formErrors.push("Group Name is required.");
-                if (!this.formData.status)
-                    this.formErrors.push("Status is required.");
-                // If there are errors, do not submit the form
-                if (this.formErrors.length > 0) return;
-
-                // Submit the form data to the API
-                const response = await axios.post("/groups", this.formData);
-                console.log("Group created successfully:", response.data);
-
-                // Clear the form data
-                this.formData = {
-                    name: "",
-                    group_id: null,
-                };
-
-                // Navigate to the groups list route
-                this.$router.push({ name: "groups" });
+                const { data } = await axios.get("/permissions");
+                this.permissions = data.data || [];
             } catch (error) {
-                console.error("Error creating group:", error);
-                if (error.response && error.response.data.errors) {
-                    this.formErrors = Object.values(
-                        error.response.data.errors
-                    ).flat();
-                } else {
-                    this.formErrors.push(
-                        "Failed to create group. Please try again later."
-                    );
-                }
+                console.error("Error fetching permissions:", error);
+                this.$toasted.show("Error fetching permissions", {
+                    theme: "toasted-primary",
+                    position: "top-right",
+                    duration: 5000,
+                });
+            } finally {
+                this.isLoading = false;
             }
+        },
+        validate() {
+            this.errors = {};
+            if (!this.roleName) {
+                this.errors.name = "Role name is required.";
+            } else if (this.roleName.length < 3) {
+                this.errors.name = "Role name must be at least 3 characters.";
+            }
+            if (this.selectedPermissions.length === 0) {
+                this.$toasted.show(
+                    "At least one permission must be selected.",
+                    {
+                        theme: "toasted-primary",
+                        position: "top-right",
+                        duration: 5000,
+                    }
+                );
+                return false;
+            }
+            return Object.keys(this.errors).length === 0;
         },
         async saveRole() {
-            this.isError = false;
-
-            if (!this.formData.name) {
-                this.errors.name = ["Role name is required"];
-                this.isError = true;
-            } else {
-                this.errors.name = "";
-            }
-
-            if (this.isError) {
-                return false;
-            } else {
-                this.errors.name = "";
-            }
+            if (!this.validate()) return;
 
             this.isLoading = true;
-
-            await axios
-                .post("/role/save", this.formData)
-                .then(({ data }) => {
-                    Vue.prototype.$showToast(data.message, {
-                        title: data.message,
-                        toaster: `b-toaster-top-right`,
-                        variant: "success",
-                    });
-                    this.$router.push({ name: "roles-index" });
-                })
-                .catch(({ response: { data } }) => {
-                    // console.log("data.errors", data);
-                    this.errors = data.errors;
-                    // console.log("data.errors");
-                    this.isLoading = false;
+            try {
+                const { data } = await axios.post("/role/create", {
+                    name: this.roleName,
+                    permissions: this.selectedPermissions,
                 });
+                this.$toasted.show(data.message, {
+                    theme: "toasted-primary",
+                    position: "top-right",
+                    duration: 5000,
+                });
+                this.$router.push({ name: "roles-index" });
+            } catch (error) {
+                console.error("Error creating role:", error);
+                this.$toasted.show("Error creating role", {
+                    theme: "toasted-primary",
+                    position: "top-right",
+                    duration: 5000,
+                });
+            } finally {
+                this.isLoading = false;
+            }
         },
+    },
+    created() {
+        this.fetchPermissions();
     },
 };
 </script>

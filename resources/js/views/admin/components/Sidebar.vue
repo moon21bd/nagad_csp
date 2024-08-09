@@ -51,7 +51,7 @@
 
                 <el-menu-item index="groups-index">
                     <router-link :to="{ name: 'groups-index' }">
-                        <i class="icon-user-settings"></i>
+                        <i class="icon-users"></i>
                         <span>Group Configs</span>
                     </router-link>
                 </el-menu-item>
@@ -94,6 +94,20 @@
                     <router-link :to="{ name: 'user-index' }">
                         <i class="icon-users"></i>
                         <span>Users</span>
+                    </router-link>
+                </el-menu-item>
+
+                <el-menu-item index="roles-index">
+                    <router-link :to="{ name: 'roles-index' }">
+                        <i class="icon-refer"></i>
+                        <span>Roles</span>
+                    </router-link>
+                </el-menu-item>
+
+                <el-menu-item index="permissions">
+                    <router-link :to="{ name: 'permissions' }">
+                        <i class="icon-security"></i>
+                        <span>Permissions</span>
                     </router-link>
                 </el-menu-item>
                 <!-- <el-menu-item index="/admin/roles">

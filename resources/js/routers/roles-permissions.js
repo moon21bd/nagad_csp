@@ -54,33 +54,11 @@ export default [
         },
     },
     {
-        name: "roles-assign-permissions",
-        path: "/admin/roles/:id/assign/permissions",
-        component: PermissionsAssign,
-        meta: {
-            title: "Roles",
-            middleware: "auth",
-            requiresAuth: true,
-            layout: AdminLayout,
-        },
-    },
-    {
         name: "permissions",
         path: "/admin/permissions",
         component: Permissions,
         meta: {
             title: "Permissions",
-            middleware: "auth",
-            requiresAuth: true,
-            layout: AdminLayout,
-        },
-    },
-    {
-        name: "permissionsAssign",
-        path: "/admin/permissions-assign",
-        component: PermissionsAssign,
-        meta: {
-            title: "PermissionsAssign",
             middleware: "auth",
             requiresAuth: true,
             layout: AdminLayout,
