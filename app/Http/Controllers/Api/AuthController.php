@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -64,6 +65,62 @@ class AuthController extends Controller
             'title' => 'Successfully registered.',
             'message' => 'User successfully registered.',
         ], Response::HTTP_OK);
+    }
+
+    public function changePassword(Request $request)
+    {
+
+        try {
+            // Validate the request data
+            $validatedData = $request->validate([
+                'old_password' => 'required|string',
+                'password' => 'required|string|min:8|max:25|confirmed',
+            ]);
+
+            $validatedData = $request->validate([
+                'old_password' => 'required|string',
+                'password' => 'required|string|min:8|max:25|confirmed',
+                'password_confirmation' => 'required|string|min:8|max:25',
+            ]);
+
+            // Get the authenticated user
+            $user = auth()->user();
+
+            // Check if the old password is correct
+            if (!Hash::check($request->input('old_password'), $user->password)) {
+                return response()->json([
+                    'message' => 'Old password is incorrect!',
+                ], Response::HTTP_NOT_FOUND);
+            }
+
+            // Update the user's password
+            $user->password = Hash::make($request->input('password'));
+            $user->save();
+
+            // Update the user's activity log
+            UserActivity::where('user_id', $user->id)->update([
+                'last_password_change_time' => Carbon::now(),
+                'last_update_date' => Carbon::now(),
+            ]);
+
+            // Return a success response
+            return response()->json([
+                'message' => 'Password updated successfully!',
+            ], Response::HTTP_OK);
+
+        } catch (ValidationException $e) {
+            // Return a detailed validation error response
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $e->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Exception $e) {
+            // Return a general error response
+            return response()->json([
+                'message' => 'An error occurred.',
+                'error' => $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     protected function registrationRules()
@@ -145,13 +202,16 @@ class AuthController extends Controller
 
     protected function updateUserActivity(User $user)
     {
-        $userActivity = UserActivity::findOrFail($user->id);
-        $userActivity->update([
-            'last_login' => Carbon::now(),
-            'browser' => $this->agentHelper->getBrowser(),
-            'login_device_name' => $this->agentHelper->getDeviceName(),
-            'last_online' => Carbon::now(),
-        ]);
+        $userActivity = UserActivity::where('user_id', $user->id)->first();
+        if ($userActivity) {
+            $userActivity->update([
+                'last_login' => Carbon::now(),
+                'browser' => $this->agentHelper->getBrowser(),
+                'login_device_name' => $this->agentHelper->getDeviceName(),
+                'last_online' => Carbon::now(),
+            ]);
+        }
+
     }
 
     /**
@@ -195,7 +255,7 @@ class AuthController extends Controller
             return response()->json('Successfully logged out');
         }
 
-        return response()->json('User not authenticated', 401);
+        return response()->json('User not authenticated', Response::HTTP_UNAUTHORIZED);
     }
 
     /*
@@ -213,7 +273,7 @@ class AuthController extends Controller
                 if ($user->status !== 'Active') {
                     Auth::logout();
                     $this->incrementFailedLogins($user);
-                    return response(['message' => 'Your account status is Pending. Please contact your system administrator.'], 401);
+                    return response(['message' => 'Your account status is Pending. Please contact your system administrator.'], Response::HTTP_UNAUTHORIZED);
                 }
 
                 // Check if the user belongs to a group that requires location prompting
@@ -223,7 +283,7 @@ class AuthController extends Controller
 
                 $token = $user->createToken('authToken')->plainTextToken;
                 if ($this->mustVerifyEmail($user)) {
-                    return response(['message' => 'Email must be verified.'], 401);
+                    return response(['message' => 'Email must be verified.'], Response::HTTP_UNAUTHORIZED);
                 }
 
                 $this->updateUserActivity($user);
@@ -274,8 +334,11 @@ class AuthController extends Controller
 
     protected function updateUserLocation(User $user, $location)
     {
-        $userDetails = UserDetail::findOrFail($user->id);
-        $userDetails->update(['lat' => $location['latitude'], 'lon' => $location['longitude']]);
+        $userDetails = UserDetail::where('user_id', $user->id)->first();
+        if ($userDetails) {
+
+            $userDetails->update(['lat' => $location['latitude'], 'lon' => $location['longitude']]);
+        }
     }
 
     protected function getUserPermissions(User $user)

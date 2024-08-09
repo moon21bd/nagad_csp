@@ -427,8 +427,8 @@ export default {
         },
         async handleSubmit() {
             const _this = this;
-            _this.$validator.validateAll().then(async (result) => {
-                if (result) {
+            _this.$validator.validateAll().then(async (validated) => {
+                if (validated) {
                     axios({
                         method: "POST",
                         url: "/user/register",

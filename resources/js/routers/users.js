@@ -1,6 +1,7 @@
 import AdminLayout from "../views/admin/layout/index.vue";
 
-const Profile = () => import("../components/Profile.vue");
+const Profile = () => import("../views/admin/Profile/Index.vue");
+const ProfileSetting = () => import("../views/admin/Profile/Setting.vue");
 const UserCreate = () => import("../views/admin/Users/Create.vue");
 const UserEdit = () => import("../views/admin/Users/Edit.vue");
 const UserList = () => import("../views/admin/Users/List.vue");
@@ -13,6 +14,17 @@ export default [
         component: Profile,
         meta: {
             title: "Profile",
+            middleware: "auth",
+            requiresAuth: true,
+            layout: AdminLayout,
+        },
+    },
+    {
+        name: "user-profile-setting",
+        path: "/admin/profile/setting",
+        component: ProfileSetting,
+        meta: {
+            title: "Profile Setting",
             middleware: "auth",
             requiresAuth: true,
             layout: AdminLayout,

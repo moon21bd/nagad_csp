@@ -44,22 +44,33 @@
                     class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                     aria-labelledby="userDropdown"
                 >
-                    <a class="dropdown-item" href="/admin/profile">
+                    <router-link
+                        class="dropdown-item"
+                        :to="{ name: 'user-profile' }"
+                    >
                         <i class="icon-user mr-2 text-gray-600"></i>
                         Profile
-                    </a>
+                    </router-link>
+
+                    <router-link
+                        class="dropdown-item"
+                        :to="{ name: 'user-profile-setting' }"
+                    >
+                        <i class="icon-settings mr-2 text-gray-600"></i>
+                        Setting
+                    </router-link>
 
                     <div class="dropdown-divider"></div>
-                    <a
+                    <router-link
                         class="dropdown-item"
-                        href="javascript:void(0)"
-                        @click="logout"
+                        to="#"
+                        @click.native.prevent="logout"
                         data-toggle="modal"
                         data-target="#logoutModal"
                     >
                         <i class="icon-logout mr-2 text-gray-600"></i>
                         Logout
-                    </a>
+                    </router-link>
                 </div>
             </li>
         </ul>

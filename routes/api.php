@@ -48,6 +48,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('user', [Api\AuthController::class, 'user']);
     Route::post('user/register', [Api\AuthController::class, 'register']);
 
+    // change password
+    Route::post('change-password', [Api\AuthController::class, 'changePassword']);
+
     //roles routes
     Route::get('roles', [RolesController::class, 'roles']);
     Route::get('role/{id}', [RolesController::class, 'getRoleById']);
