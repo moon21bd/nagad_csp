@@ -143,7 +143,7 @@
                                         <button
                                             type="submit"
                                             :disabled="processing"
-                                            class="btn btn-primary btn-block"
+                                            class="btn btn-site"
                                         >
                                             {{
                                                 processing
@@ -213,6 +213,7 @@ export default {
                 }
                 this.dataTable = $("#dataTable").DataTable({
                     // Initialize DataTable options
+                    order: [[0, "desc"]],
                 });
             });
         },

@@ -71,6 +71,17 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('usersdata/save', [UsersController::class, 'store']);
     Route::delete('users/delete/{id}', [UsersController::class, 'destroy']);
 
+    // assigning user roles for test purpose
+    /* Route::put('user/{id}/roles', [UsersController::class, 'manageUserRoles']);
+    Route::get('user/{id}/roles', [UsersController::class, 'getUserRoles']); */
+
+    // Assign roles to a user
+    Route::post('/user/{id}/roles', [UsersController::class, 'assignRoles']);
+    // Retrieve user roles
+    Route::get('/user/{id}/roles', [UsersController::class, 'getUserRoles']);
+    // Remove role from a user
+    Route::delete('/user/{id}/roles/{roleId}', [UsersController::class, 'removeRole']);
+
     // application related routes
     Route::get('get-category/{id}', [NCCallCategoryController::class, 'getActiveCategoryByCallTypeId']);
     Route::get('call-sub-by-call-cat-id/{ctid}/{ccid}', [NCCallSubCategoryController::class, 'getCallSubCatByCallAndCategoryId']);

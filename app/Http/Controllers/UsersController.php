@@ -183,4 +183,63 @@ class UsersController extends Controller
             'data' => '',
         ], 200);
     }
+
+    public function assignRoles(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        $roles = $request->input('roles', []);
+        $groupId = $user->group_id;
+
+        foreach ($roles as $roleName) {
+            try {
+                $this->assignRoleWithGroup($user, $roleName, $groupId);
+            } catch (\Exception $e) {
+                return response()->json(['error' => $e->getMessage()], 404);
+            }
+        }
+
+        return response()->json(['message' => 'Roles assigned successfully.']);
+    }
+
+    public function getUserRoles($id)
+    {
+        $user = User::findOrFail($id);
+        return response()->json($user->roles);
+    }
+
+    public function removeRole($id, $roleId)
+    {
+        $user = User::findOrFail($id);
+        $role = Role::findOrFail($roleId);
+        $user->removeRole($role);
+        return response()->json(['message' => 'Role removed successfully.']);
+    }
+
+    public function assignRoleWithGroup(User $user, $roleName, $groupId)
+    {
+        // Retrieve the role
+        $role = Role::where('name', $roleName)
+            ->first();
+
+        if (!$role) {
+            throw new \Exception("Role with name '{$roleName}' and group_id '{$groupId}' not found.");
+        }
+
+        // Check if the role is already assigned
+        $exists = \DB::table('model_has_roles')
+            ->where('model_id', $user->id)
+            ->where('role_id', $role->id)
+            ->where('group_id', $groupId)
+            ->exists();
+
+        if (!$exists) {
+            // Assign the role if it does not exist
+            \DB::table('model_has_roles')->insert([
+                'model_id' => $user->id,
+                'model_type' => get_class($user),
+                'role_id' => $role->id,
+                'group_id' => $groupId,
+            ]);
+        }
+    }
 }

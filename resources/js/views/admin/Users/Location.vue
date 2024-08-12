@@ -1,7 +1,12 @@
 <template>
     <div>
         <div class="common-heading d-flex align-items-center mb-3">
-            <h1 class="title">User Logs</h1>
+            <router-link
+                class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
+                :to="{ name: 'user-index' }"
+                ><i class="icon-left"></i>
+            </router-link>
+            <h1 class="title">User Location</h1>
         </div>
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
@@ -106,7 +111,7 @@
 
 <script>
 export default {
-    name: "profile",
+    name: "User Location",
     data() {
         return {
             isLoading: false,

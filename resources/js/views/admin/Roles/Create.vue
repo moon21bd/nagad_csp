@@ -22,6 +22,7 @@
                             errors.name
                         }}</span>
                     </div>
+                    <h6>Assign Permissions</h6>
                     <div class="permissions-assign">
                         <div
                             class="permissions-assign-box"
@@ -72,7 +73,7 @@
                         class="btn btn-site"
                         :disabled="isLoading"
                     >
-                        Save Role and Permissions
+                        Save
                     </button>
                 </div>
             </form>
@@ -200,12 +201,25 @@ export default {
                 });
                 this.$router.push({ name: "roles-index" });
             } catch (error) {
-                console.error("Error creating role:", error);
-                this.$toasted.show("Error creating role", {
-                    theme: "toasted-primary",
-                    position: "top-right",
-                    duration: 5000,
-                });
+                if (error.response && error.response.status === 422) {
+                    // Handle validation errors
+                    const validationErrors = error.response.data.errors;
+                    Object.keys(validationErrors).forEach((field) => {
+                        this.$toasted.show(validationErrors[field][0], {
+                            theme: "toasted-primary",
+                            position: "top-right",
+                            duration: 5000,
+                        });
+                    });
+                } else {
+                    // Handle other errors
+                    console.log("Error creating role:", error);
+                    this.$toasted.show("Error creating role", {
+                        theme: "toasted-primary",
+                        position: "top-right",
+                        duration: 5000,
+                    });
+                }
             } finally {
                 this.isLoading = false;
             }

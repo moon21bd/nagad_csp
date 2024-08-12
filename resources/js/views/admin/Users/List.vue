@@ -66,6 +66,24 @@
                                             }"
                                             ><i class="icon-edit-pen"></i
                                         ></router-link>
+                                        <router-link
+                                            class="btn btn-action"
+                                            title="Role Manage"
+                                            :to="{
+                                                name: 'user-roles-manage',
+                                                params: { id: item.id },
+                                            }"
+                                            ><i class="icon-settings"></i
+                                        ></router-link>
+                                        <router-link
+                                            class="btn btn-action"
+                                            title="User Location"
+                                            :to="{
+                                                name: 'user-location',
+                                                params: { id: item.id },
+                                            }"
+                                            ><i class="icon-map"></i
+                                        ></router-link>
                                         <a
                                             class="btn-action btn-trash"
                                             @click.prevent="deleteUser(id)"

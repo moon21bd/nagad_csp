@@ -5,7 +5,9 @@ const ProfileSetting = () => import("../views/admin/Profile/Setting.vue");
 const UserCreate = () => import("../views/admin/Users/Create.vue");
 const UserEdit = () => import("../views/admin/Users/Edit.vue");
 const UserList = () => import("../views/admin/Users/List.vue");
-const UserLogs = () => import("../components/Logs.vue");
+const UserLocation = () => import("../views/admin/Users/Location.vue");
+const ManageUserRoles = () =>
+    import("../views/admin/Users/ManageUserRoles.vue");
 
 export default [
     {
@@ -64,11 +66,22 @@ export default [
         },
     },
     {
-        name: "user-logs",
-        path: "/admin/user-logs",
-        component: UserLogs,
+        name: "user-location",
+        path: "/admin/user/location",
+        component: UserLocation,
         meta: {
-            title: "User Logs",
+            title: "User Location",
+            middleware: "auth",
+            requiresAuth: true,
+            layout: AdminLayout,
+        },
+    },
+    {
+        name: "user-roles-manage",
+        path: "/admin/user/:id/roles/",
+        component: ManageUserRoles,
+        meta: {
+            title: "User Location",
             middleware: "auth",
             requiresAuth: true,
             layout: AdminLayout,

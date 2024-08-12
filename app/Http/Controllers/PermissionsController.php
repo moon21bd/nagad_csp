@@ -37,61 +37,6 @@ class PermissionsController extends Controller
 
     }
 
-    /**
-     * Save or update Permission
-     *
-     * @param array $request
-     * @return json array response
-     */
-
-    /* public function store(Request $request)
-    {
-    try {
-    $id = $request->input('id');
-
-    // Validate the request data
-    $this->validate($request, [
-    'name' => ($id ? 'required|unique:permissions,name,' . $id : 'required|unique:permissions,name'),
-    ]);
-
-    if ($id) {
-    // Update existing permission
-    $permission = Permission::findOrFail($id);
-    $permission->name = $request->input('name');
-    $permission->save();
-    $msg = 'Permission updated successfully.';
-    } else {
-    // Create new permission
-    $permission = Permission::create([
-    'name' => $request->input('name'),
-    'guard_name' => 'api', // Assuming 'api' guard for permissions
-    ]);
-
-    // Assign permissions to super admin role
-    $this->assignPermissionsToSuperAdmin($permission);
-    $msg = 'Permission created successfully.';
-    }
-
-    // Return success response
-    return response()->json([
-    'title' => $msg,
-    'message' => $msg,
-    'data' => $permission,
-    ], 200);
-
-    } catch (ValidationException $e) {
-    // Handle validation errors
-    return response()->json(['error' => $e->validator->errors()->first()], 422);
-    } catch (AuthorizationException $e) {
-    // Handle unauthorized errors
-    dd('You are not authorized to perform this action.');
-    return response()->json(['error' => 'You are not authorized to perform this action.'], 403);
-    } catch (\Exception $e) {
-    // Handle other exceptions
-    return response()->json(['error' => 'Failed to process request.', 'message' => $e->getMessage()], 500);
-    }
-    } */
-
     public function store(Request $request)
     {
         try {
