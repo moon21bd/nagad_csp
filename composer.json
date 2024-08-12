@@ -18,8 +18,8 @@
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.3",
         "ramsey/uuid": "^4.7",
-        "spatie/laravel-activitylog": "^4.8",
-        "spatie/laravel-permission": "^6.9"
+        "silber/bouncer": "^1.0",
+        "spatie/laravel-activitylog": "^4.8"
     },
     "require-dev": {
         "facade/ignition": "^2.5",

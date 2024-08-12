@@ -9,13 +9,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Ramsey\Uuid\Uuid as Generator;
-use Spatie\Permission\Traits\HasRoles;
+use Silber\Bouncer\Database\HasRolesAndAbilities;
 
 // class User extends Authenticatable implements MustVerifyEmail
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens, HasRoles, SoftDeletes;
-    protected $guard_name = 'api';
+    use HasFactory, Notifiable, HasApiTokens, SoftDeletes, HasRolesAndAbilities;
+    // protected $guard_name = 'api';
 
     // protected $appends = ['must_verify_email'];
     /**

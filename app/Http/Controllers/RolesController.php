@@ -7,7 +7,8 @@ use App\Models\Role;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Spatie\Permission\Models\Permission;
+
+// use Spatie\Permission\Models\Permission;
 
 // use Spatie\Permission\Models\Role;
 
@@ -99,10 +100,10 @@ class RolesController extends Controller
             ], 404);
         }
 
-        $rolePermissions = Permission::join('role_has_permissions', 'role_has_permissions.permission_id', '=', 'permissions.id')
-            ->where('role_has_permissions.role_id', $id)
-            ->pluck('permissions.name')
-            ->toArray();
+        /* $rolePermissions = Permission::join('role_has_permissions', 'role_has_permissions.permission_id', '=', 'permissions.id')
+        ->where('role_has_permissions.role_id', $id)
+        ->pluck('permissions.name')
+        ->toArray(); */
 
         $role->rolePermissions = $rolePermissions;
 
@@ -140,9 +141,9 @@ class RolesController extends Controller
 
             // Debugging - Check input permissions
             $inputPermissions = $request->input('permissions');
-            $permissions = Permission::whereIn('name', $inputPermissions)
-                ->where('guard_name', $guardName)
-                ->get();
+            /* $permissions = Permission::whereIn('name', $inputPermissions)
+            ->where('guard_name', $guardName)
+            ->get(); */
 
             // Convert permission names to IDs
             $permissionIds = $permissions->pluck('id')->toArray();

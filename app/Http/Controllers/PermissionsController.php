@@ -6,8 +6,9 @@ use App\Http\Controllers\Controller;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
+
+// use Spatie\Permission\Models\Permission;
+// use Spatie\Permission\Models\Role;
 
 class PermissionsController extends Controller
 {
@@ -28,12 +29,12 @@ class PermissionsController extends Controller
     public function permissions(Request $request)
     {
 
-        $permissions = Permission::all();
-        return response()->json([
-            'title' => 'Success.',
-            'message' => 'Permissions List.',
-            'data' => $permissions,
-        ], 200);
+        /* $permissions = Permission::all();
+    return response()->json([
+    'title' => 'Success.',
+    'message' => 'Permissions List.',
+    'data' => $permissions,
+    ], 200); */
 
     }
 

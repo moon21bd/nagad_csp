@@ -1,6 +1,11 @@
 <template>
     <div>
         <div class="common-heading d-flex align-items-center mb-3">
+            <router-link
+                class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
+                :to="{ name: 'roles-index' }"
+                ><i class="icon-left"></i>
+            </router-link>
             <h1 class="title m-0">Create Role and Assign Permissions</h1>
         </div>
         <div class="card mb-4">
