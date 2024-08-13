@@ -266,12 +266,24 @@ export default {
                     this.permission
                 );
 
+                await this.getPermissions();
+
+                // Reinitialize DataTable after data is reloaded
+                this.$nextTick(() => {
+                    if (this.dataTable) {
+                        this.dataTable.destroy();
+                    }
+                    this.dataTable = $("#dataTable").DataTable({
+                        order: [[0, "desc"]],
+                    });
+                });
+
                 this.$toasted.show(data.message, {
                     theme: "toasted-primary",
                     position: "top-right",
                     duration: 5000,
                 });
-                this.getPermissions();
+
                 this.resetform();
             } catch (error) {
                 console.error("Error saving permission:", error);
@@ -291,9 +303,9 @@ export default {
         deletePermission(id) {
             if (confirm("Are you sure to delete this permission?")) {
                 axios
-                    .delete(`/permissions/delete/${id}`)
-                    .then((response) => {
-                        this.getPermissions();
+                    .delete(`/permissions/${id}`)
+                    .then(async (response) => {
+                        await this.getPermissions();
                     })
                     .catch((error) => {
                         console.error("Error deleting permission:", error);

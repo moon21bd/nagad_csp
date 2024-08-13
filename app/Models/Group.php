@@ -3,17 +3,22 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Silber\Bouncer\Database\Ability;
-use Silber\Bouncer\Database\HasRolesAndAbilities;
+use Laratrust\Models\LaratrustTeam;
 
-class Group extends Model
+// use Illuminate\Database\Eloquent\Model;
+
+class Group extends LaratrustTeam
 {
-    use HasFactory, HasRolesAndAbilities;
+    use HasFactory;
+
+    public $guarded = [];
+
     protected $table = "groups";
 
     protected $fillable = [
         'name',
+        'display_name',
+        'description',
         'status',
         'created_by',
         'updated_by',
@@ -40,18 +45,14 @@ class Group extends Model
         return $this->belongsTo(User::class, 'last_updated_by');
     }
 
-    public function roles()
-    {
-        return $this->belongsToMany(Role::class, 'group_role');
-    }
+    /* public function roles()
+{
+return $this->belongsToMany(Role::class, 'group_role');
+}
 
-    public function users()
-    {
-        return $this->hasMany(User::class);
-    }
-    public function abilities()
-    {
-        return $this->hasMany(Ability::class);
-    }
+public function users()
+{
+return $this->hasMany(User::class);
+} */
 
 }

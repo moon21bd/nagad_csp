@@ -3,19 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Services\RBACService;
+use App\Models\Permission;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
-use Silber\Bouncer\Database\Ability;
 
 class PermissionsController extends Controller
 {
 
-    protected $RBACService;
-
-    public function __construct(RBACService $RBACService)
+    public function __construct()
     {
-        $this->RBACService = $RBACService;
+        //
     }
 
     /**
@@ -26,7 +24,8 @@ class PermissionsController extends Controller
      */
     public function permissions(Request $request)
     {
-        $permissions = $this->RBACService->getAllAbility();
+        $permissions = Permission::all();
+
         return response()->json([
             'title' => 'Success.',
             'message' => 'Permissions List.',
@@ -38,19 +37,39 @@ class PermissionsController extends Controller
     public function store(Request $request)
     {
 
+        $id = $request->input('id') ?? null;
+
+        $validated = $request->validate([
+            'name' => [
+                'required',
+                'string',
+                Rule::unique('permissions')->ignore($id),
+            ],
+            'display_name' => 'nullable|string',
+            'description' => 'nullable|string',
+        ]);
+
         try {
-            $id = $request->input('id');
-            $this->validate($request, [
-                // 'name' => ($id ? 'required|unique:abilities,name,' . $id : 'required|unique:abilities,name'),
-                'name' => 'required|string',
-            ]);
-            $ability = $request->input('name');
 
             if ($id) {
-                $this->RBACService->updateAbilityById($id, $ability);
+                $permission = Permission::findOrFail($id);
+
+                $data = [
+                    'name' => $validated['name'],
+                    'display_name' => userCaseWord($validated['name']),
+                    'description' => userCaseWord($validated['name']),
+                ];
+                $permission->update($data);
+
                 $msg = 'Permission updated successfully.';
             } else {
-                $this->RBACService->createAbility($ability);
+                $data = [
+                    'name' => $validated['name'],
+                    'display_name' => userCaseWord($validated['name']),
+                    'description' => userCaseWord($validated['name']),
+                ];
+
+                $permission = Permission::create($data);
                 $msg = 'Permission created successfully.';
             }
 
@@ -76,7 +95,7 @@ class PermissionsController extends Controller
      */
     public function getPermissionById($id)
     {
-        $permission = Ability::find($id);
+        $permission = Permission::findOrFail($id);
 
         return response()->json([
             'title' => 'Success.',
@@ -93,7 +112,9 @@ class PermissionsController extends Controller
      */
     public function destroy($id)
     {
-        $this->RBACService->deleteAbilityById($id);
+        $permission = Permission::findOrFail($id);
+        $permission->delete();
+
         return response()->json([
             'title' => 'Success.',
             'message' => 'Permission Deleted.',

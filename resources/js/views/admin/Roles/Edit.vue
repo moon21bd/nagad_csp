@@ -167,7 +167,7 @@ export default {
                 // Ensure roleData.role.rolePermissions is an array
                 if (Array.isArray(roleData.role?.rolePermissions)) {
                     const assignedPermissions = new Set(
-                        roleData.role.rolePermissions
+                        roleData.role.rolePermissions.map((p) => p.name)
                     );
                     this.selectedPermissions = this.permissions
                         .map((p) => p.name)

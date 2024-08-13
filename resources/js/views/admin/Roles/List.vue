@@ -20,7 +20,7 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Name</th>
-                                    <th>Guard</th>
+                                    <th>Count</th>
                                     <th class="text-right">Action</th>
                                 </tr>
                             </thead>
@@ -28,7 +28,7 @@
                                 <tr v-for="role in roles" :key="role.id">
                                     <td>{{ role.id }}</td>
                                     <td>{{ role.name }}</td>
-                                    <td>{{ role.guard_name }}</td>
+                                    <td>{{ role.permissions_count }}</td>
                                     <td class="text-right">
                                         <router-link
                                             class="btn-action btn-edit"

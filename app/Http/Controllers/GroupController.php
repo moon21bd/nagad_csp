@@ -23,6 +23,8 @@ class GroupController extends Controller
         ]);
 
         $validatedData['created_by'] = Auth::id();
+        $validatedData['display_name'] = userCaseWord($validatedData['name']);
+        $validatedData['description'] = userCaseWord($validatedData['name']);
         $group = Group::create($validatedData);
         return response()->json($group, 201);
     }
@@ -42,6 +44,9 @@ class GroupController extends Controller
 
         $group = Group::findOrFail($id);
         $validatedData['updated_by'] = $validatedData['last_updated_by'] = Auth::id();
+        $validatedData['display_name'] = userCaseWord($validatedData['name']);
+        $validatedData['description'] = userCaseWord($validatedData['name']);
+
         $group->update($validatedData);
         return response()->json($group);
     }

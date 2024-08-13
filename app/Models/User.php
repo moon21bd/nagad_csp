@@ -7,17 +7,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laratrust\Traits\LaratrustUserTrait;
 use Laravel\Sanctum\HasApiTokens;
 use Ramsey\Uuid\Uuid as Generator;
-use Silber\Bouncer\Database\HasRolesAndAbilities;
 
 // class User extends Authenticatable implements MustVerifyEmail
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens, SoftDeletes, HasRolesAndAbilities;
-    // protected $guard_name = 'api';
 
-    // protected $appends = ['must_verify_email'];
+    use HasFactory, Notifiable, HasApiTokens, SoftDeletes, LaratrustUserTrait;
     /**
      * The attributes that are mass assignable.
      *
