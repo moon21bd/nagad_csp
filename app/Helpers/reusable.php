@@ -161,3 +161,11 @@ if (!function_exists('uploadMediaGetPath')) {
         return $path . "/" . $fileNameToStore;
     }
 }
+
+if (!function_exists("userCaseWord")) {
+    function userCaseWord($str)
+    {
+        return ucwords(\Illuminate\Support\Str::of($str)->replace(['-', '_'], ' '));
+
+    }
+}

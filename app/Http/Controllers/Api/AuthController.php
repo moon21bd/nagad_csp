@@ -218,12 +218,12 @@ class AuthController extends Controller
     public function user(Request $request)
     {
         $user = User::find(Auth::user()->id);
-        $user['roles'] = $user->getAllPermissions();
+        // $user['roles'] = $user->getAllPermissions();
         Log::info('USER: ' . json_encode($user));
 
-        $permissions = $user['roles']->pluck('name');
-        $user['cando'] = $permissions;
-        Log::info('PERMISSIONS: ' . json_encode($permissions) . ' USER: ' . json_encode($user));
+        // $permissions = $user['roles']->pluck('name');
+        $user['cando'] = [];
+        // Log::info('PERMISSIONS: ' . json_encode($permissions) . ' USER: ' . json_encode($user));
 
         return response()->json($user);
     }
@@ -283,9 +283,9 @@ class AuthController extends Controller
 
                 $this->updateUserActivity($user);
 
-                $permissions = $this->getUserPermissions($user);
+                // $permissions = $this->getUserPermissions($user);
 
-                return response(['message' => 'Successfully logged in.', 'token' => $token, 'user' => $user, 'cando' => $permissions]);
+                return response(['message' => 'Successfully logged in.', 'token' => $token, 'user' => $user, 'cando' => []]);
             }
         } catch (\Exception $e) {
             Log::error('Login error: ' . $e->getMessage());
@@ -310,9 +310,9 @@ class AuthController extends Controller
         $this->updateUserActivity($user);
         $this->updateUserLocation($user, $location);
 
-        $permissions = $this->getUserPermissions($user);
+        // $permissions = $this->getUserPermissions($user);
 
-        return response(['message' => 'Successfully logged in.', 'token' => $token, 'user' => $user, 'cando' => $permissions]);
+        return response(['message' => 'Successfully logged in.', 'token' => $token, 'user' => $user, 'cando' => []]);
     }
 
     protected function incrementFailedLogins(User $user)

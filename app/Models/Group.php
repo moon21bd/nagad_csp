@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Silber\Bouncer\Database\Ability;
+use Silber\Bouncer\Database\HasRolesAndAbilities;
 
 class Group extends Model
 {
-    use HasFactory;
+    use HasFactory, HasRolesAndAbilities;
     protected $table = "groups";
 
     protected $fillable = [
@@ -41,6 +43,15 @@ class Group extends Model
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'group_role');
+    }
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+    public function abilities()
+    {
+        return $this->hasMany(Ability::class);
     }
 
 }

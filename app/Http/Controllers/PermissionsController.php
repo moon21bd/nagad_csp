@@ -3,22 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use DB;
+use App\Services\RBACService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
-
-// use Spatie\Permission\Models\Permission;
-// use Spatie\Permission\Models\Role;
+use Silber\Bouncer\Database\Ability;
 
 class PermissionsController extends Controller
 {
-    /* public function __construct()
+
+    protected $RBACService;
+
+    public function __construct(RBACService $RBACService)
     {
-    $this->middleware('permission:permission-list|permission-create|permission-edit|permission-delete', ['only' => ['index', 'store']]);
-    $this->middleware('permission:permission-create', ['only' => ['create', 'store']]);
-    $this->middleware('permission:permission-edit', ['only' => ['edit', 'store']]);
-    $this->middleware('permission:permission-delete', ['only' => ['destroy']]);
-    } */
+        $this->RBACService = $RBACService;
+    }
 
     /**
      * permissions List with pagination.
@@ -28,34 +26,31 @@ class PermissionsController extends Controller
      */
     public function permissions(Request $request)
     {
-
-        /* $permissions = Permission::all();
-    return response()->json([
-    'title' => 'Success.',
-    'message' => 'Permissions List.',
-    'data' => $permissions,
-    ], 200); */
+        $permissions = $this->RBACService->getAllAbility();
+        return response()->json([
+            'title' => 'Success.',
+            'message' => 'Permissions List.',
+            'data' => $permissions,
+        ], 200);
 
     }
 
     public function store(Request $request)
     {
+
         try {
             $id = $request->input('id');
             $this->validate($request, [
-                'name' => ($id ? 'required|unique:permissions,name,' . $id : 'required|unique:permissions,name'),
+                // 'name' => ($id ? 'required|unique:abilities,name,' . $id : 'required|unique:abilities,name'),
+                'name' => 'required|string',
             ]);
+            $ability = $request->input('name');
 
             if ($id) {
-                $permission = Permission::findOrFail($id);
-                $permission->name = $request->input('name');
-                $permission->save();
+                $this->RBACService->updateAbilityById($id, $ability);
                 $msg = 'Permission updated successfully.';
             } else {
-                $permission = Permission::create([
-                    'name' => $request->input('name'),
-                    'guard_name' => 'api',
-                ]);
+                $this->RBACService->createAbility($ability);
                 $msg = 'Permission created successfully.';
             }
 
@@ -81,7 +76,7 @@ class PermissionsController extends Controller
      */
     public function getPermissionById($id)
     {
-        $permission = Permission::find($id);
+        $permission = Ability::find($id);
 
         return response()->json([
             'title' => 'Success.',
@@ -98,8 +93,7 @@ class PermissionsController extends Controller
      */
     public function destroy($id)
     {
-        DB::table("permissions")->where('id', $id)->delete();
-
+        $this->RBACService->deleteAbilityById($id);
         return response()->json([
             'title' => 'Success.',
             'message' => 'Permission Deleted.',

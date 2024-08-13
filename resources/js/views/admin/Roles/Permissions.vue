@@ -165,8 +165,8 @@
 <script>
 import "datatables.net-dt/css/jquery.dataTables.min.css";
 import "datatables.net-dt/js/dataTables.dataTables";
-import axios from "../axios";
-import noData from "../views/admin/components/noData.vue";
+import axios from "../../../axios";
+import noData from "../components/noData.vue";
 export default {
     name: "permissions",
     components: {
@@ -177,18 +177,18 @@ export default {
             isLoading: false,
             dataTable: null,
             protectedPermissions: [
-                "role-list",
-                "role-create",
-                "role-edit",
-                "role-delete",
-                "user-list",
-                "user-create",
-                "user-edit",
-                "user-delete",
-                "permission-list",
-                "permission-create",
-                "permission-edit",
-                "permission-delete",
+                // "role-list",
+                // "role-create",
+                // "role-edit",
+                // "role-delete",
+                // "user-list",
+                // "user-create",
+                // "user-edit",
+                // "user-delete",
+                // "permission-list",
+                // "permission-create",
+                // "permission-edit",
+                // "permission-delete",
             ],
             permissions: [],
             permission: {

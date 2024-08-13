@@ -1,7 +1,7 @@
 import AdminLayout from "../views/admin/layout/index.vue";
 
 const Roles = () => import("../components/Roles.vue");
-const Permissions = () => import("../components/Permissions.vue");
+const Permissions = () => import("../views/admin/Roles/Permissions.vue");
 const RolesCreate = () => import("../views/admin/Roles/Create.vue");
 const RolesList = () => import("../views/admin/Roles/List.vue");
 const RolesEdit = () => import("../views/admin/Roles/Edit.vue");

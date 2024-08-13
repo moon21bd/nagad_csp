@@ -275,12 +275,12 @@ export default {
                         },
                         {
                             name: "Resolved Ticket",
-                            y: 10,
+                            y: 167,
                             color: "#F77F00",
                         },
                         {
                             name: "Close Ticket",
-                            y: 30,
+                            y: 50,
                             color: "#EC4176",
                         },
                         {

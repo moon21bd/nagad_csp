@@ -4,22 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Role;
+use App\Services\RBACService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-
-// use Spatie\Permission\Models\Permission;
-
-// use Spatie\Permission\Models\Role;
+use Silber\Bouncer\Database\Role as DatabaseRole;
 
 class RolesController extends Controller
 {
-    public function __construct()
+    protected $RBACService;
+
+    public function __construct(RBACService $RBACService)
     {
-//        $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index', 'store']]);
-//        $this->middleware('permission:role-create', ['only' => ['create', 'store']]);
-//        $this->middleware('permission:role-edit', ['only' => ['edit', 'store']]);
-//        $this->middleware('permission:role-delete', ['only' => ['destroy']]);
+        $this->RBACService = $RBACService;
     }
 
     /**
@@ -30,7 +27,8 @@ class RolesController extends Controller
      */
     public function roles(Request $request)
     {
-        $roles = Role::all();
+        $roles = DatabaseRole::all();
+
         return response()->json($roles);
 
     }
@@ -47,7 +45,6 @@ class RolesController extends Controller
         $this->validate($request, [
             'name' => 'required|string|max:255|unique:roles,name',
             'permissions' => 'required|array|min:1',
-            'permissions.*' => 'exists:permissions,name',
         ], [
             'name.required' => 'The role name is required.',
             'name.string' => 'The role name must be a string.',
@@ -56,26 +53,9 @@ class RolesController extends Controller
             'permissions.required' => 'Please select at least one permission.',
             'permissions.array' => 'The permissions must be an array.',
             'permissions.min' => 'Please select at least one permission.',
-            'permissions.*.exists' => 'One or more selected permissions are invalid.',
         ]);
 
-        // Create the new role
-        /* $role = Role::create([
-        'name' => $request->name,
-        'guard_name' => 'api',
-        ]);
-
-        // Assign permissions to the new role
-        $role->syncPermissions($request->permissions); */
-
-        // Create the new role
-        $role = Role::create([
-            'name' => $request->name,
-            'guard_name' => 'api',
-        ]);
-
-        // Assign permissions to the new role
-        $role->givePermissionTo($request->permissions);
+        $this->RBACService->createRoleWithAbilities($request->name, $request->permissions);
 
         return response()->json([
             'title' => 'Success',
@@ -91,7 +71,8 @@ class RolesController extends Controller
      */
     public function getRoleById($id)
     {
-        $role = Role::find($id);
+        $role = DatabaseRole::find($id);
+        $abilities = $this->RBACService->getAbilitiesByRole($role);
 
         if (!$role) {
             return response()->json([
@@ -100,12 +81,7 @@ class RolesController extends Controller
             ], 404);
         }
 
-        /* $rolePermissions = Permission::join('role_has_permissions', 'role_has_permissions.permission_id', '=', 'permissions.id')
-        ->where('role_has_permissions.role_id', $id)
-        ->pluck('permissions.name')
-        ->toArray(); */
-
-        $role->rolePermissions = $rolePermissions;
+        $role->rolePermissions = $abilities;
 
         return response()->json([
             'title' => 'Success',
