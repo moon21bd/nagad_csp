@@ -57,7 +57,7 @@ class GroupController extends Controller
         return response()->json(null, 204);
     }
 
-    public function assignRole(Request $request, Group $group)
+    public function assignRoles(Request $request, Group $group)
     {
         dd($request->all(), $group->id);
         $request->validate(['role' => 'required|string']);

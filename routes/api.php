@@ -3,7 +3,6 @@
 use App\Http\Controllers\Api;
 use App\Http\Controllers\ClickActivityController;
 use App\Http\Controllers\GroupController;
-use App\Http\Controllers\GroupRoleController;
 use App\Http\Controllers\NCCallCategoryController;
 use App\Http\Controllers\NCCallSubCategoryController;
 use App\Http\Controllers\NCCallTypeController;
@@ -82,13 +81,17 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // Remove role from a user
     Route::delete('/user/{id}/roles/{roleId}', [UsersController::class, 'removeRole']);
 
+    // Assign roles to group routes goes here
+
+    Route::post('group/{group}/roles', [GroupController::class, 'assignRoles']);
+    Route::delete('group/{group}/roles/{role}', [GroupController::class, 'removeRoles']);
+
     // application related routes
     Route::get('get-category/{id}', [NCCallCategoryController::class, 'getActiveCategoryByCallTypeId']);
     Route::get('call-sub-by-call-cat-id/{ctid}/{ccid}', [NCCallSubCategoryController::class, 'getCallSubCatByCallAndCategoryId']);
     Route::get('get-required-fields/{ctid}/{ccid}/{cscid}', [NCRequiredConfigController::class, 'getRequiredFieldConfigsData']);
     Route::get('get-required-field-by-sub-cat-id/{id}', [NCRequiredConfigController::class, 'getRequiredFieldConfigBySubCatId']);
-    Route::post('groups/{group}/roles', [GroupRoleController::class, 'assignRoles']);
-    Route::delete('groups/{group}/roles/{role}', [GroupRoleController::class, 'removeRoles']);
+
     Route::get('get-service-types', [NCCallTypeController::class, 'getActiveCallType']);
     Route::get('get-service-category', [NCCallCategoryController::class, 'getActiveServiceCategory']);
     Route::get('get-service-type-configs/{cti}/{cci}/{csci}', [NCServiceTypeConfigController::class, 'getServiceTypeConfigs']);

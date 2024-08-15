@@ -45,14 +45,4 @@ class Group extends LaratrustTeam
         return $this->belongsTo(User::class, 'last_updated_by');
     }
 
-    /* public function roles()
-{
-return $this->belongsToMany(Role::class, 'group_role');
-}
-
-public function users()
-{
-return $this->hasMany(User::class);
-} */
-
 }

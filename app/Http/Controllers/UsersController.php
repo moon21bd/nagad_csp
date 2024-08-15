@@ -2,23 +2,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-
-// use Spatie\Permission\Models\Permission;
-// use Spatie\Permission\Models\Role;
 
 class UsersController extends Controller
 {
 
     public function __construct()
     {
-        /* $this->middleware('permission:user-list|user-create|user-edit|user-delete', ['only' => ['index', 'store']]);
-    $this->middleware('permission:user-create', ['only' => ['create', 'store']]);
-    $this->middleware('permission:user-edit', ['only' => ['edit', 'store']]);
-    $this->middleware('permission:user-delete', ['only' => ['destroy']]); */
+        //
     }
 
     /**
@@ -29,6 +24,27 @@ class UsersController extends Controller
      */
     public function index()
     {
+        // $user = User::find(14);
+        // $groupId = $user->group_id;
+        // $hasPermission = $user->hasPermission("dashboard");
+
+        // $user->hasRole('owner|admin|default_role');
+        // logged in user permission check
+        // Auth::user()->hasPermission('role-create');
+
+        /*
+        // checking user hasPermission
+        $user = User::find(14);
+        $groupId = $user->group_id;
+        $hasPermission = $user->hasPermission("dashboard", $groupId);
+        dd($hasPermission); */
+
+        /*
+        // check user has permission to the user within group
+        $user = User::find(14);
+        $groupId = $user->group_id;
+        $userIsAbleTo = $user->isAbleTo('dashboard', $groupId);
+        dd($userIsAbleTo); */
 
         $users = User::with(['group', 'user_activity', 'user_details'])
             ->orderByDesc('id')
@@ -72,6 +88,7 @@ class UsersController extends Controller
     public function getUserById($id)
     {
         $user = User::with(['group', 'user_activity', 'user_details'])->find($id);
+        $user->allPermissions();
         //$user['currentroles'] = $user->roles->pluck('id');
         //$user['currentpermissions'] = $user->getDirectPermissions()->pluck('id');
 

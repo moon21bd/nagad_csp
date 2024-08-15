@@ -84,8 +84,9 @@ export default {
         },
         assignRoles() {
             axios
-                .post(`/groups/${this.id}/roles`, { roles: this.selectedRoles })
-                .then(() => {
+                .post(`/group/${this.id}/roles`, { roles: this.selectedRoles })
+                .then((response) => {
+                    console.log("response", response);
                     this.fetchGroup();
                     this.selectedRoles = [];
                     this.fetchRoles();
