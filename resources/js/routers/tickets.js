@@ -40,4 +40,13 @@ export default [
             layout: AdminLayout,
         },
     },
+    {
+        path: "/admin/tickets/timeline",
+        name: "ticket-timeline",
+        component: () => import("../views/admin/Tickets/Timeline.vue"),
+        meta: {
+            requiresAuth: true,
+            layout: AdminLayout,
+        },
+    },
 ];

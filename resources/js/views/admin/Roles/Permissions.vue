@@ -1,167 +1,141 @@
 <template>
-    <div class="container">
-        <div class="row">
-            <div class="col-12 mb-2">
-                <div class="common-heading d-flex align-items-center mb-3">
-                    <h3 class="title mr-auto p-3">Permissions</h3>
-
-                    <!-- <router-link
-                            class="btn btn-site ml-auto"
-                            :to="{ name: 'permissions' }"
-                            ><i class="icon-plus"></i> New
-                        </router-link> -->
-                    <div class="btn-group float-right" role="group">
-                        <button
-                            type="button"
-                            @click="resetform"
-                            class="btn btn-site"
-                        >
-                            <i class="icon-plus"></i> New
-                        </button>
-                    </div>
-                </div>
-
-                <div class="card mb-6">
-                    <div class="overlay" v-if="isLoading">
-                        <img src="/images/loader.gif" alt="" />
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex">
-                            <div v-if="permissions && permissions.length > 0">
-                                <div class="col-mb-12">
-                                    <div class="table-responsive">
-                                        <table
-                                            id="dataTable"
-                                            class="table border rounded"
-                                        >
-                                            <thead>
-                                                <tr>
-                                                    <th>ID</th>
-                                                    <th>Title</th>
-                                                    <th>Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr
-                                                    v-for="(
-                                                        permission, key
-                                                    ) in permissions"
-                                                    :key="key"
-                                                >
-                                                    <td>
-                                                        {{ permission.id }}
-                                                    </td>
-                                                    <td>
-                                                        {{ permission.name }}
-                                                    </td>
-                                                    <td>
-                                                        <button
-                                                            type="button"
-                                                            :disabled="
-                                                                protectedPermissions.indexOf(
-                                                                    permission.name
-                                                                ) !== -1
-                                                            "
-                                                            @click="
-                                                                editPermission(
-                                                                    permission.id
-                                                                )
-                                                            "
-                                                            class="btn btn-success"
-                                                        >
-                                                            Edit
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            :disabled="
-                                                                protectedPermissions.indexOf(
-                                                                    permission.name
-                                                                ) !== -1
-                                                            "
-                                                            @click="
-                                                                deletePermission(
-                                                                    permission.id
-                                                                )
-                                                            "
-                                                            class="btn btn-danger"
-                                                        >
-                                                            Delete
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                            <no-data v-else />
-                            <div class="col-6">
-                                <form
-                                    ref="RoleForm"
-                                    action="javascript:void(0)"
-                                    @submit="savePermission"
-                                    class="row"
-                                    method="post"
-                                >
-                                    <div class="form-group col-12 mb-2">
-                                        <label
-                                            for="name"
-                                            class="font-weight-bold col-12"
-                                            >Permission Name
-                                            <i
-                                                class="bi bi-asterisk text-danger small-font"
-                                            ></i>
-                                            <span
-                                                class="text-muted ml-auto float-right"
-                                                >{{
-                                                    permission.id
-                                                        ? "You are updating existing permission"
-                                                        : "You are going to add new permission"
-                                                }}</span
-                                            ></label
-                                        >
-                                        <input
-                                            type="hidden"
-                                            name="id"
-                                            v-model="permission.id"
-                                        />
-                                        <input
-                                            type="text"
-                                            name="name"
-                                            v-model="permission.name"
-                                            id="name"
-                                            placeholder="Enter permission name"
-                                            class="form-control"
-                                        />
-                                        <span
-                                            v-if="errors.name"
-                                            class="text-danger"
-                                            >{{ errors.name[0] }}</span
-                                        >
-                                    </div>
-                                    <div class="col-12 mb-2 mb-2 mt-2">
-                                        <button
-                                            type="submit"
-                                            :disabled="processing"
-                                            class="btn btn-site"
-                                        >
-                                            {{
-                                                processing
-                                                    ? "Please wait"
-                                                    : "Save"
-                                            }}
-                                        </button>
-                                    </div>
-                                </form>
+    <div>
+        <div class="common-heading d-flex align-items-center mb-3">
+            <h1 class="title">Permissions</h1>
+            <button
+                type="button"
+                @click="resetform"
+                class="btn btn-site ml-auto"
+            >
+                <i class="icon-plus"></i> New
+            </button>
+        </div>
+        <div class="card mb-4">
+            <div class="overlay" v-if="isLoading">
+                <img src="/images/loader.gif" alt="" />
+            </div>
+            <div class="card-header" v-if="showForm">
+                <form
+                    ref="RoleForm"
+                    action="javascript:void(0)"
+                    @submit="savePermission"
+                    method="post"
+                >
+                    <label for="name" class="control-label"
+                        >Permission Name
+                        <small class="text-muted">{{
+                            permission.id
+                                ? "(You are updating existing permission)"
+                                : "(You are going to add new permission)"
+                        }}</small>
+                    </label>
+                    <div class="form-row">
+                        <div class="col-md-4">
+                            <div>
+                                <input
+                                    type="hidden"
+                                    name="id"
+                                    v-model="permission.id"
+                                />
+                                <input
+                                    type="text"
+                                    name="name"
+                                    v-model="permission.name"
+                                    id="name"
+                                    placeholder="Enter permission name"
+                                    class="form-control"
+                                />
+                                <span v-if="errors.name" class="text-danger">{{
+                                    errors.name[0]
+                                }}</span>
                             </div>
                         </div>
+                        <div class="col-md-2">
+                            <button
+                                type="submit"
+                                :disabled="processing"
+                                class="btn btn-site mt-3 mt-md-0"
+                            >
+                                {{
+                                    processing
+                                        ? "Please wait"
+                                        : permission.id
+                                        ? "Update"
+                                        : "Save"
+                                }}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="card-body">
+                <div v-if="permissions && permissions.length > 0">
+                    <div class="table-responsive">
+                        <table id="dataTable" class="table border rounded">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th class="text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    v-for="(permission, key) in permissions"
+                                    :key="key"
+                                >
+                                    <td>{{ permission.id }}</td>
+                                    <td>{{ permission.name }}</td>
+                                    <td class="text-right">
+                                        <!-- <router-link
+                                            class="btn-action btn-edit"
+                                            title="Update permissions"
+                                            :to="{
+                                                name: 'roles-edit',
+                                                params: { id: role.id },
+                                            }"
+                                            ><i class="icon-settings"></i
+                                        ></router-link> -->
+                                        <button
+                                            type="button"
+                                            :disabled="
+                                                protectedPermissions.indexOf(
+                                                    permission.name
+                                                ) !== -1
+                                            "
+                                            @click="
+                                                editPermission(permission.id)
+                                            "
+                                            class="btn-action btn-edit"
+                                        >
+                                            <i class="icon-edit-pen"></i>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="btn-action btn-trash"
+                                            :disabled="
+                                                protectedPermissions.indexOf(
+                                                    permission.name
+                                                ) !== -1
+                                            "
+                                            @click="
+                                                deletePermission(permission.id)
+                                            "
+                                        >
+                                            <i class="icon-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+                <no-data v-else />
             </div>
         </div>
     </div>
 </template>
-
 <script>
 import "datatables.net-dt/css/jquery.dataTables.min.css";
 import "datatables.net-dt/js/dataTables.dataTables";
@@ -176,6 +150,7 @@ export default {
         return {
             isLoading: false,
             dataTable: null,
+            showForm: false,
             protectedPermissions: [
                 // "role-list",
                 // "role-create",
@@ -244,6 +219,11 @@ export default {
                 .catch((error) => {
                     console.error("Error editing permission:", error);
                 });
+            this.showForm = true;
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+            });
         },
         async savePermission() {
             this.isError = false;
@@ -315,6 +295,7 @@ export default {
         resetform() {
             this.permission.id = "";
             this.permission.name = "";
+            this.showForm = !this.showForm;
         },
     },
     watch: {
@@ -326,19 +307,3 @@ export default {
     },
 };
 </script>
-
-<style>
-.table.dataTable > thead > tr > th {
-    white-space: nowrap;
-}
-.table > thead > tr > th:last-child,
-.table > tbody > tr > td:last-child {
-    white-space: nowrap;
-    position: sticky;
-    right: 0;
-    background: #fff;
-}
-.table > thead > tr > th:last-child {
-    background: #fff9f9;
-}
-</style>

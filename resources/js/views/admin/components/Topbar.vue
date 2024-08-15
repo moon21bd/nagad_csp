@@ -15,6 +15,13 @@
 
         <!-- Topbar Navbar -->
         <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a href="" class="nav-link"
+                    ><button class="btn btn-refresh">
+                        <i class="icon-refresh"></i></button
+                ></a>
+            </li>
+            <div class="topbar-divider d-none d-sm-block"></div>
             <NotificationDropdown />
 
             <div class="topbar-divider d-none d-sm-block"></div>
