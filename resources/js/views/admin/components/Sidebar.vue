@@ -106,7 +106,7 @@
 
                 <el-menu-item index="permissions">
                     <router-link :to="{ name: 'permissions' }">
-                        <i class="icon-security"></i>
+                        <i class="icon-shield"></i>
                         <span>Permissions</span>
                     </router-link>
                 </el-menu-item>

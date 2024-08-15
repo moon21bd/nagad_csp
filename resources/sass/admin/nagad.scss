@@ -219,7 +219,7 @@ body {
 .registered-customer {
     color: #16a085;
 }
-.push-menu {
+%nav-circle {
     width: 36px;
     height: 36px;
     background: #f2f7fd;
@@ -228,6 +228,9 @@ body {
     line-height: 0;
     color: #6e7d8d;
     transition: all 0.3s linear;
+}
+.push-menu {
+    @extend %nav-circle;
     &:focus {
         outline: 0;
         box-shadow: none;
@@ -238,7 +241,9 @@ body {
         transform: rotate(-180deg);
     }
 }
-
+.btn-refresh {
+    @extend %nav-circle;
+}
 .transaction-list {
     border: 1px solid #ddd;
     border-radius: 6px;
@@ -527,7 +532,52 @@ body {
         }
     }
 }
-
+.comments {
+    background: #fff9f9;
+    padding: 20px;
+    border: 1px solid #ffdfdf;
+    border-radius: 8px;
+    ul {
+        li {
+            &.media {
+                align-items: center;
+                margin-bottom: 15px;
+                img {
+                    height: 48px;
+                    width: 48px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                }
+                h5 {
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: $black;
+                    span {
+                        font-weight: 400;
+                        font-size: 13px;
+                        margin-left: 10px;
+                    }
+                }
+                p {
+                    font-size: 14px;
+                    margin: 0;
+                    color: #6c6c6c;
+                }
+            }
+        }
+    }
+    &-form {
+        background: $white;
+        padding: 20px;
+        border-radius: 8px;
+        img {
+            height: 54px;
+            width: 54px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+    }
+}
 @media all and (min-width: 992px) {
     ::-webkit-scrollbar,
     .sidebar::-webkit-scrollbar {
