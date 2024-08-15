@@ -2,6 +2,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Group;
+use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -24,10 +26,17 @@ class UsersController extends Controller
      */
     public function index()
     {
-        // $user = User::find(14);
-        // $groupId = $user->group_id;
-        // $hasPermission = $user->hasPermission("dashboard");
+        /* $group = Group::find(1);
+        $user = User::find(12);
+        $userIsAble = $user->isAbleTo('user-edit', $group);
+        dd($userIsAble);
+        $this->assignPermissionToGroup(1);
+        dd(""); */
 
+        /* $user = User::find(14);
+        $groupId = $user->group_id;
+        $hasPermission = $user->hasPermission("user-create", $groupId);
+        dd($hasPermission); */
         // $user->hasRole('owner|admin|default_role');
         // logged in user permission check
         // Auth::user()->hasPermission('role-create');
@@ -55,6 +64,18 @@ class UsersController extends Controller
             'message' => 'Users List.',
             'data' => $users,
         ], 200);
+
+    }
+
+    public function assignPermissionToGroup($groupId)
+    {
+        $team = Group::find($groupId);
+        $users = $team->users;
+
+        $allPermissions = Permission::all();
+        foreach ($users as $key => $user) {
+            $user->attachPermissions($allPermissions, $team);
+        }
 
     }
 

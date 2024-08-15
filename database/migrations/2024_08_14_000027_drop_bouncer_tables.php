@@ -13,9 +13,12 @@ class DropBouncerTables extends Migration
      */
     public function up()
     {
-        Schema::table('permissions', function (Blueprint $table) {
-            $table->dropForeign(['ability_id']);
-        });
+        if (Schema::hasTable('permissions')) {
+            Schema::table('permissions', function (Blueprint $table) {
+                $table->dropForeign(['ability_id']);
+            });
+        }
+
         Schema::dropIfExists('permissions');
         Schema::dropIfExists('assigned_roles');
         Schema::dropIfExists('roles');

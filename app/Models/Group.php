@@ -3,13 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laratrust\Models\LaratrustRole;
 use Laratrust\Models\LaratrustTeam;
+use Laratrust\Traits\LaratrustTeamTrait;
 
 // use Illuminate\Database\Eloquent\Model;
 
 class Group extends LaratrustTeam
 {
-    use HasFactory;
+    use HasFactory, LaratrustTeamTrait;
 
     public $guarded = [];
 
@@ -43,6 +45,16 @@ class Group extends LaratrustTeam
     public function lastUpdater()
     {
         return $this->belongsTo(User::class, 'last_updated_by');
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(LaratrustRole::class, 'role_group', 'group_id', 'role_id');
+    }
+
+    public function users()
+    {
+        return $this->hasMany(User::class, 'group_id');
     }
 
 }

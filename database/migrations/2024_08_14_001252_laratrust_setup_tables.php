@@ -52,6 +52,19 @@ class LaratrustSetupTables extends Migration
             $table->unique(['user_id', 'role_id', 'user_type', 'group_id']);
         });
 
+        // Create role_group pivot table
+        Schema::create('role_group', function (Blueprint $table) {
+            $table->unsignedBigInteger('role_id');
+            $table->unsignedBigInteger('group_id');
+
+            $table->foreign('role_id')->references('id')->on('roles')
+                ->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('group_id')->references('id')->on('groups')
+                ->onUpdate('cascade')->onDelete('cascade');
+
+            $table->unique(['role_id', 'group_id']);
+        });
+
         // Create permission_user pivot table
         Schema::create('permission_user', function (Blueprint $table) {
             $table->unsignedBigInteger('permission_id');
@@ -89,10 +102,21 @@ class LaratrustSetupTables extends Migration
     public function down()
     {
         // Drop foreign keys from role_user table
-        Schema::table('role_user', function (Blueprint $table) {
-            $table->dropForeign(['group_id']);
+        if (Schema::hasTable('role_user')) {
+            Schema::table('role_user', function (Blueprint $table) {
+                $table->dropForeign(['group_id']);
+                $table->dropForeign(['role_id']);
+                $table->dropForeign('role_user_group_id_foreign');
+
+                $table->dropUnique(['user_id', 'role_id', 'user_type', 'group_id']);
+            });
+        }
+
+        // Drop foreign keys from role_group table
+        Schema::table('role_group', function (Blueprint $table) {
             $table->dropForeign(['role_id']);
-            $table->dropUnique(['user_id', 'role_id', 'user_type', 'group_id']);
+            $table->dropForeign(['group_id']);
+            $table->dropUnique(['role_id', 'group_id']);
         });
 
         // Drop foreign keys from permission_user table
@@ -111,7 +135,10 @@ class LaratrustSetupTables extends Migration
         Schema::dropIfExists('permission_user');
         Schema::dropIfExists('permission_role');
         Schema::dropIfExists('permissions');
-        Schema::dropIfExists('role_user');
+        if (Schema::hasTable('role_user')) {
+            Schema::dropIfExists('role_user');
+        }
+
         Schema::dropIfExists('roles');
     }
 }

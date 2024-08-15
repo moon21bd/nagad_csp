@@ -84,7 +84,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // Assign roles to group routes goes here
 
     Route::post('group/{group}/roles', [GroupController::class, 'assignRoles']);
-    Route::delete('group/{group}/roles/{role}', [GroupController::class, 'removeRoles']);
+    Route::delete('group/{group}/roles/{role}', [GroupController::class, 'removeRole']);
 
     // application related routes
     Route::get('get-category/{id}', [NCCallCategoryController::class, 'getActiveCategoryByCallTypeId']);

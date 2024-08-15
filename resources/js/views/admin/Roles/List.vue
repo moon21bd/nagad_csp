@@ -30,7 +30,7 @@
                                     <td>{{ role.name }}</td>
                                     <td>{{ role.permissions_count }}</td>
                                     <td class="text-right">
-                                        <router-link
+                                        <!-- <router-link
                                             class="btn-action btn-edit"
                                             title="Update permissions"
                                             :to="{
@@ -38,7 +38,7 @@
                                                 params: { id: role.id },
                                             }"
                                             ><i class="icon-settings"></i
-                                        ></router-link>
+                                        ></router-link> -->
                                         <a
                                             title="Delete Role"
                                             class="btn-action btn-trash"
