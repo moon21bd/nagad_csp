@@ -207,7 +207,7 @@ export default {
         notifyAuthError(message) {
             this.$showToast(message, {
                 title: "Error",
-                variant: "danger",
+                type: "warning",
             });
         },
     },

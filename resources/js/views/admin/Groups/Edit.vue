@@ -104,9 +104,7 @@ export default {
                             Vue.prototype.$showToast(
                                 "Group updated successfully.",
                                 {
-                                    title: "Successful",
-                                    toaster: `b-toaster-top-right`,
-                                    variant: "success",
+                                    type: "success",
                                 }
                             );
                             _this.$router.push({ name: "groups-index" });

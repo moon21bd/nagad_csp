@@ -13,7 +13,6 @@ use App\Http\Controllers\NCTicketController;
 use App\Http\Controllers\PermissionsController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UsersController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,17 +26,18 @@ use Illuminate\Support\Facades\Route;
 |
  */
 
-// Without Authentication Routes
+// Without Authentication Routes Started
 Route::post('login', [Api\AuthController::class, 'login']);
-// this route used to complete the login with latitude and longitude
+// this route used to complete the login with user location of latitude and longitude
 Route::post('complete-login', [Api\AuthController::class, 'completeLogin']);
 
 Route::post('forgot', [Api\ForgotController::class, 'forgot']);
 Route::post('reset', [Api\ForgotController::class, 'reset']);
 Route::get('email/resend/{user}', [Api\VerifyController::class, 'resend'])->name('verification.resend');
 Route::get('email/verify/{id}', [Api\VerifyController::class, 'verify'])->name('verification.verify');
+// Without Authentication routes ended
 
-// sanctum based routes
+// sanctum based api routes
 Route::group(['middleware' => 'auth:sanctum'], function () {
 
     // Authentication routes
@@ -59,18 +59,15 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::delete('role/delete/{id}', [RolesController::class, 'destroy']);
     });
 
-    /* //roles related routes
-    Route::get('roles', [RolesController::class, 'roles']);
-    Route::get('role/{id}', [RolesController::class, 'getRoleById']);
-    Route::post('role/create', [RolesController::class, 'store']);
-    Route::put('role/{id}', [RolesController::class, 'update']);
-    Route::delete('role/delete/{id}', [RolesController::class, 'destroy']); */
-
     // ability/permissions routes
-    Route::get('permissions', [PermissionsController::class, 'permissions']);
-    Route::post('permissions/{id}', [PermissionsController::class, 'getPermissionById']);
-    Route::post('permission/save', [PermissionsController::class, 'store']);
-    Route::delete('permissions/{id}', [PermissionsController::class, 'destroy']);
+    Route::middleware(['role:owner|superadmin|admin'])->group(function () {
+        Route::prefix('permissions')->group(function () {
+            Route::middleware('permission:permission-list')->get('/', [PermissionsController::class, 'permissions']);
+            Route::middleware('permission:permission-edit')->post('{id}', [PermissionsController::class, 'getPermissionById']);
+            Route::middleware('permission:permission-create')->post('save', [PermissionsController::class, 'store']);
+            Route::middleware('permission:permission-delete')->delete('{id}', [PermissionsController::class, 'destroy']);
+        });
+    });
 
     //users routes
     Route::get('users', [UsersController::class, 'index']);
@@ -128,10 +125,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 });
 
 // for renewing token
-Route::middleware('auth:sanctum')->post('/renew-token', function (Request $request) {
-    $user = $request->user();
-    // $token = $user->createToken('authToken')->plainTextToken;
-    $token = $user->createToken('Personal Access Token')->plainTextToken;
+/* Route::middleware('auth:sanctum')->post('/renew-token', function (Request $request) {
+$user = $request->user();
+// $token = $user->createToken('authToken')->plainTextToken;
+$token = $user->createToken('Personal Access Token')->plainTextToken;
 
-    return response()->json(['token' => $token]);
-});
+return response()->json(['token' => $token]);
+}); */

@@ -242,7 +242,7 @@ export default {
             this.processing = true;
             try {
                 const { data } = await axios.post(
-                    "/permission/save",
+                    "/permissions/save",
                     this.permission
                 );
 

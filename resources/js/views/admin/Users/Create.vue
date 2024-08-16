@@ -439,9 +439,7 @@ export default {
                             _this.isLoading = false;
                             _this.formData = {};
                             Vue.prototype.$showToast(response.data.message, {
-                                title: response.data.message,
-                                toaster: `b-toaster-top-right`,
-                                variant: "success",
+                                type: "success",
                             });
                             _this.$router.push({ name: "user-profile" });
                         })

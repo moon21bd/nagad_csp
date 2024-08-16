@@ -419,9 +419,7 @@ export default {
                             _this.isLoading = false;
                             _this.user = {};
                             Vue.prototype.$showToast(response.data.message, {
-                                title: response.data.message,
-                                toaster: `b-toaster-top-right`,
-                                variant: "success",
+                                type: "success",
                             });
                             _this.$router.push({ name: "user-index" });
                         })

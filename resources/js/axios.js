@@ -31,7 +31,7 @@ axios.interceptors.response.use(
                     ? response.data.message
                     : "You are not authorized to perform this action.";
 
-            Vue.prototype.$showToast(message, { variant: "error" });
+            Vue.prototype.$showToast(message, { type: "error" });
 
             // Redirect to the denied component
             router.push({ name: "permission-denied" });
