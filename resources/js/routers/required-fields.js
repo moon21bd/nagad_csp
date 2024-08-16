@@ -8,6 +8,7 @@ export default [
         component: () => import("../views/admin/NCRequiredFields/Create.vue"),
         meta: {
             requiresAuth: true,
+            requiresPermission: "required-fields-config-create",
             layout: AdminLayout,
         },
     },
@@ -17,6 +18,7 @@ export default [
         component: () => import("../views/admin/NCRequiredFields/List.vue"),
         meta: {
             requiresAuth: true,
+            requiresPermission: "required-fields-config-list",
             layout: AdminLayout,
         },
     },
@@ -26,6 +28,7 @@ export default [
         component: () => import("../views/admin/NCRequiredFields/Edit.vue"),
         meta: {
             requiresAuth: true,
+            requiresPermission: "required-fields-config-edit",
             layout: AdminLayout,
         },
     },

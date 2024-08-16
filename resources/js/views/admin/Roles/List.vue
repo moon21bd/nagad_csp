@@ -2,7 +2,9 @@
     <div>
         <div class="common-heading d-flex align-items-center mb-3">
             <h1 class="title">Roles</h1>
+
             <router-link
+                v-if="hasPermission('role-create')"
                 class="btn btn-site ml-auto"
                 :to="{ name: 'roles-create' }"
                 ><i class="icon-plus"></i> New
@@ -40,6 +42,7 @@
                                             ><i class="icon-settings"></i
                                         ></router-link> -->
                                         <a
+                                            v-if="hasPermission('role-create')"
                                             title="Delete Role"
                                             class="btn-action btn-trash"
                                             @click.prevent="deleteRole(role.id)"
@@ -63,11 +66,14 @@ import "datatables.net-dt/css/jquery.dataTables.min.css";
 import "datatables.net-dt/js/dataTables.dataTables";
 import noData from "../components/noData.vue";
 import axios from "../../../axios";
+import PermissionsComponent from "../../../components/PermissionsComponent.vue";
+import CommonComponent from "../../../components/CommonComponent.vue";
 
 export default {
     components: {
         noData,
     },
+    mixins: [PermissionsComponent, CommonComponent],
     data() {
         return {
             isLoading: false,
@@ -90,7 +96,15 @@ export default {
         async deleteRole(roleId) {
             try {
                 if (confirm("Are you sure you want to delete this role?")) {
-                    await axios.delete(`/roles/delete/${roleId}`);
+                    const response = await axios.delete(
+                        `/roles/delete/${roleId}`
+                    );
+                    console.log(
+                        "deleteRoleResponse",
+                        response.data.message,
+                        response && response.data.status === 406
+                    );
+
                     this.fetchRoles();
                 }
             } catch (error) {
@@ -106,6 +120,13 @@ export default {
         },
     },
     mounted() {
+        console.log(this.permissions);
+        console.log(this.roles);
+        if (this.hasRole("admin")) {
+            console.log("role found");
+        } else {
+            console.log("no role found");
+        }
         this.fetchRoles();
     },
     watch: {

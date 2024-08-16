@@ -10,6 +10,7 @@ export default [
         component: CallTypeList,
         meta: {
             requiresAuth: true,
+            requiresPermission: "service-types-index",
             layout: AdminLayout,
         },
     },
@@ -19,6 +20,7 @@ export default [
         component: CallTypeCreate,
         meta: {
             requiresAuth: true,
+            requiresPermission: "service-types-create",
             layout: AdminLayout,
         },
     },
@@ -28,6 +30,7 @@ export default [
         component: CallTypeEdit,
         meta: {
             requiresAuth: true,
+            requiresPermission: "service-types-edit",
             layout: AdminLayout,
         },
     },

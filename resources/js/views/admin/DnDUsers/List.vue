@@ -1,10 +1,10 @@
 <template>
     <div>
         <div class="common-heading d-flex align-items-center mb-3">
-            <h1 class="title">Access Lists</h1>
+            <h1 class="title">DnD Users</h1>
             <router-link
                 class="btn btn-site ml-auto"
-                to="/admin/access-lists/create"
+                :to="{ name: 'dnduser-create' }"
                 ><i class="icon-plus"></i> New
             </router-link>
         </div>
@@ -13,49 +13,42 @@
                 <img src="/images/loader.gif" alt="" />
             </div>
             <div class="card-body">
-                <div v-if="accessLists.length && !isLoading">
+                <div v-if="callTypes.length && !isLoading">
                     <div class="table-responsive">
                         <table id="dataTable" class="table border rounded">
                             <thead>
                                 <tr>
+                                    <th>ID</th>
                                     <th>Name</th>
-                                    <th>Status</th>
+                                    <th>Mobile No.</th>
                                     <th class="text-right">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr
                                     v-for="{
-                                        access_name,
+                                        dnd_username,
                                         id,
-                                        status,
-                                    } in accessLists"
+                                        mobile_no,
+                                    } in dndUsers"
                                     :key="id"
                                 >
-                                    <td>{{ access_name }}</td>
-                                    <td>
-                                        <span
-                                            :class="
-                                                status === 'active'
-                                                    ? 'active'
-                                                    : 'inactive'
-                                            "
-                                            class="badge"
-                                            >{{ status }}</span
-                                        >
-                                    </td>
+                                    <td>{{ id }}</td>
+                                    <td>{{ dnd_username }}</td>
+                                    <td>{{ mobile_no }}</td>
+
                                     <td class="text-right">
                                         <router-link
                                             class="btn-action btn-edit"
                                             :to="{
-                                                name: 'edit-access',
+                                                name: 'dnduser-edit',
                                                 params: { id },
                                             }"
                                             ><i class="icon-edit-pen"></i
                                         ></router-link>
                                         <a
                                             class="btn-action btn-trash"
-                                            @click.prevent="deleteAccess(id)"
+                                            @click.prevent="deleteDnDUser(id)"
                                         >
                                             <i class="icon-trash"></i>
                                         </a>
@@ -72,7 +65,6 @@
 </template>
 
 <script>
-import axios from "../../../axios";
 import "datatables.net-dt/css/jquery.dataTables.min.css";
 import "datatables.net-dt/js/dataTables.dataTables";
 import noData from "../components/noData.vue";
@@ -83,33 +75,29 @@ export default {
     },
     data() {
         return {
-            accessLists: [],
             isLoading: false,
             status: "active",
+            callTypes: [],
         };
     },
+
     methods: {
-        async getLists() {
-            this.isLoading = true;
+        async deleteDnDUser(id) {
             try {
-                const response = await axios.get("/access-lists");
-                this.accessLists = response.data;
+                if (confirm("Are you sure you want to delete this user?")) {
+                    await axios.delete(`/dnduser/${id}`);
+                    this.fetchDnDUsers();
+                }
             } catch (error) {
-                console.error("Error fetching access lists:", error);
-            } finally {
-                this.isLoading = false;
+                console.error("Error deleting dnd users:", error);
             }
         },
-        async deleteAccess(id) {
-            if (confirm("Are you sure you want to delete this access list?")) {
-                try {
-                    await axios.delete(`/access-lists/${id}`);
-                    this.accessLists = this.accessLists.filter(
-                        (access) => access.id !== id
-                    );
-                } catch (error) {
-                    console.error("Error deleting access list:", error);
-                }
+        async fetchDnDUsers() {
+            try {
+                const response = await axios.get("/dndusers");
+                this.DnDUsers = response.data;
+            } catch (error) {
+                console.error("Error fetching dnd user:", error);
             }
         },
         initializeDataTable() {
@@ -120,11 +108,11 @@ export default {
             });
         },
     },
-    created() {
-        this.getLists();
+    mounted() {
+        this.fetchDnDUsers();
     },
     watch: {
-        accessLists(newValue, oldValue) {
+        DnDUsers(newValue) {
             if (newValue.length) {
                 this.initializeDataTable();
             }
@@ -132,3 +120,19 @@ export default {
     },
 };
 </script>
+
+<style>
+.table.dataTable > thead > tr > th {
+    white-space: nowrap;
+}
+.table > thead > tr > th:last-child,
+.table > tbody > tr > td:last-child {
+    white-space: nowrap;
+    position: sticky;
+    right: 0;
+    background: #fff;
+}
+.table > thead > tr > th:last-child {
+    background: #fff9f9;
+}
+</style>

@@ -8,6 +8,7 @@ export default [
             import("../views/admin/NCServiceTypeConfig/Create.vue"),
         meta: {
             requiresAuth: true,
+            requiresPermission: "service-type-config-create",
             layout: AdminLayout,
         },
     },
@@ -17,6 +18,7 @@ export default [
         component: () => import("../views/admin/NCServiceTypeConfig/List.vue"),
         meta: {
             requiresAuth: true,
+            requiresPermission: "service-type-config-list",
             layout: AdminLayout,
         },
     },
@@ -26,6 +28,7 @@ export default [
         component: () => import("../views/admin/NCServiceTypeConfig/Edit.vue"),
         meta: {
             requiresAuth: true,
+            requiresPermission: "service-type-config-edit",
             layout: AdminLayout,
         },
     },

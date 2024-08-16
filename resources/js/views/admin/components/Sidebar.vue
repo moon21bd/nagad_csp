@@ -97,19 +97,22 @@
                     </router-link>
                 </el-menu-item>
 
-                <el-menu-item index="roles-index">
-                    <router-link :to="{ name: 'roles-index' }">
-                        <i class="icon-refer"></i>
-                        <span>Roles</span>
-                    </router-link>
-                </el-menu-item>
+                <div v-if="hasRole('admin|superadmin|owner')">
+                    <el-menu-item index="roles-index">
+                        <router-link :to="{ name: 'roles-index' }">
+                            <i class="icon-refer"></i>
+                            <span>Roles</span>
+                        </router-link>
+                    </el-menu-item>
 
-                <el-menu-item index="permissions">
-                    <router-link :to="{ name: 'permissions' }">
-                        <i class="icon-shield"></i>
-                        <span>Permissions</span>
-                    </router-link>
-                </el-menu-item>
+                    <el-menu-item index="permissions">
+                        <router-link :to="{ name: 'permissions' }">
+                            <i class="icon-shield"></i>
+                            <span>Permissions</span>
+                        </router-link>
+                    </el-menu-item>
+                </div>
+
                 <!-- <el-menu-item index="/admin/roles">
                     <router-link to="/admin/roles">
                         <i class="icon-phone"></i>
@@ -174,12 +177,36 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from "vuex";
+
 export default {
     name: "Sidebar",
+
     computed: {
         activeIndex() {
             return this.$route.path; // Reactively return the current route path
         },
+        ...mapGetters("permissions", [
+            "permissions",
+            "hasPermission",
+            "roles",
+            "hasRole",
+        ]),
+    },
+    methods: {
+        ...mapActions("permissions", ["fetchPermissions"]),
+        async handleClick() {
+            console.log("permissions", this.permissions); // Access permissions after fetching
+            console.log("roles", this.roles); // Access permissions after fetching
+            if (this.hasRole("admin")) {
+                console.log("role found");
+            } else {
+                console.log("no role found");
+            }
+        },
+    },
+    created() {
+        this.fetchPermissions(); // Fetch permissions on component creation
     },
 };
 </script>

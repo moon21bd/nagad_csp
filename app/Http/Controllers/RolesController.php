@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Role;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\Rule;
 use Laratrust\Helper;
@@ -153,15 +154,15 @@ class RolesController extends Controller
 
         $msg = "";
         if (!Helper::roleIsDeletable($role)) {
-            return response()->json(['message' => 'The role is not deletable']);
+            return response()->json(['message' => 'The role is not deletable'], Response::HTTP_NOT_ACCEPTABLE);
         }
 
         if ($usersAssignedToRole > 0) {
-            return response()->json(['message' => 'Role is attached to one or more users. It can not be deleted']);
+            return response()->json(['message' => 'Role is attached to one or more users. It can not be deleted'], Response::HTTP_NOT_ACCEPTABLE);
 
         } else {
             $this->rolesModel::destroy($id);
-            return response()->json(['message' => 'Role deleted successfully']);
+            return response()->json(['message' => 'Role deleted successfully'], Response::HTTP_NOT_ACCEPTABLE);
         }
         return response()->json(['message' => 'Unhandled stage at role delete.']);
     }

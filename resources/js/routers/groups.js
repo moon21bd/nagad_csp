@@ -13,6 +13,7 @@ export default [
         component: Index,
         meta: {
             requiresAuth: true,
+            requiresPermission: "groups-list",
             layout: AdminLayout,
         },
     },
@@ -22,6 +23,7 @@ export default [
         component: Create,
         meta: {
             requiresAuth: true,
+            requiresPermission: "groups-create",
             layout: AdminLayout,
         },
     },
@@ -31,6 +33,7 @@ export default [
         component: Edit,
         meta: {
             requiresAuth: true,
+            requiresPermission: "groups-edit",
             layout: AdminLayout,
         },
     },
@@ -40,6 +43,7 @@ export default [
         component: ManageGroupRoles,
         meta: {
             requiresAuth: true,
+            requiresPermission: "manage-group-roles",
             layout: AdminLayout,
         },
     },

@@ -11,6 +11,7 @@ export default [
         component: Index,
         meta: {
             requiresAuth: true,
+            requiresPermission: "service-categories-list",
             layout: AdminLayout,
         },
     },
@@ -20,6 +21,7 @@ export default [
         component: Create,
         meta: {
             requiresAuth: true,
+            requiresPermission: "service-categories-create",
             layout: AdminLayout,
         },
     },
@@ -29,6 +31,7 @@ export default [
         component: Edit,
         meta: {
             requiresAuth: true,
+            requiresPermission: "service-categories-edit",
             layout: AdminLayout,
         },
     },

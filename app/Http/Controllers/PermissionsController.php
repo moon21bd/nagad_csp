@@ -122,18 +122,16 @@ class PermissionsController extends Controller
         ], 200);
     }
 
-    /**
-     * Assign permissions to the super admin role.
-     *
-     * @param \App\Models\Permission $permission
-     * @return void
-     */
-    private function assignPermissionsToSuperAdmin(Permission $permission)
+    public function getCurrentUserPermissions()
     {
-        // Get or create the super admin role
-        $superAdminRole = Role::firstOrCreate(['name' => 'super-admin']);
+        $user = auth()->user(); // Get the currently logged-in user
+        $permissions = $user->permissions; // Retrieve all permissions (direct and group-based)
 
-        // Assign the newly created permission to the super admin role
-        $superAdminRole->givePermissionTo($permission);
+        return response()->json([
+            'user' => $user->name,
+            'permissions' => $permissions->pluck('name'),
+            'roles' => $user->roles->pluck('name'),
+        ]);
     }
+
 }
