@@ -90,7 +90,7 @@ export default {
         async deleteRole(roleId) {
             try {
                 if (confirm("Are you sure you want to delete this role?")) {
-                    await axios.delete(`/role/delete/${roleId}`);
+                    await axios.delete(`/roles/delete/${roleId}`);
                     this.fetchRoles();
                 }
             } catch (error) {

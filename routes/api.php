@@ -25,42 +25,55 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
  */
+/*
+// Resource Controller Methods
 
-// Without Authentication Routes Started
+GET /users → index method
+GET /users/create → create method
+POST /users → store method
+GET /users/{user} → show method
+GET /users/{user}/edit → edit method
+PUT /users/{user} → update method
+PATCH /users/{user} → update method
+DELETE /users/{user} → destroy method
+ */
+
+// WITHOUT AUTHENTICATION ROUTES STARTED
 Route::post('login', [Api\AuthController::class, 'login']);
-// this route used to complete the login with user location of latitude and longitude
+// THIS ROUTE USED TO COMPLETE THE LOGIN WITH USER LOCATION OF LATITUDE AND LONGITUDE
 Route::post('complete-login', [Api\AuthController::class, 'completeLogin']);
 
 Route::post('forgot', [Api\ForgotController::class, 'forgot']);
 Route::post('reset', [Api\ForgotController::class, 'reset']);
 Route::get('email/resend/{user}', [Api\VerifyController::class, 'resend'])->name('verification.resend');
 Route::get('email/verify/{id}', [Api\VerifyController::class, 'verify'])->name('verification.verify');
-// Without Authentication routes ended
+// WITHOUT AUTHENTICATION ROUTES ENDED
 
-// sanctum based api routes
+// SANCTUM BASED API ROUTES
 Route::group(['middleware' => 'auth:sanctum'], function () {
 
-    // Authentication routes
+    // AUTHENTICATION ROUTES
     Route::post('/logout', [Api\AuthController::class, 'logout']);
 
-    //logged in user
+    // LOGGED IN USER
     Route::post('user', [Api\AuthController::class, 'user']);
     Route::post('user/register', [Api\AuthController::class, 'register']);
-
-    // change password
+    // CHANGE PASSWORD
     Route::post('change-password', [Api\AuthController::class, 'changePassword']);
 
-    // Roles related routes
-    Route::group(['middleware' => 'role:owner|superadmin|admin'], function () {
-        Route::get('roles', [RolesController::class, 'roles']);
-        Route::get('role/{id}', [RolesController::class, 'getRoleById']);
-        Route::post('role/create', [RolesController::class, 'store']);
-        Route::put('role/{id}', [RolesController::class, 'update']);
-        Route::delete('role/delete/{id}', [RolesController::class, 'destroy']);
-    });
-
-    // ability/permissions routes
+    // ROLES ROUTES WITH ROLE AND PERMISSION MIDDLEWARE
     Route::middleware(['role:owner|superadmin|admin'])->group(function () {
+
+        // ROLES RELATED ROUTES
+        Route::middleware('permission:role-list')->group(function () {
+            Route::get('roles', [RolesController::class, 'roles']);
+            Route::get('roles/{id}', [RolesController::class, 'getRoleById']);
+        });
+        Route::middleware('permission:role-create')->post('roles/create', [RolesController::class, 'store']);
+        Route::middleware('permission:role-edit')->put('roles/{id}', [RolesController::class, 'update']);
+        Route::middleware('permission:role-delete')->delete('roles/delete/{id}', [RolesController::class, 'destroy']);
+
+        // PERMISSIONS RELATED ROUTES
         Route::prefix('permissions')->group(function () {
             Route::middleware('permission:permission-list')->get('/', [PermissionsController::class, 'permissions']);
             Route::middleware('permission:permission-edit')->post('{id}', [PermissionsController::class, 'getPermissionById']);
@@ -69,25 +82,25 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         });
     });
 
-    //users routes
+    // ASSIGN ROLES TO A SPECIFIC USER
+    Route::post('/user/{id}/roles', [UsersController::class, 'assignRoles']);
+    // RETRIEVE USER ROLES
+    Route::get('/user/{id}/roles', [UsersController::class, 'getUserRoles']);
+    // REMOVE ROLE FROM A USER
+    Route::delete('/user/{id}/roles/{roleId}', [UsersController::class, 'removeRole']);
+
+    // ASSIGN ROLES TO GROUP ROUTES GOES HERE
+    Route::post('group/{group}/roles', [GroupController::class, 'assignRoles']);
+    Route::delete('group/{group}/roles/{role}', [GroupController::class, 'removeRole']);
+
+    // USERS ROUTES
     Route::get('users', [UsersController::class, 'index']);
     Route::get('user/{id}', [UsersController::class, 'getUserById']);
     Route::put('user/{id}', [UsersController::class, 'edit']);
     Route::post('usersdata/save', [UsersController::class, 'store']);
     Route::delete('users/delete/{id}', [UsersController::class, 'destroy']);
 
-    // Assign roles to a specific user
-    Route::post('/user/{id}/roles', [UsersController::class, 'assignRoles']);
-    // Retrieve user roles
-    Route::get('/user/{id}/roles', [UsersController::class, 'getUserRoles']);
-    // Remove role from a user
-    Route::delete('/user/{id}/roles/{roleId}', [UsersController::class, 'removeRole']);
-
-    // Assign roles to group routes goes here
-    Route::post('group/{group}/roles', [GroupController::class, 'assignRoles']);
-    Route::delete('group/{group}/roles/{role}', [GroupController::class, 'removeRole']);
-
-    // application related routes
+    // APPLICATION RELATED ROUTES
     Route::get('get-category/{id}', [NCCallCategoryController::class, 'getActiveCategoryByCallTypeId']);
     Route::get('call-sub-by-call-cat-id/{ctid}/{ccid}', [NCCallSubCategoryController::class, 'getCallSubCatByCallAndCategoryId']);
     Route::get('get-required-fields/{ctid}/{ccid}/{cscid}', [NCRequiredConfigController::class, 'getRequiredFieldConfigsData']);
@@ -97,20 +110,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('get-service-category', [NCCallCategoryController::class, 'getActiveServiceCategory']);
     Route::get('get-service-type-configs/{cti}/{cci}/{csci}', [NCServiceTypeConfigController::class, 'getServiceTypeConfigs']);
 
-    /*
-    // Resource Controller Methods
-
-    GET /users → index method
-    GET /users/create → create method
-    POST /users → store method
-    GET /users/{user} → show method
-    GET /users/{user}/edit → edit method
-    PUT /users/{user} → update method
-    PATCH /users/{user} → update method
-    DELETE /users/{user} → destroy method
-     */
-
-    // various resource apis
+    // VARIOUS RESOURCE APIS
     Route::apiResources([
         'click-activity' => ClickActivityController::class,
         'tickets' => NCTicketController::class,
@@ -123,12 +123,3 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         'service-type-config' => NCServiceTypeConfigController::class,
     ]);
 });
-
-// for renewing token
-/* Route::middleware('auth:sanctum')->post('/renew-token', function (Request $request) {
-$user = $request->user();
-// $token = $user->createToken('authToken')->plainTextToken;
-$token = $user->createToken('Personal Access Token')->plainTextToken;
-
-return response()->json(['token' => $token]);
-}); */

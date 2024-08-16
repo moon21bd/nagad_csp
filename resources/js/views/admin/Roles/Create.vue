@@ -188,7 +188,7 @@ export default {
 
             this.isLoading = true;
             try {
-                const { data } = await axios.post("/role/create", {
+                const { data } = await axios.post("/roles/create", {
                     name: this.roleName,
                     permissions: this.selectedPermissions,
                 });

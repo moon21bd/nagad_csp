@@ -159,7 +159,7 @@ export default {
         async fetchRole(roleId) {
             this.isLoading = true;
             try {
-                const { data: roleData } = await axios.get(`/role/${roleId}`);
+                const { data: roleData } = await axios.get(`/roles/${roleId}`);
                 console.log("Role data:", roleData); // Log the entire response
 
                 this.roleName = roleData.role?.name || "";
@@ -228,7 +228,7 @@ export default {
             this.isLoading = true;
             try {
                 const { data } = await axios.put(
-                    `/role/${this.$route.params.id}`,
+                    `/roles/${this.$route.params.id}`,
                     {
                         name: this.roleName,
                         permissions: this.selectedPermissions,
