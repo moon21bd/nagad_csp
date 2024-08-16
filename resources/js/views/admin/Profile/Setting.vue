@@ -210,10 +210,8 @@ export default {
                         this.$refs.changePasswordForm.reset();
                         this.$router.push({ name: "home" });
 
-                        this.$toasted.show("Password updated successfully", {
-                            theme: "toasted-primary",
-                            position: "top-right",
-                            duration: 5000,
+                        this.$showToast("Password updated successfully", {
+                            type: "success",
                         });
                     } else {
                         // Handle unexpected response status if needed

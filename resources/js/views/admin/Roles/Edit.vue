@@ -180,10 +180,9 @@ export default {
                 }
             } catch (error) {
                 console.error("Error fetching role data:", error);
-                this.$toasted.show("Error fetching role data", {
-                    theme: "toasted-primary",
-                    position: "top-right",
-                    duration: 5000,
+
+                this.$showToast("Error fetching role data", {
+                    type: "error",
                 });
             } finally {
                 this.isLoading = false;
@@ -200,10 +199,9 @@ export default {
                 }
             } catch (error) {
                 console.error("Error fetching permissions:", error);
-                this.$toasted.show("Error fetching permissions", {
-                    theme: "toasted-primary",
-                    position: "top-right",
-                    duration: 5000,
+
+                this.$showToast("Error fetching permissions", {
+                    type: "error",
                 });
             } finally {
                 this.isLoading = false;
@@ -217,14 +215,9 @@ export default {
                 this.errors.name = "Role name must be at least 3 characters.";
             }
             if (this.selectedPermissions.length === 0) {
-                this.$toasted.show(
-                    "At least one permission must be selected.",
-                    {
-                        theme: "toasted-primary",
-                        position: "top-right",
-                        duration: 5000,
-                    }
-                );
+                this.$showToast("At least one permission must be selected.", {
+                    type: "error",
+                });
                 return false;
             }
             return Object.keys(this.errors).length === 0;
@@ -241,18 +234,16 @@ export default {
                         permissions: this.selectedPermissions,
                     }
                 );
-                this.$toasted.show(data.message, {
-                    theme: "toasted-primary",
-                    position: "top-right",
-                    duration: 5000,
+
+                this.$showToast(data.message, {
+                    type: "error",
                 });
                 this.$router.push({ name: "roles-index" });
             } catch (error) {
                 console.error("Error updating role:", error);
-                this.$toasted.show("Error updating role", {
-                    theme: "toasted-primary",
-                    position: "top-right",
-                    duration: 5000,
+
+                this.$showToast("Error updating role", {
+                    type: "error",
                 });
             } finally {
                 this.isLoading = false;

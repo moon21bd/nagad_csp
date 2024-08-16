@@ -258,10 +258,8 @@ export default {
                     });
                 });
 
-                this.$toasted.show(data.message, {
-                    theme: "toasted-primary",
-                    position: "top-right",
-                    duration: 5000,
+                this.$showToast(data.message, {
+                    type: "success",
                 });
 
                 this.resetform();
@@ -269,10 +267,8 @@ export default {
                 console.error("Error saving permission:", error);
                 const errorData = error.response ? error.response.data : {};
                 if (errorData.error) {
-                    this.$toasted.show(errorData.error, {
-                        theme: "toasted-primary",
-                        position: "top-right",
-                        duration: 5000,
+                    this.$showToast(errorData.error, {
+                        type: "error",
                     });
                 }
                 this.errors = errorData.errors || {};
