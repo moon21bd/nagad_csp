@@ -3,7 +3,8 @@ import AdminLayout from "../views/admin/layout/index.vue";
 const Index = () => import("../views/admin/Groups/List.vue");
 const Create = () => import("../views/admin/Groups/Create.vue");
 const Edit = () => import("../views/admin/Groups/Edit.vue");
-const ManageGroupRoles = () => import("../views/admin/Groups/ManageRoles.vue");
+const ManageGroupRoles = () =>
+    import("../views/admin/Groups/ManageGroupRoles.vue");
 
 export default [
     {

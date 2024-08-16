@@ -81,7 +81,7 @@ export default [
         path: "/admin/user/:id/roles/",
         component: ManageUserRoles,
         meta: {
-            title: "User Location",
+            title: "User Role Manage",
             middleware: "auth",
             requiresAuth: true,
             layout: AdminLayout,

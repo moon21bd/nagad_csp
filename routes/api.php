@@ -40,7 +40,7 @@ Route::get('email/verify/{id}', [Api\VerifyController::class, 'verify'])->name('
 // sanctum based routes
 Route::group(['middleware' => 'auth:sanctum'], function () {
 
-    // authentication routes
+    // Authentication routes
     Route::post('/logout', [Api\AuthController::class, 'logout']);
 
     //logged in user
@@ -50,12 +50,21 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // change password
     Route::post('change-password', [Api\AuthController::class, 'changePassword']);
 
-    //roles related routes
+    // Roles related routes
+    Route::group(['middleware' => 'role:owner|superadmin|admin'], function () {
+        Route::get('roles', [RolesController::class, 'roles']);
+        Route::get('role/{id}', [RolesController::class, 'getRoleById']);
+        Route::post('role/create', [RolesController::class, 'store']);
+        Route::put('role/{id}', [RolesController::class, 'update']);
+        Route::delete('role/delete/{id}', [RolesController::class, 'destroy']);
+    });
+
+    /* //roles related routes
     Route::get('roles', [RolesController::class, 'roles']);
     Route::get('role/{id}', [RolesController::class, 'getRoleById']);
     Route::post('role/create', [RolesController::class, 'store']);
     Route::put('role/{id}', [RolesController::class, 'update']);
-    Route::delete('role/delete/{id}', [RolesController::class, 'destroy']);
+    Route::delete('role/delete/{id}', [RolesController::class, 'destroy']); */
 
     // ability/permissions routes
     Route::get('permissions', [PermissionsController::class, 'permissions']);
@@ -70,11 +79,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('usersdata/save', [UsersController::class, 'store']);
     Route::delete('users/delete/{id}', [UsersController::class, 'destroy']);
 
-    // assigning user roles for test purpose
-    /* Route::put('user/{id}/roles', [UsersController::class, 'manageUserRoles']);
-    Route::get('user/{id}/roles', [UsersController::class, 'getUserRoles']); */
-
-    // Assign roles to a user
+    // Assign roles to a specific user
     Route::post('/user/{id}/roles', [UsersController::class, 'assignRoles']);
     // Retrieve user roles
     Route::get('/user/{id}/roles', [UsersController::class, 'getUserRoles']);
@@ -82,7 +87,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::delete('/user/{id}/roles/{roleId}', [UsersController::class, 'removeRole']);
 
     // Assign roles to group routes goes here
-
     Route::post('group/{group}/roles', [GroupController::class, 'assignRoles']);
     Route::delete('group/{group}/roles/{role}', [GroupController::class, 'removeRole']);
 

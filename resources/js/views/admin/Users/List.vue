@@ -68,7 +68,7 @@
                                         ></router-link>
                                         <router-link
                                             class="btn btn-action"
-                                            title="Role Manage"
+                                            title="User Role Manage"
                                             :to="{
                                                 name: 'user-roles-manage',
                                                 params: { id: item.id },

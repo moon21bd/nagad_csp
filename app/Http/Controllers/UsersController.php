@@ -110,8 +110,6 @@ class UsersController extends Controller
     {
         $user = User::with(['group', 'user_activity', 'user_details'])->find($id);
         $user->allPermissions();
-        //$user['currentroles'] = $user->roles->pluck('id');
-        //$user['currentpermissions'] = $user->getDirectPermissions()->pluck('id');
 
         return response()->json([
             'title' => 'Success.',
@@ -227,15 +225,7 @@ class UsersController extends Controller
     {
         $user = User::findOrFail($id);
         $roles = $request->input('roles', []);
-        $groupId = $user->group_id;
-
-        foreach ($roles as $roleName) {
-            try {
-                $this->assignRoleWithGroup($user, $roleName, $groupId);
-            } catch (\Exception $e) {
-                return response()->json(['error' => $e->getMessage()], 404);
-            }
-        }
+        $user->syncRoles($roles);
 
         return response()->json(['message' => 'Roles assigned successfully.']);
     }
@@ -250,35 +240,8 @@ class UsersController extends Controller
     {
         $user = User::findOrFail($id);
         $role = Role::findOrFail($roleId);
-        $user->removeRole($role);
+        $user->detachRole($role);
         return response()->json(['message' => 'Role removed successfully.']);
     }
 
-    public function assignRoleWithGroup(User $user, $roleName, $groupId)
-    {
-        // Retrieve the role
-        $role = Role::where('name', $roleName)
-            ->first();
-
-        if (!$role) {
-            throw new \Exception("Role with name '{$roleName}' and group_id '{$groupId}' not found.");
-        }
-
-        // Check if the role is already assigned
-        $exists = \DB::table('model_has_roles')
-            ->where('model_id', $user->id)
-            ->where('role_id', $role->id)
-            ->where('group_id', $groupId)
-            ->exists();
-
-        if (!$exists) {
-            // Assign the role if it does not exist
-            \DB::table('model_has_roles')->insert([
-                'model_id' => $user->id,
-                'model_type' => get_class($user),
-                'role_id' => $role->id,
-                'group_id' => $groupId,
-            ]);
-        }
-    }
 }

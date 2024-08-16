@@ -166,7 +166,8 @@ return [
         /**
          * Define if the laratrust middleware are registered automatically in the service provider
          */
-        'register' => true,
+        // 'register' => true, // will be back in this value after success
+        'register' => false,
 
         /**
          * Method to be called in the middleware return case.

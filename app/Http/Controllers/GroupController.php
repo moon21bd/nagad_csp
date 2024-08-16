@@ -82,7 +82,6 @@ class GroupController extends Controller
 
         // Sync the roles with the group
         $group->roles()->sync($roles->pluck('id')->toArray());
-
         // Get all users associated with the group
         $users = $group->users;
 
@@ -93,17 +92,10 @@ class GroupController extends Controller
         // Assign the roles' permissions to each user in the group
         foreach ($users as $user) {
             foreach ($roles as $role) {
-                try {
-                    $user->attachRoles($role->permissions, $group);
-                } catch (\Exception $e) {
-                    // Log the exception or handle the error
-                    \Log::error('Error attaching roles: ' . $e->getMessage());
-                    return response()->json(['message' => 'Error attaching roles'], 500);
-                }
+                $user->attachPermissions($role->permissions, $group);
             }
         }
 
-        // Return the group with the newly assigned roles
         return response()->json([], 200);
     }
 
@@ -137,6 +129,12 @@ class GroupController extends Controller
         $group = Group::findOrFail($groupId);
         $role = Role::findOrFail($roleId);
         $group->roles()->detach($role);
+        $users = $group->users ?? [];
+
+        foreach ($users as $user) {
+            $user->detachPermissions($role->permissions, $group);
+        }
+
         return response()->json('Delete successful.', 204);
     }
 
