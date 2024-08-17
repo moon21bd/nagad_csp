@@ -3,6 +3,8 @@ import Router from "vue-router";
 
 import defaultRoutes from "./routers/default";
 import sbadminRoutes from "./routers/sbadmin";
+import dndusersRoutes from "./routers/dndusers";
+import emailConfigRoutes from "./routers/emailconfig";
 import rolesPermissions from "./routers/roles-permissions";
 import userRoutes from "./routers/users";
 import callTypes from "./routers/call-types";
@@ -22,6 +24,8 @@ let router = new Router({
     routes: [
         ...defaultRoutes,
         ...sbadminRoutes,
+        ...dndusersRoutes,
+        ...emailConfigRoutes,
         ...userRoutes,
         ...callTypes,
         ...groups,
@@ -54,8 +58,9 @@ router.beforeEach(async (to, from, next) => {
         }
     }
 
+    // WILL BE OPEN THIS LATER AFTER GETTING ALL OK FOR ROUTER PERMISSION CHECKS.
     // If the route requires a specific permission
-    if (to.meta.requiresPermission) {
+    /* if (to.meta.requiresPermission) {
         await store.dispatch("permissions/fetchPermissions"); // Fetch permissions before checking
 
         if (
@@ -69,7 +74,7 @@ router.beforeEach(async (to, from, next) => {
             // User doesn't have the required permission, redirect to forbidden page
             return next("/forbidden");
         }
-    }
+    } */
 
     // If no authentication or permission is required, or all checks passed
     next();

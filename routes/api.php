@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api;
 use App\Http\Controllers\ClickActivityController;
+use App\Http\Controllers\EmailConfigController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\NCCallCategoryController;
 use App\Http\Controllers\NCCallSubCategoryController;
@@ -124,5 +125,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         'call-sub-categories' => NCCallSubCategoryController::class,
         'required-fields-configs' => NCRequiredConfigController::class,
         'service-type-config' => NCServiceTypeConfigController::class,
+        'email-config' => EmailConfigController::class,
     ]);
 });

@@ -59,15 +59,6 @@ class GroupController extends Controller
         return response()->json(null, 204);
     }
 
-    /* public function assignRoles(Request $request, Group $group)
-    {
-    $request->validate(['roles' => 'required|array']);
-    $roles = Role::whereIn('name', $request->roles)->get();
-    $group->roles()->sync($roles->pluck('id')->toArray());
-
-    return response()->json($group->load('roles'), 200);
-    } */
-
     public function assignRoles(Request $request, Group $group)
     {
         // Validate the incoming request
@@ -98,31 +89,6 @@ class GroupController extends Controller
 
         return response()->json([], 200);
     }
-
-    /* public function assignRoles(Request $request, Group $group)
-    {
-    // Validate the incoming request
-    $request->validate(['roles' => 'required|array']);
-
-    // Get the roles based on the provided names
-    $roles = Role::whereIn('name', $request->roles)->get();
-
-    // Sync the roles with the group (this will add/remove roles as needed)
-    $group->roles()->sync($roles->pluck('id')->toArray());
-
-    // Get all users associated with the group
-    $users = $group->users ?? [];
-    // Assign the roles' permissions to each user in the group
-    foreach ($users as $user) {
-    foreach ($roles as $role) {
-    // Attached the permissions of each role to the user
-    $user->attachRoles($role->permissions, $group);
-    }
-    }
-
-    // Return the group with the newly assigned roles
-    return response()->json([], 200);
-    } */
 
     public function removeRole(Request $request, $groupId, $roleId)
     {

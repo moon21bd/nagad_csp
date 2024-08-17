@@ -49,13 +49,6 @@
                     </router-link>
                 </el-menu-item>
 
-                <el-menu-item index="groups-index">
-                    <router-link :to="{ name: 'groups-index' }">
-                        <i class="icon-users"></i>
-                        <span>Group Configs</span>
-                    </router-link>
-                </el-menu-item>
-
                 <el-menu-item index="required-fields-config-index">
                     <router-link :to="{ name: 'required-fields-config-index' }">
                         <i class="icon-sliders"></i>
@@ -94,6 +87,20 @@
                     <router-link :to="{ name: 'user-index' }">
                         <i class="icon-users"></i>
                         <span>Users</span>
+                    </router-link>
+                </el-menu-item>
+
+                <el-menu-item index="groups-index">
+                    <router-link :to="{ name: 'groups-index' }">
+                        <i class="icon-users"></i>
+                        <span>Group Configs</span>
+                    </router-link>
+                </el-menu-item>
+
+                <el-menu-item index="email-config-index">
+                    <router-link :to="{ name: 'email-config-index' }">
+                        <i class="icon-mail"></i>
+                        <span>Email Configs</span>
                     </router-link>
                 </el-menu-item>
 
