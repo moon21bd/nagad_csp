@@ -653,9 +653,9 @@ export default {
             this.chartInstance = this.$refs.pieChart?.chart;
             // this.columnChartInstance = this.$refs.columnChart2?.chart;
             if (this.chartInstance) {
-                console.log("Chart instance is ready");
+                // console.log("Chart instance is ready");
             } else {
-                console.error("Chart instance could not be initialized");
+                // console.error("Chart instance could not be initialized");
             }
         },
         updateCharts(newData) {
@@ -686,9 +686,9 @@ export default {
                     `/get-daily-report-count/${this.userGroupId}`
                 );
                 this.dailyReportCount = response.data;
-                console.log("daily Report", this.dailyReportCount);
+                // console.log("daily Report", this.dailyReportCount);
             } catch (error) {
-                console.error("Error fetching daily report count:", error);
+                // console.error("Error fetching daily report count:", error);
             }
         },
         async fetchMonthWiseTicketStatus() {

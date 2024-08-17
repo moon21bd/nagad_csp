@@ -40,11 +40,21 @@ let router = new Router({
     ],
 });
 
+// List of routes to be excluded from using AdminLayout
+const excludedRoutes = [
+    "/login",
+    "/login/:user_id?",
+    "/register",
+    "/forgot-password",
+    "/reset/:token",
+    "/verify/user/:id",
+];
+
 router.beforeEach(async (to, from, next) => {
     const isAuthenticated = store.getters["auth/authenticated"];
 
-    // Apply default layout if no layout is defined
-    if (!to.meta.layout) {
+    // Apply default layout if no layout is defined and the route is not excluded
+    if (!to.meta.layout && !excludedRoutes.includes(to.path)) {
         to.meta.layout = AdminLayout;
     }
 

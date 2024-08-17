@@ -84,6 +84,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
             Route::middleware('permission:permission-list')->get('/', [PermissionsController::class, 'permissions']);
             Route::middleware('permission:permission-edit')->post('{id}', [PermissionsController::class, 'getPermissionById']);
             Route::middleware('permission:permission-create')->post('save', [PermissionsController::class, 'store']);
+            Route::middleware('permission:permission-edit')->post('save/{id}', [PermissionsController::class, 'store']);
             Route::middleware('permission:permission-delete')->delete('{id}', [PermissionsController::class, 'destroy']);
         });
     });
