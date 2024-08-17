@@ -7,33 +7,48 @@
             <ul>
                 <li>
                     <div class="img">
-                        <img src="/images/tickets.svg" alt=""/>
+                        <img src="/images/tickets.svg" alt="" />
                     </div>
-                    <h3><span>Open Ticket</span> {{ totalReportCount.openTicket ?? 0 }}</h3>
+                    <h3>
+                        <span>Open Ticket</span>
+                        {{ totalReportCount.openTicket ?? 0 }}
+                    </h3>
                 </li>
                 <li>
                     <div class="img">
-                        <img src="/images/tickets-pending.svg" alt=""/>
+                        <img src="/images/tickets-pending.svg" alt="" />
                     </div>
-                    <h3><span>Pending Tickets </span>{{ totalReportCount.pendingTicket ?? 0 }}</h3>
+                    <h3>
+                        <span>Pending Tickets </span
+                        >{{ totalReportCount.pendingTicket ?? 0 }}
+                    </h3>
                 </li>
                 <li>
                     <div class="img">
-                        <img src="/images/tickets-progress.svg" alt=""/>
+                        <img src="/images/tickets-progress.svg" alt="" />
                     </div>
-                    <h3><span>Working in Progress</span>{{ totalReportCount.inProgressTicket ?? 0 }}</h3>
+                    <h3>
+                        <span>Working in Progress</span
+                        >{{ totalReportCount.inProgressTicket ?? 0 }}
+                    </h3>
                 </li>
                 <li>
                     <div class="img">
-                        <img src="/images/tickets-closed.svg" alt=""/>
+                        <img src="/images/tickets-closed.svg" alt="" />
                     </div>
-                    <h3><span>Closed Tickets</span>{{ totalReportCount.closedTicket ?? 0 }}</h3>
+                    <h3>
+                        <span>Closed Tickets</span
+                        >{{ totalReportCount.closedTicket ?? 0 }}
+                    </h3>
                 </li>
                 <li>
                     <div class="img">
-                        <img src="/images/tickets-reopen.svg" alt=""/>
+                        <img src="/images/tickets-reopen.svg" alt="" />
                     </div>
-                    <h3><span>Reopen Tickets</span>{{ totalReportCount.reopenTicket ?? 0 }}</h3>
+                    <h3>
+                        <span>Reopen Tickets</span
+                        >{{ totalReportCount.reopenTicket ?? 0 }}
+                    </h3>
                 </li>
             </ul>
         </div>
@@ -57,14 +72,14 @@
                                     :key="month.value"
                                     :label="month.label"
                                     :value="month.value"
-
                                 >
                                 </el-option>
                             </el-select>
                         </div>
                         <div class="dashboard-charts">
-                            <vue-highcharts ref="pieChart"
-                                            :options="ticketsStatus"
+                            <vue-highcharts
+                                ref="pieChart"
+                                :options="ticketsStatus"
                             ></vue-highcharts>
                         </div>
                     </div>
@@ -77,28 +92,56 @@
                         <div class="today-status">
                             <ul>
                                 <li class="open-tickets">
-                                    <h3><span>Total Ticket</span>{{ dailyReportCount.totalCount ?? 0 }}</h3>
+                                    <h3>
+                                        <span>Total Ticket</span
+                                        >{{ dailyReportCount.totalCount ?? 0 }}
+                                    </h3>
                                     <i class="icon-tickets"></i>
                                 </li>
                                 <li class="progress-tickets">
-                                    <h3><span>Work in Progress</span>{{ dailyReportCount.totalInProgressTicket ?? 0 }}
+                                    <h3>
+                                        <span>Work in Progress</span
+                                        >{{
+                                            dailyReportCount.totalInProgressTicket ??
+                                            0
+                                        }}
                                     </h3>
                                     <i class="icon-loader"></i>
                                 </li>
                                 <li class="close-tickets">
-                                    <h3><span>Close Ticket</span>{{ dailyReportCount.totalClosedTicket ?? 0 }}</h3>
+                                    <h3>
+                                        <span>Close Ticket</span
+                                        >{{
+                                            dailyReportCount.totalClosedTicket ??
+                                            0
+                                        }}
+                                    </h3>
                                     <i class="icon-check-circle"></i>
                                 </li>
                                 <li class="total-query">
-                                    <h3><span>Total Query</span>{{ dailyReportCount.totalQuery ?? 0 }}</h3>
+                                    <h3>
+                                        <span>Total Query</span
+                                        >{{ dailyReportCount.totalQuery ?? 0 }}
+                                    </h3>
                                     <i class="icon-help"></i>
                                 </li>
                                 <li class="total-compliance">
-                                    <h3><span>Total Compliance</span>{{ dailyReportCount.totalComplaint ?? 0 }}</h3>
+                                    <h3>
+                                        <span>Total Compliance</span
+                                        >{{
+                                            dailyReportCount.totalComplaint ?? 0
+                                        }}
+                                    </h3>
                                     <i class="icon-alert-triangle"></i>
                                 </li>
                                 <li class="total-tequest">
-                                    <h3><span>Total S.Request</span>{{ dailyReportCount.totalServiceRequest ?? 0 }}</h3>
+                                    <h3>
+                                        <span>Total S.Request</span
+                                        >{{
+                                            dailyReportCount.totalServiceRequest ??
+                                            0
+                                        }}
+                                    </h3>
                                     <i class="icon-headphones"></i>
                                 </li>
                             </ul>
@@ -136,8 +179,9 @@
                         :key="index"
                     >
                         <div class="dashboard-charts">
-                            <vue-highcharts ref="columnChart2"
-                                            :options="chartOptions"
+                            <vue-highcharts
+                                ref="columnChart2"
+                                :options="chartOptions"
                             ></vue-highcharts>
                         </div>
                     </div>
@@ -167,7 +211,7 @@ export default {
             columnChartData: {
                 totalComplaintData: "",
                 totalQueryData: "",
-                totalServiceRequestData: ""
+                totalServiceRequestData: "",
             },
             queryColumnChartData: "",
             complaintColumnChartData: "",
@@ -397,9 +441,9 @@ export default {
                         {
                             name: "Monthly Queries (in thousand)",
                             data: [
-                                20, 40, 50, 20, 40, 50, 60, 80, 100, 60, 40, 50, 30,
-                                80, 100, 20, 40, 50, 60, 80, 40, 50, 20, 40, 50, 60,
-                                80, 100, 60, 40, 50,
+                                20, 40, 50, 20, 40, 50, 60, 80, 100, 60, 40, 50,
+                                30, 80, 100, 20, 40, 50, 60, 80, 40, 50, 20, 40,
+                                50, 60, 80, 100, 60, 40, 50,
                             ],
                         },
                     ],
@@ -490,9 +534,9 @@ export default {
                         {
                             name: "Compliance (in thousand)",
                             data: [
-                                20, 40, 50, 20, 40, 50, 60, 80, 100, 60, 40, 50, 30,
-                                80, 100, 20, 40, 50, 60, 80, 40, 50, 20, 40, 50, 60,
-                                80, 100, 60, 40, 50,
+                                20, 40, 50, 20, 40, 50, 60, 80, 100, 60, 40, 50,
+                                30, 80, 100, 20, 40, 50, 60, 80, 40, 50, 20, 40,
+                                50, 60, 80, 100, 60, 40, 50,
                             ],
                         },
                     ],
@@ -582,19 +626,19 @@ export default {
                         {
                             name: "Monthly Service Request (in thousand)",
                             data: [
-                                20, 40, 50, 20, 40, 50, 60, 80, 100, 60, 40, 50, 30,
-                                80, 100, 20, 40, 50, 60, 80, 40, 50, 20, 40, 50, 60,
-                                80, 100, 60, 40, 50,
+                                20, 40, 50, 20, 40, 50, 60, 80, 100, 60, 40, 50,
+                                30, 80, 100, 20, 40, 50, 60, 80, 40, 50, 20, 40,
+                                50, 60, 80, 100, 60, 40, 50,
                             ],
                         },
                     ],
                 },
             ],
-        }
+        };
     },
 
     mounted() {
-        this.init()
+        this.init();
         this.initializeChart();
     },
     methods: {
@@ -609,7 +653,7 @@ export default {
             this.chartInstance = this.$refs.pieChart?.chart;
             // this.columnChartInstance = this.$refs.columnChart2?.chart;
             if (this.chartInstance) {
-                console.log('Chart instance is ready');
+                console.log("Chart instance is ready");
             } else {
                 console.error("Chart instance could not be initialized");
             }
@@ -626,10 +670,12 @@ export default {
         },
         async fetchTotalReportCount() {
             try {
-                const response = await axios.get(`/get-total-report-count/${this.userGroupId}`);
+                const response = await axios.get(
+                    `/get-total-report-count/${this.userGroupId}`
+                );
                 this.totalReportCount = response.data;
-                this.monthWiseReportCount = response.data
-                await this.setTicketStatusValue(this.monthWiseReportCount)
+                this.monthWiseReportCount = response.data;
+                await this.setTicketStatusValue(this.monthWiseReportCount);
             } catch (error) {
                 console.error("Error fetching Total Report Count:", error);
             }
@@ -650,8 +696,8 @@ export default {
                 const response = await axios.get(
                     `/get-month-wise-ticket-status-count/${this.userGroupId}/${this.monthTickets}`
                 );
-                this.monthWiseReportCount = response.data
-                await this.setTicketStatusValue(this.monthWiseReportCount)
+                this.monthWiseReportCount = response.data;
+                await this.setTicketStatusValue(this.monthWiseReportCount);
             } catch (error) {
                 console.error("Error fetching service sub categories:", error);
             }
@@ -661,14 +707,22 @@ export default {
                 const response = await axios.get(
                     `/get-date-wise-column-chart-data-count/${this.userGroupId}/${this.monthValue}`
                 );
-                this.columnChartData = response.data
-                this.queryColumnChartData = Object.values(this.columnChartData.totalQueryData)
-                this.complaintColumnChartData = Object.values(this.columnChartData.totalComplaintData)
-                this.serviceRequestColumnChartData = Object.values(this.columnChartData.totalServiceRequestData)
+                this.columnChartData = response.data;
+                this.queryColumnChartData = Object.values(
+                    this.columnChartData.totalQueryData
+                );
+                this.complaintColumnChartData = Object.values(
+                    this.columnChartData.totalComplaintData
+                );
+                this.serviceRequestColumnChartData = Object.values(
+                    this.columnChartData.totalServiceRequestData
+                );
 
-                this.totalQueries[0].series[0].data = this.queryColumnChartData
-                this.totalQueries[1].series[0].data = this.complaintColumnChartData
-                this.totalQueries[2].series[0].data = this.serviceRequestColumnChartData
+                this.totalQueries[0].series[0].data = this.queryColumnChartData;
+                this.totalQueries[1].series[0].data =
+                    this.complaintColumnChartData;
+                this.totalQueries[2].series[0].data =
+                    this.serviceRequestColumnChartData;
                 this.updateCharts(this.totalQueries);
             } catch (error) {
                 console.error("Error fetching service sub categories:", error);
@@ -702,11 +756,10 @@ export default {
                         name: "Reopen Ticket",
                         y: data.reopenTicket ?? 0,
                         color: "#543884",
-                    }
+                    },
                 ]);
             }
-
-        }
+        },
     },
 };
 </script>
