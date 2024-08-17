@@ -1,15 +1,11 @@
-import AdminLayout from "../views/admin/layout/index.vue";
-
 export default [
     {
-        // path: "/admin/required-fields-config/add",
         path: "/admin/required-fields-config/add/:cti?/:cci?/:csci?",
         name: "required-fields-config-add",
         component: () => import("../views/admin/NCRequiredFields/Create.vue"),
         meta: {
             requiresAuth: true,
             requiresPermission: "required-fields-config-create",
-            layout: AdminLayout,
         },
     },
     {
@@ -19,7 +15,6 @@ export default [
         meta: {
             requiresAuth: true,
             requiresPermission: "required-fields-config-list",
-            layout: AdminLayout,
         },
     },
     {
@@ -29,7 +24,6 @@ export default [
         meta: {
             requiresAuth: true,
             requiresPermission: "required-fields-config-edit",
-            layout: AdminLayout,
         },
     },
 ];

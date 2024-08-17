@@ -1,7 +1,6 @@
 import CallTypeList from "../views/admin/NCCallTypes/List.vue";
 import CallTypeCreate from "../views/admin/NCCallTypes/Create.vue";
 import CallTypeEdit from "../views/admin/NCCallTypes/Edit.vue";
-import AdminLayout from "../views/admin/layout/index.vue";
 
 export default [
     {
@@ -11,7 +10,6 @@ export default [
         meta: {
             requiresAuth: true,
             requiresPermission: "service-types-index",
-            layout: AdminLayout,
         },
     },
     {
@@ -21,7 +19,6 @@ export default [
         meta: {
             requiresAuth: true,
             requiresPermission: "service-types-create",
-            layout: AdminLayout,
         },
     },
     {
@@ -31,7 +28,6 @@ export default [
         meta: {
             requiresAuth: true,
             requiresPermission: "service-types-edit",
-            layout: AdminLayout,
         },
     },
 ];

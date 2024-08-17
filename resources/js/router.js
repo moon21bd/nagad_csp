@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Router from "vue-router";
+import AdminLayout from "./views/admin/layout/index.vue";
 
 import defaultRoutes from "./routers/default";
 import sbadminRoutes from "./routers/sbadmin";
@@ -41,6 +42,11 @@ let router = new Router({
 
 router.beforeEach(async (to, from, next) => {
     const isAuthenticated = store.getters["auth/authenticated"];
+
+    // Apply default layout if no layout is defined
+    if (!to.meta.layout) {
+        to.meta.layout = AdminLayout;
+    }
 
     // If the user is authenticated and tries to access the login page, redirect to home
     if (to.path === "/login" && isAuthenticated) {

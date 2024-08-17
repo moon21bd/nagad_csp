@@ -1,5 +1,3 @@
-import AdminLayout from "../views/admin/layout/index.vue";
-
 const Create = () => import("../views/admin/EmailConfig/Create.vue");
 const Edit = () => import("../views/admin/EmailConfig/Edit.vue");
 const List = () => import("../views/admin/EmailConfig/List.vue");
@@ -14,7 +12,6 @@ export default [
             middleware: "auth",
             requiresAuth: true,
             requiresPermission: "email-config-create",
-            layout: AdminLayout,
         },
     },
     {
@@ -26,7 +23,6 @@ export default [
             middleware: "auth",
             requiresAuth: true,
             requiresPermission: "email-config-edit",
-            layout: AdminLayout,
         },
     },
     {
@@ -38,7 +34,6 @@ export default [
             middleware: "auth",
             requiresAuth: true,
             requiresPermission: "email-config-list",
-            layout: AdminLayout,
         },
     },
 ];

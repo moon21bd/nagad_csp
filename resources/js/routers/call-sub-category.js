@@ -1,5 +1,3 @@
-import AdminLayout from "../views/admin/layout/index.vue";
-
 const Index = () => import("../views/admin/NCCallSubCategory/List.vue");
 const Create = () => import("../views/admin/NCCallSubCategory/Create.vue");
 const Edit = () => import("../views/admin/NCCallSubCategory/Edit.vue");
@@ -12,7 +10,6 @@ export default [
         meta: {
             requiresAuth: true,
             requiresPermission: "service-sub-categories-list",
-            layout: AdminLayout,
         },
     },
     {
@@ -22,7 +19,6 @@ export default [
         meta: {
             requiresAuth: true,
             requiresPermission: "service-sub-categories-create",
-            layout: AdminLayout,
         },
     },
     {
@@ -32,7 +28,6 @@ export default [
         meta: {
             requiresAuth: true,
             requiresPermission: "service-sub-categories-edit",
-            layout: AdminLayout,
         },
     },
 ];

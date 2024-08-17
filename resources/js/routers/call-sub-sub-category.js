@@ -1,5 +1,3 @@
-import AdminLayout from "../views/admin/layout/index.vue";
-
 const Index = () => import("../views/admin/NCCallSubSubCategory/List.vue");
 const Create = () => import("../views/admin/NCCallSubSubCategory/Create.vue");
 const Edit = () => import("../views/admin/NCCallSubSubCategory/Edit.vue");
@@ -11,7 +9,6 @@ export default [
         component: Index,
         meta: {
             requiresAuth: true,
-            layout: AdminLayout,
         },
     },
     {
@@ -20,7 +17,6 @@ export default [
         component: Create,
         meta: {
             requiresAuth: true,
-            layout: AdminLayout,
         },
     },
     {
@@ -29,7 +25,6 @@ export default [
         component: Edit,
         meta: {
             requiresAuth: true,
-            layout: AdminLayout,
         },
     },
 ];

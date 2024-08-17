@@ -1,5 +1,3 @@
-import AdminLayout from "../views/admin/layout/index.vue";
-
 export default [
     {
         path: "/admin/service-type-config/add",
@@ -9,7 +7,6 @@ export default [
         meta: {
             requiresAuth: true,
             requiresPermission: "service-type-config-create",
-            layout: AdminLayout,
         },
     },
     {
@@ -19,7 +16,6 @@ export default [
         meta: {
             requiresAuth: true,
             requiresPermission: "service-type-config-list",
-            layout: AdminLayout,
         },
     },
     {
@@ -29,7 +25,6 @@ export default [
         meta: {
             requiresAuth: true,
             requiresPermission: "service-type-config-edit",
-            layout: AdminLayout,
         },
     },
 ];

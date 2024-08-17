@@ -146,7 +146,7 @@
                                         placeholder="Enter Input Validation Rules"
                                     />
                                     <small
-                                        v-if="help"
+                                        v-if="help && help.length > 0"
                                         class="form-text text-muted"
                                         >Help text goes here</small
                                     >

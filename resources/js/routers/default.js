@@ -1,5 +1,3 @@
-import AdminLayout from "../views/admin/layout/index.vue";
-
 export default [
     {
         path: "/admin",
@@ -7,7 +5,6 @@ export default [
         component: () => import("../views/admin/dashboard.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout,
         },
     },
     {
@@ -16,7 +13,6 @@ export default [
         component: () => import("../views/admin/dashboard.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout,
         },
     },
     {
@@ -25,7 +21,6 @@ export default [
         component: () => import("../views/admin/Moon.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout,
         },
     },
     {

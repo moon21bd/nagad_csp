@@ -1,5 +1,3 @@
-import AdminLayout from "../views/admin/layout/index.vue";
-
 const Profile = () => import("../views/admin/Profile/Index.vue");
 const ProfileSetting = () => import("../views/admin/Profile/Setting.vue");
 const UserCreate = () => import("../views/admin/Users/Create.vue");
@@ -19,7 +17,6 @@ export default [
             middleware: "auth",
             requiresAuth: true,
             requiresPermission: "user-profile",
-            layout: AdminLayout,
         },
     },
     {
@@ -31,7 +28,6 @@ export default [
             middleware: "auth",
             requiresAuth: true,
             requiresPermission: "user-profile-setting",
-            layout: AdminLayout,
         },
     },
     {
@@ -43,7 +39,6 @@ export default [
             middleware: "auth",
             requiresAuth: true,
             requiresPermission: "user-create",
-            layout: AdminLayout,
         },
     },
     {
@@ -55,7 +50,6 @@ export default [
             middleware: "auth",
             requiresAuth: true,
             requiresPermission: "user-edit",
-            layout: AdminLayout,
         },
     },
     {
@@ -67,7 +61,6 @@ export default [
             middleware: "auth",
             requiresAuth: true,
             requiresPermission: "user-list",
-            layout: AdminLayout,
         },
     },
     {
@@ -78,8 +71,7 @@ export default [
             title: "User Location",
             middleware: "auth",
             requiresAuth: true,
-            requiresPermission: "user-location",
-            layout: AdminLayout,
+            requiresPermission: "user-location-view",
         },
     },
     {
@@ -91,7 +83,6 @@ export default [
             middleware: "auth",
             requiresAuth: true,
             requiresPermission: "user-role-manage",
-            layout: AdminLayout,
         },
     },
 ];

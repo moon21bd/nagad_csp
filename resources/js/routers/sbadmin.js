@@ -1,5 +1,3 @@
-import AdminLayout from "../views/admin/layout/index.vue";
-
 export default [
     /**
      * Default templates routes
@@ -10,7 +8,6 @@ export default [
         component: () => import("../views/admin/buttons.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout,
         },
     },
     {
@@ -19,7 +16,6 @@ export default [
         component: () => import("../views/admin/cards.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout,
         },
     },
     {
@@ -28,7 +24,6 @@ export default [
         component: () => import("../views/admin/colors.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout,
         },
     },
     {
@@ -37,7 +32,6 @@ export default [
         component: () => import("../views/admin/borders.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout,
         },
     },
     {
@@ -46,7 +40,6 @@ export default [
         component: () => import("../views/admin/animations.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout,
         },
     },
     {
@@ -55,7 +48,6 @@ export default [
         component: () => import("../views/admin/other.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout,
         },
     },
     {
@@ -64,7 +56,6 @@ export default [
         component: () => import("../views/admin/page-not-found.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout,
         },
     },
     {
@@ -73,7 +64,6 @@ export default [
         component: () => import("../views/admin/blank.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout,
         },
     },
     {
@@ -82,7 +72,6 @@ export default [
         component: () => import("../views/admin/charts.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout,
         },
     },
     {
@@ -91,7 +80,6 @@ export default [
         component: () => import("../views/admin/tables.vue"),
         meta: {
             requiresAuth: true,
-            layout: AdminLayout,
         },
     },
 ];

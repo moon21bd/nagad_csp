@@ -1,5 +1,3 @@
-import AdminLayout from "../views/admin/layout/index.vue";
-
 export default [
     {
         path: "/admin/ticket/create",
@@ -8,7 +6,6 @@ export default [
         meta: {
             requiresAuth: true,
             requiresPermission: "ticket-create",
-            layout: AdminLayout,
         },
     },
     {
@@ -18,7 +15,6 @@ export default [
         meta: {
             requiresAuth: true,
             requiresPermission: "ticket-edit",
-            layout: AdminLayout,
         },
     },
     {
@@ -28,7 +24,6 @@ export default [
         meta: {
             requiresAuth: true,
             requiresPermission: "ticket-list",
-            layout: AdminLayout,
         },
     },
     {
@@ -41,7 +36,6 @@ export default [
         meta: {
             requiresAuth: true,
             requiresPermission: "tickets-required-fields-create",
-            layout: AdminLayout,
         },
     },
     {
@@ -51,7 +45,6 @@ export default [
         meta: {
             requiresAuth: true,
             requiresPermission: "ticket-timeline",
-            layout: AdminLayout,
         },
     },
 ];

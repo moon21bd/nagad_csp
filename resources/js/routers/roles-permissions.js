@@ -1,5 +1,3 @@
-import AdminLayout from "../views/admin/layout/index.vue";
-
 const RolesCreate = () => import("../views/admin/Roles/Create.vue");
 const RolesList = () => import("../views/admin/Roles/List.vue");
 const RolesEdit = () => import("../views/admin/Roles/Edit.vue");
@@ -16,7 +14,6 @@ export default [
             middleware: "auth",
             requiresAuth: true,
             requiresPermission: "role-create",
-            layout: AdminLayout,
         },
     },
     {
@@ -28,7 +25,6 @@ export default [
             middleware: "auth",
             requiresAuth: true,
             requiresPermission: "role-list",
-            layout: AdminLayout,
         },
     },
     {
@@ -40,7 +36,6 @@ export default [
             middleware: "auth",
             requiresAuth: true,
             requiresPermission: "role-edit",
-            layout: AdminLayout,
         },
     },
     {
@@ -52,7 +47,6 @@ export default [
             middleware: "auth",
             requiresAuth: true,
             requiresPermission: "permission-list",
-            layout: AdminLayout,
         },
     },
     {
@@ -63,7 +57,6 @@ export default [
             title: "Permission Denied",
             middleware: "auth",
             requiresAuth: true,
-            layout: AdminLayout,
         },
     },
 ];
