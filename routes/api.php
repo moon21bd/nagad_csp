@@ -11,6 +11,7 @@ use App\Http\Controllers\NCNotificationController;
 use App\Http\Controllers\NCRequiredConfigController;
 use App\Http\Controllers\NCServiceTypeConfigController;
 use App\Http\Controllers\NCTicketController;
+use App\Http\Controllers\NCReportController;
 use App\Http\Controllers\PermissionsController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UsersController;
@@ -106,6 +107,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     DELETE /users/{user} → destroy method
      */
 
+    // report data
+
+
     // various resource apis
     Route::apiResources([
         'click-activity' => ClickActivityController::class,
@@ -119,7 +123,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         'service-type-config' => NCServiceTypeConfigController::class,
     ]);
 });
-
+Route::get('get-total-report-count/{id?}', [NCReportController::class, 'getTotalReportCount']);
+Route::get('get-daily-report-count/{id?}', [NCReportController::class, 'getDailyReportCount']);
+Route::get('get-month-wise-ticket-status-count/{id?}/{month?}', [NCReportController::class, 'getMonthWiseTicketStatusCount']);
+Route::get('get-date-wise-column-chart-data-count/{id?}/{month?}', [NCReportController::class, 'getDateWiseColumnChartDataCount']);
 // for renewing token
 Route::middleware('auth:sanctum')->post('/renew-token', function (Request $request) {
     $user = $request->user();
