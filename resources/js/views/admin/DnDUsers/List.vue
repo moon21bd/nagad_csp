@@ -4,7 +4,7 @@
             <h1 class="title">DnD Users</h1>
             <router-link
                 class="btn btn-site ml-auto"
-                :to="{ name: 'dnduser-create' }"
+                :to="{ name: 'dnd-user-create' }"
                 ><i class="icon-plus"></i> New
             </router-link>
         </div>
@@ -13,7 +13,7 @@
                 <img src="/images/loader.gif" alt="" />
             </div>
             <div class="card-body">
-                <div v-if="callTypes.length && !isLoading">
+                <div v-if="dndUsers.length && !isLoading">
                     <div class="table-responsive">
                         <table id="dataTable" class="table border rounded">
                             <thead>
@@ -21,34 +21,40 @@
                                     <th>ID</th>
                                     <th>Name</th>
                                     <th>Mobile No.</th>
+                                    <th>Status</th>
                                     <th class="text-right">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr
-                                    v-for="{
-                                        dnd_username,
-                                        id,
-                                        mobile_no,
-                                    } in dndUsers"
-                                    :key="id"
-                                >
-                                    <td>{{ id }}</td>
-                                    <td>{{ dnd_username }}</td>
-                                    <td>{{ mobile_no }}</td>
-
+                                <tr v-for="item in dndUsers" :key="item.id">
+                                    <td>{{ item.id }}</td>
+                                    <td>{{ item.name }}</td>
+                                    <td>{{ item.mobile_no }}</td>
+                                    <td>
+                                        <span
+                                            :class="
+                                                item.status === 'active'
+                                                    ? 'active'
+                                                    : 'inactive'
+                                            "
+                                            class="badge"
+                                            >{{ item.status }}</span
+                                        >
+                                    </td>
                                     <td class="text-right">
                                         <router-link
                                             class="btn-action btn-edit"
                                             :to="{
-                                                name: 'dnduser-edit',
-                                                params: { id },
+                                                name: 'dnd-user-edit',
+                                                params: { id: item.id },
                                             }"
                                             ><i class="icon-edit-pen"></i
                                         ></router-link>
                                         <a
                                             class="btn-action btn-trash"
-                                            @click.prevent="deleteDnDUser(id)"
+                                            @click.prevent="
+                                                deleteDnDUser(item.id)
+                                            "
                                         >
                                             <i class="icon-trash"></i>
                                         </a>
@@ -76,8 +82,7 @@ export default {
     data() {
         return {
             isLoading: false,
-            status: "active",
-            callTypes: [],
+            dndUsers: [],
         };
     },
 
@@ -85,7 +90,7 @@ export default {
         async deleteDnDUser(id) {
             try {
                 if (confirm("Are you sure you want to delete this user?")) {
-                    await axios.delete(`/dnduser/${id}`);
+                    await axios.delete(`/dnd-user/${id}`);
                     this.fetchDnDUsers();
                 }
             } catch (error) {
@@ -94,17 +99,25 @@ export default {
         },
         async fetchDnDUsers() {
             try {
-                const response = await axios.get("/dndusers");
-                this.DnDUsers = response.data;
+                this.isLoading = true;
+                const response = await axios.get("/dnd-user");
+                this.dndUsers = response.data;
             } catch (error) {
                 console.error("Error fetching dnd user:", error);
+            } finally {
+                this.isLoading = false;
             }
         },
         initializeDataTable() {
-            this.$nextTick(() => {
-                $("#dataTable").DataTable({
-                    order: [[0, "desc"]],
-                });
+            // Destroy existing DataTable instance if it exists
+            if ($.fn.DataTable.isDataTable("#dataTable")) {
+                $("#dataTable").DataTable().destroy();
+                $("#dataTable").empty();
+            }
+
+            // Initialize DataTable
+            $("#dataTable").DataTable({
+                order: [[0, "desc"]],
             });
         },
     },
@@ -112,9 +125,11 @@ export default {
         this.fetchDnDUsers();
     },
     watch: {
-        DnDUsers(newValue) {
+        dndUsers(newValue) {
             if (newValue.length) {
-                this.initializeDataTable();
+                this.$nextTick(() => {
+                    this.initializeDataTable();
+                });
             }
         },
     },

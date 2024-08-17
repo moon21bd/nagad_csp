@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api;
 use App\Http\Controllers\ClickActivityController;
+use App\Http\Controllers\DNDUserController;
 use App\Http\Controllers\EmailConfigController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\NCCallCategoryController;
@@ -126,5 +127,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
         'required-fields-configs' => NCRequiredConfigController::class,
         'service-type-config' => NCServiceTypeConfigController::class,
         'email-config' => EmailConfigController::class,
+        'dnd-user' => DNDUserController::class,
     ]);
 });

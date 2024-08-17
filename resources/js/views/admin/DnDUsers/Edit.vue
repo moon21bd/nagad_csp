@@ -3,7 +3,7 @@
         <div class="common-heading d-flex align-items-center mb-3">
             <router-link
                 class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
-                :to="{ name: 'user-index' }"
+                :to="{ name: 'dnd-user-index' }"
                 ><i class="icon-left"></i>
             </router-link>
             <h1 class="title m-0">Update DnD User</h1>
@@ -24,27 +24,26 @@
                                     <input
                                         class="form-control"
                                         type="text"
-                                        name="dnd_username"
-                                        v-model="dnduser.dnd_username"
-                                        disabled
+                                        name="name"
+                                        v-model="dnduser.name"
                                     />
                                     <span
-                                        v-if="errors.dnd_username"
+                                        v-if="errors.name"
                                         class="text-danger"
-                                        >{{ errors.dnd_username[0] }}</span
+                                        >{{ errors.name[0] }}</span
                                     >
 
                                     <div
                                         class="text-danger"
-                                        v-show="errors.has('dnd_username')"
+                                        v-show="errors.has('name')"
                                     >
-                                        {{ errors.first("dnd_username") }}
+                                        {{ errors.first("name") }}
                                     </div>
                                 </div>
 
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >Phone Number</label
+                                        >Phone Number<sup>*</sup></label
                                     >
                                     <input
                                         class="form-control"
@@ -69,7 +68,8 @@
                                 class="text-danger"
                                 >{{ formErrors.message }}</small
                             >
-
+                            <br />
+                            <br />
                             <button class="btn btn-site" type="submit">
                                 Update
                             </button>
@@ -88,13 +88,12 @@ export default {
     data() {
         return {
             isLoading: false,
-
             formErrors: [],
-            user: {
-                dnd_username: "",
+            id: null,
+            dnduser: {
+                name: "",
                 mobile_no: "",
             },
-            id: null,
         };
     },
     created() {
@@ -104,10 +103,13 @@ export default {
     methods: {
         async fetchDnDUser() {
             try {
-                const response = await axios.get(`/dnduser/${this.id}`);
-                this.dnduser = response.data.data;
+                const response = await axios.get(`/dnd-user/${this.id}`);
+                this.dnduser = {
+                    name: response.data.name,
+                    mobile_no: response.data.mobile_no,
+                };
             } catch (error) {
-                console.error("Error fetching user:", error);
+                console.error("Error fetching dnd user:", error);
                 this.dnduser = {};
             }
         },
@@ -117,17 +119,17 @@ export default {
                 if (result) {
                     axios({
                         method: "PUT",
-                        url: `/dnduser/${_this.id}`,
-                        data: _this.user,
+                        url: `/dnd-user/${_this.id}`,
+                        data: _this.dnduser,
                         headers: { "Content-Type": "application/json" },
                     })
                         .then(function (response) {
                             _this.isLoading = false;
-                            _this.user = {};
+                            _this.dnduser = {};
                             Vue.prototype.$showToast(response.data.message, {
                                 type: "success",
                             });
-                            _this.$router.push({ name: "dnduser-index" });
+                            _this.$router.push({ name: "dnd-user-index" });
                         })
                         .catch((errors) => {
                             console.log(

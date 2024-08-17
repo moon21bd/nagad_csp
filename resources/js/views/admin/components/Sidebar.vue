@@ -104,6 +104,13 @@
                     </router-link>
                 </el-menu-item>
 
+                <el-menu-item index="dnd-user-index">
+                    <router-link :to="{ name: 'dnd-user-index' }">
+                        <i class="icon-user-x"></i>
+                        <span>DnD Users</span>
+                    </router-link>
+                </el-menu-item>
+
                 <div v-if="hasRole('admin|superadmin|owner')">
                     <el-menu-item index="roles-index">
                         <router-link :to="{ name: 'roles-index' }">

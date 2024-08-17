@@ -7,6 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class DNDUser extends Model
 {
-    protected $table = "dnd_users";
     use HasFactory;
+
+    protected $table = "dnd_users";
+
+    protected $fillable = [
+        'name',
+        'mobile_no',
+        'status',
+        'created_by',
+        'updated_by',
+        'last_updated_by',
+    ];
 }

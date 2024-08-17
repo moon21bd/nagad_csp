@@ -24,31 +24,33 @@
                                     <input
                                         class="form-control"
                                         type="text"
-                                        name="dnd_username"
-                                        v-model="formData.dnd_username"
+                                        name="name"
+                                        placeholder="Name"
+                                        v-model="formData.name"
                                     />
                                     <span
-                                        v-if="errors.dnd_username"
+                                        v-if="errors.name"
                                         class="text-danger"
-                                        >{{ errors.dnd_username[0] }}</span
+                                        >{{ errors.name[0] }}</span
                                     >
 
                                     <small
                                         class="text-danger"
-                                        v-show="errors.has('dnd_username')"
+                                        v-show="errors.has('name')"
                                     >
-                                        {{ errors.first("dnd_username") }}
+                                        {{ errors.first("name") }}
                                     </small>
                                 </div>
 
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >Phone Number</label
+                                        >Phone Number<sup>*</sup></label
                                     >
                                     <input
                                         class="form-control"
                                         type="text"
                                         name="mobile_no"
+                                        placeholder="Mobile No."
                                         v-model="formData.mobile_no"
                                         v-validate="
                                             'required|numeric|min:10|max:14'
@@ -91,7 +93,7 @@ export default {
             isLoading: false,
             formErrors: [],
             formData: {
-                dnd_username: "",
+                name: "",
                 mobile_no: "",
             },
         };
@@ -103,7 +105,7 @@ export default {
                 if (validated) {
                     axios({
                         method: "POST",
-                        url: "/dnduser/create",
+                        url: "/dnd-user",
                         data: _this.formData,
                         headers: { "Content-Type": "application/json" },
                     })
@@ -113,7 +115,7 @@ export default {
                             Vue.prototype.$showToast(response.data.message, {
                                 type: "success",
                             });
-                            _this.$router.push({ name: "dnduser-index" });
+                            _this.$router.push({ name: "dnd-user-index" });
                         })
                         .catch((errors) => {
                             console.log(

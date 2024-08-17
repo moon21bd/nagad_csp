@@ -169,3 +169,31 @@ if (!function_exists("userCaseWord")) {
 
     }
 }
+
+if (!function_exists("sendValidationErrorResponse")) {
+
+    function sendValidationErrorResponse($validator)
+    {
+        $message = "";
+        foreach ($validator->errors()->getMessages() ?? [] as $value) {
+            $message .= ' ' . $value[0];
+        }
+
+        $error = [
+            'title' => 'Validation Error',
+            'message' => $message,
+        ];
+
+        return sendErrorResponse($error);
+    }
+
+}
+if (!function_exists("sendErrorResponse")) {
+    function sendErrorResponse($error, $code = 404)
+    {
+        $response = [
+            'errors' => $error,
+        ];
+        return response()->json($response, $code);
+    }
+}

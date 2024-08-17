@@ -6,8 +6,8 @@ const List = () => import("../views/admin/DnDUsers/List.vue");
 
 export default [
     {
-        name: "dnduser-create",
-        path: "/admin/dnduser/create",
+        name: "dnd-user-create",
+        path: "/admin/dnd-user/create",
         component: Create,
         meta: {
             title: "DnD User Create",
@@ -18,26 +18,26 @@ export default [
         },
     },
     {
-        name: "dnduser-edit",
-        path: "/admin/dnduser/:id/edit",
+        name: "dnd-user-edit",
+        path: "/admin/dnd-user/:id/edit",
         component: Edit,
         meta: {
             title: "DnD User Edit",
             middleware: "auth",
             requiresAuth: true,
-            requiresPermission: "dnduser-edit",
+            requiresPermission: "dnd-user-edit",
             layout: AdminLayout,
         },
     },
     {
-        name: "dnduser-index",
-        path: "/admin/dndusers",
+        name: "dnd-user-index",
+        path: "/admin/dnd-users",
         component: List,
         meta: {
             title: "DnD User List",
             middleware: "auth",
             requiresAuth: true,
-            requiresPermission: "dnduser-list",
+            requiresPermission: "dnd-user-list",
             layout: AdminLayout,
         },
     },
