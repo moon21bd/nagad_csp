@@ -2,22 +2,22 @@
 
 namespace App\Models;
 
-use App\Models\HasRoles as RoleModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laratrust\Traits\LaratrustUserTrait;
 use Laravel\Sanctum\HasApiTokens;
 use Ramsey\Uuid\Uuid as Generator;
-use Silber\Bouncer\Database\HasRolesAndAbilities;
 
 // class User extends Authenticatable implements MustVerifyEmail
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens, SoftDeletes, HasRolesAndAbilities;
-    // protected $guard_name = 'api';
 
-    // protected $appends = ['must_verify_email'];
+    use HasFactory, Notifiable, HasApiTokens, SoftDeletes, LaratrustUserTrait;
+
+    // It also adds the following methods roles(), hasRole($name), hasPermission($permission), isAbleTo($permission), ability($roles, $permissions, $options), and rolesTeams() to the model.
+
     /**
      * The attributes that are mass assignable.
      *
@@ -72,10 +72,6 @@ class User extends Authenticatable
             }
         });
     }
-    public function model()
-    {
-        return $this->hasMany(RoleModel::class, 'model_id', 'id');
-    }
 
     /**
      * Determine if the user is an administrator.
@@ -102,7 +98,6 @@ class User extends Authenticatable
 
     public function getAvatarUrlAttribute()
     {
-        // Modify the path according to your storage setup, this example assumes public disk
         return $this->avatar ? asset('uploads/' . $this->avatar) : null;
     }
 }

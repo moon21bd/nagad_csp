@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 class CreateGroupRoleTable extends Migration
@@ -13,13 +12,13 @@ class CreateGroupRoleTable extends Migration
      */
     public function up()
     {
-        Schema::create('group_role', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('group_id')->constrained()->onDelete('cascade');
-            $table->foreignId('role_id')->constrained()->onDelete('cascade');
+        /* Schema::create('group_role', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('group_id')->constrained()->onDelete('cascade');
+    $table->foreignId('role_id')->constrained()->onDelete('cascade');
 
-            $table->timestamps();
-        });
+    $table->timestamps();
+    }); */
     }
 
     /**
@@ -29,6 +28,8 @@ class CreateGroupRoleTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('group_role');
+        if (Schema::hasTable('group_role')) {
+            Schema::dropIfExists('group_role');
+        }
     }
 }

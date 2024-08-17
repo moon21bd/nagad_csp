@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Laratrust\Models\LaratrustRole;
 
-class Role extends Model
+class Role extends LaratrustRole
 {
-    public function groups()
-    {
-        return $this->belongsToMany(Group::class, 'group_role');
-    }
+    public $guarded = [];
 
 }

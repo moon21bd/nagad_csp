@@ -343,9 +343,7 @@ export default {
                         this.isLoading = false;
                         console.log("response-tick", response);
                         Vue.prototype.$showToast(response.data.message, {
-                            title: response.data.message,
-                            toaster: `b-toaster-top-right`,
-                            variant: "success",
+                            type: "success",
                         });
                         this.$router.push({ name: "ticket-index" });
                     } catch (errors) {

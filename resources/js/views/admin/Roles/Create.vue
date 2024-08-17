@@ -161,10 +161,8 @@ export default {
                 this.permissions = data.data || [];
             } catch (error) {
                 console.error("Error fetching permissions:", error);
-                this.$toasted.show("Error fetching permissions", {
-                    theme: "toasted-primary",
-                    position: "top-right",
-                    duration: 5000,
+                this.$showToast("Error fetching permissions.", {
+                    type: "error",
                 });
             } finally {
                 this.isLoading = false;
@@ -178,14 +176,9 @@ export default {
                 this.errors.name = "Role name must be at least 3 characters.";
             }
             if (this.selectedPermissions.length === 0) {
-                this.$toasted.show(
-                    "At least one permission must be selected.",
-                    {
-                        theme: "toasted-primary",
-                        position: "top-right",
-                        duration: 5000,
-                    }
-                );
+                this.$showToast("At least one permission must be selected.", {
+                    type: "error",
+                });
                 return false;
             }
             return Object.keys(this.errors).length === 0;
@@ -195,14 +188,12 @@ export default {
 
             this.isLoading = true;
             try {
-                const { data } = await axios.post("/role/create", {
+                const { data } = await axios.post("/roles/create", {
                     name: this.roleName,
                     permissions: this.selectedPermissions,
                 });
-                this.$toasted.show(data.message, {
-                    theme: "toasted-primary",
-                    position: "top-right",
-                    duration: 5000,
+                this.$showToast(data.message, {
+                    type: "success",
                 });
                 this.$router.push({ name: "roles-index" });
             } catch (error) {
@@ -210,19 +201,16 @@ export default {
                     // Handle validation errors
                     const validationErrors = error.response.data.errors;
                     Object.keys(validationErrors).forEach((field) => {
-                        this.$toasted.show(validationErrors[field][0], {
-                            theme: "toasted-primary",
-                            position: "top-right",
-                            duration: 5000,
+                        this.$showToast(validationErrors[field][0], {
+                            type: "error",
                         });
                     });
                 } else {
                     // Handle other errors
                     console.log("Error creating role:", error);
-                    this.$toasted.show("Error creating role", {
-                        theme: "toasted-primary",
-                        position: "top-right",
-                        duration: 5000,
+
+                    this.$showToast("Error creating role", {
+                        type: "warning",
                     });
                 }
             } finally {

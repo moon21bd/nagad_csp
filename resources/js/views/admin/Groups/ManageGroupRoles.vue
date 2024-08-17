@@ -73,6 +73,7 @@ export default {
     methods: {
         fetchGroup() {
             axios.get(`/groups/${this.id}`).then((response) => {
+                console.log("fetchGroup", response.data);
                 this.group = response.data;
                 this.selectedRoles = this.group.roles.map((role) => role.name);
             });
@@ -83,26 +84,39 @@ export default {
             });
         },
         assignRoles() {
-            axios
-                .post(`/groups/${this.id}/roles`, { roles: this.selectedRoles })
-                .then(() => {
-                    this.fetchGroup();
-                    this.selectedRoles = [];
-                    this.fetchRoles();
-                })
-                .catch((error) => {
-                    console.error("Error assigning roles:", error);
-                });
+            try {
+                axios
+                    .post(`/group/${this.id}/roles`, {
+                        roles: this.selectedRoles,
+                    })
+                    .then((response) => {
+                        console.log("response", response);
+                        this.fetchGroup();
+                        this.selectedRoles = [];
+                        this.fetchRoles();
+                    })
+                    .catch((error) => {
+                        console.error("Error assigning roles:", error);
+                    });
+            } catch (error) {
+                console.error("Error assigning roles:", error);
+            }
         },
         removeRole(roleId) {
-            axios
-                .delete(`/groups/${this.id}/roles/${roleId}`)
-                .then(() => {
-                    this.fetchGroup();
-                })
-                .catch((error) => {
-                    console.error("Error removing role:", error);
-                });
+            if (
+                confirm(
+                    `Are you sure to delete this Role from the ${this.group.name} group ?`
+                )
+            ) {
+                axios
+                    .delete(`/group/${this.id}/roles/${roleId}`)
+                    .then(() => {
+                        this.fetchGroup();
+                    })
+                    .catch((error) => {
+                        console.error("Error removing role:", error);
+                    });
+            }
         },
     },
     created() {

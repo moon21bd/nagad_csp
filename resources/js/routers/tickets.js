@@ -7,6 +7,7 @@ export default [
         component: () => import("../views/admin/Tickets/Create.vue"),
         meta: {
             requiresAuth: true,
+            requiresPermission: "ticket-create",
             layout: AdminLayout,
         },
     },
@@ -16,6 +17,7 @@ export default [
         component: () => import("../views/admin/Tickets/Edit.vue"),
         meta: {
             requiresAuth: true,
+            requiresPermission: "ticket-edit",
             layout: AdminLayout,
         },
     },
@@ -25,6 +27,7 @@ export default [
         component: () => import("../views/admin/Tickets/List.vue"),
         meta: {
             requiresAuth: true,
+            requiresPermission: "ticket-list",
             layout: AdminLayout,
         },
     },
@@ -37,6 +40,17 @@ export default [
             ),
         meta: {
             requiresAuth: true,
+            requiresPermission: "tickets-required-fields-create",
+            layout: AdminLayout,
+        },
+    },
+    {
+        path: "/admin/tickets/timeline",
+        name: "ticket-timeline",
+        component: () => import("../views/admin/Tickets/Timeline.vue"),
+        meta: {
+            requiresAuth: true,
+            requiresPermission: "ticket-timeline",
             layout: AdminLayout,
         },
     },

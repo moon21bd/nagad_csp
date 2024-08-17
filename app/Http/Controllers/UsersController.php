@@ -2,23 +2,20 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Group;
+use App\Models\Permission;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-
-// use Spatie\Permission\Models\Permission;
-// use Spatie\Permission\Models\Role;
 
 class UsersController extends Controller
 {
 
     public function __construct()
     {
-        /* $this->middleware('permission:user-list|user-create|user-edit|user-delete', ['only' => ['index', 'store']]);
-    $this->middleware('permission:user-create', ['only' => ['create', 'store']]);
-    $this->middleware('permission:user-edit', ['only' => ['edit', 'store']]);
-    $this->middleware('permission:user-delete', ['only' => ['destroy']]); */
+        //
     }
 
     /**
@@ -29,6 +26,34 @@ class UsersController extends Controller
      */
     public function index()
     {
+        /* $group = Group::find(1);
+        $user = User::find(12);
+        $userIsAble = $user->isAbleTo('user-edit', $group);
+        dd($userIsAble);
+        $this->assignPermissionToGroup(1);
+        dd(""); */
+
+        /* $user = User::find(14);
+        $groupId = $user->group_id;
+        $hasPermission = $user->hasPermission("user-create", $groupId);
+        dd($hasPermission); */
+        // $user->hasRole('owner|admin|default_role');
+        // logged in user permission check
+        // Auth::user()->hasPermission('role-create');
+
+        /*
+        // checking user hasPermission
+        $user = User::find(14);
+        $groupId = $user->group_id;
+        $hasPermission = $user->hasPermission("dashboard", $groupId);
+        dd($hasPermission); */
+
+        /*
+        // check user has permission to the user within group
+        $user = User::find(14);
+        $groupId = $user->group_id;
+        $userIsAbleTo = $user->isAbleTo('dashboard', $groupId);
+        dd($userIsAbleTo); */
 
         $users = User::with(['group', 'user_activity', 'user_details'])
             ->orderByDesc('id')
@@ -39,6 +64,18 @@ class UsersController extends Controller
             'message' => 'Users List.',
             'data' => $users,
         ], 200);
+
+    }
+
+    public function assignPermissionToGroup($groupId)
+    {
+        $team = Group::find($groupId);
+        $users = $team->users;
+
+        $allPermissions = Permission::all();
+        foreach ($users as $key => $user) {
+            $user->attachPermissions($allPermissions, $team);
+        }
 
     }
 
@@ -72,8 +109,7 @@ class UsersController extends Controller
     public function getUserById($id)
     {
         $user = User::with(['group', 'user_activity', 'user_details'])->find($id);
-        //$user['currentroles'] = $user->roles->pluck('id');
-        //$user['currentpermissions'] = $user->getDirectPermissions()->pluck('id');
+        $user->allPermissions();
 
         return response()->json([
             'title' => 'Success.',
@@ -189,15 +225,7 @@ class UsersController extends Controller
     {
         $user = User::findOrFail($id);
         $roles = $request->input('roles', []);
-        $groupId = $user->group_id;
-
-        foreach ($roles as $roleName) {
-            try {
-                $this->assignRoleWithGroup($user, $roleName, $groupId);
-            } catch (\Exception $e) {
-                return response()->json(['error' => $e->getMessage()], 404);
-            }
-        }
+        $user->syncRoles($roles);
 
         return response()->json(['message' => 'Roles assigned successfully.']);
     }
@@ -212,35 +240,8 @@ class UsersController extends Controller
     {
         $user = User::findOrFail($id);
         $role = Role::findOrFail($roleId);
-        $user->removeRole($role);
+        $user->detachRole($role);
         return response()->json(['message' => 'Role removed successfully.']);
     }
 
-    public function assignRoleWithGroup(User $user, $roleName, $groupId)
-    {
-        // Retrieve the role
-        $role = Role::where('name', $roleName)
-            ->first();
-
-        if (!$role) {
-            throw new \Exception("Role with name '{$roleName}' and group_id '{$groupId}' not found.");
-        }
-
-        // Check if the role is already assigned
-        $exists = \DB::table('model_has_roles')
-            ->where('model_id', $user->id)
-            ->where('role_id', $role->id)
-            ->where('group_id', $groupId)
-            ->exists();
-
-        if (!$exists) {
-            // Assign the role if it does not exist
-            \DB::table('model_has_roles')->insert([
-                'model_id' => $user->id,
-                'model_type' => get_class($user),
-                'role_id' => $role->id,
-                'group_id' => $groupId,
-            ]);
-        }
-    }
 }

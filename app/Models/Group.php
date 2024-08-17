@@ -3,17 +3,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Silber\Bouncer\Database\Ability;
-use Silber\Bouncer\Database\HasRolesAndAbilities;
+use Laratrust\Models\LaratrustRole;
+use Laratrust\Models\LaratrustTeam;
+use Laratrust\Traits\LaratrustTeamTrait;
 
-class Group extends Model
+// use Illuminate\Database\Eloquent\Model;
+
+class Group extends LaratrustTeam
 {
-    use HasFactory, HasRolesAndAbilities;
+    use HasFactory, LaratrustTeamTrait;
+
+    public $guarded = [];
+
     protected $table = "groups";
 
     protected $fillable = [
         'name',
+        'display_name',
+        'description',
         'status',
         'created_by',
         'updated_by',
@@ -42,16 +49,12 @@ class Group extends Model
 
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'group_role');
+        return $this->belongsToMany(LaratrustRole::class, 'role_group', 'group_id', 'role_id');
     }
 
     public function users()
     {
-        return $this->hasMany(User::class);
-    }
-    public function abilities()
-    {
-        return $this->hasMany(Ability::class);
+        return $this->hasMany(User::class, 'group_id');
     }
 
 }

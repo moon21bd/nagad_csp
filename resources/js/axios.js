@@ -23,15 +23,20 @@ axios.interceptors.response.use(
 axios.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response.status === 403) {
-            // console.log('error.response.', error.response.data?.error)
-            Vue.prototype.$showToast(
-                "You are not authorized to perform this action.",
-                {
-                    variant: "error",
-                }
-            );
+        const { response } = error;
+
+        if (response && response.status === 403) {
+            const message =
+                response.data && response.data.error === "permission_denied"
+                    ? response.data.message
+                    : "You are not authorized to perform this action.";
+
+            Vue.prototype.$showToast(message, { type: "error" });
+
+            // Redirect to the denied component
+            router.push({ name: "permission-denied" });
         }
+
         return Promise.reject(error);
     }
 );

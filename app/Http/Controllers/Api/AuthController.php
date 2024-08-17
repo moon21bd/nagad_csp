@@ -154,7 +154,14 @@ class AuthController extends Controller
 
     protected function createUser($data, $authUserId)
     {
-        return User::create([
+
+        /* $team = Team::where('name', 'my-awesome-team')->first();
+        $admin = Role::where('name', 'admin')->first();
+        $owner = Role::where('name', 'owner')->first();
+
+        $user->attachRoles([$admin, $owner], $team); */
+
+        $user = User::create([
             'name' => $data['employee_name'],
             'parent_id' => $authUserId,
             'group_id' => $data['group_id'],
@@ -165,6 +172,11 @@ class AuthController extends Controller
             'created_by' => $authUserId,
             'updated_by' => $authUserId,
         ]);
+
+        // assigning default role to the user within this group
+        $user->attachRole('default', $user->group_id);
+
+        return $user;
     }
 
     protected function createUserDetail($data, $userId)
@@ -284,8 +296,14 @@ class AuthController extends Controller
                 $this->updateUserActivity($user);
 
                 // $permissions = $this->getUserPermissions($user);
+                $cando = $user->allPermissions();
 
-                return response(['message' => 'Successfully logged in.', 'token' => $token, 'user' => $user, 'cando' => []]);
+                return response([
+                    'message' => 'Successfully logged in.',
+                    'token' => $token,
+                    'user' => $user,
+                    'cando' => $cando,
+                ]);
             }
         } catch (\Exception $e) {
             Log::error('Login error: ' . $e->getMessage());

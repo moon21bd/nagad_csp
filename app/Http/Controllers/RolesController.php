@@ -4,19 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Role;
-use App\Services\RBACService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\Rule;
-use Silber\Bouncer\Database\Role as DatabaseRole;
+use Laratrust\Helper;
 
 class RolesController extends Controller
 {
-    protected $RBACService;
 
-    public function __construct(RBACService $RBACService)
+    protected $rolesModel;
+    protected $permissionModel;
+
+    public function __construct()
     {
-        $this->RBACService = $RBACService;
+        $this->rolesModel = Config::get('laratrust.models.role');
+        $this->permissionModel = Config::get('laratrust.models.permission');
     }
 
     /**
@@ -27,8 +31,7 @@ class RolesController extends Controller
      */
     public function roles(Request $request)
     {
-        $roles = DatabaseRole::all();
-
+        $roles = $this->rolesModel::withCount('permissions')->get();
         return response()->json($roles);
 
     }
@@ -42,20 +45,28 @@ class RolesController extends Controller
     public function store(Request $request)
     {
         // Validate the incoming request
-        $this->validate($request, [
-            'name' => 'required|string|max:255|unique:roles,name',
+        $validated = $this->validate($request, [
+            'name' => 'required|string|max:50|unique:roles,name',
             'permissions' => 'required|array|min:1',
+            'display_name' => 'nullable|string',
+            'description' => 'nullable|string',
         ], [
             'name.required' => 'The role name is required.',
             'name.string' => 'The role name must be a string.',
-            'name.max' => 'The role name must not exceed 255 characters.',
+            'name.max' => 'The role name must not exceed 50 characters.',
             'name.unique' => 'This Role name has already been taken. Please try another one.',
             'permissions.required' => 'Please select at least one permission.',
             'permissions.array' => 'The permissions must be an array.',
             'permissions.min' => 'Please select at least one permission.',
         ]);
 
-        $this->RBACService->createRoleWithAbilities($request->name, $request->permissions);
+        $data = [
+            'name' => $validated['name'],
+            'display_name' => userCaseWord($validated['name']),
+            'description' => userCaseWord($validated['name']),
+        ];
+        $role = $this->rolesModel::create($data);
+        $role->syncPermissions($validated['permissions'] ?? []);
 
         return response()->json([
             'title' => 'Success',
@@ -71,8 +82,7 @@ class RolesController extends Controller
      */
     public function getRoleById($id)
     {
-        $role = DatabaseRole::find($id);
-        $abilities = $this->RBACService->getAbilitiesByRole($role);
+        $role = Role::findOrFail($id);
 
         if (!$role) {
             return response()->json([
@@ -81,7 +91,7 @@ class RolesController extends Controller
             ], 404);
         }
 
-        $role->rolePermissions = $abilities;
+        $role->rolePermissions = $role->permissions;
 
         return response()->json([
             'title' => 'Success',
@@ -102,32 +112,26 @@ class RolesController extends Controller
             'permissions' => [
                 'required',
                 'array',
-                'exists:permissions,name', // Validate that each permission exists by name
+                'exists:permissions,name',
             ],
+            'display_name' => 'nullable|string',
+            'description' => 'nullable|string',
         ]);
-
         try {
-            $role = Role::findOrFail($roleId);
-            $roleName = $request->input('name');
-            $role->name = $roleName;
-            $role->save();
 
-            // Specify the guard name
-            $guardName = 'api'; // Adjust if necessary
+            $role = $this->rolesModel::findOrFail($roleId);
 
-            // Debugging - Check input permissions
-            $inputPermissions = $request->input('permissions');
-            /* $permissions = Permission::whereIn('name', $inputPermissions)
-            ->where('guard_name', $guardName)
-            ->get(); */
+            if (!Helper::roleIsEditable($role)) {
+                return response()->json(['error' => 'The role is not editable'], 404);
+            }
+            $data = [
+                'name' => $request->name,
+                'display_name' => userCaseWord($request->name),
+                'description' => userCaseWord($request->name),
+            ];
+            $role->update($data);
+            $role->syncPermissions($request->permissions ?? []);
 
-            // Convert permission names to IDs
-            $permissionIds = $permissions->pluck('id')->toArray();
-
-            // Sync permissions by IDs
-            $role->syncPermissions($permissionIds);
-
-            return response()->json(['message' => 'Role updated successfully']);
         } catch (ModelNotFoundException $e) {
             return response()->json(['error' => 'Role not found'], 404);
         } catch (\Exception $e) {
@@ -143,22 +147,23 @@ class RolesController extends Controller
      */
     public function destroy($id)
     {
-        try {
-            $role = Role::findOrFail($id);
+        $usersAssignedToRole = \DB::table(Config::get('laratrust.tables.role_user'))
+            ->where(Config::get('laratrust.foreign_keys.role'), $id)
+            ->count();
+        $role = $this->rolesModel::findOrFail($id);
 
-            $role->delete();
-
-            return response()->json([
-                'title' => 'Success.',
-                'message' => 'Role Deleted.',
-                'data' => null,
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'title' => 'Error.',
-                'message' => 'Unable to delete role.',
-                'data' => null,
-            ], 500);
+        $msg = "";
+        if (!Helper::roleIsDeletable($role)) {
+            return response()->json(['message' => 'The role is not deletable'], Response::HTTP_NOT_ACCEPTABLE);
         }
+
+        if ($usersAssignedToRole > 0) {
+            return response()->json(['message' => 'Role is attached to one or more users. It can not be deleted'], Response::HTTP_NOT_ACCEPTABLE);
+
+        } else {
+            $this->rolesModel::destroy($id);
+            return response()->json(['message' => 'Role deleted successfully'], Response::HTTP_NOT_ACCEPTABLE);
+        }
+        return response()->json(['message' => 'Unhandled stage at role delete.']);
     }
 }

@@ -13,10 +13,14 @@ class DropSpatiePermissionTables extends Migration
      */
     public function up()
     {
-        // Drop foreign keys referencing the 'roles' table
-        Schema::table('group_role', function (Blueprint $table) {
-            $table->dropForeign(['role_id']); // Adjust 'role_id' if it's named differently
-        });
+        if (Schema::hasTable('group_role')) {
+            // Drop foreign keys referencing the 'roles' table
+            Schema::table('group_role', function (Blueprint $table) {
+                if (Schema::hasColumn('group_role', 'role_id')) {
+                    $table->dropForeign(['role_id']); // Adjust 'role_id' if it's named differently
+                }
+            });
+        }
 
         // Drop the permission tables
         Schema::dropIfExists('role_has_permissions');

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Group;
+use App\Models\Permission;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class GroupController extends Controller
 {
@@ -23,6 +25,8 @@ class GroupController extends Controller
         ]);
 
         $validatedData['created_by'] = Auth::id();
+        $validatedData['display_name'] = userCaseWord($validatedData['name']);
+        $validatedData['description'] = userCaseWord($validatedData['name']);
         $group = Group::create($validatedData);
         return response()->json($group, 201);
     }
@@ -42,6 +46,9 @@ class GroupController extends Controller
 
         $group = Group::findOrFail($id);
         $validatedData['updated_by'] = $validatedData['last_updated_by'] = Auth::id();
+        $validatedData['display_name'] = userCaseWord($validatedData['name']);
+        $validatedData['description'] = userCaseWord($validatedData['name']);
+
         $group->update($validatedData);
         return response()->json($group);
     }
@@ -52,19 +59,78 @@ class GroupController extends Controller
         return response()->json(null, 204);
     }
 
-    public function assignRole(Request $request, Group $group)
+    public function assignRoles(Request $request, Group $group)
     {
-        dd($request->all(), $group->id);
-        $request->validate(['role' => 'required|string']);
-        $role = Role::where('name', $request->role)->firstOrFail();
-        $group->roles()->attach($role);
-        return response()->json($group->load('roles'), 200);
+        // Validate the incoming request
+        $request->validate(['roles' => 'required|array']);
+
+        // Get the roles based on the provided names
+        $roles = Role::whereIn('name', $request->roles)->get();
+
+        if ($roles->isEmpty()) {
+            return response()->json(['message' => 'Roles not found'], 404);
+        }
+
+        // Sync the roles with the group
+        $group->roles()->sync($roles->pluck('id')->toArray());
+        // Get all users associated with the group
+        $users = $group->users;
+
+        if ($users->isEmpty()) {
+            return response()->json(['message' => 'No users found in the group'], 404);
+        }
+
+        // Assign the roles' permissions to each user in the group
+        foreach ($users as $user) {
+            foreach ($roles as $role) {
+                $user->attachPermissions($role->permissions, $group);
+            }
+        }
+
+        return response()->json([], 200);
     }
 
-    public function removeRole(Request $request, Group $group, $roleId)
+    public function removeRole(Request $request, $groupId, $roleId)
     {
+        $group = Group::findOrFail($groupId);
         $role = Role::findOrFail($roleId);
         $group->roles()->detach($role);
-        return response()->json($group->load('roles'), 200);
+        $users = $group->users ?? [];
+
+        foreach ($users as $user) {
+            $user->detachPermissions($role->permissions, $group);
+        }
+
+        return response()->json('Delete successful.', 204);
+    }
+
+    public function getGroupWiseRoles($groupId)
+    {
+        return $this->getRolesAndPermissionsByGroup($groupId);
+    }
+
+    /**
+     * Get all roles and permissions under a specific group_id.
+     *
+     * @param int $groupId
+     * @return array
+     */
+    public function getRolesAndPermissionsByGroup($groupId)
+    {
+        // Get all role IDs associated with the group_id via the role_group table
+        $roleIds = DB::table('role_group')->where('group_id', $groupId)->pluck('role_id');
+
+        // Retrieve roles based on these role IDs
+        $roles = Role::whereIn('id', $roleIds)->get();
+
+        // Retrieve permissions based on these role IDs
+        $permissions = Permission::whereHas('roles', function ($query) use ($roleIds) {
+            $query->whereIn('roles.id', $roleIds);
+        })->get();
+
+        return [
+            'roles' => $roles->toArray(),
+            'permissions' => $permissions->toArray(),
+        ];
     }
 }
