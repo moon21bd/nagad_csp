@@ -81,11 +81,20 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
         // PERMISSIONS RELATED ROUTES
         Route::prefix('permissions')->group(function () {
-            Route::middleware('permission:permission-list')->get('/', [PermissionsController::class, 'permissions']);
-            Route::middleware('permission:permission-edit')->post('{id}', [PermissionsController::class, 'getPermissionById']);
-            Route::middleware('permission:permission-create')->post('save', [PermissionsController::class, 'store']);
-            Route::middleware('permission:permission-edit')->post('save/{id}', [PermissionsController::class, 'store']);
-            Route::middleware('permission:permission-delete')->delete('{id}', [PermissionsController::class, 'destroy']);
+            Route::middleware('permission:permission-list')
+                ->get('/', [PermissionsController::class, 'permissions']);
+
+            Route::middleware('permission:permission-edit')
+                ->post('{id}', [PermissionsController::class, 'getPermissionById']);
+
+            Route::middleware('permission:permission-create')
+                ->post('/', [PermissionsController::class, 'store']);
+
+            Route::middleware('permission:permission-edit')
+                ->put('{id}', [PermissionsController::class, 'update']);
+
+            Route::middleware('permission:permission-delete')
+                ->delete('{id}', [PermissionsController::class, 'destroy']);
         });
     });
 

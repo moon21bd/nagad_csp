@@ -248,9 +248,16 @@ export default {
             this.processing = true;
             try {
                 const url = this.permission.id
-                    ? `/permissions/save/${this.permission.id}`
-                    : "/permissions/save";
-                const { data } = await axios.post(url, this.permission);
+                    ? `/permissions/${this.permission.id}`
+                    : "/permissions";
+                const method = this.permission.id ? "put" : "post";
+
+                // Perform the API request
+                const { data } = await axios({
+                    method,
+                    url,
+                    data: this.permission,
+                });
 
                 /* const { data } = await axios.post(
                     "/permissions/save",

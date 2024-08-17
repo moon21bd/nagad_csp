@@ -34,10 +34,47 @@ class PermissionsController extends Controller
 
     }
 
-    public function store(Request $request, $id = null)
+    public function store(Request $request)
     {
+        $validated = $request->validate([
+            'name' => [
+                'required',
+                'string',
+                Rule::unique('permissions', 'name'),
+            ],
+            'display_name' => 'nullable|string',
+            'description' => 'nullable|string',
+        ]);
 
-        $id = $request->input('id') ?? null;
+        try {
+
+            $data = [
+                'name' => $validated['name'],
+                'display_name' => userCaseWord($validated['name']),
+                'description' => userCaseWord($validated['name']),
+            ];
+
+            $permission = Permission::create($data);
+            $msg = 'Permission created successfully.';
+
+            return response()->json([
+                'title' => $msg,
+                'message' => $msg,
+            ], 200);
+
+        } catch (ValidationException $e) {
+            // dd('ValidationException', $e->validator->errors()->first());
+            return response()->json(['error' => $e->validator->errors()->first()], 422);
+        } catch (\Exception $e) {
+            // dd('Exception', $e->getMessage());
+            return response()->json(['error' => 'Failed to process request.', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        // dd($request->all(), $id);
+        $id = $request->input('id');
 
         $validated = $request->validate([
             'name' => [
@@ -51,27 +88,16 @@ class PermissionsController extends Controller
 
         try {
 
-            if ($id) {
-                $permission = Permission::findOrFail($id);
+            $permission = Permission::findOrFail($id);
 
-                $data = [
-                    'name' => $validated['name'],
-                    'display_name' => userCaseWord($validated['name']),
-                    'description' => userCaseWord($validated['name']),
-                ];
-                $permission->update($data);
+            $data = [
+                'name' => $validated['name'],
+                'display_name' => userCaseWord($validated['name']),
+                'description' => userCaseWord($validated['name']),
+            ];
+            $permission->update($data);
 
-                $msg = 'Permission updated successfully.';
-            } else {
-                $data = [
-                    'name' => $validated['name'],
-                    'display_name' => userCaseWord($validated['name']),
-                    'description' => userCaseWord($validated['name']),
-                ];
-
-                $permission = Permission::create($data);
-                $msg = 'Permission created successfully.';
-            }
+            $msg = 'Permission updated successfully.';
 
             return response()->json([
                 'title' => $msg,
