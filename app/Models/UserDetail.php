@@ -12,7 +12,7 @@ class UserDetail extends Model
     protected $table = 'user_details';
 
     protected $fillable = [
-        'user_id', 'employee_id', 'employee_name', 'employee_user_id', 'nid_card_no', 'registered_channel', 'gender', 'birth_date', 'address', 'lat', 'lon', 'last_update_date',
+        'user_id', 'employee_id', 'employee_name', 'employee_user_id', 'nid_card_no', 'registered_channel', 'gender', 'birth_date', 'address', 'last_update_date',
     ];
 
     public function user()

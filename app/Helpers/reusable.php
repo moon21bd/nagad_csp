@@ -7,6 +7,10 @@
  * Time: 03:58 PM
  */
 
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
 if (!function_exists('getIPAddress')) {
     function getIPAddress()
     {
@@ -188,6 +192,7 @@ if (!function_exists("sendValidationErrorResponse")) {
     }
 
 }
+
 if (!function_exists("sendErrorResponse")) {
     function sendErrorResponse($error, $code = 404)
     {
@@ -196,4 +201,86 @@ if (!function_exists("sendErrorResponse")) {
         ];
         return response()->json($response, $code);
     }
+}
+
+if (!function_exists("formatTime")) {
+    function formatTime($time)
+    {
+        $time = Carbon::parse($time);
+        return [
+            'formattedTime' => $time->format('h:i'),
+            'suffix' => $time->format('a'),
+        ];
+    }
+
+}
+
+if (!function_exists("getLocationName")) {
+
+    function getLocationName($lat, $lon)
+    {
+        $url = "https://nominatim.openstreetmap.org/reverse?format=json&lat={$lat}&lon={$lon}&addressdetails=1";
+
+        try {
+            $response = Http::withHeaders([
+                'Accept-Language' => 'en',
+                'User-Agent' => 'NagadWeb/1.0 (contact@nagad.com.bd)',
+            ])->get($url);
+
+            $logMessage = sprintf(
+                "GET-LOCATION-NAME|Response Status: %d | Response Headers: %s | Response Body: %s | %s",
+                $response->status(),
+                json_encode($response->headers()),
+                $response->body(),
+                'Response Data: ' . json_encode($response->json())
+            );
+
+            Log::info($logMessage);
+
+            $data = $response->json();
+
+            if (isset($data['address'])) {
+                $city = $data['address']['city'] ?? '';
+                $country = $data['address']['country'] ?? '';
+                $quarter = $data['address']['quarter'] ?? '';
+                $suburb = $data['address']['suburb'] ?? '';
+                return [
+                    'location' => $quarter . ', ' . $suburb,
+                    'city_country' => $city . ', ' . $country,
+                ];
+            } else {
+                return [
+                    'location' => 'Unknown',
+                    'city_country' => "Unknown",
+                ];
+            }
+        } catch (\Exception $e) {
+            Log::error('Error fetching location name: ' . $e->getMessage());
+            return [
+                'location' => 'Unknown',
+                'city_country' => "Unknown",
+            ];
+            // return 'Error fetching location';
+        }
+    }
+}
+
+/**
+ * Helper method to get the device icon class based on the device name.
+ */
+
+if (!function_exists("getDeviceIcon")) {
+    function getDeviceIcon($deviceName)
+    {
+        if (str_contains($deviceName, 'Windows') || str_contains($deviceName, 'Linux') || str_contains($deviceName, 'Mac')) {
+            return 'icon-laptop';
+        } elseif (str_contains($deviceName, 'iPhone') || str_contains($deviceName, 'Android')) {
+            return 'icon-smartphone';
+        } elseif (str_contains($deviceName, 'iPad') || str_contains($deviceName, 'Tablet')) {
+            return 'icon-tablet';
+        } else {
+            return 'icon-laptop';
+        }
+    }
+
 }

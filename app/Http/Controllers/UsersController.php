@@ -6,16 +6,19 @@ use App\Models\Group;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 class UsersController extends Controller
 {
+    protected $requiresLocationGroups;
 
     public function __construct()
     {
-        //
+        $this->requiresLocationGroups = config('nagad.requires_location_groups');
+
     }
 
     /**
@@ -55,7 +58,7 @@ class UsersController extends Controller
         $userIsAbleTo = $user->isAbleTo('dashboard', $groupId);
         dd($userIsAbleTo); */
 
-        $users = User::with(['group', 'user_activity', 'user_details'])
+        $users = User::with(['group', 'user_activity', 'user_login_activity', 'user_details'])
             ->orderByDesc('id')
             ->get();
 
@@ -242,6 +245,72 @@ class UsersController extends Controller
         $role = Role::findOrFail($roleId);
         $user->detachRole($role);
         return response()->json(['message' => 'Role removed successfully.']);
+    }
+
+    public function getUserLocation()
+    {
+        $users = User::with(['group', 'user_login_activity', 'user_details'])
+            ->whereIn('group_id', $this->requiresLocationGroups)
+            ->orderByDesc('created_at')
+            ->get();
+
+        $userData = [];
+        foreach ($users as $user) {
+            // Group logs by date
+            $logsGroupedByDate = $user->user_login_activity
+                ->groupBy(function ($log) {
+                    return Carbon::parse($log->last_login)->format('Y-m-d');
+                });
+
+            // Sort dates in descending order
+            $logsGroupedByDate = $logsGroupedByDate->sortByDesc(function ($logs, $date) {
+                return Carbon::parse($date);
+            });
+
+            $userLogs = [];
+
+            foreach ($logsGroupedByDate as $date => $logs) {
+                // Sort logs by login time within each date
+                $logs = $logs->sortByDesc(function ($log) {
+                    return Carbon::parse($log->last_login);
+                });
+                foreach ($logs as $log) {
+                    $loginTime = $log->last_login ? formatTime($log->last_login) : ['formattedTime' => 'N/A', 'suffix' => ''];
+                    $logoutTime = $log->last_logout ? formatTime($log->last_logout) : ['formattedTime' => 'N/A', 'suffix' => ''];
+
+                    $location = getLocationName($log->latitude, $log->longitude);
+
+                    $userLogs[] = [
+                        'cdate' => $date,
+                        'date' => Carbon::parse($log->last_login)->format('l, M d, Y'),
+                        'loginTime' => $loginTime['formattedTime'],
+                        'loginSuffix' => $loginTime['suffix'],
+                        'logoutTime' => $logoutTime['formattedTime'],
+                        'logoutSuffix' => $logoutTime['suffix'],
+                        'device_name' => $log->login_device_name,
+                        'device_icon' => getDeviceIcon($log->login_device_name),
+                        'location' => $location['location'],
+                        'latitude' => $log->latitude,
+                        'longitude' => $log->longitude,
+                        'cityCountry' => $location['city_country'],
+                    ];
+                }
+            }
+
+            $userData[] = [
+                'name' => $user->name,
+                'avatar' => $user->avatar_url,
+                'empId' => $user->user_details->employee_id ?? "",
+                'position' => $user->group->name ?? "",
+                'userLogs' => $userLogs,
+            ];
+        }
+
+        return response()->json([
+            'title' => 'Success.',
+            'message' => 'Users List.',
+            'data' => $userData,
+        ], 200);
     }
 
 }

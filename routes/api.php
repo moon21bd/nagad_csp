@@ -67,6 +67,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // GET CURRENTLY LOGGED IN USER ID
     Route::get('/userPermissions', [PermissionsController::class, 'getCurrentUserPermissions']);
 
+    // GET LOCATION OF REQUIRES GROUPS
+    Route::get('/userLocations', [UsersController::class, 'getUserLocation']);
+
     // ROLES ROUTES WITH ROLE AND PERMISSION MIDDLEWARE
     Route::middleware(['role:owner|superadmin|admin'])->group(function () {
 

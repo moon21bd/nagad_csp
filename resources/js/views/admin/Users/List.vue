@@ -39,7 +39,9 @@
                                     </td>
                                     <td>{{ item.group.name }}</td>
                                     <td>
-                                        {{ item.user_activity.last_online }}
+                                        {{
+                                            item.user_login_activity.last_online
+                                        }}
                                         <!-- {{
                                             new Date(
                                                 item.user_activity.last_online
@@ -74,15 +76,6 @@
                                                 params: { id: item.id },
                                             }"
                                             ><i class="icon-settings"></i
-                                        ></router-link>
-                                        <router-link
-                                            class="btn btn-action"
-                                            title="User Location"
-                                            :to="{
-                                                name: 'user-location',
-                                                params: { id: item.id },
-                                            }"
-                                            ><i class="icon-map"></i
                                         ></router-link>
                                         <a
                                             class="btn-action btn-trash"

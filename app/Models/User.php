@@ -87,10 +87,17 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Group::class, 'group_id');
     }
+
     public function user_activity()
     {
         return $this->belongsTo(UserActivity::class, 'id', 'user_id');
     }
+
+    public function user_login_activity()
+    {
+        return $this->hasMany(UserLoginActivity::class, 'user_id', 'id');
+    }
+
     public function user_details()
     {
         return $this->belongsTo(UserDetail::class, 'id', 'user_id');

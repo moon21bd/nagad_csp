@@ -89,7 +89,15 @@
                         <span>Users</span>
                     </router-link>
                 </el-menu-item>
-
+                <el-menu-item index="user-location">
+                    <router-link
+                        :to="{
+                            name: 'user-location',
+                        }"
+                        ><i class="icon-map"></i>
+                        <span>User Location</span>
+                    </router-link>
+                </el-menu-item>
                 <el-menu-item index="groups-index">
                     <router-link :to="{ name: 'groups-index' }">
                         <i class="icon-users"></i>

@@ -8,6 +8,7 @@ use App\Http\Requests\LoginRequest;
 use App\Models\User;
 use App\Models\UserActivity;
 use App\Models\UserDetail;
+use App\Models\UserLoginActivity;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -21,13 +22,15 @@ class AuthController extends Controller
 {
     protected $registrationChannel = "WEB";
 
-    protected $requiresLocationGroups = [3, 4];
+    protected $requiresLocationGroups;
 
     protected $agentHelper;
 
     public function __construct(AgentHelper $agentHelper)
     {
         $this->agentHelper = $agentHelper;
+        $this->requiresLocationGroups = config('nagad.requires_location_groups');
+
     }
 
     /**
@@ -199,8 +202,8 @@ class AuthController extends Controller
     {
         UserActivity::create([
             'user_id' => $userId,
-            'login_device_name' => $this->agentHelper->getDeviceName(),
-            'browser' => $this->agentHelper->getBrowser(),
+            //'login_device_name' => $this->agentHelper->getDeviceName(),
+            //'browser' => $this->agentHelper->getBrowser(),
             'creator_ip' => getIPAddress(),
             'creator_device' => $this->agentHelper->getDeviceName(),
             'last_update_date' => Carbon::now(),
@@ -209,15 +212,14 @@ class AuthController extends Controller
 
     protected function updateUserActivity(User $user)
     {
-        $userActivity = UserActivity::where('user_id', $user->id)->first();
-        if ($userActivity) {
-            $userActivity->update([
-                'last_login' => Carbon::now(),
-                'browser' => $this->agentHelper->getBrowser(),
-                'login_device_name' => $this->agentHelper->getDeviceName(),
-                'last_online' => Carbon::now(),
-            ]);
-        }
+        return UserLoginActivity::create([
+            'user_id' => $user->id,
+            'group_id' => $user->group_id,
+            'login_device_name' => $this->agentHelper->getDeviceName(),
+            'browser' => $this->agentHelper->getBrowser(),
+            'last_online' => Carbon::now(),
+            'last_login' => Carbon::now(),
+        ]);
 
     }
 
@@ -249,7 +251,10 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $userId = $request->id;
-        $userActivity = UserActivity::findOrFail($userId);
+
+        $userActivity = UserLoginActivity::where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->first();
         $userActivity->update([
             'last_logout' => Carbon::now(),
             'last_update_date' => Carbon::now(),
@@ -347,10 +352,12 @@ class AuthController extends Controller
 
     protected function updateUserLocation(User $user, $location)
     {
-        $userDetails = UserDetail::where('user_id', $user->id)->first();
-        if ($userDetails) {
+        $userDetails = UserLoginActivity::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->first();
 
-            $userDetails->update(['lat' => $location['latitude'], 'lon' => $location['longitude']]);
+        if ($userDetails) {
+            $userDetails->update(['latitude' => $location['latitude'], 'longitude' => $location['longitude']]);
         }
     }
 

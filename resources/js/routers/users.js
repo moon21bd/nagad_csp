@@ -3,6 +3,7 @@ const ProfileSetting = () => import("../views/admin/Profile/Setting.vue");
 const UserCreate = () => import("../views/admin/Users/Create.vue");
 const UserEdit = () => import("../views/admin/Users/Edit.vue");
 const UserList = () => import("../views/admin/Users/List.vue");
+// const UserLocation = () => import("../views/admin/Users/Location-Copy.vue");
 const UserLocation = () => import("../views/admin/Users/Location.vue");
 const ManageUserRoles = () =>
     import("../views/admin/Users/ManageUserRoles.vue");
