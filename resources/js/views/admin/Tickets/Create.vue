@@ -23,49 +23,47 @@
                 </form> -->
                 <div class="verified-user d-flex">
                     <i class="icon-phone-call"></i>
-                    <h5>In Call..<span>+8801710455990</span></h5>
+                    <h5>
+                        In Call..<span>+88{{ this.callerMobileNo }}</span>
+                    </h5>
                 </div>
 
                 <a
                     class="btn-prev-tickets ml-auto"
                     :class="{ show: callerPrevTickets }"
-                    @click.prevent="showPrevTickets()"
+                    @click.prevent="togglePrevTickets()"
                 >
                     Previous Tickets <i class="icon-arrow-down-circle"></i>
                 </a>
             </div>
         </div>
         <div class="card-body">
-            <div v-if="callerPrevTickets">
-                <div class="table-responsive">
-                    <table class="table prev-table border rounded">
-                        <thead>
-                            <tr>
-                                <th>Service Type</th>
-                                <th>Service Category</th>
-                                <th>Service Sub Category</th>
-                                <th class="text-right">Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Complaint</td>
-                                <td>PIN Related</td>
-                                <td>Fraud Attempt</td>
-                                <td class="text-right">
-                                    Fraud incident was solved
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Service Request</td>
-                                <td>Merchant Payment Related</td>
-                                <td>SSL Commerz Fraud Issue</td>
-                                <td class="text-right">
-                                    SSL Commerz solved the issue
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <div v-if="showPrevTickets">
+                <div v-if="prevTickets.length && !isLoading">
+                    <div class="table-responsive">
+                        <table class="table prev-table border rounded">
+                            <thead>
+                                <tr>
+                                    <th>Date Time</th>
+                                    <th>Ticket No</th>
+                                    <th>Sub Category</th>
+                                    <th>Ticket Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    v-for="ticket in prevTickets"
+                                    :key="ticket.id"
+                                >
+                                    <td>{{ ticket.ticket_created_at }}</td>
+                                    <td>{{ ticket.uuid }}</td>
+                                    <td>{{ ticket.call_sub_category_name }}</td>
+                                    <td>{{ ticket.ticket_status }}</td>
+                                </tr>
+                                <!-- <td class="text-right">{{ ticket.remarks }}</td> -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -360,18 +358,23 @@
 </template>
 
 <script>
+import noData from "../components/noData.vue";
 import axios from "../../../axios";
 // import userInfo from "./components/userInfo.vue";
 
 export default {
     components: {
         // userInfo,
+        noData,
     },
     name: "Tickets",
     data: () => ({
+        isLoading: false,
+        showPrevTickets: false,
+        prevTickets: [],
         fieldSetIdentifier: 1,
         requiredFieldsSets: [],
-        callerMobileNo: "",
+        callerMobileNo: null,
         callerPrevTickets: false,
         requiredFields: [],
         callTypes: [],
@@ -393,6 +396,42 @@ export default {
         this.fetchCallTypes();
     },
     methods: {
+        togglePrevTickets() {
+            this.showPrevTickets = !this.showPrevTickets; // Toggle the view
+
+            if (this.showPrevTickets && this.prevTickets.length === 0) {
+                this.fetchPrevTickets(); // Fetch tickets if not already populated
+            }
+        },
+        /* showPrevTickets() {
+            this.showPrevTickets = !this.showPrevTickets; // Toggle the view
+
+            if (this.showPrevTickets && this.prevTickets.length === 0) {
+                this.fetchPrevTickets(); // Fetch tickets if not already populated
+            }
+        }, */
+        fetchPrevTickets() {
+            if (this.callerMobileNo === null) {
+                this.$showToast("Caller mobile number needed.", {
+                    type: "error",
+                });
+                return;
+            }
+
+            axios
+                .get(`/previous-ticket/${this.callerMobileNo}`)
+                .then((response) => {
+                    this.prevTickets = response.data;
+
+                    this.isLoading = false;
+
+                    // After fetching, assign the data to callerPrevTickets
+                    // this.callerPrevTickets = this.prevTickets.length > 0;
+                })
+                .catch((error) => {
+                    console.error("Error fetching previous tickets:", error);
+                });
+        },
         addFieldsSet() {
             if (this.requiredFieldsSets.length < 3) {
                 console.log("this.requiredFields", this.requiredFields);
@@ -433,9 +472,7 @@ export default {
                 this.ticketInfos.attachment = reader.result;
             };
         },
-        showPrevTickets() {
-            this.callerPrevTickets = !this.callerPrevTickets;
-        },
+
         async fetchCallTypes() {
             try {
                 const response = await axios.get("/get-service-types");
@@ -542,9 +579,7 @@ export default {
             return finalData;
         },
         async handleSubmit() {
-            this.ticketInfos.callerMobileNo = this.$route.query?.msisdn || null;
-
-            if (this.ticketInfos.callerMobileNo === null) {
+            if (this.callerMobileNo === null) {
                 this.$showToast("Caller mobile number needed.", {
                     type: "error",
                 });
@@ -566,8 +601,8 @@ export default {
 
                 const payload = {
                     ...this.ticketInfos,
+                    ...this.callerMobileNo,
                     requiredField,
-                    callerMobileNo: this.ticketInfos.callerMobileNo || "",
                     is_verified: this.ticketInfos.is_verified || "",
                 };
 
@@ -609,6 +644,9 @@ export default {
                 is_verified: "no",
             };
         },
+    },
+    created() {
+        this.callerMobileNo = this.$route.query?.msisdn || null;
     },
 };
 </script>

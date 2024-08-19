@@ -32,8 +32,11 @@ class TicketService
         ['value' => 'REOPEN', 'label' => 'REOPEN'],
     ];
 
+    protected $ticketUuid;
+
     public function __construct(ServiceTypeConfigService $serviceTypeConfigService, NotificationService $notificationService, GroupService $groupService)
     {
+        $this->ticketUuid = generateTicketUuid();
         $this->serviceTypeConfigService = $serviceTypeConfigService;
         $this->notificationService = $notificationService;
         $this->groupService = $groupService;
@@ -77,7 +80,7 @@ class TicketService
         foreach (range(0, $ticketRelated['totalTickets'] - 1) as $i) {
 
             $ticketInfo = [
-                'uuid' => Uuid::uuid4()->toString(),
+                'uuid' => $this->ticketUuid, // Uuid::uuid4()->toString(),
                 'call_type_id' => $validated['callTypeId'],
                 'call_category_id' => $validated['callCategoryId'],
                 'call_sub_category_id' => $validated['callSubCategoryId'],
@@ -365,7 +368,7 @@ class TicketService
         $status = $escalation === 'yes' ? 'OPEN' : 'CLOSED';
 
         return [
-            'uuid' => Uuid::uuid4()->toString(),
+            'uuid' => $this->ticketUuid, // Uuid::uuid4()->toString(),
             'call_type_id' => $validated['callTypeId'],
             'call_category_id' => $validated['callCategoryId'],
             'call_sub_category_id' => $validated['callSubCategoryId'],

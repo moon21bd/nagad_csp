@@ -135,6 +135,13 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('get-month-wise-ticket-status-count/{id?}/{month?}', [NCReportController::class, 'getMonthWiseTicketStatusCount']);
     Route::get('get-date-wise-column-chart-data-count/{id?}/{month?}', [NCReportController::class, 'getDateWiseColumnChartDataCount']);
 
+    // Get email configurations
+    // email-configs
+    Route::get('email-configs', [EmailConfigController::class, 'allActiveEmailConfigs']);
+
+    // Ticket related data
+    Route::get('previous-ticket/{mobile_no}', [NCTicketController::class, 'getPreviousTicket']);
+
     Route::apiResources([
         'click-activity' => ClickActivityController::class,
         'tickets' => NCTicketController::class,

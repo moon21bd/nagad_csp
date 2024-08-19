@@ -92,7 +92,6 @@ class EmailConfigController extends Controller
      */
     public function update(Request $request, $id)
     {
-
         $validatedData = $request->validate([
             'mailer' => 'sometimes|required|string|max:20',
             'host' => 'sometimes|required|string|max:64',
@@ -130,5 +129,11 @@ class EmailConfigController extends Controller
         EmailConfig::destroy($id);
         return response()->json(null, 204);
 
+    }
+
+    public function allActiveEmailConfigs()
+    {
+        $configs = EmailConfig::where('status', 'active')->pluck('username as name', 'id');
+        return response()->json($configs);
     }
 }

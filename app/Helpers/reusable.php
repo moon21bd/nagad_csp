@@ -120,6 +120,15 @@ if (!function_exists('decodeJsonIfValid')) {
     }
 }
 
+if (!function_exists('generateTicketUuid')) {
+
+    function generateTicketUuid()
+    {
+        return 'NGD-' . date('ymdhis') . '-' . str_pad(rand(11111, 99999), 4, '0', STR_PAD_LEFT);
+    }
+
+}
+
 if (!function_exists('isJson')) {
 
     function isJson($string)

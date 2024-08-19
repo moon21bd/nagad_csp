@@ -365,7 +365,7 @@
                                         ></label
                                     >
                                     <div class="d-flex">
-                                        <label class="checkbox mr-3">
+                                        <!-- <label class="checkbox mr-3">
                                             <input
                                                 type="checkbox"
                                                 value="sms"
@@ -377,7 +377,7 @@
                                                 "
                                             /><span class="checkmark"></span
                                             >SMS</label
-                                        >
+                                        > -->
 
                                         <label class="checkbox">
                                             <input
@@ -397,7 +397,7 @@
                             </div>
 
                             <div class="form-row">
-                                <div
+                                <!-- <div
                                     class="col-md-6 form-group"
                                     v-if="
                                         selectedNotificationChannels.includes(
@@ -423,7 +423,7 @@
                                             :value="sms.id"
                                         ></el-option>
                                     </el-select>
-                                </div>
+                                </div> -->
                                 <div
                                     class="col-md-6 form-group"
                                     v-if="
@@ -745,7 +745,8 @@ export default {
     mounted() {
         this.fetchGroups();
         this.fetchCallTypes();
-        this.fetchSmsConfigs();
+        // WILL BE OPEN LATER
+        // this.fetchSmsConfigs();
         this.fetchEmailConfigs();
     },
     methods: {
@@ -958,12 +959,10 @@ export default {
         },
         async fetchEmailConfigs() {
             try {
-                // const response = await axios.get("/email-configs");
-                // this.emailConfigs = response.data;
-                this.emailConfigs = [
-                    { id: 1, name: "noreply@nagad.com.bd" },
-                    { id: 2, name: "hello@nagad.com.bd" },
-                ];
+                const response = await axios.get("/email-configs");
+                this.emailConfigs = Object.entries(response.data).map(
+                    ([id, name]) => ({ id, name })
+                );
             } catch (error) {
                 console.error("Error fetching Email configs:", error);
             }

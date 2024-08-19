@@ -120,4 +120,25 @@ class NCTicketController extends Controller
     {
         //
     }
+
+    public function getPreviousTicket(Request $request, $mobileNo)
+    {
+        $tickets = NCTicket::with(['callSubCategory'])
+            ->where('caller_mobile_no', $mobileNo)
+            ->latest()
+            ->take(3)
+            ->get()
+            ->map(function ($ticket) {
+                return [
+                    'ticket_id' => $ticket->id,
+                    'ticket_created_at' => $ticket->ticket_created_at,
+                    'uuid' => $ticket->uuid,
+                    'ticket_status' => $ticket->ticket_status,
+                    'call_sub_category_name' => $ticket->callSubCategory->call_sub_category_name,
+                ];
+            });
+
+        return response()->json($tickets);
+    }
+
 }
