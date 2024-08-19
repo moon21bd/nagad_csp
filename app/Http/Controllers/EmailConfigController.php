@@ -133,7 +133,10 @@ class EmailConfigController extends Controller
 
     public function allActiveEmailConfigs()
     {
-        $configs = EmailConfig::where('status', 'active')->pluck('username as name', 'id');
+        $configs = EmailConfig::where('status', 'active')
+            ->get()
+            ->makeHidden(['mailer', 'port', 'encryption', 'password', 'created_by', 'updated_by', 'last_updated_by', 'created_at', 'updated_at']);
+
         return response()->json($configs);
     }
 }

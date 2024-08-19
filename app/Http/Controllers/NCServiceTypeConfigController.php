@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class NCServiceTypeConfigController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      *
@@ -17,7 +18,7 @@ class NCServiceTypeConfigController extends Controller
      */
     public function index()
     {
-        $data = NCServiceTypeConfig::with('callType', 'callCategory', 'callSubCategory', 'responsibleGroup')
+        $data = NCServiceTypeConfig::with('callType', 'callCategory', 'callSubCategory', 'responsibleGroup', 'emailConfig')
             ->orderByDesc('id')
             ->get();
         return response()->json($data);
@@ -42,11 +43,9 @@ class NCServiceTypeConfigController extends Controller
     public function store(Request $request)
     {
         $validated = $this->validateRequest($request);
-
         $configArr = $this->prepareConfigArray($validated);
 
         try {
-
             $serviceType = NCServiceTypeConfig::updateOrCreate(
                 [
                     'call_type_id' => $validated['callTypeId'],
@@ -78,7 +77,7 @@ class NCServiceTypeConfigController extends Controller
      */
     public function show($id)
     {
-        $serviceTypeConfig = NCServiceTypeConfig::with('callType', 'callCategory', 'callSubCategory', 'responsibleGroup')->findOrFail($id);
+        $serviceTypeConfig = NCServiceTypeConfig::with('callType', 'callCategory', 'callSubCategory', 'responsibleGroup', 'emailConfig')->findOrFail($id);
         return response()->json($serviceTypeConfig);
     }
 

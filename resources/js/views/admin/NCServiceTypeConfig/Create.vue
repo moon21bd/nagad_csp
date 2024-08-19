@@ -446,7 +446,7 @@
                                         <el-option
                                             v-for="email in emailConfigs"
                                             :key="email.id"
-                                            :label="email.name"
+                                            :label="email.username"
                                             :value="email.id"
                                         ></el-option>
                                     </el-select>
@@ -960,9 +960,7 @@ export default {
         async fetchEmailConfigs() {
             try {
                 const response = await axios.get("/email-configs");
-                this.emailConfigs = Object.entries(response.data).map(
-                    ([id, name]) => ({ id, name })
-                );
+                this.emailConfigs = response.data;
             } catch (error) {
                 console.error("Error fetching Email configs:", error);
             }
@@ -1062,10 +1060,10 @@ export default {
                 return false;
             }
 
-            if (this.configurationInfos.sms_config_id === null) {
+            /* if (this.configurationInfos.sms_config_id === null) {
                 this.$showToast("SMS Config is required.", { type: "error" });
                 return false;
-            }
+            } */
 
             if (this.configurationInfos.email_config_id === null) {
                 this.$showToast("Email Config is required.", { type: "error" });

@@ -141,8 +141,8 @@ export default {
         /* capitalize(str) {
             return _.capitalize(str);
         }, */
-        capitalizedMessage() {
-            return capitalize(this.message);
+        capitalizedMessage(str) {
+            return capitalize(str);
         },
         jsonString(data) {
             const transformedData = data.map((item) => ({
@@ -157,7 +157,7 @@ export default {
             this.isLoading = true;
             try {
                 const response = await axios.get("/service-type-config");
-                console.log("response", response);
+                console.log("fetchServiceTypeConfigs-response", response);
                 this.serviceTypeConfigs = response.data;
             } catch (error) {
                 console.error("Error fetching call sub-categories:", error);

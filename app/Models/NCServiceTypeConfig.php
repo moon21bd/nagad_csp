@@ -72,4 +72,9 @@ class NCServiceTypeConfig extends Model
     {
         return $this->hasMany(NCServiceResponsibleGroup::class, 'service_type_config_id', 'id');
     }
+
+    public function emailConfig()
+    {
+        return $this->belongsTo(EmailConfig::class, 'email_config_id', 'id');
+    }
 }
