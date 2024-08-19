@@ -26,6 +26,9 @@
                     <h5>
                         In Call..<span>+88{{ this.callerMobileNo }}</span>
                     </h5>
+
+                    <p v-if="inDNDList">is in the DND list.</p>
+                    <p v-else>not in the DND list.</p>
                 </div>
 
                 <a
@@ -50,18 +53,21 @@
                                     <th>Ticket Status</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr
-                                    v-for="ticket in prevTickets"
-                                    :key="ticket.id"
-                                >
-                                    <td>{{ ticket.ticket_created_at }}</td>
-                                    <td>{{ ticket.uuid }}</td>
-                                    <td>{{ ticket.call_sub_category_name }}</td>
-                                    <td>{{ ticket.ticket_status }}</td>
-                                </tr>
-                                <!-- <td class="text-right">{{ ticket.remarks }}</td> -->
-                            </tbody>
+                            <tr v-if="prevTickets.length === 0">
+                                <td colspan="4" class="text-center">
+                                    No previous data found
+                                </td>
+                            </tr>
+                            <tr
+                                v-else
+                                v-for="ticket in prevTickets"
+                                :key="ticket.id"
+                            >
+                                <td>{{ ticket.ticket_created_at }}</td>
+                                <td>{{ ticket.uuid }}</td>
+                                <td>{{ ticket.call_sub_category_name }}</td>
+                                <td>{{ ticket.ticket_status }}</td>
+                            </tr>
                         </table>
                     </div>
                 </div>
@@ -370,6 +376,7 @@ export default {
     name: "Tickets",
     data: () => ({
         isLoading: false,
+        inDNDList: false,
         showPrevTickets: false,
         prevTickets: [],
         fieldSetIdentifier: 1,
@@ -394,8 +401,26 @@ export default {
     }),
     mounted() {
         this.fetchCallTypes();
+        this.checkDNDStatus();
     },
     methods: {
+        checkDNDStatus() {
+            const mobileNo = this.callerMobileNo;
+            try {
+                if (mobileNo) {
+                    axios
+                        .get(`/in-dnd/${mobileNo}`)
+                        .then((response) => {
+                            this.inDNDList = response.data.in_dnd;
+                        })
+                        .catch((error) => {
+                            console.error("Error fetching DND status:", error);
+                        });
+                }
+            } catch (error) {
+                console.error("Error fetching DND status:", error);
+            }
+        },
         togglePrevTickets() {
             this.showPrevTickets = !this.showPrevTickets; // Toggle the view
 

@@ -8,6 +8,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class DNDUserController extends Controller
@@ -170,4 +171,12 @@ class DNDUserController extends Controller
         return response()->json(null, 204);
 
     }
+
+    public function getDNDNumberVerification(Request $request, $mobileNo)
+    {
+        $preparePhone = Str::substr($mobileNo, -11);
+        $dndExists = DNDUser::where('mobile_no', $preparePhone)->exists();
+        return response()->json(['in_dnd' => $dndExists]);
+    }
+
 }

@@ -139,6 +139,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // email-configs
     Route::get('email-configs', [EmailConfigController::class, 'allActiveEmailConfigs']);
 
+    // user-in dnd
+    Route::get('in-dnd/{mobile_no}', [DNDUserController::class, 'getDNDNumberVerification']);
+
     // Ticket related data
     Route::get('previous-ticket/{mobile_no}', [NCTicketController::class, 'getPreviousTicket']);
 

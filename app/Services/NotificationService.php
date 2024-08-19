@@ -56,7 +56,8 @@ class NotificationService
                 continue;
             }
 
-            Log::info('Mail sent for|' . json_encode($notificationData) . 'USER-ID|' . $user->email . '|CONFIG|' . json_encode($getEmailConfig->toArray()));
+            Log::info('MAIL-SENT-FOR|' . json_encode($notificationData) . '|USER-ID|' . $user->email . '|CONFIG|' . json_encode($getEmailConfig->toArray()));
+
             Mail::to($user->email)->queue(new TicketNotificationMail($ticket, $notificationData, $getEmailConfig->toArray()));
         }
     }
