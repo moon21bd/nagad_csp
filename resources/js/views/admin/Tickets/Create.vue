@@ -601,7 +601,7 @@ export default {
 
                 const payload = {
                     ...this.ticketInfos,
-                    ...this.callerMobileNo,
+                    callerMobileNo: this.callerMobileNo,
                     requiredField,
                     is_verified: this.ticketInfos.is_verified || "",
                 };
@@ -633,7 +633,7 @@ export default {
         },
         resetForm() {
             this.fieldSetIdentifier = 1;
-            this.requiredFieldsSets = [[]];
+            this.requiredFieldsSets = [];
             this.ticketInfos = {
                 callTypeId: null,
                 callCategoryId: null,

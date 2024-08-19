@@ -138,9 +138,6 @@ export default {
         };
     },
     methods: {
-        /* capitalize(str) {
-            return _.capitalize(str);
-        }, */
         capitalizedMessage(str) {
             return capitalize(str);
         },

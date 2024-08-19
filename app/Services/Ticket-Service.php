@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\NCCallType;
 use App\Models\NCServiceResponsibleGroup;
 use App\Models\NCTicket;
-use App\Models\NCTicketTimeline;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -33,11 +32,8 @@ class TicketService
         ['value' => 'REOPEN', 'label' => 'REOPEN'],
     ];
 
-    protected $ticketUuid;
-
     public function __construct(ServiceTypeConfigService $serviceTypeConfigService, NotificationService $notificationService, GroupService $groupService)
     {
-        $this->ticketUuid = generateTicketUuid();
         $this->serviceTypeConfigService = $serviceTypeConfigService;
         $this->notificationService = $notificationService;
         $this->groupService = $groupService;
@@ -80,9 +76,8 @@ class TicketService
         $ticketsData = [];
         foreach (range(0, $ticketRelated['totalTickets'] - 1) as $i) {
 
-            $ticketAttachments = uploadMediaGetPath($validated['attachment'], 'attachments') ?? null;
             $ticketInfo = [
-                'uuid' => generateTicketUuid(), // Uuid::uuid4()->toString(),
+                'uuid' => Uuid::uuid4()->toString(),
                 'call_type_id' => $validated['callTypeId'],
                 'call_category_id' => $validated['callCategoryId'],
                 'call_sub_category_id' => $validated['callSubCategoryId'],
@@ -92,10 +87,9 @@ class TicketService
                 'is_ticket_reassign' => 0,
                 'comments' => $validated['comments'],
                 'sla_status' => 'NORMAL',
-                'attachment' => $ticketAttachments,
+                'attachment' => uploadMediaGetPath($validated['attachment'], 'attachments') ?? null,
                 'ticket_notification_status' => 1,
                 'is_customer_notified' => 0,
-                'ticket_created_at' => Carbon::now(),
                 'ticket_status' => $status,
                 'ticket_channel' => 'PANEL',
                 'ticket_created_by' => $authUserId,
@@ -115,20 +109,6 @@ class TicketService
             $ticketsData[] = $ticketId;
 
             $this->bulkInsertRequiredFields($ticketRelated['requiredFields'][$i], $ticketId, $authUserId);
-
-            $data = [
-                'ticket_id' => $ticketId,
-                'responsible_group_ids' => $responsibleGroupIdsStr,
-                'ticket_status' => $status,
-                'ticket_comments' => $validated['comments'],
-                'ticket_attachments' => $ticketAttachments,
-                'ticket_opened_by' => null,
-                'ticket_status_updated_by' => null,
-                'opened_at' => $ticket->ticket_created_at,
-                'last_time_opened_at' => $ticket->ticket_created_at,
-            ];
-
-            $ticketTimeline = NCTicketTimeline::create($data);
 
             // Send notification for each ticket
             $this->notificationService->sendTicketNotification($ticket, $serviceTypeConfigs, $responsibleGroupIdsStr);
@@ -153,6 +133,95 @@ class TicketService
             'message' => 'Something went wrong creating tickets',
         ];
     }
+
+    /* public function createTicket(array $validated)
+    {
+    $inputRequiredFields = $validated['requiredField'] ?? [];
+
+    $ticketRelated = $this->generateRequiredFieldsAndTicketData($inputRequiredFields);
+
+    // dd($ticketRelated['totalTickets'], $ticketRelated['requiredFields']);
+
+    $requiredFieldsNew = $this->prepareRequiredFields($ticketRelated['requiredFields']);
+
+    // Fetch service type configurations and responsible group IDs
+    $serviceTypeConfigs = $this->showServiceTypeConfig(
+    $validated['callTypeId'],
+    $validated['callCategoryId'],
+    $validated['callSubCategoryId']
+    );
+
+    $responsibleGroupIds = $this->getResponsibleGroupIds([
+    'call_type_id' => $validated['callTypeId'],
+    'call_category_id' => $validated['callCategoryId'],
+    'call_sub_category_id' => $validated['callSubCategoryId'],
+    ]);
+
+    $responsibleGroupIdsStr = $responsibleGroupIds->implode(',');
+
+    // $ticketData = $this->prepareTicketData([
+    // 'validated' => $validated,
+    // 'requiredFields' => $ticketRelated,
+    // 'responsibleGroups' => $responsibleGroupIdsStr,
+    // 'serviceTypeConfigs' => $serviceTypeConfigs,
+    // ]);
+
+    $authUserId = Auth::id();
+    $escalation = $this->prepareTicketEscalation($validated['callTypeId'], $serviceTypeConfigs->is_escalation ?? 'NO');
+    $status = $escalation === 'yes' ? 'OPEN' : 'CLOSED';
+
+    // dd($ticketRelated['requiredFields']);
+    $ticketIds = [];
+    for ($i = 0; $i < $ticketRelated['totalTickets']; $i++) {
+
+    $ticketInfo = [
+    'uuid' => Uuid::uuid4()->toString(),
+    'call_type_id' => $validated['callTypeId'],
+    'call_category_id' => $validated['callCategoryId'],
+    'call_sub_category_id' => $validated['callSubCategoryId'],
+    'caller_mobile_no' => $validated['callerMobileNo'],
+    'required_fields' => json_encode($ticketRelated),
+    'responsible_group_ids' => $responsibleGroupIdsStr,
+    'is_ticket_reassign' => 0,
+    'comments' => $validated['comments'],
+    'sla_status' => 'NORMAL',
+    'attachment' => uploadMediaGetPath($validated['attachment'], 'attachments') ?? null,
+    'ticket_notification_status' => 1,
+    'is_customer_notified' => 0,
+    'ticket_status' => $status,
+    'ticket_channel' => 'PANEL',
+    'ticket_created_by' => $authUserId,
+    'ticket_updated_by' => $authUserId,
+    ];
+
+    $ticket = NCTicket::create($ticketInfo);
+    $ticketIds[] = $ticketId = $ticket->id;
+
+    $this->bulkInsertRequiredFields($ticketRelated['requiredFields'][$i], $ticketId, $authUserId);
+
+    }
+
+    if ($ticketIds) {
+    // Send notification
+    $groupName = $this->responsibleGroupInfo($responsibleGroupIdsStr);
+    $this->notificationService->sendTicketNotification($ticket, $serviceTypeConfigs, $responsibleGroupIdsStr);
+    return [
+    'code' => Response::HTTP_CREATED,
+    'status' => 'success',
+    'message' => 'A ticket has been created. Responsible groups: ' . $groupName,
+    'data' => [
+    'ticketId' => $ticket->id,
+    'ticketUuid' => $ticket->uuid,
+    ],
+    ];
+    }
+
+    return [
+    'code' => Response::HTTP_EXPECTATION_FAILED,
+    'status' => 'failed',
+    'message' => 'Something went wrong creating ticket',
+    ];
+    } */
 
     protected function bulkInsertRequiredFields(array $requiredFields, int $ticketId, int $userId)
     {
@@ -201,7 +270,7 @@ class TicketService
                 'code' => Response::HTTP_BAD_REQUEST,
                 'status' => 'failed',
                 'message' => 'Ticket Update Failed.',
-                'data' => [],
+                'data' => $ticket,
             ];
         }
     }
@@ -296,7 +365,7 @@ class TicketService
         $status = $escalation === 'yes' ? 'OPEN' : 'CLOSED';
 
         return [
-            'uuid' => generateTicketUuid(), // Uuid::uuid4()->toString(),
+            'uuid' => Uuid::uuid4()->toString(),
             'call_type_id' => $validated['callTypeId'],
             'call_category_id' => $validated['callCategoryId'],
             'call_sub_category_id' => $validated['callSubCategoryId'],

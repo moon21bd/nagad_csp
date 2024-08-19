@@ -401,7 +401,7 @@
 
                             <!-- Selected Notification Channels -->
                             <div class="form-row">
-                                <div
+                                <!-- <div
                                     class="col-md-6 form-group"
                                     v-if="
                                         configurationInfos.selectedNotificationChannels.includes(
@@ -427,7 +427,7 @@
                                             :value="sms.id"
                                         ></el-option>
                                     </el-select>
-                                </div>
+                                </div> -->
                                 <div
                                     class="col-md-6 form-group"
                                     v-if="

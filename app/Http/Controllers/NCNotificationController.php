@@ -47,7 +47,7 @@ class NCNotificationController extends Controller
         foreach ($users as $user) {
 
             // Adding condition to deny group owner notification
-            if ($validated['is_group_lead_notified'] && $user->parent_id === 0) {
+            if ($validated['is_group_lead_notified'] === 'no' && $user->parent_id === 0) {
                 continue;
             }
 
