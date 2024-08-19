@@ -10,6 +10,7 @@ class NotificationService
     public function sendTicketNotification($ticket, $serviceTypeConfigs, $responsibleGroupIdsStr)
     {
         $link = route('tickets.show', ['ticket' => $ticket->id]);
+        // will be update this link for editing the ticket
 
         $notificationData = [
             'is_group_lead_notified' => $serviceTypeConfigs->is_group_lead_notified ?? 'no',

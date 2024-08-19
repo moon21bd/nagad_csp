@@ -44,7 +44,6 @@ class NCTicketController extends Controller
      */
     public function store(Request $request)
     {
-
         $validated = $request->validate([
             'callTypeId' => 'required|exists:nc_call_types,id',
             'callCategoryId' => 'required|exists:nc_call_categories,id',

@@ -12,6 +12,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Ramsey\Uuid\Uuid;
 
@@ -47,7 +48,11 @@ class TicketService
 
     public function createTicket(array $validated)
     {
-        $requiredFields = $this->prepareRequiredFields($validated['requiredField'] ?? []);
+        $inputRequiredFields = $validated['requiredField'] ?? [];
+
+        $ticketRelated = $this->generateRequiredFieldsAndTicketData($inputRequiredFields);
+
+        $requiredFieldsNew = $this->prepareRequiredFields($ticketRelated['requiredFields']);
 
         // Fetch service type configurations and responsible group IDs
         $serviceTypeConfigs = $this->showServiceTypeConfig(
@@ -64,26 +69,60 @@ class TicketService
 
         $responsibleGroupIdsStr = $responsibleGroupIds->implode(',');
 
-        $ticketData = $this->prepareTicketData([
-            'validated' => $validated,
-            'requiredFields' => $requiredFields,
-            'responsibleGroups' => $responsibleGroupIdsStr,
-            'serviceTypeConfigs' => $serviceTypeConfigs,
-        ]);
+        $authUserId = Auth::id();
+        $escalation = $this->prepareTicketEscalation($validated['callTypeId'], $serviceTypeConfigs->is_escalation ?? 'NO');
+        $status = $escalation === 'yes' ? 'OPEN' : 'CLOSED';
 
-        $ticket = NCTicket::create($ticketData);
+        $ticketsData = [];
+        foreach (range(0, $ticketRelated['totalTickets'] - 1) as $i) {
 
-        if ($ticket) {
-            // Send notification
-            $groupName = $this->responsibleGroupInfo($responsibleGroupIdsStr);
+            $ticketInfo = [
+                'uuid' => Uuid::uuid4()->toString(),
+                'call_type_id' => $validated['callTypeId'],
+                'call_category_id' => $validated['callCategoryId'],
+                'call_sub_category_id' => $validated['callSubCategoryId'],
+                'caller_mobile_no' => $validated['callerMobileNo'],
+                'required_fields' => json_encode($ticketRelated),
+                'responsible_group_ids' => $responsibleGroupIdsStr,
+                'is_ticket_reassign' => 0,
+                'comments' => $validated['comments'],
+                'sla_status' => 'NORMAL',
+                'attachment' => uploadMediaGetPath($validated['attachment'], 'attachments') ?? null,
+                'ticket_notification_status' => 1,
+                'is_customer_notified' => 0,
+                'ticket_status' => $status,
+                'ticket_channel' => 'PANEL',
+                'ticket_created_by' => $authUserId,
+                'ticket_updated_by' => $authUserId,
+            ];
+
+            $ticket = NCTicket::create($ticketInfo);
+            $ticketId = $ticket->id;
+            $ticketUuid = $ticket->uuid;
+
+            // Store ticket ID and UUID
+            /* $ticketsData[] = [
+            'ticketId' => $ticketId,
+            'ticketUuid' => $ticketUuid,
+            ]; */
+
+            $ticketsData[] = $ticketId;
+
+            $this->bulkInsertRequiredFields($ticketRelated['requiredFields'][$i], $ticketId, $authUserId);
+
+            // Send notification for each ticket
             $this->notificationService->sendTicketNotification($ticket, $serviceTypeConfigs, $responsibleGroupIdsStr);
+        }
+
+        if ($ticketsData) {
+            // Handle notifications for responsible groups (if needed)
+            $groupName = $this->responsibleGroupInfo($responsibleGroupIdsStr);
             return [
                 'code' => Response::HTTP_CREATED,
                 'status' => 'success',
-                'message' => 'A ticket has been created. Responsible groups: ' . $groupName,
+                'message' => 'Tickets have been created. Responsible groups: ' . $groupName,
                 'data' => [
-                    'ticketId' => $ticket->id,
-                    'ticketUuid' => $ticket->uuid,
+                    'ticketId' => json_encode($ticketsData),
                 ],
             ];
         }
@@ -91,8 +130,117 @@ class TicketService
         return [
             'code' => Response::HTTP_EXPECTATION_FAILED,
             'status' => 'failed',
-            'message' => 'Something went wrong creating ticket',
+            'message' => 'Something went wrong creating tickets',
         ];
+    }
+
+    /* public function createTicket(array $validated)
+    {
+    $inputRequiredFields = $validated['requiredField'] ?? [];
+
+    $ticketRelated = $this->generateRequiredFieldsAndTicketData($inputRequiredFields);
+
+    // dd($ticketRelated['totalTickets'], $ticketRelated['requiredFields']);
+
+    $requiredFieldsNew = $this->prepareRequiredFields($ticketRelated['requiredFields']);
+
+    // Fetch service type configurations and responsible group IDs
+    $serviceTypeConfigs = $this->showServiceTypeConfig(
+    $validated['callTypeId'],
+    $validated['callCategoryId'],
+    $validated['callSubCategoryId']
+    );
+
+    $responsibleGroupIds = $this->getResponsibleGroupIds([
+    'call_type_id' => $validated['callTypeId'],
+    'call_category_id' => $validated['callCategoryId'],
+    'call_sub_category_id' => $validated['callSubCategoryId'],
+    ]);
+
+    $responsibleGroupIdsStr = $responsibleGroupIds->implode(',');
+
+    // $ticketData = $this->prepareTicketData([
+    // 'validated' => $validated,
+    // 'requiredFields' => $ticketRelated,
+    // 'responsibleGroups' => $responsibleGroupIdsStr,
+    // 'serviceTypeConfigs' => $serviceTypeConfigs,
+    // ]);
+
+    $authUserId = Auth::id();
+    $escalation = $this->prepareTicketEscalation($validated['callTypeId'], $serviceTypeConfigs->is_escalation ?? 'NO');
+    $status = $escalation === 'yes' ? 'OPEN' : 'CLOSED';
+
+    // dd($ticketRelated['requiredFields']);
+    $ticketIds = [];
+    for ($i = 0; $i < $ticketRelated['totalTickets']; $i++) {
+
+    $ticketInfo = [
+    'uuid' => Uuid::uuid4()->toString(),
+    'call_type_id' => $validated['callTypeId'],
+    'call_category_id' => $validated['callCategoryId'],
+    'call_sub_category_id' => $validated['callSubCategoryId'],
+    'caller_mobile_no' => $validated['callerMobileNo'],
+    'required_fields' => json_encode($ticketRelated),
+    'responsible_group_ids' => $responsibleGroupIdsStr,
+    'is_ticket_reassign' => 0,
+    'comments' => $validated['comments'],
+    'sla_status' => 'NORMAL',
+    'attachment' => uploadMediaGetPath($validated['attachment'], 'attachments') ?? null,
+    'ticket_notification_status' => 1,
+    'is_customer_notified' => 0,
+    'ticket_status' => $status,
+    'ticket_channel' => 'PANEL',
+    'ticket_created_by' => $authUserId,
+    'ticket_updated_by' => $authUserId,
+    ];
+
+    $ticket = NCTicket::create($ticketInfo);
+    $ticketIds[] = $ticketId = $ticket->id;
+
+    $this->bulkInsertRequiredFields($ticketRelated['requiredFields'][$i], $ticketId, $authUserId);
+
+    }
+
+    if ($ticketIds) {
+    // Send notification
+    $groupName = $this->responsibleGroupInfo($responsibleGroupIdsStr);
+    $this->notificationService->sendTicketNotification($ticket, $serviceTypeConfigs, $responsibleGroupIdsStr);
+    return [
+    'code' => Response::HTTP_CREATED,
+    'status' => 'success',
+    'message' => 'A ticket has been created. Responsible groups: ' . $groupName,
+    'data' => [
+    'ticketId' => $ticket->id,
+    'ticketUuid' => $ticket->uuid,
+    ],
+    ];
+    }
+
+    return [
+    'code' => Response::HTTP_EXPECTATION_FAILED,
+    'status' => 'failed',
+    'message' => 'Something went wrong creating ticket',
+    ];
+    } */
+
+    protected function bulkInsertRequiredFields(array $requiredFields, int $ticketId, int $userId)
+    {
+        // Prepare data for bulk insert
+        $insertData = array_map(function ($value, $key) use ($ticketId, $userId) {
+            return [
+                'ticket_id' => $ticketId,
+                'required_field_id' => (int) $key,
+                'required_field_value' => $value,
+                'created_by' => $userId,
+                'updated_by' => $userId,
+                'last_updated_by' => $userId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }, $requiredFields, array_keys($requiredFields));
+
+        // Perform the bulk insert
+        DB::table('tickets_required_fields')->insert($insertData);
     }
 
     public function getStatuses()
@@ -167,14 +315,42 @@ class TicketService
 
     protected function prepareRequiredFields(array $requiredFields): array
     {
-        return array_map(function ($item, $value) {
-            list($id, $field) = explode('|', $item);
-            return [
-                'id' => (int) $id,
-                'field' => $field,
-                'value' => $value,
-            ];
-        }, array_keys($requiredFields), $requiredFields);
+        $data = [];
+        foreach ($requiredFields as $key => $fields) {
+            foreach ($fields as $id => $value) {
+                $data[$key][] = [
+                    'required_field_id' => $id,
+                    'required_field_value' => $value,
+                ];
+            }
+
+        }
+
+        return $data;
+    }
+
+    protected function generateRequiredFieldsAndTicketData($dataArr)
+    {
+        $totalTickets = max(array_map('count', $dataArr));
+        $requiredFieldsAndValue = [];
+
+        for ($i = 0; $i < $totalTickets; $i++) {
+            $ticket = [];
+            foreach ($dataArr as $fieldId => $values) {
+                if (isset($values[$i + 1])) {
+                    $ticket[$fieldId] = $values[$i + 1];
+                } else {
+                    $ticket[$fieldId] = null;
+                }
+            }
+            $requiredFieldsAndValue[] = $ticket;
+        }
+
+        return [
+            'totalTickets' => $totalTickets,
+            'requiredFields' => $requiredFieldsAndValue,
+        ];
+
     }
 
     protected function prepareTicketData(array $params): array
@@ -184,7 +360,6 @@ class TicketService
         $responsibleGroupIdsStr = $params['responsibleGroups'];
         $serviceTypeConfigs = $params['serviceTypeConfigs'];
         $authUserId = Auth::id();
-        $now = Carbon::now();
 
         $escalation = $this->prepareTicketEscalation($validated['callTypeId'], $serviceTypeConfigs->is_escalation ?? 'NO');
         $status = $escalation === 'yes' ? 'OPEN' : 'CLOSED';

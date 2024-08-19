@@ -9,7 +9,7 @@ export default [
         component: CallTypeList,
         meta: {
             requiresAuth: true,
-            requiresPermission: "service-types-index",
+            requiresPermission: "service-types-list",
         },
     },
     {

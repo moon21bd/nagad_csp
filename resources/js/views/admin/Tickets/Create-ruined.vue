@@ -150,7 +150,7 @@
                             </div>
                         </div>
 
-                        <div v-if="requiredFieldsSets.length > 0">
+                        <div v-if="requiredFields.length">
                             <div
                                 class="form-row"
                                 v-for="(
@@ -158,26 +158,25 @@
                                 ) in requiredFieldsSets"
                                 :key="setIndex"
                             >
-                                <div class="col-md-12">
-                                    <h5>Set No: {{ fieldsSet.id }}</h5>
-                                </div>
                                 <div
                                     class="col-md-4"
-                                    v-for="field in fieldsSet.fields"
-                                    :key="field.id"
+                                    v-for="(data, index) in fieldsSet"
+                                    :key="index"
                                 >
                                     <div
                                         class="form-group"
-                                        v-if="field.input_type === 'select'"
+                                        v-if="data.input_type === 'select'"
                                     >
                                         <label class="control-label">{{
-                                            field.input_field_name
+                                            data.input_field_name
                                         }}</label>
                                         <el-select
                                             class="d-block w-100"
                                             v-model="
                                                 ticketInfos.requiredField[
-                                                    field.id
+                                                    data.id +
+                                                        '|' +
+                                                        data.input_field_name
                                                 ]
                                             "
                                             required
@@ -186,28 +185,31 @@
                                         >
                                             <el-option
                                                 v-for="(
-                                                    option, i
-                                                ) in field.input_value"
-                                                :key="i"
-                                                :value="option"
-                                                >{{ option }}</el-option
+                                                    options, index
+                                                ) in inputTypeValues[index]
+                                                    .input_value"
+                                                :value="options"
+                                                :key="index"
+                                                >{{ options }}</el-option
                                             >
                                         </el-select>
                                     </div>
                                     <div
                                         class="form-group"
                                         v-else-if="
-                                            field.input_type === 'datetime'
+                                            data.input_type === 'datetime'
                                         "
                                     >
                                         <label class="control-label">{{
-                                            field.input_field_name
+                                            data.input_field_name
                                         }}</label>
                                         <el-date-picker
                                             class="d-block w-100"
                                             v-model="
                                                 ticketInfos.requiredField[
-                                                    field.id
+                                                    data.id +
+                                                        '|' +
+                                                        data.input_field_name
                                                 ]
                                             "
                                             type="datetime"
@@ -216,24 +218,26 @@
                                     </div>
                                     <div class="form-group" v-else>
                                         <label class="control-label">{{
-                                            field.input_field_name
+                                            data.input_field_name
                                         }}</label>
                                         <input
                                             type="text"
                                             v-model="
                                                 ticketInfos.requiredField[
-                                                    field.id
+                                                    data.id +
+                                                        '|' +
+                                                        data.input_field_name
                                                 ]
                                             "
                                             class="form-control"
                                             :placeholder="
-                                                'Enter ' +
-                                                field.input_field_name
+                                                'Enter ' + data.input_field_name
                                             "
                                         />
                                     </div>
                                 </div>
                             </div>
+
                             <button
                                 type="button"
                                 class="btn btn-secondary"
@@ -244,18 +248,108 @@
                             </button>
                         </div>
 
-                        <div class="form-row">
-                            <div class="col-md-12 form-group">
-                                <label class="control-label"
-                                    >Comments<sup>*</sup></label
+                        <!-- <div v-if="requiredFields">
+                            <div class="form-row">
+                                <div
+                                    class="col-md-4"
+                                    v-for="(data, index) in requiredFields"
+                                    :key="index"
                                 >
-                                <textarea
-                                    class="form-control"
-                                    v-model="ticketInfos.comments"
-                                    required
-                                ></textarea>
+                                    <div
+                                        class="form-group"
+                                        v-if="data.input_type === 'select'"
+                                    >
+                                        <label
+                                            class="control-label"
+                                            for="input_field_name"
+                                            >{{ data.input_field_name }}</label
+                                        >
+                                        <el-select
+                                            class="d-block w-100"
+                                            v-model="
+                                                ticketInfos.requiredField[
+                                                    data.id +
+                                                        '|' +
+                                                        data.input_field_name
+                                                ]
+                                            "
+                                            required
+                                            filterable
+                                            placeholder="Select Type"
+                                        >
+                                            <el-option
+                                                v-for="(
+                                                    options, index
+                                                ) in inputTypeValues[index]
+                                                    .input_value"
+                                                :value="options"
+                                                :key="index"
+                                                >{{ options }}
+                                            </el-option>
+                                        </el-select>
+                                    </div>
+                                    <div
+                                        class="form-group"
+                                        v-else-if="
+                                            data.input_type === 'datetime'
+                                        "
+                                    >
+                                        <label
+                                            class="control-label"
+                                            for="exampleFormControlSelect1"
+                                            >{{ data.input_field_name }}</label
+                                        >
+
+                                        <el-date-picker
+                                            class="d-block w-100"
+                                            v-model="
+                                                ticketInfos.requiredField[
+                                                    data.id +
+                                                        '|' +
+                                                        data.input_field_name
+                                                ]
+                                            "
+                                            type="datetime"
+                                            placeholder="Select date and time"
+                                        >
+                                        </el-date-picker>
+                                    </div>
+                                    <div class="form-group" v-else>
+                                        <label
+                                            class="control-label"
+                                            for="name"
+                                            >{{ data.input_field_name }}</label
+                                        >
+                                        <input
+                                            type="text"
+                                            v-model="
+                                                ticketInfos.requiredField[
+                                                    data.id +
+                                                        '|' +
+                                                        data.input_field_name
+                                                ]
+                                            "
+                                            class="form-control"
+                                            :placeholder="
+                                                'Enter ' + data.input_field_name
+                                            "
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                            <div class="form-row">
+                                <div class="col-md-12 form-group">
+                                    <label class="control-label"
+                                        >Comments<sup>*</sup></label
+                                    >
+                                    <textarea
+                                        class="form-control"
+                                        v-model="ticketInfos.comments"
+                                        required
+                                    ></textarea>
+                                </div>
+                            </div>
+                        </div> -->
 
                         <div class="form-row">
                             <div
@@ -361,6 +455,7 @@
 
 <script>
 import axios from "../../../axios";
+
 // import userInfo from "./components/userInfo.vue";
 
 export default {
@@ -369,10 +464,15 @@ export default {
     },
     name: "Tickets",
     data: () => ({
-        fieldSetIdentifier: 1,
-        requiredFieldsSets: [],
+        requiredFieldsSets: [
+            {
+                id: 1, // Initial set identifier
+                fields: [],
+            },
+        ],
         callerMobileNo: "",
         callerPrevTickets: false,
+        // id: this.$route.params.id,
         requiredFields: [],
         callTypes: [],
         callCategories: [],
@@ -394,34 +494,20 @@ export default {
     },
     methods: {
         addFieldsSet() {
+            // Check if we already have 3 sets
             if (this.requiredFieldsSets.length < 3) {
-                console.log("this.requiredFields", this.requiredFields);
-
-                const newFields = this.requiredFields.map((field) => ({
-                    id: `${field.id}-${this.fieldSetIdentifier}`,
-
-                    input_field_name: field.input_field_name,
-                    input_type: field.input_type,
-                    input_value: field.input_value || [],
-                    value: "", // Initialize value as empty string
-                }));
-
+                // Generate a new unique ID for the new set
+                const newId =
+                    Math.max(...this.requiredFieldsSets.map((set) => set.id)) +
+                    1;
                 this.requiredFieldsSets.push({
-                    id: this.fieldSetIdentifier,
-                    fields: newFields,
+                    id: newId,
+                    fields: [...this.requiredFields], // Copy existing fields
                 });
-
-                this.fieldSetIdentifier++;
-
-                // Ensure each new field is initialized in ticketInfos
-                newFields.forEach((field) => {
-                    if (!this.ticketInfos.requiredField[field.id]) {
-                        this.$set(this.ticketInfos.requiredField, field.id, "");
-                    }
-                });
+            } else {
+                alert("You can only add up to 3 sets of fields.");
             }
         },
-
         showPopup(message) {
             this.modalBody = message;
             $("#ticketSuccessPopup").modal("show");
@@ -485,14 +571,14 @@ export default {
         async fetchRequiredFields() {
             try {
                 const data = await this.fetchRequiredFieldsByCategory();
-                if (data.length) {
-                    this.requiredFields = data;
-                    this.requiredFieldsSets = [
-                        { id: this.fieldSetIdentifier, fields: data },
-                    ];
-                    this.fieldSetIdentifier++; // Increment identifier for the first set
-                    this.generateInputTypes(data);
-                }
+                this.requiredFields = data;
+                this.requiredFieldsSets = [
+                    {
+                        id: 1,
+                        fields: data,
+                    },
+                ];
+                this.generateInputTypes(data);
             } catch (error) {
                 console.log(
                     "An error occurred while fetching required fields."
@@ -522,37 +608,13 @@ export default {
                     value[i].input_validation.split(",");
             }
         },
-        parseRequiredFields(submittingFields) {
-            const finalData = {};
-
-            Object.keys(submittingFields).forEach((key) => {
-                const [id, set] = key.split("-");
-
-                if (!finalData[id]) {
-                    finalData[id] = {};
-                }
-
-                if (set) {
-                    finalData[id][set] = submittingFields[key];
-                } else {
-                    finalData[id][1] = submittingFields[key];
-                }
-            });
-
-            return finalData;
-        },
         async handleSubmit() {
-            this.ticketInfos.callerMobileNo = this.$route.query?.msisdn || null;
-
-            if (this.ticketInfos.callerMobileNo === null) {
-                this.$showToast("Caller mobile number needed.", {
-                    type: "error",
-                });
-                return;
-            }
-
+            // console.log("handleSubmit Called", this.ticketInfos);
             try {
-                // Track click event
+                // assigning mobile_no to ticketInfos [] from query param
+                this.ticketInfos.callerMobileNo =
+                    this.$route.query?.msisdn || null;
+
                 this.$trackClick(
                     "ticket_create",
                     JSON.stringify(this.ticketInfos),
@@ -560,19 +622,28 @@ export default {
                     null
                 );
 
-                const requiredField = this.parseRequiredFields(
-                    this.ticketInfos.requiredField
+                // Flatten all required fields from all sets into the submission payload
+                const allRequiredFields = this.requiredFieldsSets.flatMap(
+                    (set) =>
+                        set.fields.map((data) => ({
+                            setId: set.id,
+                            fieldId: data.id,
+                            fieldName: data.input_field_name,
+                            value: this.ticketInfos.requiredField[
+                                data.id + "|" + data.input_field_name
+                            ],
+                        }))
                 );
 
-                const payload = {
-                    ...this.ticketInfos,
-                    requiredField,
-                    callerMobileNo: this.ticketInfos.callerMobileNo || "",
-                    is_verified: this.ticketInfos.is_verified || "",
-                };
+                console.log("allRequiredFields", allRequiredFields);
+                return false;
 
-                const response = await axios.post("/tickets", payload);
+                // Add the concatenated required fields to ticketInfos
+                this.ticketInfos.requiredFields = allRequiredFields;
 
+                const response = await axios.post("/tickets", this.ticketInfos);
+
+                // console.log("Form submitted successfully", response.data);
                 if (response.data.status === "success") {
                     this.$refs.ticketForm.reset();
                     this.resetForm();
@@ -581,7 +652,6 @@ export default {
                     );
                 }
             } catch (error) {
-                // Handle error response
                 console.error("There was an error submitting the ticket!");
                 this.$showToast(
                     "There was an error submitting the ticket form.",
@@ -591,14 +661,17 @@ export default {
                 );
             }
         },
-
         async onCategoryChange() {
             await this.fetchRequiredFields();
             await this.getServiceTypeConfig();
         },
         resetForm() {
-            this.fieldSetIdentifier = 1;
-            this.requiredFieldsSets = [[]];
+            this.requiredFieldsSets = [
+                {
+                    id: 1,
+                    fields: [],
+                },
+            ]; // Reset to one empty set
             this.ticketInfos = {
                 callTypeId: null,
                 callCategoryId: null,
