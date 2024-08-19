@@ -21,14 +21,12 @@
                         <i class="icon-search"></i>
                     </button>
                 </form> -->
-                <div class="verified-user d-flex">
-                    <i class="icon-phone-call"></i>
+                <div class="verified-user d-flex" :class="{ dnd: !inDNDList }">
+                    <i v-if="inDNDList" class="icon-phone-call"></i>
+                    <i v-else class="icon-slash text-danger"></i>
                     <h5>
                         In Call..<span>+88{{ this.callerMobileNo }}</span>
                     </h5>
-
-                    <p v-if="inDNDList">is in the DND list.</p>
-                    <p v-else>not in the DND list.</p>
                 </div>
 
                 <a
@@ -77,7 +75,7 @@
                 <!-- <div class="col-md-3">
                     <userInfo />
                 </div> -->
-                <div class="col-md-9">
+                <div class="col-md-10">
                     <h4 class="sub-title mb-2">
                         <i class="icon-tickets text-danger"></i> Create Ticket
                     </h4>
@@ -156,95 +154,99 @@
 
                         <div v-if="requiredFieldsSets.length > 0">
                             <div
-                                class="form-row"
+                                class="ticket-item"
                                 v-for="(
                                     fieldsSet, setIndex
                                 ) in requiredFieldsSets"
                                 :key="setIndex"
                             >
-                                <div class="col-md-12">
-                                    <h5>Set No: {{ fieldsSet.id }}</h5>
-                                </div>
-                                <div
-                                    class="col-md-4"
-                                    v-for="field in fieldsSet.fields"
-                                    :key="field.id"
-                                >
+                                <div class="form-row">
+                                    <div class="col-md-12">
+                                        <h5 class="sub-title text-danger">
+                                            Set No: {{ fieldsSet.id }}
+                                        </h5>
+                                    </div>
                                     <div
-                                        class="form-group"
-                                        v-if="field.input_type === 'select'"
+                                        class="col-md-4"
+                                        v-for="field in fieldsSet.fields"
+                                        :key="field.id"
                                     >
-                                        <label class="control-label">{{
-                                            field.input_field_name
-                                        }}</label>
-                                        <el-select
-                                            class="d-block w-100"
-                                            v-model="
-                                                ticketInfos.requiredField[
-                                                    field.id
-                                                ]
-                                            "
-                                            required
-                                            filterable
-                                            placeholder="Select Type"
+                                        <div
+                                            class="form-group"
+                                            v-if="field.input_type === 'select'"
                                         >
-                                            <el-option
-                                                v-for="(
-                                                    option, i
-                                                ) in field.input_value"
-                                                :key="i"
-                                                :value="option"
-                                                >{{ option }}</el-option
-                                            >
-                                        </el-select>
-                                    </div>
-                                    <div
-                                        class="form-group"
-                                        v-else-if="
-                                            field.input_type === 'datetime'
-                                        "
-                                    >
-                                        <label class="control-label">{{
-                                            field.input_field_name
-                                        }}</label>
-                                        <el-date-picker
-                                            class="d-block w-100"
-                                            v-model="
-                                                ticketInfos.requiredField[
-                                                    field.id
-                                                ]
-                                            "
-                                            type="datetime"
-                                            placeholder="Select date and time"
-                                        />
-                                    </div>
-                                    <div class="form-group" v-else>
-                                        <label class="control-label">{{
-                                            field.input_field_name
-                                        }}</label>
-                                        <input
-                                            type="text"
-                                            v-model="
-                                                ticketInfos.requiredField[
-                                                    field.id
-                                                ]
-                                            "
-                                            class="form-control"
-                                            :placeholder="
-                                                'Enter ' +
+                                            <label class="control-label">{{
                                                 field.input_field_name
+                                            }}</label>
+                                            <el-select
+                                                class="d-block w-100"
+                                                v-model="
+                                                    ticketInfos.requiredField[
+                                                        field.id
+                                                    ]
+                                                "
+                                                required
+                                                filterable
+                                                placeholder="Select Type"
+                                            >
+                                                <el-option
+                                                    v-for="(
+                                                        option, i
+                                                    ) in field.input_value"
+                                                    :key="i"
+                                                    :value="option"
+                                                    >{{ option }}</el-option
+                                                >
+                                            </el-select>
+                                        </div>
+                                        <div
+                                            class="form-group"
+                                            v-else-if="
+                                                field.input_type === 'datetime'
                                             "
-                                        />
+                                        >
+                                            <label class="control-label">{{
+                                                field.input_field_name
+                                            }}</label>
+                                            <el-date-picker
+                                                class="d-block w-100"
+                                                v-model="
+                                                    ticketInfos.requiredField[
+                                                        field.id
+                                                    ]
+                                                "
+                                                type="datetime"
+                                                placeholder="Select date and time"
+                                            />
+                                        </div>
+                                        <div class="form-group" v-else>
+                                            <label class="control-label">{{
+                                                field.input_field_name
+                                            }}</label>
+                                            <input
+                                                type="text"
+                                                v-model="
+                                                    ticketInfos.requiredField[
+                                                        field.id
+                                                    ]
+                                                "
+                                                class="form-control"
+                                                :placeholder="
+                                                    'Enter ' +
+                                                    field.input_field_name
+                                                "
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <button
                                 type="button"
-                                class="btn btn-secondary"
+                                class="btn btn-site mb-3"
                                 @click="addFieldsSet"
                                 :disabled="requiredFieldsSets.length >= 3"
                             >
-                                Copy Fields
+                                <i class="icon-submit"></i> New
                             </button>
                         </div>
 
@@ -267,7 +269,7 @@
                                     serviceTypeConfigs?.is_show_attachment ===
                                     'yes'
                                 "
-                                class="col-md-4 form-group"
+                                class="col-md-6 form-group uploads"
                             >
                                 <label class="control-label"
                                     >Attachment<sup>*</sup></label
@@ -364,8 +366,8 @@
 </template>
 
 <script>
-import noData from "../components/noData.vue";
 import axios from "../../../axios";
+import noData from "../components/noData.vue";
 // import userInfo from "./components/userInfo.vue";
 
 export default {
