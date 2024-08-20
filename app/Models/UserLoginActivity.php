@@ -17,6 +17,7 @@ class UserLoginActivity extends Model
         'longitude',
         'login_device_name',
         'browser',
+        'ip_address',
         'last_online',
         'last_login',
         'last_logout',

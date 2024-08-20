@@ -74,6 +74,16 @@
                                             }"
                                             ><i class="icon-edit-pen"></i
                                         ></router-link>
+
+                                        <router-link
+                                            class="btn-action btn-edit"
+                                            title="Ticket Timeline"
+                                            :to="{
+                                                name: 'ticket-timeline',
+                                                params: { id: item.id },
+                                            }"
+                                            ><i class="icon-ticket-fill"></i
+                                        ></router-link>
                                         <!-- <a
                                             class="btn-action btn-trash"
                                             @click.prevent="delete(item.id)"

@@ -217,6 +217,7 @@ class AuthController extends Controller
             'group_id' => $user->group_id,
             'login_device_name' => $this->agentHelper->getDeviceName(),
             'browser' => $this->agentHelper->getBrowser(),
+            'ip_address' => getIPAddress(),
             'last_online' => Carbon::now(),
             'last_login' => Carbon::now(),
         ]);

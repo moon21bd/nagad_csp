@@ -97,4 +97,9 @@ class NCTicket extends Model
     {
         return $this->belongsTo(NCCallSubCategory::class, 'call_category_id');
     }
+
+    public function ticketsRequiredFields()
+    {
+        return $this->hasMany(TicketsRequiredField::class, 'ticket_id');
+    }
 }

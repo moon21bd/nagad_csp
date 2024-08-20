@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\NCTicket;
 use App\Models\NCTicketTimeline;
+use App\Models\TicketsRequiredField;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class NCTicketTimelineController extends Controller
@@ -44,17 +48,148 @@ class NCTicketTimelineController extends Controller
      * @param  \App\Models\NCTicketTimeline  $nCTicketTimeline
      * @return \Illuminate\Http\Response
      */
-    public function show(NCTicketTimeline $nCTicketTimeline)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\NCTicketTimeline  $nCTicketTimeline
-     * @return \Illuminate\Http\Response
-     */
+    public function show($id)
+    {
+        // Fetch the ticket details
+        $ticket = NCTicket::with([
+            'callType',
+            'callCategory',
+            'callSubCategory',
+        ])->find($id);
+
+        // Return an error response if the ticket is not found
+        if (!$ticket) {
+            return response()->json([
+                'message' => 'Ticket not found',
+            ], 404);
+        }
+
+        // Fetch ticket required fields
+        $requiredFields = TicketsRequiredField::where('ticket_id', $id)
+            ->with('requiredFields')
+            ->get()
+            ->map(function ($field) {
+                return [
+                    'required_field_name' => $field->requiredFields->input_field_name,
+                    'required_field_value' => $field->required_field_value,
+                ];
+            });
+
+        // Fetch the timelines associated with the ticket
+        $timelines = NCTicketTimeline::where('ticket_id', $id)->get();
+
+        // Fetch user details for ticket_created_by
+        $user = User::with('user_login_activity', 'user_details')->find($ticket->ticket_created_by);
+
+        // Get the last 3 user_login_activity items sorted by descending time, if the user exists
+        $userLoginActivities = $user ? $user->user_login_activity()
+            ->orderBy('created_at', 'desc')
+            ->limit(3)
+            ->get() : [];
+
+        // Prepare comments from the ticket and timelines
+
+        // Prepare comments from the ticket and timelines
+        $comments = [];
+
+        // Add ticket comments if available
+        if ($ticket->comments) {
+            $comments[] = [
+                'date_time' => Carbon::parse($ticket->updated_at)->format('M j, Y'), // Format the date
+                'avatar_url' => $user->avatar_url ?? null, // Assuming user has an avatar_url field
+                'comment' => $ticket->comments,
+                'username' => $user->name ?? 'Unknown', // Username from the user
+            ];
+        }
+
+        // Add timeline comments
+        foreach ($timelines as $timeline) {
+            if ($timeline->ticket_comments) {
+                // Assuming ticket_opened_by and ticket_status_updated_by are user IDs
+                $commentingUser = User::find($timeline->ticket_opened_by) ?: User::find($timeline->ticket_status_updated_by);
+
+                $comments[] = [
+                    'date_time' => Carbon::parse($timeline->updated_at)->format('M j, Y'), // Format the date
+                    'avatar_url' => $commentingUser->avatar_url ?? null, // Assuming user has an avatar_url field
+                    'comment' => $timeline->ticket_comments,
+                    'username' => $commentingUser->name ?? 'Unknown', // Username from the user
+                ];
+            }
+        }
+
+        // Organize the response structure
+        $response = [
+            'ticket_id' => $ticket->id,
+            'ticket' => [
+                'id' => $ticket->id,
+                'caller_mobile_no' => $ticket->caller_mobile_no,
+                'assign_to_user_id' => $ticket->assign_to_user_id,
+                'comments' => $comments,
+                'sla_status' => $ticket->sla_status,
+                'ticket_status' => $ticket->ticket_status,
+                'ticket_channel' => $ticket->ticket_channel,
+                'ticket_created_by' => $ticket->ticket_created_by,
+                'call_type' => $ticket->callType ? $ticket->callType->call_type_name : null,
+                'call_category' => $ticket->callCategory ? $ticket->callCategory->call_category_name : null,
+                'call_sub_category' => $ticket->callSubCategory ? $ticket->callSubCategory->call_sub_category_name : null,
+            ],
+            'group_names' => $ticket->responsible_group_names,
+            'required_fields' => $requiredFields,
+            'agent_user_info' => $user ? [
+                'id' => $user->id,
+                'name' => $user->name,
+                'employee_id' => $user->user_details->employee_id,
+                'employee_name' => $user->user_details->employee_name,
+                'employee_user_id' => $user->user_details->employee_user_id,
+                'group_id' => $user->group_id,
+                'mobile_no' => $user->mobile_no,
+                'email' => $user->email,
+                'ip_address' => $userLoginActivities->first()->ip_address ?? null,
+                'last_login' => $userLoginActivities->first()->last_login,
+                'device_name' => $userLoginActivities->first()->browser . ", " . $userLoginActivities->first()->login_device_name ?? null,
+            ] : null,
+            'timelines' => $timelines->map(function ($item) {
+                $user = User::find($item->ticket_status_updated_by);
+
+                return [
+                    'id' => $item->id,
+                    'ticket_status' => $item->ticket_status,
+                    'ticket_comments' => $item->ticket_comments,
+                    'ticket_attachments' => $item->ticket_attachments,
+                    'ticket_opened_by' => $item->ticket_opened_by,
+                    'ticket_status_updated_by' => $item->ticket_status_updated_by,
+                    'username' => $user->name ?? 'Unknown', // Username of the person who updated the ticket status
+                    'user_id' => $user->user_details->employee_id ?? $user->id, // Assuming the user has an employee_id field
+                    'opened_at' => $item->opened_at,
+                    'last_time_opened_at' => $item->last_time_opened_at,
+                    'created_at' => Carbon::parse($item->created_at)->format('M j, Y h:i A'), // Format the date
+                    'updated_at' => Carbon::parse($item->updated_at)->format('M j, Y h:i A'), // Format the date
+                ];
+            }),
+            /* 'timelines' => $timelines->map(function ($item) {
+        return [
+        'id' => $item->id,
+        'ticket_status' => $item->ticket_status,
+        'ticket_comments' => $item->ticket_comments,
+        'ticket_attachments' => $item->ticket_attachments,
+        'ticket_opened_by' => $item->ticket_opened_by,
+        'ticket_status_updated_by' => $item->ticket_status_updated_by,
+        'opened_at' => $item->opened_at,
+        'last_time_opened_at' => $item->last_time_opened_at,
+        // 'created_by' => $item->created_by,
+        // 'updated_by' => $item->updated_by,
+        // 'last_updated_by' => $item->last_updated_by,
+        'created_at' => $item->created_at,
+        'updated_at' => $item->updated_at,
+        ];
+        }), */
+        ];
+
+        return response()->json([
+            'data' => $response,
+        ]);
+    }
     public function edit(NCTicketTimeline $nCTicketTimeline)
     {
         //

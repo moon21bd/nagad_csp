@@ -17,4 +17,14 @@ class TicketsRequiredField extends Model
         'last_updated_by',
     ];
 
+    public function ticket()
+    {
+        return $this->belongsTo(NCTicket::class, 'ticket_id');
+    }
+
+    public function requiredFields()
+    {
+        return $this->belongsTo(NCRequiredFieldConfig::class, 'required_field_id');
+    }
+
 }

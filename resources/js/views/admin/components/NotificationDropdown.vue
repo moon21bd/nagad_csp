@@ -20,7 +20,7 @@
         >
             <h6 class="dropdown-header px-3">Notification Center</h6>
             <a
-                v-for="notification in notifications"
+                v-for="notification in notifications.slice(0, 3)"
                 :key="notification.id"
                 class="dropdown-item px-3 d-flex align-items-center"
                 :href="notification.link"

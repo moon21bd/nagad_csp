@@ -266,6 +266,26 @@
                         <div class="form-row">
                             <div
                                 v-if="
+                                    serviceTypeConfigs?.is_show_popup_msg ===
+                                    'yes'
+                                "
+                                class="alert alert-danger mt-3"
+                            >
+                                <p>Important Messages:</p>
+                                <ul>
+                                    <li
+                                        v-for="(msg, index) in popupMessages"
+                                        :key="index"
+                                    >
+                                        {{ msg }}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div
+                                v-if="
                                     serviceTypeConfigs?.is_show_attachment ===
                                     'yes'
                                 "
@@ -281,7 +301,7 @@
                                 />
                             </div>
 
-                            <div
+                            <!-- <div
                                 v-if="
                                     serviceTypeConfigs?.is_verification_check ===
                                     'yes'
@@ -311,7 +331,7 @@
                                         <span class="radio-mark"></span>No
                                     </label>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
 
                         <!-- Error Message Display Section -->
@@ -398,6 +418,7 @@ export default {
         inDNDList: false,
         showPrevTickets: false,
         prevTickets: [],
+        popupMessages: [],
         fieldSetIdentifier: 1,
         requiredFieldsSets: [],
         callerMobileNo: null,
@@ -448,13 +469,7 @@ export default {
                 this.fetchPrevTickets(); // Fetch tickets if not already populated
             }
         },
-        /* showPrevTickets() {
-            this.showPrevTickets = !this.showPrevTickets; // Toggle the view
 
-            if (this.showPrevTickets && this.prevTickets.length === 0) {
-                this.fetchPrevTickets(); // Fetch tickets if not already populated
-            }
-        }, */
         fetchPrevTickets() {
             if (this.callerMobileNo === null) {
                 this.$showToast("Caller mobile number needed.", {
@@ -586,8 +601,9 @@ export default {
                 const response = await axios.get(
                     `/get-service-type-configs/${this.ticketInfos.callTypeId}/${this.ticketInfos.callCategoryId}/${this.ticketInfos.callSubCategoryId}`
                 );
-
-                this.serviceTypeConfigs = response.data.data;
+                const serviceConfigs = response.data.data;
+                this.serviceTypeConfigs = serviceConfigs;
+                this.popupMessages = JSON.parse(serviceConfigs.popup_msg_texts);
             } catch (error) {
                 console.error("Error fetching sub categories:", error);
                 this.serviceTypeConfigs = {};

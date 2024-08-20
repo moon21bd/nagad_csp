@@ -13,6 +13,7 @@ use App\Http\Controllers\NCReportController;
 use App\Http\Controllers\NCRequiredConfigController;
 use App\Http\Controllers\NCServiceTypeConfigController;
 use App\Http\Controllers\NCTicketController;
+use App\Http\Controllers\NCTicketTimelineController;
 use App\Http\Controllers\PermissionsController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UsersController;
@@ -144,6 +145,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     // Ticket related data
     Route::get('previous-ticket/{mobile_no}', [NCTicketController::class, 'getPreviousTicket']);
+
+    Route::get('ticket/{id}/timeline', [NCTicketTimelineController::class, 'show']);
 
     Route::apiResources([
         'click-activity' => ClickActivityController::class,

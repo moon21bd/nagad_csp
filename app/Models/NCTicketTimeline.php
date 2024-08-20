@@ -26,4 +26,23 @@ class NCTicketTimeline extends Model
         'updated_by',
         'last_updated_by',
     ];
+
+    public function ticket()
+    {
+        return $this->belongsTo(NCTicket::class, 'ticket_id');
+    }
+
+    // Method to get group names from comma-separated IDs
+    public function getResponsibleGroupNamesAttribute()
+    {
+        // Split the comma-separated IDs into an array
+        $groupIds = explode(',', $this->responsible_group_ids);
+
+        // Retrieve the group names from the Group model
+        $groupNames = Group::whereIn('id', $groupIds)->pluck('name')->toArray();
+
+        // Return the comma-separated group names
+        return implode(', ', $groupNames);
+    }
+
 }

@@ -39,7 +39,7 @@ export default [
         },
     },
     {
-        path: "/admin/tickets/timeline",
+        path: "/admin/ticket/:id/timeline",
         name: "ticket-timeline",
         component: () => import("../views/admin/Tickets/Timeline.vue"),
         meta: {
