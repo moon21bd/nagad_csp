@@ -312,6 +312,23 @@
                             </div>
                         </div>
 
+                        <!-- Error Message Display Section -->
+                        <div
+                            v-if="requiredFieldErrors.length > 0"
+                            class="alert alert-danger"
+                        >
+                            <ul>
+                                <li
+                                    v-for="(
+                                        error, index
+                                    ) in requiredFieldErrors"
+                                    :key="index"
+                                >
+                                    {{ error }}
+                                </li>
+                            </ul>
+                        </div>
+
                         <button class="btn btn-site" type="submit">
                             Submit
                         </button>
@@ -388,6 +405,7 @@ export default {
         callCategories: [],
         callSubCategories: [],
         serviceTypeConfigs: {},
+        requiredFieldErrors: [],
         ticketInfos: {
             callTypeId: null,
             callCategoryId: null,
@@ -603,11 +621,41 @@ export default {
 
             return finalData;
         },
+        validateRequiredFields() {
+            let hasValidationError = false;
+            const requiredFieldErrors = [];
+
+            this.requiredFieldsSets.forEach((set) => {
+                set.fields.forEach((field) => {
+                    const fieldValue = this.ticketInfos.requiredField[field.id];
+                    if (!fieldValue || fieldValue.trim() === "") {
+                        hasValidationError = true;
+                        requiredFieldErrors.push(
+                            `The field "${field.input_field_name}" is required.`
+                        );
+                    }
+                });
+            });
+
+            return {
+                hasValidationError,
+                requiredFieldErrors,
+            };
+        },
         async handleSubmit() {
             if (this.callerMobileNo === null) {
                 this.$showToast("Caller mobile number needed.", {
                     type: "error",
                 });
+                return;
+            }
+
+            // Validate required fields
+            const { hasValidationError, requiredFieldErrors } =
+                this.validateRequiredFields();
+
+            if (hasValidationError) {
+                this.requiredFieldErrors = requiredFieldErrors;
                 return;
             }
 
