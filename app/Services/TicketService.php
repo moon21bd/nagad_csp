@@ -27,6 +27,7 @@ class TicketService
 
     // Ticket statuses arr
     protected $statuses = [
+        ['value' => 'NEW', 'label' => 'NEW'],
         ['value' => 'OPEN', 'label' => 'OPEN'],
         ['value' => 'PENDING', 'label' => 'PENDING'],
         ['value' => 'CLOSED', 'label' => 'CLOSED'],
@@ -75,12 +76,13 @@ class TicketService
 
         $authUserId = Auth::id();
         $escalation = $this->prepareTicketEscalation($validated['callTypeId'], $serviceTypeConfigs->is_escalation ?? 'NO');
-        $status = $escalation === 'yes' ? 'OPEN' : 'CLOSED';
+        $status = $escalation === 'yes' ? 'NEW' : 'CLOSED';
 
         $ticketsData = [];
         foreach (range(0, $ticketRelated['totalTickets'] - 1) as $i) {
 
             $ticketAttachments = uploadMediaGetPath($validated['attachment'], 'attachments') ?? null;
+
             $ticketInfo = [
                 'uuid' => generateTicketUuid(), // Uuid::uuid4()->toString(),
                 'call_type_id' => $validated['callTypeId'],
@@ -123,12 +125,12 @@ class TicketService
                 'ticket_comments' => $validated['comments'],
                 'ticket_attachments' => $ticketAttachments,
                 'ticket_opened_by' => null,
-                'ticket_status_updated_by' => null,
+                'ticket_status_updated_by' => $authUserId,
                 'opened_at' => $ticket->ticket_created_at,
                 'last_time_opened_at' => $ticket->ticket_created_at,
             ];
 
-            $ticketTimeline = NCTicketTimeline::create($data);
+            $this->createTicketTimeline($data);
 
             // Send notification for each ticket
             $this->notificationService->sendTicketNotification($ticket, $serviceTypeConfigs, $responsibleGroupIdsStr);
@@ -152,6 +154,11 @@ class TicketService
             'status' => 'failed',
             'message' => 'Something went wrong creating tickets',
         ];
+    }
+
+    public function createTicketTimeline($data)
+    {
+        return NCTicketTimeline::create($data);
     }
 
     protected function bulkInsertRequiredFields(array $requiredFields, int $ticketId, int $userId)

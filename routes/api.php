@@ -71,6 +71,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // GET LOCATION OF REQUIRES GROUPS
     Route::get('/userLocations', [UsersController::class, 'getUserLocation']);
 
+    // GET ACTIVE USERS FOR FORWARD THE TICKET
+    Route::get('/getActiveUsers', [UsersController::class, 'getActiveUsers']);
+    Route::get('/getActiveGroups', [GroupController::class, 'getActiveGroups']);
+
     // ROLES ROUTES WITH ROLE AND PERMISSION MIDDLEWARE
     Route::middleware(['role:owner|superadmin|admin'])->group(function () {
 
@@ -143,10 +147,16 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // user-in dnd
     Route::get('in-dnd/{mobile_no}', [DNDUserController::class, 'getDNDNumberVerification']);
 
-    // Ticket related data
+    // Ticket related routes
     Route::get('previous-ticket/{mobile_no}', [NCTicketController::class, 'getPreviousTicket']);
 
     Route::get('ticket/{id}/timeline', [NCTicketTimelineController::class, 'show']);
+
+    // Ticket assignId
+    Route::post('/ticket/assign/{id}', [NCTicketController::class, 'assignTicket']);
+    Route::get('/ticket/status/{id}', [NCTicketController::class, 'ticketStatus']);
+
+    Route::post('/ticket/forward/{id}', [NCTicketController::class, 'forwardTicket']);
 
     Route::apiResources([
         'click-activity' => ClickActivityController::class,

@@ -133,4 +133,11 @@ class GroupController extends Controller
             'permissions' => $permissions->toArray(),
         ];
     }
+
+    public function getActiveGroups()
+    {
+        $groups = Group::where('status', 'Active')
+            ->get();
+        return response()->json($groups);
+    }
 }

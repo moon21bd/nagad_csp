@@ -39,10 +39,7 @@
                                         {{ activity.username }}</strong
                                     >
                                     <br />
-                                    <small
-                                        >({{ activity.agent_id }} -
-                                        Agent)</small
-                                    >
+                                    <small>({{ activity.agent_id }})</small>
                                     <!-- <br /> -->
                                     <!-- {{ activity.content }} -->
                                 </div>

@@ -298,6 +298,7 @@
                                     type="file"
                                     name="is_show_attachment"
                                     @change="handleAttachmentFileUpload"
+                                    accept="image/png, image/jpeg, .pdf, .doc, .docx, .xls, .xlsx"
                                 />
                             </div>
 
@@ -646,7 +647,11 @@ export default {
             this.requiredFieldsSets.forEach((set) => {
                 set.fields.forEach((field) => {
                     const fieldValue = this.ticketInfos.requiredField[field.id];
-                    if (!fieldValue || fieldValue.trim() === "") {
+                    if (
+                        !fieldValue ||
+                        (typeof fieldValue === "string" &&
+                            fieldValue.trim() === "")
+                    ) {
                         hasValidationError = true;
                         requiredFieldErrors.push(
                             `The field "${field.input_field_name}" is required.`

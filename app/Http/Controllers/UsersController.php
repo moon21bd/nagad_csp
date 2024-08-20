@@ -313,4 +313,15 @@ class UsersController extends Controller
         ], 200);
     }
 
+    public function getActiveUsers()
+    {
+        $currentUserId = auth()->id();
+        $users = User::where('status', 'Active')
+            ->where('id', '<>', $currentUserId)
+            ->orderByDesc('id')
+            ->get();
+
+        return response()->json($users);
+    }
+
 }

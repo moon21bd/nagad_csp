@@ -24,7 +24,10 @@ class NotificationService
             $swiftMailer = $this->createCustomMailer($getEmailConfig);
 
             // Generate the notification data
-            $link = route('tickets.show', ['ticket' => $ticket->id]);
+
+            // Ticket Edit link
+            $link = url("/admin/ticket/edit/{$ticket->id}");
+
             $notificationData = [
                 'is_group_lead_notified' => $serviceTypeConfigs->is_group_lead_notified ?? 'no',
                 'group_ids' => explode(',', $responsibleGroupIdsStr),
@@ -55,18 +58,48 @@ class NotificationService
                 // Dispatch the job to the queue
                 SendTicketNotificationJob::dispatch($ticket, $notificationData, $user->email, $getEmailConfig->toArray());
 
-                /* try {
-            // Use the custom SwiftMailer instance to send emails
-            $message = (new \Swift_Message('New Ticket Created'))
-            ->setFrom([$getEmailConfig['from_address'] => $getEmailConfig['from_name']])
-            ->setTo($user->email)
-            ->setBody(view('emails.ticket_notification', ['ticket' => $ticket, 'notificationData' => $notificationData])->render(), 'text/html');
-
-            $swiftMailer->send($message);
-            } catch (\Exception $e) {
-            Log::error('MAIL-ERROR|' . $e->getMessage() . '|USER-ID|' . $user->email);
-            } */
             }
+        } catch (\Exception $e) {
+            Log::error('NOTIFICATION-ERROR|' . $e->getMessage());
+        }
+    }
+
+    public function sendTicketNotificationToUser($ticket, $serviceTypeConfigs, $userId)
+    {
+        try {
+            // Retrieve email configuration
+            $getEmailConfig = EmailConfig::findOrFail($serviceTypeConfigs->email_config_id);
+
+            // Create a custom SwiftMailer instance
+            $swiftMailer = $this->createCustomMailer($getEmailConfig);
+
+            // Generate the notification data
+
+            // Ticket Edit link
+            $link = url("/admin/ticket/edit/{$ticket->id}");
+
+            $notificationData = [
+                'user_id' => $userId,
+                'title' => 'Forwarded Ticket',
+                'channel' => 'email',
+                'link' => $link,
+                'message' => 'A Ticket has been forwarded to you. Click to check.',
+            ];
+
+            // Create notification request
+            $notificationRequest = new Request($notificationData);
+
+            // Store notifications using NCNotificationController
+            $result = app(NCNotificationController::class)->storeSingle($notificationRequest);
+
+            // Fetch recipients for email notifications
+            $user = User::where('id', $userId)->first();
+
+            Log::info('MAIL-SENT-FOR|' . json_encode($notificationData) . '|USER-ID|' . $user->email . '|CONFIG|' . json_encode($getEmailConfig->toArray()));
+
+            // Dispatch the job to the queue
+            SendTicketNotificationJob::dispatch($ticket, $notificationData, $user->email, $getEmailConfig->toArray());
+
         } catch (\Exception $e) {
             Log::error('NOTIFICATION-ERROR|' . $e->getMessage());
         }

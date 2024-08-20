@@ -127,6 +127,7 @@ export default {
                 const response = await axios.get(
                     `/notifications?user_id=${userId}`
                 );
+                console.log("response-fetch-notification", response.data);
                 this.notifications = response.data;
             } catch (error) {
                 console.error("Error fetching notifications:", error);

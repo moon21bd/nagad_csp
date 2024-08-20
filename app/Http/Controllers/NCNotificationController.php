@@ -16,7 +16,10 @@ class NCNotificationController extends Controller
      */
     public function index()
     {
-        $notifications = NCNotification::with('group')->where('user_id', Auth::id())->get();
+        $notifications = NCNotification::with('group')
+            ->where('user_id', Auth::id())
+            ->orderByDesc('created_at')
+            ->get();
         return response()->json($notifications);
     }
 
@@ -51,6 +54,40 @@ class NCNotificationController extends Controller
                 continue;
             }
 
+            $notificationData = [
+                'user_id' => $user->id,
+                'group_id' => $user->group_id,
+                'title' => $validated['title'],
+                'link' => $validated['link'],
+                'channel' => $validated['channel'],
+                'message' => $validated['message'],
+                'is_read' => $validated['is_read'] ?? false,
+                'is_seen' => $validated['is_seen'] ?? false,
+                'created_by' => Auth::id(),
+                'updated_by' => Auth::id(),
+            ];
+
+            NCNotification::create($notificationData);
+        }
+
+        return response()->json(['message' => 'Notifications created successfully'], 201);
+    }
+
+    public function storeSingle(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id' => 'required',
+            'title' => 'required|string|max:255',
+            'link' => 'required|string|max:255',
+            'channel' => 'required|in:sms,email,web,others',
+            'message' => 'required|string',
+            'is_seen' => 'nullable|boolean',
+            'is_read' => 'nullable|boolean',
+        ]);
+
+        // Retrieve users associated with the specified groups
+        $user = User::where('id', $validated['user_id'])->first();
+        if ($user) {
             $notificationData = [
                 'user_id' => $user->id,
                 'group_id' => $user->group_id,
@@ -115,11 +152,9 @@ class NCNotificationController extends Controller
      */
     public function destroy(NCNotification $nCNotification)
     {
-        dd($nCNotification->id, Auth::id());
         if ($nCNotification->user_id !== Auth::id()) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
-
         $nCNotification->delete();
 
         return response()->json(['message' => 'Notification deleted']);

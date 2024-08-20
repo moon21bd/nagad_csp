@@ -2,7 +2,7 @@
     <div class="card mb-4">
         <div class="card-body">
             <div class="row">
-                <div class="col-md-9">
+                <div class="col-md-12">
                     <h4 class="sub-title mb-2">
                         <i class="icon-tickets text-danger"></i> Ticket
                     </h4>
@@ -96,12 +96,12 @@
                                 </div>
                             </div>
                         </div>
-                        <div v-else>No required fields available.</div>
+                        <!-- <div v-else>No required fields available.</div> -->
 
                         <div class="form-row">
                             <div class="col-md-12 form-group">
                                 <label class="control-label"
-                                    >Comments<sup>*</sup></label
+                                    >Comment<sup>*</sup></label
                                 >
                                 <textarea
                                     class="form-control"
@@ -229,15 +229,6 @@
                                     Remove
                                 </button>
                             </div>
-
-                            <!-- <button
-                                type="button"
-                                class="btn btn-secondary ml-2"
-                                @click="nextComment"
-                                :disabled="comments.length >= 5"
-                            >
-                                Next Comment
-                            </button> -->
                         </div>
                         <button
                             type="button"
@@ -250,7 +241,112 @@
                         <br />
                         <br />
 
-                        <button class="btn btn-site" type="submit">
+                        <!-- Forward Selection -->
+                        <div class="form-row">
+                            <div class="col-md-12 form-group">
+                                <label>
+                                    <input
+                                        type="checkbox"
+                                        v-model="forwardSelected"
+                                    />
+                                    Forward Ticket
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- User/Group Selection -->
+                        <div v-if="forwardSelected" class="form-row">
+                            <div class="col-md-6 form-group">
+                                <label class="control-label">
+                                    <input
+                                        type="radio"
+                                        value="user"
+                                        v-model="activeSelection"
+                                        @change="clearGroupSelection"
+                                    />
+                                    Forward to User
+                                </label>
+                                <el-select
+                                    v-if="activeSelection === 'user'"
+                                    class="d-block w-100"
+                                    v-model="selectedUser"
+                                    filterable
+                                    placeholder="Select User"
+                                >
+                                    <el-option
+                                        v-for="user in users"
+                                        :key="user.id"
+                                        :label="user.name"
+                                        :value="user.id"
+                                    >
+                                    </el-option>
+                                </el-select>
+                            </div>
+
+                            <div class="col-md-6 form-group">
+                                <label class="control-label">
+                                    <input
+                                        type="radio"
+                                        value="group"
+                                        v-model="activeSelection"
+                                        @change="clearUserSelection"
+                                    />
+                                    Forward to Group
+                                </label>
+                                <el-select
+                                    v-if="activeSelection === 'group'"
+                                    class="d-block w-100"
+                                    v-model="selectedGroup"
+                                    filterable
+                                    placeholder="Select Group"
+                                >
+                                    <el-option
+                                        v-for="group in groups"
+                                        :key="group.id"
+                                        :label="group.name"
+                                        :value="group.id"
+                                    >
+                                    </el-option>
+                                </el-select>
+                            </div>
+                        </div>
+
+                        <!-- Comment Section -->
+                        <div v-if="forwardSelected" class="form-row">
+                            <div class="col-md-12 form-group">
+                                <label for="forwardComment"
+                                    >Add Forwarding Note:<sup>*</sup></label
+                                >
+                                <textarea
+                                    v-model="forwardComment"
+                                    class="form-control"
+                                    id="forwardComment"
+                                    rows="3"
+                                    placeholder="Add a note about this forwarding"
+                                ></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Conditionally Disable or Hide Submit Button -->
+                        <div class="form-row">
+                            <button
+                                type="button"
+                                class="btn btn-warning"
+                                @click="forwardTicket"
+                                :disabled="!canForward()"
+                                v-if="forwardSelected"
+                            >
+                                Forward
+                            </button>
+                        </div>
+                        <br />
+                        <br />
+
+                        <button
+                            class="btn btn-site"
+                            type="submit"
+                            :disabled="forwardSelected"
+                        >
                             Submit
                         </button>
                     </form>
@@ -262,13 +358,21 @@
 
 <script>
 import axios from "../../../axios";
-
+import auth from "../../../store/auth";
+import { mapActions, mapGetters, mapState } from "vuex";
 export default {
     name: "TicketEdit",
     data: () => ({
-        id: null,
+        ticketId: null,
         isLoading: false,
         selectedStatus: "",
+        forwardSelected: false,
+        activeSelection: null,
+        selectedUser: null,
+        selectedGroup: null,
+        forwardComment: "",
+        users: [],
+        groups: [],
         requiredFields: [],
         maxTicketComments: 5,
         serviceTypeConfigs: {},
@@ -283,7 +387,6 @@ export default {
             call_sub_category: {
                 call_sub_category_name: "",
             },
-
             requiredField: {},
             comments: "",
             attachment: "",
@@ -291,26 +394,186 @@ export default {
         },
         ticketComments: [{ text: "" }],
     }),
-
+    computed: {
+        ...mapState("auth", ["user"]),
+        ...mapGetters("auth", ["user"]),
+        user() {
+            return this.$store.getters["auth/user"];
+        },
+    },
     created() {
-        this.id = this.$route.params.id;
+        this.ticketId = this.$route.params.id;
+        this.checkTicketStatus(this.ticketId);
         this.maxTicketComments = this.maxTicketComments;
+        this.fetchUsersAndGroups();
     },
     methods: {
+        ...mapActions("auth", ["setUser"]),
+        fetchUsersAndGroups() {
+            axios.get("/getActiveUsers").then((response) => {
+                console.log("users", response.data);
+                this.users = response.data;
+            });
+            axios.get("/getActiveGroups").then((response) => {
+                this.groups = response.data;
+            });
+        },
+        clearUserSelection() {
+            this.selectedUser = null;
+        },
+        clearGroupSelection() {
+            this.selectedGroup = null;
+        },
+        canForward() {
+            // Check if the necessary selection is made
+            return (
+                (this.activeSelection === "user" && this.selectedUser) ||
+                (this.activeSelection === "group" && this.selectedGroup)
+            );
+        },
+        forwardTicket() {
+            if (this.forwardComment === null) {
+                this.$showToast(
+                    "Commment is mandatory for forwarding the ticket.",
+                    {
+                        type: "error",
+                    }
+                );
+                return;
+            }
+
+            const payload = {
+                forward_type: this.activeSelection,
+                forward_to:
+                    this.activeSelection === "user"
+                        ? this.selectedUser
+                        : this.selectedGroup,
+                comments: this.forwardComment,
+            };
+
+            axios
+                .post(`/ticket/forward/${this.ticketId}`, payload)
+                .then((response) => {
+                    this.$showToast("Ticket forwarded successfully!", {
+                        type: "success",
+                    });
+                    this.$router.push({ name: "ticket-index" });
+                })
+                .catch((error) => {
+                    this.$showToast("Error forwarding ticket.", {
+                        type: "error",
+                    });
+                });
+
+            /* if (this.activeSelection === "user" && this.selectedUser) {
+                // Logic to forward ticket to selected user
+                axios
+                    .post(`/ticket/forward/${this.ticketId}`, {
+                        userId: this.selectedUser,
+                    })
+                    .then((response) => {
+                        this.$showToast(
+                            "Ticket successfully forwarded to user.",
+                            { type: "success" }
+                        );
+                    })
+                    .catch((error) => {
+                        this.$showToast("Failed to forward ticket to user.", {
+                            type: "error",
+                        });
+                    });
+            } else if (this.activeSelection === "group" && this.selectedGroup) {
+                // Logic to forward ticket to selected group
+                axios
+                    .post(`/ticket/forward/${this.ticketId}`, {
+                        groupId: this.selectedGroup,
+                    })
+                    .then((response) => {
+                        this.$showToast(
+                            "Ticket successfully forwarded to group.",
+                            { type: "success" }
+                        );
+                    })
+                    .catch((error) => {
+                        this.$showToast("Failed to forward ticket to group.", {
+                            type: "error",
+                        });
+                    });
+            } */
+        },
+        checkTicketStatus(ticketId) {
+            axios
+                .get(`/ticket/status/${ticketId}`)
+                .then((response) => {
+                    if (!response.data.engaged) {
+                        console.log(
+                            "TICKET-STATUS",
+                            response.data.engaged,
+                            "ticketId",
+                            ticketId
+                        );
+
+                        this.assignTicket(ticketId);
+                    } else {
+                        if (
+                            response.data.assign_to_user_id !==
+                            this.$store.state.auth.user.id
+                        ) {
+                            // If the current user is not assigned to the ticket, redirect them and show a message
+                            this.$showToast(response.data.message, {
+                                type: "error",
+                            });
+                            this.$router.push({ name: "ticket-index" });
+                        } else {
+                            console.log(
+                                "This ticket is assigned to the current user: ",
+                                this.$store.state.auth.user.id
+                            );
+                        }
+                    }
+                })
+                .catch((error) => {
+                    this.$showToast(
+                        "Something went wrong or This ticket is already engaged by another user.",
+                        {
+                            type: "error",
+                        }
+                    );
+                    this.$router.push({ name: "ticket-index" });
+                });
+        },
+        assignTicket(ticketId) {
+            axios
+                .post(`/ticket/assign/${ticketId}`)
+                .then((response) => {
+                    if (response.data.success) {
+                        this.$showToast(
+                            "You have successfully taken ownership of this ticket.",
+                            {
+                                type: "success",
+                            }
+                        );
+                    }
+                })
+                .catch((error) => {
+                    this.$showToast(
+                        "Could not assign the ticket. Maybe ticket assigned to another user.",
+                        {
+                            type: "error",
+                        }
+                    );
+                });
+        },
+
         fetchTicketInfos() {
             axios
-                .get(`/tickets/${this.id}`)
+                .get(`/tickets/${this.ticketId}`)
                 .then((response) => {
-                    console.log("API response:", response.data);
-
-                    const requiredFieldsArray = JSON.parse(
-                        response.data.required_fields
-                    );
-
-                    this.requiredFields = requiredFieldsArray.map((field) => ({
-                        id: field.id,
-                        input_field_name: field.field,
-                        value: field.value,
+                    const requiredFieldsArr = response.data.required_fields;
+                    this.requiredFields = requiredFieldsArr.map((field) => ({
+                        id: field.required_field_id,
+                        input_field_name: field.required_field_name,
+                        value: field.required_field_value,
                     }));
 
                     this.ticketInfos = {
@@ -323,7 +586,6 @@ export default {
                 });
         },
         async handleSubmit() {
-            console.log("handleSubmit Called");
             this.$validator.validateAll().then(async (validated) => {
                 if (validated) {
                     const payload = {
@@ -335,22 +597,18 @@ export default {
                     try {
                         const response = await axios({
                             method: "PUT",
-                            url: `tickets/${this.id}`,
+                            url: `tickets/${this.ticketId}`,
                             data: payload,
                             headers: { "Content-Type": "application/json" },
                         });
 
                         this.isLoading = false;
-                        console.log("response-tick", response);
+
                         Vue.prototype.$showToast(response.data.message, {
                             type: "success",
                         });
                         this.$router.push({ name: "ticket-index" });
                     } catch (errors) {
-                        console.log(
-                            "err.response",
-                            errors.response.data.errors
-                        );
                         if (errors.response && errors.response.data.errors) {
                             this.formErrors = errors.response.data.errors;
                         } else {
@@ -381,24 +639,7 @@ export default {
                 alert("At least one comment is required.");
             }
         },
-        nextComment() {
-            if (this.ticketComments.length < this.maxTicketComments) {
-                this.addComment();
-                this.$nextTick(() => {
-                    const nextCommentIndex = this.ticketComments.length - 1;
-                    const nextCommentElement = document.getElementById(
-                        `comment-${nextCommentIndex}`
-                    );
-                    if (nextCommentElement) {
-                        nextCommentElement.focus();
-                    }
-                });
-            } else {
-                alert(
-                    `You can only add up to ${this.maxTicketComments} comments.`
-                );
-            }
-        },
+
         isImage(file) {
             return /\.(jpg|jpeg|png|gif)$/i.test(file);
         },

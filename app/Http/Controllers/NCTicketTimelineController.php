@@ -51,21 +51,18 @@ class NCTicketTimelineController extends Controller
 
     public function show($id)
     {
-        // Fetch the ticket details
         $ticket = NCTicket::with([
             'callType',
             'callCategory',
             'callSubCategory',
         ])->find($id);
 
-        // Return an error response if the ticket is not found
         if (!$ticket) {
             return response()->json([
                 'message' => 'Ticket not found',
             ], 404);
         }
 
-        // Fetch ticket required fields
         $requiredFields = TicketsRequiredField::where('ticket_id', $id)
             ->with('requiredFields')
             ->get()
@@ -76,49 +73,39 @@ class NCTicketTimelineController extends Controller
                 ];
             });
 
-        // Fetch the timelines associated with the ticket
         $timelines = NCTicketTimeline::where('ticket_id', $id)->get();
 
-        // Fetch user details for ticket_created_by
         $user = User::with('user_login_activity', 'user_details')->find($ticket->ticket_created_by);
 
-        // Get the last 3 user_login_activity items sorted by descending time, if the user exists
         $userLoginActivities = $user ? $user->user_login_activity()
             ->orderBy('created_at', 'desc')
             ->limit(3)
             ->get() : [];
 
-        // Prepare comments from the ticket and timelines
-
-        // Prepare comments from the ticket and timelines
         $comments = [];
 
-        // Add ticket comments if available
         if ($ticket->comments) {
             $comments[] = [
-                'date_time' => Carbon::parse($ticket->updated_at)->format('M j, Y'), // Format the date
-                'avatar_url' => $user->avatar_url ?? null, // Assuming user has an avatar_url field
+                'date_time' => Carbon::parse($ticket->updated_at)->format('M j, Y'),
+                'avatar_url' => $user->avatar_url ?? null,
                 'comment' => $ticket->comments,
-                'username' => $user->name ?? 'Unknown', // Username from the user
+                'username' => $user->name ?? 'Unknown',
             ];
         }
 
-        // Add timeline comments
         foreach ($timelines as $timeline) {
             if ($timeline->ticket_comments) {
-                // Assuming ticket_opened_by and ticket_status_updated_by are user IDs
                 $commentingUser = User::find($timeline->ticket_opened_by) ?: User::find($timeline->ticket_status_updated_by);
 
                 $comments[] = [
-                    'date_time' => Carbon::parse($timeline->updated_at)->format('M j, Y'), // Format the date
-                    'avatar_url' => $commentingUser->avatar_url ?? null, // Assuming user has an avatar_url field
+                    'date_time' => Carbon::parse($timeline->updated_at)->format('M j, Y'),
+                    'avatar_url' => $commentingUser->avatar_url ?? null,
                     'comment' => $timeline->ticket_comments,
-                    'username' => $commentingUser->name ?? 'Unknown', // Username from the user
+                    'username' => $commentingUser->name ?? 'Unknown',
                 ];
             }
         }
 
-        // Organize the response structure
         $response = [
             'ticket_id' => $ticket->id,
             'ticket' => [
@@ -159,31 +146,15 @@ class NCTicketTimelineController extends Controller
                     'ticket_attachments' => $item->ticket_attachments,
                     'ticket_opened_by' => $item->ticket_opened_by,
                     'ticket_status_updated_by' => $item->ticket_status_updated_by,
-                    'username' => $user->name ?? 'Unknown', // Username of the person who updated the ticket status
-                    'user_id' => $user->user_details->employee_id ?? $user->id, // Assuming the user has an employee_id field
+                    'username' => $user->name ?? 'Unknown',
+                    'user_id' => $user->user_details->employee_id ?? $user->id,
                     'opened_at' => $item->opened_at,
                     'last_time_opened_at' => $item->last_time_opened_at,
-                    'created_at' => Carbon::parse($item->created_at)->format('M j, Y h:i A'), // Format the date
-                    'updated_at' => Carbon::parse($item->updated_at)->format('M j, Y h:i A'), // Format the date
+                    'created_at' => Carbon::parse($item->created_at)->format('M j, Y h:i A'),
+                    'updated_at' => Carbon::parse($item->updated_at)->format('M j, Y h:i A'),
                 ];
             }),
-            /* 'timelines' => $timelines->map(function ($item) {
-        return [
-        'id' => $item->id,
-        'ticket_status' => $item->ticket_status,
-        'ticket_comments' => $item->ticket_comments,
-        'ticket_attachments' => $item->ticket_attachments,
-        'ticket_opened_by' => $item->ticket_opened_by,
-        'ticket_status_updated_by' => $item->ticket_status_updated_by,
-        'opened_at' => $item->opened_at,
-        'last_time_opened_at' => $item->last_time_opened_at,
-        // 'created_by' => $item->created_by,
-        // 'updated_by' => $item->updated_by,
-        // 'last_updated_by' => $item->last_updated_by,
-        'created_at' => $item->created_at,
-        'updated_at' => $item->updated_at,
-        ];
-        }), */
+
         ];
 
         return response()->json([
