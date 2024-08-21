@@ -49,6 +49,22 @@ class AuthController extends Controller
 
         try {
             $validatedData = $request->all();
+
+            // Prevent duplicate group owners
+            if ($validatedData['level'] == config('nagad.GROUP_OWNER')) {
+                $existingOwner = User::where('group_id', $validatedData['group_id'])
+                    ->where('level', config('nagad.GROUP_OWNER'))
+                    ->first();
+
+                if ($existingOwner) {
+                    $error = [
+                        'title' => 'Failed to register.',
+                        'message' => 'Group already has an owner. Try Different owner.',
+                    ];
+                    return $this->sendError($error);
+                }
+            }
+
             $authUserId = Auth::id();
 
             $user = $this->createUser($validatedData, $authUserId);
@@ -72,9 +88,7 @@ class AuthController extends Controller
 
     public function changePassword(Request $request)
     {
-
         try {
-
             $validatedData = $request->validate([
                 'old_password' => 'required|string',
                 'password' => 'required|string|min:8|max:25|confirmed',
@@ -124,7 +138,9 @@ class AuthController extends Controller
     protected function registrationRules()
     {
         return [
-            'group_id' => 'required',
+            'level' => 'required',
+            'group_id' => 'required_unless:level,1', // Apply validation unless level is 1
+            'parent_id' => 'nullable',
             'employee_name' => 'required',
             'employee_id' => 'required',
             'employee_user_id' => 'required',
@@ -166,18 +182,30 @@ class AuthController extends Controller
 
         $user = User::create([
             'name' => $data['employee_name'],
-            'parent_id' => $authUserId,
+            'parent_id' => $data['parent_id'] ?? 0,
+            'level' => $data['level'],
             'group_id' => $data['group_id'],
             'mobile_no' => $data['mobile_no'],
             'email' => $data['email'],
+            'status' => $data['level'] == 1 ? 'Active' : 'Pending',
             'avatar' => uploadMediaGetPath($data['avatar']),
             'password' => Hash::make($data['password']),
             'created_by' => $authUserId,
             'updated_by' => $authUserId,
         ]);
 
+        if ($user->level == 1) {
+            $user->attachRole('superadmin');
+        } elseif ($user->level == 2) {
+            $user->attachRole('admin');
+        } elseif ($user->level == 3) {
+            $user->attachRole('owner');
+        } else {
+            $user->attachRole('user');
+        }
+
         // assigning default role to the user within this group
-        $user->attachRole('default', $user->group_id);
+        // $user->attachRole('default', $user->group_id);
 
         return $user;
     }
@@ -303,11 +331,15 @@ class AuthController extends Controller
 
                 // $permissions = $this->getUserPermissions($user);
                 $cando = $user->allPermissions();
+                // $roles = $this->getUserRoles($user);
+                // Transforming the user and roles data
+                $userData = $user->only(['id', 'uuid', 'group_id', 'level', 'parent_id', 'mobile_no', 'name', 'avatar', 'email', 'status']);
+                $userData['roles'] = $user->roles->pluck('name');
 
                 return response([
                     'message' => 'Successfully logged in.',
                     'token' => $token,
-                    'user' => $user,
+                    'user' => $userData,
                     'cando' => $cando,
                 ]);
             }
@@ -333,10 +365,13 @@ class AuthController extends Controller
 
         $this->updateUserActivity($user);
         $this->updateUserLocation($user, $location);
+        // $roles = $this->getUserRoles($user);
 
-        // $permissions = $this->getUserPermissions($user);
+        // Transforming the user and roles data
+        $userData = $user->only(['id', 'uuid', 'group_id', 'level', 'parent_id', 'mobile_no', 'name', 'avatar', 'email', 'status']);
+        $userData['roles'] = $user->roles->pluck('name');
 
-        return response(['message' => 'Successfully logged in.', 'token' => $token, 'user' => $user, 'cando' => []]);
+        return response(['message' => 'Successfully logged in.', 'token' => $token, 'user' => $userData]);
     }
 
     protected function incrementFailedLogins(User $user)
@@ -371,6 +406,13 @@ class AuthController extends Controller
         }
         $user['cando'] = $permissions;
         return $permissions;
+    }
+
+    private function getUserRoles($user)
+    {
+        return $user->roles->map(function ($role) {
+            return $role->name;
+        });
     }
 
     /*

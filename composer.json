@@ -19,7 +19,7 @@
         "laravel/ui": "^3.3",
         "ramsey/uuid": "^4.7",
         "santigarcor/laratrust": "^7.2",
-        "spatie/laravel-activitylog": "^4.8"
+        "spatie/laravel-activitylog": "^4.7"
     },
     "require-dev": {
         "facade/ignition": "^2.5",

@@ -43,9 +43,83 @@
                                         {{ errors.first("avatar") }}
                                     </small>
                                 </div>
+
                                 <div class="col-md-12 form-group">
                                     <label class="control-label"
-                                        >Select Group</label
+                                        >User Level<sup>*</sup></label
+                                    >
+                                    <el-select
+                                        class="d-block w-100"
+                                        v-model="formData.level"
+                                        name="level"
+                                        v-validate="'required'"
+                                        placeholder="Select User Level"
+                                    >
+                                        <el-option
+                                            label="Super Admin"
+                                            :value="1"
+                                        ></el-option>
+                                        <el-option
+                                            label="Admin"
+                                            :value="2"
+                                        ></el-option>
+                                        <el-option
+                                            label="Group Owner"
+                                            :value="3"
+                                        ></el-option>
+                                        <el-option
+                                            label="User"
+                                            :value="4"
+                                        ></el-option>
+                                    </el-select>
+                                    <small
+                                        class="text-danger"
+                                        v-show="errors.has('level')"
+                                    >
+                                        {{ errors.first("level") }}
+                                    </small>
+                                </div>
+
+                                <div
+                                    class="col-md-12 form-group"
+                                    v-if="formData.level !== 1"
+                                >
+                                    <label class="control-label"
+                                        >Parent User</label
+                                    >
+                                    <el-select
+                                        class="d-block w-100"
+                                        v-model="formData.parent_id"
+                                        name="parent_id"
+                                        placeholder="Select Parent User"
+                                    >
+                                        <el-option
+                                            :key="0"
+                                            :label="'No Parent'"
+                                            :value="0"
+                                        ></el-option>
+                                        <el-option
+                                            v-for="user in users"
+                                            :key="user.id"
+                                            :label="user.name"
+                                            :value="user.id"
+                                        >
+                                        </el-option>
+                                    </el-select>
+                                    <small
+                                        class="text-danger"
+                                        v-show="errors.has('parent_id')"
+                                    >
+                                        {{ errors.first("parent_id") }}
+                                    </small>
+                                </div>
+
+                                <div
+                                    class="col-md-12 form-group"
+                                    v-if="formData.level !== 1"
+                                >
+                                    <label class="control-label"
+                                        >Select Group<sup>*</sup></label
                                     >
                                     <el-select
                                         class="d-block w-100"
@@ -73,7 +147,7 @@
 
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >Employee Name</label
+                                        >Employee Name<sup>*</sup></label
                                     >
                                     <input
                                         class="form-control"
@@ -97,7 +171,7 @@
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >Employee ID</label
+                                        >Employee ID<sup>*</sup></label
                                     >
                                     <input
                                         class="form-control"
@@ -114,7 +188,9 @@
                                     </small>
                                 </div>
                                 <div class="col-md-6 form-group">
-                                    <label class="control-label">User ID</label>
+                                    <label class="control-label"
+                                        >User ID<sup>*</sup></label
+                                    >
                                     <input
                                         class="form-control"
                                         type="text"
@@ -131,7 +207,7 @@
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >NID Card No
+                                        >NID Card No<sup>*</sup>
                                     </label>
                                     <input
                                         class="form-control"
@@ -151,7 +227,7 @@
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >Date of Birth
+                                        >Date of Birth<sup>*</sup>
                                     </label>
                                     <el-date-picker
                                         class="d-block w-100"
@@ -171,7 +247,7 @@
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >Phone Number</label
+                                        >Phone Number<sup>*</sup></label
                                     >
                                     <input
                                         class="form-control"
@@ -192,7 +268,7 @@
 
                                 <div class="col-md-12 form-group">
                                     <label class="control-label"
-                                        >Email Address</label
+                                        >Email Address<sup>*</sup></label
                                     >
                                     <input
                                         class="form-control"
@@ -210,7 +286,7 @@
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >Password</label
+                                        >Password<sup>*</sup></label
                                     >
 
                                     <div class="password">
@@ -252,7 +328,7 @@
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >Confirm Password</label
+                                        >Confirm Password<sup>*</sup></label
                                     >
                                     <div class="password">
                                         <input
@@ -293,7 +369,9 @@
                                     </small>
                                 </div>
                                 <div class="col-md-12 form-group">
-                                    <label class="control-label">Address</label>
+                                    <label class="control-label"
+                                        >Address<sup>*</sup></label
+                                    >
                                     <textarea
                                         class="form-control"
                                         name="address"
@@ -311,7 +389,7 @@
                                 <div class="col-md-12 form-group">
                                     <div class="d-flex align-items-center">
                                         <label class="control-label m-0 mr-3"
-                                            >Gender</label
+                                            >Gender<sup>*</sup></label
                                         >
                                         <label class="radio mr-2"
                                             ><input
@@ -394,13 +472,31 @@ export default {
                 password: "",
                 confirmPassword: "",
                 gender: "",
+                level: 4, // Default to 'User'
+                parent_id: null,
             },
+            users: [], // Store parent users
         };
     },
     created() {
         this.fetchGroups();
+        this.fetchUsers();
+    },
+    computed: {
+        groupValidationRule() {
+            return this.formData.level !== 1 ? "required" : "";
+        },
     },
     methods: {
+        async fetchUsers() {
+            try {
+                const response = await axios.get("/users");
+                this.users = response.data.data;
+            } catch (error) {
+                console.error("Error fetching users:", error);
+                this.users = [];
+            }
+        },
         togglePassword() {
             this.showPassword = !this.showPassword;
         },
@@ -429,6 +525,8 @@ export default {
             const _this = this;
             _this.$validator.validateAll().then(async (validated) => {
                 if (validated) {
+                    // console.log("formData", _this.formData);
+                    // return;
                     axios({
                         method: "POST",
                         url: "/user/register",
@@ -441,7 +539,7 @@ export default {
                             Vue.prototype.$showToast(response.data.message, {
                                 type: "success",
                             });
-                            _this.$router.push({ name: "user-profile" });
+                            _this.$router.push({ name: "user-index" });
                         })
                         .catch((errors) => {
                             console.log(

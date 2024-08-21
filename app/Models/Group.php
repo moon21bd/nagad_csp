@@ -18,6 +18,7 @@ class Group extends LaratrustTeam
     protected $table = "groups";
 
     protected $fillable = [
+        'owner_id',
         'name',
         'display_name',
         'description',
@@ -50,6 +51,11 @@ class Group extends LaratrustTeam
     public function roles()
     {
         return $this->belongsToMany(LaratrustRole::class, 'role_group', 'group_id', 'role_id');
+    }
+
+    public function owner()
+    {
+        return $this->belongsTo(User::class, 'owner_id');
     }
 
     public function users()

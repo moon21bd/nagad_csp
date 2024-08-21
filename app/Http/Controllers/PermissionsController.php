@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Permission;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -105,10 +106,8 @@ class PermissionsController extends Controller
             ], 200);
 
         } catch (ValidationException $e) {
-            dd('ValidationException', $e->validator->errors()->first());
             return response()->json(['error' => $e->validator->errors()->first()], 422);
         } catch (\Exception $e) {
-            dd('Exception', $e->getMessage());
             return response()->json(['error' => 'Failed to process request.', 'message' => $e->getMessage()], 500);
         }
     }
@@ -152,6 +151,18 @@ class PermissionsController extends Controller
     {
         $user = auth()->user(); // Get the currently logged-in user
         $permissions = $user->permissions; // Retrieve all permissions (direct and group-based)
+
+        return response()->json([
+            'user' => $user->name,
+            'permissions' => $permissions->pluck('name'),
+            'roles' => $user->roles->pluck('name'),
+        ]);
+    }
+
+    public function getUserPermissionsById($id)
+    {
+        $user = User::find($id);
+        $permissions = $user->permissions;
 
         return response()->json([
             'user' => $user->name,

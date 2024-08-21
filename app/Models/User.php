@@ -24,18 +24,20 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
+        'uuid',
         'group_id',
-        'parent_id',
+        'level', // 1=Super Admin,2=Admin,3=Group Owner,4=User
+        'parent_id', // default 0
         'mobile_no',
         'name',
         'user_type',
         'api_token',
         'email',
-        'created_by',
-        'updated_by',
-        'status',
         'avatar',
         'password',
+        'status',
+        'created_by',
+        'updated_by',
     ];
 
     /**
@@ -107,4 +109,38 @@ class User extends Authenticatable
     {
         return $this->avatar ? asset('uploads/' . $this->avatar) : null;
     }
+
+    // Relationship to the parent user
+    public function parent()
+    {
+        return $this->belongsTo(User::class, 'parent_id');
+    }
+
+    // Relationship to child users
+    public function children()
+    {
+        return $this->hasMany(User::class, 'parent_id');
+    }
+
+    // Helper method to check the user's level
+    public function isLevel($level)
+    {
+        return $this->level === $level;
+    }
+
+    public function isSuperAdmin()
+    {
+        return $this->level == config('nagad.SUPER_ADMIN');
+    }
+
+    public function isAdmin()
+    {
+        return $this->level == config('nagad.ADMIN');
+    }
+
+    public function isGroupOwner()
+    {
+        return $this->level == config('nagad.GROUP_OWNER');
+    }
+
 }

@@ -1,13 +1,17 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Helpers\AgentHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Group;
+use App\Models\NCTicket;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\UserMigrationLog;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
@@ -15,10 +19,20 @@ class UsersController extends Controller
 {
     protected $requiresLocationGroups;
 
-    public function __construct()
+    protected $userLevels;
+
+    protected $agentHelper;
+
+    public function __construct(AgentHelper $agentHelper)
     {
         $this->requiresLocationGroups = config('nagad.requires_location_groups');
-
+        $this->userLevels = [
+            ['value' => config('nagad.SUPER_ADMIN'), 'label' => 'SUPER_ADMIN'],
+            ['value' => config('nagad.ADMIN'), 'label' => 'ADMIN'],
+            ['value' => config('nagad.GROUP_OWNER'), 'label' => 'GROUP_OWNER'],
+            ['value' => config('nagad.USER'), 'label' => 'USER'],
+        ];
+        $this->agentHelper = $agentHelper;
     }
 
     /**
@@ -58,9 +72,17 @@ class UsersController extends Controller
         $userIsAbleTo = $user->isAbleTo('dashboard', $groupId);
         dd($userIsAbleTo); */
 
+        /* $users = User::with(['group', 'user_activity', 'user_login_activity', 'user_details'])
+        ->orderByDesc('id')
+        ->get(); */
+
         $users = User::with(['group', 'user_activity', 'user_login_activity', 'user_details'])
             ->orderByDesc('id')
-            ->get();
+            ->get()
+            ->map(function ($user) {
+                $user->level_label = $this->getLevelLabel($user->level);
+                return $user;
+            });
 
         return response()->json([
             'title' => 'Success.',
@@ -113,6 +135,9 @@ class UsersController extends Controller
     {
         $user = User::with(['group', 'user_activity', 'user_details'])->find($id);
         $user->allPermissions();
+        $user->levels = $this->getUserLevels();
+
+        // $userData = $user->only(['id', 'uuid', 'group_id', 'level', 'parent_id', 'mobile_no', 'name', 'avatar', 'email', 'status']);
 
         return response()->json([
             'title' => 'Success.',
@@ -123,17 +148,21 @@ class UsersController extends Controller
 
     public function edit(Request $request, $id)
     {
+
         $user = User::findOrFail($id);
+        $userId = $user->id;
 
         // Validate the input
         $validatedData = $request->validate([
             'group_id' => 'required',
+            'parent_id' => 'nullable|integer',
+            'level' => 'nullable|integer',
             'status' => 'required|in:Active,Inactive,Pending',
             'avatar' => 'nullable|string', // Make avatar nullable
         ]);
 
         // Log the received avatar data for debugging
-        Log::info('Received avatar data: ', ['avatar' => $validatedData['avatar']]);
+        // Log::info('Received avatar data: ', ['avatar' => $validatedData['avatar']]);
 
         // Handle the avatar update
         if (!empty($validatedData['avatar'])) {
@@ -154,10 +183,49 @@ class UsersController extends Controller
             unset($validatedData['avatar']);
         }
 
+        // If group id were change, need to flash the user roles/permissions as well.
+        // role will the group role id.
+
+        /* $isUserMigrated = false;
+        if ($user->group_id != $validatedData['group_id']) {
+        $isUserMigrated = true;
+        } */
+
+        // save migrated user logs
+
+        // get total ticket by this user
+        $totalTicket = NCTicket::where('ticket_created_by', $id)->count();
+        $userPermissions = $user->permissions;
+        $userRolePermissions = [
+            'permissions' => $userPermissions->pluck('name'),
+            'roles' => $user->roles->pluck('name'),
+        ];
+        $data = [
+            'user_id' => $userId,
+            'previous_group_id' => $user->group_id,
+            'current_group_id' => $validatedData['group_id'],
+            'total_ticket_created_till' => $totalTicket,
+            'previous_roles_permissions' => json_encode($userRolePermissions),
+            'previous_level' => $user->level,
+            'previous_parent_id' => $user->parent_id,
+            'current_level' => $validatedData['level'],
+            'current_parent_id' => $validatedData['parent_id'],
+            'updator_group_id' => Auth::user()->group_id,
+            'updated_by' => Auth::id(),
+            'updator_ip' => getIPAddress(),
+            'updator_device_name' => $this->agentHelper->getDeviceName(),
+        ];
+
+        $this->createUserMigrationLogs($data);
+
         // Update the user with validated data
         $user->update($validatedData);
 
-        return response()->json($user);
+        return response()->json([
+            'message' => 'User data updated.',
+            'type' => 'success',
+        ], 200);
+
     }
 
     /**
@@ -237,6 +305,11 @@ class UsersController extends Controller
     {
         $user = User::findOrFail($id);
         return response()->json($user->roles);
+    }
+
+    public function getUserLevels()
+    {
+        return $this->userLevels;
     }
 
     public function removeRole($id, $roleId)
@@ -322,6 +395,16 @@ class UsersController extends Controller
             ->get();
 
         return response()->json($users);
+    }
+
+    public function createUserMigrationLogs($data)
+    {
+        return UserMigrationLog::create($data);
+    }
+    private function getLevelLabel($level)
+    {
+        $level = array_search($level, array_column($this->userLevels, 'value'));
+        return $level !== false ? $this->userLevels[$level]['label'] : 'UNKNOWN';
     }
 
 }

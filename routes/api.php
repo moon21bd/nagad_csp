@@ -68,6 +68,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // GET CURRENTLY LOGGED IN USER ID
     Route::get('/userPermissions', [PermissionsController::class, 'getCurrentUserPermissions']);
 
+    Route::get('/user-permissions/{id}', [PermissionsController::class, 'getUserPermissionsById']);
+
     // GET LOCATION OF REQUIRES GROUPS
     Route::get('/userLocations', [UsersController::class, 'getUserLocation']);
 

@@ -21,6 +21,8 @@
                                     <th>SL</th>
                                     <th>User</th>
                                     <th>UserID</th>
+                                    <th>Level</th>
+                                    <th>Email</th>
                                     <th>User Group</th>
                                     <th>Last Login</th>
                                     <th>Active Status</th>
@@ -29,57 +31,84 @@
                             </thead>
                             <tbody>
                                 <tr v-for="(item, key) in users" :key="key">
-                                    <td>{{ item.id }}</td>
-                                    <td :title="item.avatar">
-                                        <img :src="item.avatar" alt="" />
-                                        {{ item.name }}
+                                    <td>{{ item?.id || "" }}</td>
+
+                                    <td :title="item?.avatar || ''">
+                                        <img :src="item?.avatar || ''" alt="" />
+                                        {{ item?.name || "" }}
                                     </td>
-                                    <td>
-                                        {{ item.user_details.employee_user_id }}
-                                    </td>
-                                    <td>{{ item.group.name }}</td>
+
                                     <td>
                                         {{
-                                            item.user_login_activity.last_online
+                                            item?.user_details
+                                                ?.employee_user_id || ""
                                         }}
-                                        <!-- {{
-                                            new Date(
-                                                item.user_activity.last_online
-                                            ).toDateString()
-                                        }} -->
                                     </td>
+                                    <td>
+                                        {{ item.level_label || "Unknown" }}
+                                    </td>
+
+                                    <td>
+                                        {{ item?.email || "" }}
+                                    </td>
+
+                                    <td>
+                                        {{ item?.group?.name || "" }}
+                                    </td>
+
+                                    <td>
+                                        {{
+                                            item?.user_login_activity
+                                                ?.last_online || ""
+                                        }}
+                                        <!-- Uncomment the following line if you want to format the last_online date -->
+                                        <!-- {{ item?.user_login_activity?.last_online ? new Date(item.user_login_activity.last_online).toDateString() : "" }} -->
+                                    </td>
+
                                     <td>
                                         <span
                                             :class="
-                                                status === 'active'
+                                                item?.status === 'active'
                                                     ? 'active'
                                                     : 'inactive'
                                             "
                                             class="badge"
-                                            >{{ item.status }}</span
                                         >
+                                            {{ item?.status || "" }}
+                                        </span>
                                     </td>
+
                                     <td class="text-right">
                                         <router-link
                                             class="btn-action btn-edit"
                                             :to="{
                                                 name: 'user-edit',
-                                                params: { id: item.id },
+                                                params: { id: item?.id },
                                             }"
-                                            ><i class="icon-edit-pen"></i
-                                        ></router-link>
+                                        >
+                                            <i class="icon-edit-pen"></i>
+                                        </router-link>
+
                                         <router-link
+                                            v-if="[1, 2].includes(item?.level)"
                                             class="btn btn-action"
                                             title="User Role Manage"
                                             :to="{
                                                 name: 'user-roles-manage',
-                                                params: { id: item.id },
+                                                params: { id: item?.id },
                                             }"
-                                            ><i class="icon-settings"></i
-                                        ></router-link>
+                                        >
+                                            <i class="icon-settings"></i>
+                                        </router-link>
+
                                         <a
                                             class="btn-action btn-trash"
-                                            @click.prevent="deleteUser(id)"
+                                            v-if="
+                                                [1, 2, 3].includes(item?.level)
+                                            "
+                                            @click.prevent="
+                                                deleteUser(item?.id)
+                                            "
                                         >
                                             <i class="icon-trash"></i>
                                         </a>
@@ -115,10 +144,32 @@ export default {
     methods: {
         async deleteUser(id) {
             try {
-                if (confirm("Are you sure you want to delete this User?")) {
+                const loggedInUserId = this.$store.state.auth.user.id;
+                const user = this.users.find((user) => user.id === id);
+
+                if (user) {
+                    if (user.id === loggedInUserId) {
+                        alert("You cannot delete your own account.");
+                        return;
+                    }
+
+                    if (user.level === 1) {
+                        alert("Users with level 1 cannot be deleted.");
+                        return;
+                    }
+
+                    if (confirm("Are you sure you want to delete this User?")) {
+                        await axios.delete(`/users/${id}`);
+                        this.fetchUsers();
+                    }
+                } else {
+                    alert("User not found.");
+                }
+
+                /* if (confirm("Are you sure you want to delete this User?")) {
                     await axios.delete(`/users/${id}`);
                     this.fetchUsers();
-                }
+                } */
             } catch (error) {
                 console.error("Error deleting user:", error);
             }

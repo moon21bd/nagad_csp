@@ -6,7 +6,7 @@
             :to="{ name: 'admin' }"
         >
             <i class="icon-logo sidebar-brand-icon mx-auto"></i>
-            <!-- <img class="sidebar-brand-logo" src="/images/logo.svg" alt="" /> -->
+            <img class="sidebar-brand-logo" src="/images/logo.svg" alt="" />
         </router-link>
         <div class="sidebar-nav">
             <el-menu
@@ -21,41 +21,6 @@
                     </router-link>
                 </el-menu-item>
 
-                <el-menu-item index="service-types-index">
-                    <router-link :to="{ name: 'service-types-index' }">
-                        <i class="icon-phone"></i>
-                        <span>Service Type</span>
-                    </router-link>
-                </el-menu-item>
-
-                <el-menu-item index="service-categories-index">
-                    <router-link :to="{ name: 'service-categories-index' }">
-                        <i class="icon-pull"></i>
-                        <span>Service Categories</span>
-                    </router-link>
-                </el-menu-item>
-
-                <el-menu-item index="service-sub-categories-index">
-                    <router-link :to="{ name: 'service-sub-categories-index' }">
-                        <i class="icon-branch"></i>
-                        <span>Service Sub Categories</span>
-                    </router-link>
-                </el-menu-item>
-
-                <el-menu-item index="service-type-config-index">
-                    <router-link :to="{ name: 'service-type-config-index' }">
-                        <i class="icon-settings"></i>
-                        <span>Service Type Configs</span>
-                    </router-link>
-                </el-menu-item>
-
-                <el-menu-item index="required-fields-config-index">
-                    <router-link :to="{ name: 'required-fields-config-index' }">
-                        <i class="icon-sliders"></i>
-                        <span>Required Fields Configs</span>
-                    </router-link>
-                </el-menu-item>
-
                 <el-menu-item index="tickets-index">
                     <router-link :to="{ name: 'ticket-index' }">
                         <i class="icon-tickets"></i>
@@ -63,32 +28,13 @@
                     </router-link>
                 </el-menu-item>
 
-                <!-- <el-menu-item index="tickets-required-fields-add">
-                    <router-link :to="{ name: 'tickets-required-fields-add' }">
-                        <i class="icon-ticket"></i>
-                        <span>Ticket wise Required Fields</span>
-                    </router-link>
-                </el-menu-item> -->
-
-                <!-- <el-menu-item index="/admin/download">
-                    <router-link to="/admin/download">
-                        <i class="icon-download"></i>
-                        <span>Ticket Download</span>
-                    </router-link>
-                </el-menu-item>
-                <el-menu-item index="/admin/back-office">
-                    <router-link to="/admin/back-office">
-                        <i class="icon-briefcase"></i>
-                        <span>Back Office</span>
-                    </router-link>
-                </el-menu-item> -->
-
                 <el-menu-item index="admin-user-index">
                     <router-link :to="{ name: 'user-index' }">
                         <i class="icon-users"></i>
                         <span>Users</span>
                     </router-link>
                 </el-menu-item>
+
                 <el-menu-item index="user-location">
                     <router-link
                         :to="{
@@ -98,28 +44,60 @@
                         <span>User Location</span>
                     </router-link>
                 </el-menu-item>
-                <el-menu-item index="groups-index">
-                    <router-link :to="{ name: 'groups-index' }">
-                        <i class="icon-users"></i>
-                        <span>Group Configs</span>
-                    </router-link>
-                </el-menu-item>
-
-                <el-menu-item index="email-config-index">
-                    <router-link :to="{ name: 'email-config-index' }">
-                        <i class="icon-mail"></i>
-                        <span>Email Configs</span>
-                    </router-link>
-                </el-menu-item>
-
-                <el-menu-item index="dnd-user-index">
-                    <router-link :to="{ name: 'dnd-user-index' }">
-                        <i class="icon-user-x"></i>
-                        <span>DnD Users</span>
-                    </router-link>
-                </el-menu-item>
 
                 <div v-if="hasRole('admin|superadmin|owner')">
+                    <el-menu-item index="service-types-index">
+                        <router-link :to="{ name: 'service-types-index' }">
+                            <i class="icon-phone"></i>
+                            <span>Service Type</span>
+                        </router-link>
+                    </el-menu-item>
+
+                    <el-menu-item index="service-categories-index">
+                        <router-link :to="{ name: 'service-categories-index' }">
+                            <i class="icon-pull"></i>
+                            <span>Service Categories</span>
+                        </router-link>
+                    </el-menu-item>
+
+                    <el-menu-item index="service-sub-categories-index">
+                        <router-link
+                            :to="{ name: 'service-sub-categories-index' }"
+                        >
+                            <i class="icon-branch"></i>
+                            <span>Service Sub Categories</span>
+                        </router-link>
+                    </el-menu-item>
+                    <el-menu-item index="service-type-config-index">
+                        <router-link
+                            :to="{ name: 'service-type-config-index' }"
+                        >
+                            <i class="icon-settings"></i>
+                            <span>Service Type Configs</span>
+                        </router-link>
+                    </el-menu-item>
+                    <el-menu-item index="required-fields-config-index">
+                        <router-link
+                            :to="{ name: 'required-fields-config-index' }"
+                        >
+                            <i class="icon-sliders"></i>
+                            <span>Required Fields Configs</span>
+                        </router-link>
+                    </el-menu-item>
+                    <el-menu-item index="groups-index">
+                        <router-link :to="{ name: 'groups-index' }">
+                            <i class="icon-users"></i>
+                            <span>Group Configs</span>
+                        </router-link>
+                    </el-menu-item>
+
+                    <el-menu-item index="email-config-index">
+                        <router-link :to="{ name: 'email-config-index' }">
+                            <i class="icon-mail"></i>
+                            <span>Email Configs</span>
+                        </router-link>
+                    </el-menu-item>
+
                     <el-menu-item index="roles-index">
                         <router-link :to="{ name: 'roles-index' }">
                             <i class="icon-refer"></i>
@@ -131,6 +109,13 @@
                         <router-link :to="{ name: 'permissions' }">
                             <i class="icon-shield"></i>
                             <span>Permissions</span>
+                        </router-link>
+                    </el-menu-item>
+
+                    <el-menu-item index="dnd-user-index">
+                        <router-link :to="{ name: 'dnd-user-index' }">
+                            <i class="icon-user-x"></i>
+                            <span>DnD Users</span>
                         </router-link>
                     </el-menu-item>
                 </div>
@@ -206,7 +191,7 @@ export default {
 
     computed: {
         activeIndex() {
-            return this.$route.path; // Reactively return the current route path
+            return this.$route.path;
         },
         ...mapGetters("permissions", [
             "permissions",
@@ -218,8 +203,7 @@ export default {
     methods: {
         ...mapActions("permissions", ["fetchPermissions"]),
         async handleClick() {
-            console.log("permissions", this.permissions); // Access permissions after fetching
-            console.log("roles", this.roles); // Access permissions after fetching
+            console.log("permissions", this.permissions, "roles", this.roles);
             if (this.hasRole("admin")) {
                 console.log("role found");
             } else {
@@ -228,7 +212,7 @@ export default {
         },
     },
     created() {
-        this.fetchPermissions(); // Fetch permissions on component creation
+        this.fetchPermissions();
     },
 };
 </script>

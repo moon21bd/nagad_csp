@@ -48,7 +48,68 @@
                                         {{ errors.first("avatar") }}
                                     </div>
                                 </div>
+
                                 <div class="col-md-12 form-group">
+                                    <label class="control-label"
+                                        >User Level<sup>*</sup></label
+                                    >
+
+                                    <el-select
+                                        class="d-block w-100"
+                                        v-model="user.level"
+                                        name="level"
+                                        v-validate="'required'"
+                                        filterable
+                                        placeholder="Select Level"
+                                    >
+                                        <el-option
+                                            v-for="level in userLevels"
+                                            :key="level.id"
+                                            :label="level.label"
+                                            :value="level.value"
+                                        >
+                                        </el-option>
+                                    </el-select>
+                                </div>
+
+                                <div
+                                    class="col-md-12 form-group"
+                                    v-if="user.level !== 1"
+                                >
+                                    <label class="control-label"
+                                        >Parent User</label
+                                    >
+                                    <el-select
+                                        class="d-block w-100"
+                                        v-model="user.parent_id"
+                                        name="parent_id"
+                                        placeholder="Select Parent User"
+                                    >
+                                        <el-option
+                                            :key="0"
+                                            :label="'No Parent'"
+                                            :value="0"
+                                        ></el-option>
+                                        <el-option
+                                            v-for="user in users"
+                                            :key="user.id"
+                                            :label="user.name"
+                                            :value="user.id"
+                                        >
+                                        </el-option>
+                                    </el-select>
+                                    <small
+                                        class="text-danger"
+                                        v-show="errors.has('parent_id')"
+                                    >
+                                        {{ errors.first("parent_id") }}
+                                    </small>
+                                </div>
+
+                                <div
+                                    class="col-md-12 form-group"
+                                    v-if="user.level !== 1"
+                                >
                                     <label class="control-label"
                                         >Select Group</label
                                     >
@@ -343,6 +404,7 @@ export default {
             groups: [],
             formErrors: [],
             temp_avatar: null,
+            userLevels: [],
             user: {
                 group_id: null,
                 status: "Pending",
@@ -358,6 +420,7 @@ export default {
                 mobile_no: "",
                 email: "",
             },
+            users: [],
             id: null,
         };
     },
@@ -365,6 +428,7 @@ export default {
         this.id = this.$route.params.id;
         this.fetchGroups();
         this.fetchUser();
+        this.fetchAllUsers();
     },
     methods: {
         togglePassword() {
@@ -391,15 +455,25 @@ export default {
                 this.groups = [];
             }
         },
-        setUserData(user) {
-            console.log("user", user);
+        setUserAvatar(user) {
             this.temp_avatar = user.avatar_url;
+        },
+        async fetchAllUsers() {
+            try {
+                const response = await axios.get("/users");
+                this.users = response.data.data;
+            } catch (error) {
+                console.error("Error fetching users:", error);
+                this.users = [];
+            }
         },
         async fetchUser() {
             try {
                 const response = await axios.get(`/user/${this.id}`);
-                this.user = response.data.data;
-                this.setUserData(response.data.data);
+                const data = response.data.data;
+                this.user = data;
+                this.userLevels = data.levels;
+                this.setUserAvatar(data);
             } catch (error) {
                 console.error("Error fetching user:", error);
                 this.user = {};
@@ -419,15 +493,11 @@ export default {
                             _this.isLoading = false;
                             _this.user = {};
                             Vue.prototype.$showToast(response.data.message, {
-                                type: "success",
+                                type: response.data.type,
                             });
                             _this.$router.push({ name: "user-index" });
                         })
                         .catch((errors) => {
-                            console.log(
-                                "err.response",
-                                errors.response.data.errors
-                            );
                             if (
                                 errors.response &&
                                 errors.response.data.errors
