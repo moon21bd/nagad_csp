@@ -120,45 +120,35 @@
                     </el-menu-item>
                 </div>
 
-                <!-- <el-menu-item index="/admin/roles">
-                    <router-link to="/admin/roles">
-                        <i class="icon-phone"></i>
-                        <span>Roles</span>
-                    </router-link>
-                </el-menu-item> -->
+                <div v-if="hasRole('admin|superadmin|owner')">
+                    <el-submenu index="1" class="all-dashboard">
+                        <template slot="title">
+                            <i class="icon-user"></i>
+                            <span>All Dashboard</span>
+                        </template>
+                        <el-menu-item-group>
+                            <el-menu-item index="/admin/charts">
+                                <router-link to="/admin/charts">
+                                    <i class="icon-grid"></i>
+                                    <span>Admin Dashboard</span>
+                                </router-link>
+                            </el-menu-item>
+                            <el-menu-item index="/admin/components/buttons">
+                                <router-link to="/admin/components/buttons">
+                                    <i class="icon-grid"></i>
+                                    <span>Agent Dashboard</span>
+                                </router-link>
+                            </el-menu-item>
+                            <el-menu-item index="/admin/components/updated">
+                                <router-link to="/admin/components/updated">
+                                    <i class="icon-grid"></i>
+                                    <span>Updated</span>
+                                </router-link>
+                            </el-menu-item>
+                        </el-menu-item-group>
+                    </el-submenu>
+                </div>
 
-                <el-submenu index="1" class="all-dashboard">
-                    <template slot="title">
-                        <i class="icon-user"></i>
-                        <span>All Dashboard</span>
-                    </template>
-                    <el-menu-item-group>
-                        <el-menu-item index="/admin/charts">
-                            <router-link to="/admin/charts">
-                                <i class="icon-grid"></i>
-                                <span>Admin Dashboard</span>
-                            </router-link>
-                        </el-menu-item>
-                        <el-menu-item index="/admin/components/buttons">
-                            <router-link to="/admin/components/buttons">
-                                <i class="icon-grid"></i>
-                                <span>Agent Dashboard</span>
-                            </router-link>
-                        </el-menu-item>
-                        <el-menu-item index="/admin/components/updated">
-                            <router-link to="/admin/components/updated">
-                                <i class="icon-grid"></i>
-                                <span>Updated</span>
-                            </router-link>
-                        </el-menu-item>
-                        <el-menu-item index="/admin/components/multipurpose">
-                            <router-link to="/admin/components/multipurpose">
-                                <i class="icon-grid"></i>
-                                <span>Multipurpose</span>
-                            </router-link>
-                        </el-menu-item>
-                    </el-menu-item-group>
-                </el-submenu>
                 <!-- <el-submenu index="2">
                     <template slot="title">
                         <i class="icon-grid"></i>
@@ -193,23 +183,10 @@ export default {
         activeIndex() {
             return this.$route.path;
         },
-        ...mapGetters("permissions", [
-            "permissions",
-            "hasPermission",
-            "roles",
-            "hasRole",
-        ]),
+        ...mapGetters("permissions", ["hasPermission", "hasRole"]),
     },
     methods: {
         ...mapActions("permissions", ["fetchPermissions"]),
-        async handleClick() {
-            console.log("permissions", this.permissions, "roles", this.roles);
-            if (this.hasRole("admin")) {
-                console.log("role found");
-            } else {
-                console.log("no role found");
-            }
-        },
     },
     created() {
         this.fetchPermissions();

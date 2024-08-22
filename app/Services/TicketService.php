@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Group;
 use App\Models\NCCallType;
 use App\Models\NCServiceResponsibleGroup;
 use App\Models\NCTicket;
@@ -47,8 +48,24 @@ class TicketService
 
     public function getAllTickets()
     {
-        return NCTicket::with(['callType', 'callCategory', 'callSubCategory'])
-            ->get();
+        $user = auth()->user();
+        // dd($user->group_id);
+        // Base query with relationships
+        $query = NCTicket::with(['callType', 'callCategory', 'callSubCategory']);
+
+        // Apply filters based on role
+        if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
+            // Admin or Super Admin can view all tickets, no further filtering needed
+            $tickets = $query->get();
+        } elseif ($user->hasRole('owner') && $user->group->hasOwner()) {
+            // Group Owner can view tickets assigned to their group
+            $tickets = $query->where('assign_to_group_id', $user->group_id)->get();
+        } else {
+            // Regular User can only view tickets assigned to them
+            $tickets = $query->where('assign_to_user_id', $user->id)->get();
+        }
+
+        return $tickets;
     }
 
     public function createTicket(array $validated)
@@ -195,15 +212,32 @@ class TicketService
         try {
             $ticket = NCTicket::findOrFail($id);
             $ticket->update($ticketArr);
+            $ticketId = $ticket->id;
+            $ticketStatus = $ticket->ticket_status;
+            $data = [
+                'ticket_id' => $ticketId,
+                'responsible_group_ids' => $ticket->responsible_group_ids,
+                'ticket_status' => $ticketStatus,
+                'ticket_comments' => json_encode($validated['comments']),
+                'ticket_attachments' => $ticket->attachment,
+                'ticket_opened_by' => $ticket->ticket_updated_by,
+                'ticket_status_updated_by' => $ticket->ticket_updated_by,
+                'opened_at' => Carbon::now(),
+                'last_time_opened_at' => Carbon::now(),
+            ];
+            $this->createTicketTimeline($data);
 
             return [
                 'code' => Response::HTTP_OK,
                 'status' => 'success',
                 'message' => 'Ticket Updated.',
-                'data' => $ticket,
+                'data' => [
+                    'ticket_id' => $ticketId,
+                    'status' => $ticketStatus,
+                ],
             ];
         } catch (Exception $e) {
-            Log::error($e->getMessage());
+            Log::error('TICKET-UPDATE-FAILED: ' . $e->getLine() . "|" . $e->getMessage());
             return [
                 'code' => Response::HTTP_BAD_REQUEST,
                 'status' => 'failed',

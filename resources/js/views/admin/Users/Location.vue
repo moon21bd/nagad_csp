@@ -150,7 +150,7 @@ export default {
             this.searchQuery = ""; // Clear the search input
         },
     },
-    mounted() {
+    created() {
         this.fetchAllUsers();
     },
 };

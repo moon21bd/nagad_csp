@@ -20,17 +20,24 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Name</th>
+                                    <th>Owner</th>
                                     <th>Status</th>
                                     <th class="text-right">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="{ name, id, status } in groups"
+                                    v-for="{
+                                        id,
+                                        name,
+                                        owner,
+                                        status,
+                                    } in groups"
                                     :key="id"
                                 >
                                     <td>{{ id }}</td>
                                     <td>{{ name }}</td>
+                                    <td>{{ owner }}</td>
                                     <td>
                                         <span
                                             :class="
@@ -46,12 +53,21 @@
                                         <router-link
                                             class="btn-action btn-edit"
                                             :to="{
-                                                name: 'manageGroupRoles',
+                                                name: 'manageGroupPermission',
                                                 params: { id },
                                             }"
                                         >
                                             <i class="icon-settings"></i>
                                         </router-link>
+                                        <!-- <router-link
+                                            class="btn-action btn-edit"
+                                            :to="{
+                                                name: 'manageGroupRoles',
+                                                params: { id },
+                                            }"
+                                        >
+                                            <i class="icon-settings"></i>
+                                        </router-link> -->
 
                                         <router-link
                                             class="btn-action btn-edit"

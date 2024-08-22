@@ -91,7 +91,6 @@ class UsersController extends Controller
         ], 200);
 
     }
-
     public function assignPermissionToGroup($groupId)
     {
         $team = Group::find($groupId);

@@ -143,7 +143,7 @@
                             </div>
                             <div>
                                 <button type="submit" class="btn btn-site">
-                                    Reset Password
+                                    Change Password
                                 </button>
                             </div>
                         </form>

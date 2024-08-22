@@ -363,6 +363,8 @@ import { mapActions, mapGetters, mapState } from "vuex";
 export default {
     name: "TicketEdit",
     data: () => ({
+        isFirstLoad: false,
+        authUserId: null,
         ticketId: null,
         isLoading: false,
         selectedStatus: "",
@@ -402,13 +404,47 @@ export default {
         },
     },
     created() {
+        this.authUserId = this.$store.state.auth.user.id;
         this.ticketId = this.$route.params.id;
+        this.checkFirstLoad();
         this.checkTicketStatus(this.ticketId);
         this.maxTicketComments = this.maxTicketComments;
         this.fetchUsersAndGroups();
     },
     methods: {
         ...mapActions("auth", ["setUser"]),
+        checkFirstLoad() {
+            const pageKey = "ticket_page_first_load";
+            if (!localStorage.getItem(pageKey)) {
+                this.isFirstLoad = true;
+                localStorage.setItem(pageKey, "true");
+
+                this.handleFirstLoad();
+            }
+            console.log("checkFirstLoad called! this is not the first time.");
+        },
+        handleFirstLoad() {
+            console.log(
+                "Ticket Timeline Data Added!!",
+                localStorage.getItem("ticket_page_first_load")
+            );
+            this.sendTicketTimelineData();
+        },
+        clearFirstLoadFlag() {
+            localStorage.removeItem("ticket_page_first_load");
+        },
+        sendTicketTimelineData() {
+            axios
+                .post(`/ticket/timeline/${this.ticketId}`, {
+                    user_id: this.authUserId,
+                })
+                .then((response) => {
+                    console.log("Timeline Data Posted!", response.data);
+                })
+                .catch((error) => {
+                    console.log("Timeline Data Posting Error!!", error.data);
+                });
+        },
         fetchUsersAndGroups() {
             axios.get("/getActiveUsers").then((response) => {
                 console.log("users", response.data);
@@ -516,8 +552,7 @@ export default {
                         this.assignTicket(ticketId);
                     } else {
                         if (
-                            response.data.assign_to_user_id !==
-                            this.$store.state.auth.user.id
+                            response.data.assign_to_user_id !== this.authUserId
                         ) {
                             // If the current user is not assigned to the ticket, redirect them and show a message
                             this.$showToast(response.data.message, {
@@ -527,7 +562,7 @@ export default {
                         } else {
                             console.log(
                                 "This ticket is assigned to the current user: ",
-                                this.$store.state.auth.user.id
+                                this.authUserId
                             );
                         }
                     }
@@ -546,7 +581,7 @@ export default {
             axios
                 .post(`/ticket/assign/${ticketId}`)
                 .then((response) => {
-                    if (response.data.success) {
+                    if (response.data.success && response.data.showAlert) {
                         this.$showToast(
                             "You have successfully taken ownership of this ticket.",
                             {
@@ -602,8 +637,9 @@ export default {
                             headers: { "Content-Type": "application/json" },
                         });
 
+                        // clear first time load flag for adding ticket timeline data
+                        this.clearFirstLoadFlag();
                         this.isLoading = false;
-
                         Vue.prototype.$showToast(response.data.message, {
                             type: "success",
                         });

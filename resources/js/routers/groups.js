@@ -4,6 +4,9 @@ const Edit = () => import("../views/admin/Groups/Edit.vue");
 const ManageGroupRoles = () =>
     import("../views/admin/Groups/ManageGroupRoles.vue");
 
+const ManageGroupPermissions = () =>
+    import("../views/admin/Groups/ManagePermissions.vue");
+
 export default [
     {
         path: "/admin/groups",
@@ -38,7 +41,18 @@ export default [
         component: ManageGroupRoles,
         meta: {
             requiresAuth: true,
-            requiresPermission: "manage-group-roles",
+            requiresPermission: "groups-manage-roles",
+        },
+    },
+    {
+        name: "manageGroupPermission",
+        path: "/admin/group/:id/permissions",
+        component: ManageGroupPermissions,
+        meta: {
+            title: "Group Permissions Assign",
+            middleware: "auth",
+            requiresAuth: true,
+            requiresPermission: "groups-permissions-assign",
         },
     },
 ];

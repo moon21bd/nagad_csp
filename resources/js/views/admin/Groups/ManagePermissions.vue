@@ -3,31 +3,27 @@
         <div class="common-heading d-flex align-items-center mb-3">
             <router-link
                 class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
-                :to="{ name: 'roles-index' }"
+                :to="{ name: 'groups-index' }"
                 ><i class="icon-left"></i>
             </router-link>
-            <h1 class="title m-0">Create Role and Assign Permissions</h1>
+            <h1 class="title m-0">Assign Permissions</h1>
         </div>
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
                 <img src="/images/loader.gif" alt="Loading" />
             </div>
-            <form @submit.prevent="saveRole">
+            <form @submit.prevent="updateRole">
                 <div class="card-body">
                     <div class="form-group">
-                        <label for="roleName">Role Name</label>
+                        <label for="groupName">Group Name</label>
                         <input
                             type="text"
-                            id="roleName"
-                            v-model="roleName"
+                            id="groupName"
+                            v-model="groupName"
                             class="form-control"
-                            placeholder="Enter role name"
+                            disabled
                         />
-                        <span v-if="errors.name" class="text-danger">{{
-                            errors.name
-                        }}</span>
                     </div>
-                    <h6>Assign Permissions</h6>
                     <div class="permissions-assign">
                         <div
                             class="permissions-assign-box"
@@ -78,7 +74,7 @@
                         class="btn btn-site"
                         :disabled="isLoading"
                     >
-                        Save
+                        Update
                     </button>
                 </div>
             </form>
@@ -88,17 +84,20 @@
 
 <script>
 export default {
-    name: "Create",
+    name: "ManagePermissions",
     data() {
         return {
             isLoading: false,
             permissions: [],
-            roleName: "",
+            groupName: "",
             selectedPermissions: [],
             errors: {},
         };
     },
     computed: {
+        hasErrors() {
+            return Object.keys(this.errors).length > 0;
+        },
         permissionGroups() {
             return this.permissions.reduce((groups, permission) => {
                 const category = permission.name.split("-")[0];
@@ -154,14 +153,52 @@ export default {
                       ]),
                   ];
         },
+        async fetchGroup(groupId) {
+            this.isLoading = true;
+            try {
+                const { data: groupData } = await axios.get(
+                    `/groups/${groupId}`
+                );
+                console.log("Groups data:", groupData);
+
+                this.groupName = groupData.name || "";
+                console.log("groupData.permission", groupData.permissions);
+                // Ensure groupData.role.rolePermissions is an array
+                if (Array.isArray(groupData.permissions)) {
+                    const assignedPermissions = new Set(
+                        groupData.permissions.map((p) => p.name)
+                    );
+                    this.selectedPermissions = this.permissions
+                        .map((p) => p.name)
+                        .filter((name) => assignedPermissions.has(name));
+                } else {
+                    console.error(
+                        "Group permissions data is not in the expected format:"
+                    );
+                }
+            } catch (error) {
+                console.error("Error fetching group permissions data:", error);
+
+                this.$showToast("Error fetching group permissions data", {
+                    type: "error",
+                });
+            } finally {
+                this.isLoading = false;
+            }
+        },
         async fetchPermissions() {
             this.isLoading = true;
             try {
                 const { data } = await axios.get("/permissions");
                 this.permissions = data.data || [];
+
+                if (this.$route.params.id) {
+                    await this.fetchGroup(this.$route.params.id);
+                }
             } catch (error) {
                 console.error("Error fetching permissions:", error);
-                this.$showToast("Error fetching permissions.", {
+
+                this.$showToast("Error fetching permissions", {
                     type: "error",
                 });
             } finally {
@@ -170,11 +207,7 @@ export default {
         },
         validate() {
             this.errors = {};
-            if (!this.roleName) {
-                this.errors.name = "Role name is required.";
-            } else if (this.roleName.length < 3) {
-                this.errors.name = "Role name must be at least 3 characters.";
-            }
+
             if (this.selectedPermissions.length === 0) {
                 this.$showToast("At least one permission must be selected.", {
                     type: "error",
@@ -183,36 +216,28 @@ export default {
             }
             return Object.keys(this.errors).length === 0;
         },
-        async saveRole() {
+        async updateRole() {
             if (!this.validate()) return;
 
             this.isLoading = true;
             try {
-                const { data } = await axios.post("/roles/create", {
-                    name: this.roleName,
-                    permissions: this.selectedPermissions,
-                });
-                this.$showToast(data.message, {
-                    type: "success",
-                });
-                this.$router.push({ name: "roles-index" });
-            } catch (error) {
-                if (error.response && error.response.status === 422) {
-                    // Handle validation errors
-                    const validationErrors = error.response.data.errors;
-                    Object.keys(validationErrors).forEach((field) => {
-                        this.$showToast(validationErrors[field][0], {
-                            type: "error",
-                        });
-                    });
-                } else {
-                    // Handle other errors
-                    console.log("Error creating role:", error);
+                const { data } = await axios.post(
+                    `/group/permissions/${this.$route.params.id}`,
+                    {
+                        permissions: this.selectedPermissions,
+                    }
+                );
 
-                    this.$showToast("Error creating role", {
-                        type: "warning",
-                    });
-                }
+                this.$showToast(data.message, {
+                    type: "error",
+                });
+                this.$router.push({ name: "groups-index" });
+            } catch (error) {
+                console.error("Error updating group:", error);
+
+                this.$showToast("Error updating group permissions", {
+                    type: "error",
+                });
             } finally {
                 this.isLoading = false;
             }

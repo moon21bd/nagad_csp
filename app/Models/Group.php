@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laratrust\Models\LaratrustPermission;
 use Laratrust\Models\LaratrustRole;
 use Laratrust\Models\LaratrustTeam;
 use Laratrust\Traits\LaratrustTeamTrait;
@@ -53,14 +54,39 @@ class Group extends LaratrustTeam
         return $this->belongsToMany(LaratrustRole::class, 'role_group', 'group_id', 'role_id');
     }
 
+    public function permissions()
+    {
+        return $this->belongsToMany(LaratrustPermission::class, 'permission_group', 'group_id', 'permission_id');
+    }
+
     public function owner()
     {
+        // NEED TO INSERT OWNER_ID IN ALL GROUP IN THIS MODEL.
         return $this->belongsTo(User::class, 'owner_id');
     }
 
     public function users()
     {
         return $this->hasMany(User::class, 'group_id');
+    }
+
+    /**
+     * Get the owner of the group.
+     */
+    public function groupOwner()
+    {
+        return $this->hasOne(User::class)
+            ->where('parent_id', 0);
+    }
+
+    /**
+     * Check if the group has an owner.
+     *
+     * @return bool
+     */
+    public function hasOwner()
+    {
+        return $this->groupOwner()->exists();
     }
 
 }

@@ -8,12 +8,13 @@ use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Laratrust\Models\LaratrustPermission;
 
 class GroupController extends Controller
 {
     public function index()
     {
-        $groups = Group::all();
+        $groups = Group::with('owner')->get();
         return response()->json($groups);
     }
 
@@ -33,7 +34,7 @@ class GroupController extends Controller
 
     public function show($id)
     {
-        $group = Group::with('roles')->findOrFail($id);
+        $group = Group::with('permissions')->findOrFail($id);
         return response()->json($group);
     }
 
@@ -139,5 +140,21 @@ class GroupController extends Controller
         $groups = Group::where('status', 'Active')
             ->get();
         return response()->json($groups);
+    }
+
+    public function assignPermission(Request $request, Group $team, $id)
+    {
+
+        $group = Group::find($id);
+
+        $permissionIds = LaratrustPermission::whereIn('name', $request->permissions)->pluck('id')->toArray();
+
+        $existingPermissionIds = $group->permissions->pluck('id')->toArray();
+        $newPermissions = array_diff($permissionIds, $existingPermissionIds);
+        if (!empty($newPermissions)) {
+            $group->permissions()->attach($newPermissions);
+        }
+
+        return response()->json(['status' => 'Permission assigned']);
     }
 }

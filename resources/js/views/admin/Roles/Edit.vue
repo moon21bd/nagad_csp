@@ -66,7 +66,7 @@
                                             "
                                         />
                                         <span class="checkmark"></span>
-                                        {{ getLabel(permission.name) }}
+                                        {{ permission.display_name }}
                                     </label>
                                 </li>
                             </ul>

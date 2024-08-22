@@ -80,6 +80,11 @@
 
                                     <td class="text-right">
                                         <router-link
+                                            v-if="
+                                                hasRole(
+                                                    'admin|superadmin|owner'
+                                                )
+                                            "
                                             class="btn-action btn-edit"
                                             :to="{
                                                 name: 'user-edit',
@@ -90,7 +95,11 @@
                                         </router-link>
 
                                         <router-link
-                                            v-if="[1, 2].includes(item?.level)"
+                                            v-if="
+                                                hasRole(
+                                                    'admin|superadmin|owner'
+                                                )
+                                            "
                                             class="btn btn-action"
                                             title="User Role Manage"
                                             :to="{
@@ -102,10 +111,12 @@
                                         </router-link>
 
                                         <a
-                                            class="btn-action btn-trash"
                                             v-if="
-                                                [1, 2, 3].includes(item?.level)
+                                                hasRole(
+                                                    'admin|superadmin|owner'
+                                                )
                                             "
+                                            class="btn-action btn-trash"
                                             @click.prevent="
                                                 deleteUser(item?.id)
                                             "
@@ -128,6 +139,7 @@
 import "datatables.net-dt/css/jquery.dataTables.min.css";
 import "datatables.net-dt/js/dataTables.dataTables";
 import noData from "../components/noData.vue";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
     components: {
@@ -140,10 +152,46 @@ export default {
             users: [],
         };
     },
-
+    computed: {
+        ...mapGetters("permissions", [
+            "permissions",
+            "hasPermission",
+            "hasRole",
+            "userRoles",
+            "userPermissions",
+        ]),
+    },
+    mounted() {
+        this.fetchUsers();
+    },
+    created() {
+        this.fetchPermissions();
+    },
     methods: {
+        ...mapActions("permissions", ["fetchPermissions"]),
+        /* async handleClick() {
+            if (this.hasRole("admin")) {
+                console.log("role found");
+            } else {
+                console.log("no role found");
+            }
+        }, */
         async deleteUser(id) {
             try {
+                console.log(
+                    "hasRole",
+                    this.hasRole("admin"),
+                    "userRoles",
+                    this.userRoles,
+                    "userPermissions",
+                    this.userPermissions
+                );
+                /* if (this.hasRole("admin")) {
+                    console.log("role found");
+                } else {
+                    console.log("no role found");
+                } */
+                return;
                 const loggedInUserId = this.$store.state.auth.user.id;
                 const user = this.users.find((user) => user.id === id);
 
@@ -194,9 +242,7 @@ export default {
             });
         },
     },
-    mounted() {
-        this.fetchUsers();
-    },
+
     watch: {
         users(newValue) {
             if (newValue.length) {

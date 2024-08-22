@@ -165,10 +165,24 @@ class NCTicketController extends Controller
         $ticket = NCTicket::find($id);
         $authUserId = Auth::id();
         $now = Carbon::now();
+        $authUserGroupId = Auth::user()->group_id;
+
+        // dd();
+
+        // if group owner is visiting the ticket
+        if (Auth::user()->group->hasOwner()) {
+            return response()->json([
+                'success' => true,
+                'showAlert' => false,
+                'message' => 'Ticket page visited by group owner.',
+            ]);
+
+        }
 
         if ($ticket->initial_assign_id === null || $ticket->assign_to_user_id === null) {
-            DB::transaction(function () use ($ticket, $authUserId) {
+            DB::transaction(function () use ($ticket, $authUserId, $authUserGroupId) {
                 $ticket->initial_assign_id = $ticket->assign_to_user_id = $authUserId;
+                $ticket->assign_to_group_id = $authUserGroupId;
                 $ticket->save();
             });
 
@@ -189,6 +203,7 @@ class NCTicketController extends Controller
 
             return response()->json([
                 'success' => true,
+                'showAlert' => true,
                 'message' => 'Ticket assigned to you successfully.',
             ]);
         }
@@ -196,6 +211,7 @@ class NCTicketController extends Controller
         // If the ticket is already assigned to another user
         return response()->json([
             'success' => false,
+            'showAlert' => true,
             'message' => 'This ticket is already engaged by another user.',
             'assign_to_user_id' => $ticket->assign_to_user_id,
             'assigned_user_name' => User::find($ticket->assign_to_user_id)->name,
@@ -220,133 +236,6 @@ class NCTicketController extends Controller
             'message' => 'This ticket is already engaged by another user.',
         ]);
     }
-
-    /* public function forwardTicket(Request $request, $id)
-    {
-    // Validate the incoming request
-    $validated = $request->validate([
-    'forward_type' => 'required|in:user,group',
-    'forward_to' => 'required',
-    'comments' => 'required|string',
-    ]);
-
-    $ticketId = $id;
-
-    // de-assign current user from this ticket. but not changing the initial_assign_id id. set is_ticket_reassign = 1, set assign_to_user_id = with desired user id.
-    // set assign_to_group_id with desired group_id.
-    // ticket_updated_at = update this with now()
-    //
-    // add a ticket timeline with specific requirement
-    // send notifiacation to desired user or groups.
-    // if group then fetch all group members and send the notification.
-    // clear user from this
-
-    try {
-    // Fetch the ticket by ID
-    $ticket = NCTicket::findOrFail($ticketId);
-    // for reassigning status will be
-    $ticketStatus = 'REOPEN';
-    $comment = $validated['comments'];
-    $now = Carbon::now();
-
-    // Determine if forwarding to users or groups
-    if ($validated['forward_type'] === 'user') {
-    // Forward to specific users
-    $user = User::where('id', $validated['forward_to'])
-    ->where('status', 'Active')
-    ->first();
-
-    if ($user) {
-    $userId = $user->id;
-
-    $ticket->is_ticket_reassign = 1;
-    $ticket->assign_to_user_id = $userId;
-    $ticket->assign_to_group_id = $user->group_id;
-    $ticket->ticket_updated_at = $now;
-
-    $data = [
-    'ticket_id' => $ticketId,
-    'responsible_group_ids' => $ticket->responsible_group_ids,
-    'ticket_status' => $ticketStatus,
-    'ticket_comments' => $comment,
-    'ticket_attachments' => $ticket->attachment,
-    'ticket_opened_by' => $userId,
-    'ticket_status_updated_by' => $userId,
-    'opened_at' => $now,
-    'last_time_opened_at' => $now,
-    ];
-
-    $this->ticketService->createTicketTimeline($data);
-
-    $fetchServiceTypeConfigs = $this->serviceTypeConfig->getServiceTypeConfigs($ticket->call_type_id, $ticket->call_category_id, $ticket->call_sub_category_id);
-
-    // Send notification for each ticket
-    $this->notificationService->sendTicketNotificationToUser($ticket, $fetchServiceTypeConfigs, $userId);
-
-    // Save the ticket with the new assignments
-    $ticket->save();
-
-    } else {
-    // unknown or invalid user found
-    }
-
-    } elseif ($validated['forward_type'] === 'group') {
-    // Forward to specific groups
-    $group = Group::find($validated['forward_to']);
-
-    if ($group) {
-    $users = User::whereIn('group_id', $group->id)
-    ->where('status', 'Active')
-    ->get();
-
-    foreach ($users as $user) {
-    $userId = $user->id;
-    $data = [
-    'ticket_id' => $ticketId,
-    'responsible_group_ids' => $ticket->responsible_group_ids,
-    'ticket_status' => $ticketStatus,
-    'ticket_comments' => $comment,
-    'ticket_attachments' => $ticket->attachment,
-    'ticket_opened_by' => $user->id,
-    'ticket_status_updated_by' => $user->id,
-    'opened_at' => $now,
-    'last_time_opened_at' => $now,
-    ];
-
-    // Save the ticket with the group assignment
-    $ticket->is_ticket_reassign = 1;
-    $ticket->assign_to_user_id = $userId;
-    $ticket->assign_to_group_id = $group->id;
-    $ticket->ticket_updated_at = $now;
-    $ticket->save();
-
-    // Create ticket timeline for each user
-    $this->ticketService->createTicketTimeline($data);
-
-    // Send notifications to all group members
-    $fetchServiceTypeConfigs = $this->serviceTypeConfig->getServiceTypeConfigs($ticket->call_type_id, $ticket->call_category_id, $ticket->call_sub_category_id);
-
-    $this->notificationService->sendTicketNotificationToUser($ticket, $fetchServiceTypeConfigs, $userId);
-
-    }
-
-    } else {
-    // unknown or invalid group found
-    }
-
-    }
-
-    } catch (\Exception $e) {
-    Log::error('TICKET-FORWARDING-ERROR|' . $e->getMessage());
-    // $e->getMessage();
-    }
-
-    // Return a success response
-    return response()->json([
-    'success' => true,
-    'message' => 'Ticket has been successfully forwarded.',
-    ]);
-    } */
 
     public function forwardTicket(Request $request, $id)
     {
@@ -386,6 +275,53 @@ class NCTicketController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to forward the ticket.',
+            ], 500);
+        }
+    }
+
+    public function addTimelineForFirstTimePageLoad(Request $request, $id)
+    {
+        // Validate the incoming request
+        $validated = $request->validate([
+            'user_id' => 'required',
+            'comments' => 'nullable|string',
+        ]);
+
+        $ticketId = $id;
+        $userId = $validated['user_id'];
+        $comment = 'Ticket page just opened by a user.';
+        $now = Carbon::now();
+
+        try {
+            // Fetch the ticket by ID
+            $ticket = NCTicket::findOrFail($ticketId);
+
+            $data = [
+                'ticket_id' => $ticket->id,
+                'responsible_group_ids' => $ticket->responsible_group_ids,
+                'ticket_status' => 'OPEN',
+                'ticket_comments' => $comment,
+                'ticket_attachments' => $ticket->attachment,
+                'ticket_opened_by' => $userId,
+                'ticket_status_updated_by' => $userId,
+                'opened_at' => $now,
+                'last_time_opened_at' => $now,
+            ];
+
+            $this->ticketService->createTicketTimeline($data);
+
+            // Return a success response
+            return response()->json([
+                'success' => true,
+                'message' => 'Ticket timeline data added.',
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('TICKET-TIMELINE-ERROR|' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to save ticket timeline data.',
             ], 500);
         }
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Helpers\AgentHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\UserActivity;
 use App\Models\UserDetail;
@@ -173,13 +174,6 @@ class AuthController extends Controller
 
     protected function createUser($data, $authUserId)
     {
-
-        /* $team = Team::where('name', 'my-awesome-team')->first();
-        $admin = Role::where('name', 'admin')->first();
-        $owner = Role::where('name', 'owner')->first();
-
-        $user->attachRoles([$admin, $owner], $team); */
-
         $user = User::create([
             'name' => $data['employee_name'],
             'parent_id' => $data['parent_id'] ?? 0,
@@ -187,28 +181,83 @@ class AuthController extends Controller
             'group_id' => $data['group_id'],
             'mobile_no' => $data['mobile_no'],
             'email' => $data['email'],
-            'status' => $data['level'] == 1 ? 'Active' : 'Pending',
+            'status' => in_array($data['level'], [1, 2, 3]) ? 'Active' : 'Pending',
             'avatar' => uploadMediaGetPath($data['avatar']),
             'password' => Hash::make($data['password']),
             'created_by' => $authUserId,
             'updated_by' => $authUserId,
         ]);
 
-        if ($user->level == 1) {
-            $user->attachRole('superadmin');
-        } elseif ($user->level == 2) {
-            $user->attachRole('admin');
-        } elseif ($user->level == 3) {
-            $user->attachRole('owner');
-        } else {
-            $user->attachRole('user');
-        }
+        // Role assignment based on level ID
+        $roleName = match ($user->level) {
+            1 => 'superadmin',
+            2 => 'admin',
+            3 => 'owner',
+            default => 'user',
+        };
 
-        // assigning default role to the user within this group
-        // $user->attachRole('default', $user->group_id);
+        $user->attachRole($roleName);
+
+        $role = Role::where('name', $roleName)->first();
+        $user->attachPermissions($role->permissions, $data['group_id']);
 
         return $user;
     }
+
+    /* protected function createUser($data, $authUserId)
+    {
+
+    // $team = Team::where('name', 'my-awesome-team')->first();
+    // $admin = Role::where('name', 'admin')->first();
+    // $owner = Role::where('name', 'owner')->first();
+
+    // $user->attachRoles([$admin, $owner], $team);
+
+    $user = User::create([
+    'name' => $data['employee_name'],
+    'parent_id' => $data['parent_id'] ?? 0,
+    'level' => $data['level'],
+    'group_id' => $data['group_id'],
+    'mobile_no' => $data['mobile_no'],
+    'email' => $data['email'],
+    'status' => in_array($data['level'], [1, 2, 3]) ? 'Active' : 'Pending',
+    'avatar' => uploadMediaGetPath($data['avatar']),
+    'password' => Hash::make($data['password']),
+    'created_by' => $authUserId,
+    'updated_by' => $authUserId,
+    ]);
+
+    if ($user->level == 1) {
+    $roleName = 'superadmin';
+    } elseif ($user->level == 2) {
+    $roleName = 'admin';
+    } elseif ($user->level == 3) {
+    $roleName = 'owner';
+    } else {
+    $roleName = 'user';
+
+    $user->attachRole('user');
+    }
+
+    $role = Role::where('name', $roleName)->first();
+
+    $user->attachPermissions($role->permissions, $data['group_id']);
+
+    if ($user->level == 1) {
+    $user->attachRole('superadmin');
+    } elseif ($user->level == 2) {
+    $user->attachRole('admin');
+    } elseif ($user->level == 3) {
+    $user->attachRole('owner');
+    } else {
+    $user->attachRole('user');
+    }
+
+    // assigning default role to the user within this group
+    // $user->attachRole('default', $user->group_id);
+
+    return $user;
+    } */
 
     protected function createUserDetail($data, $userId)
     {

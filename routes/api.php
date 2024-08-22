@@ -77,6 +77,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/getActiveUsers', [UsersController::class, 'getActiveUsers']);
     Route::get('/getActiveGroups', [GroupController::class, 'getActiveGroups']);
 
+    // Group Permissions
+
+    Route::post('/group/permissions/{id}', [GroupController::class, 'assignPermission']);
+
     // ROLES ROUTES WITH ROLE AND PERMISSION MIDDLEWARE
     Route::middleware(['role:owner|superadmin|admin'])->group(function () {
 
@@ -159,6 +163,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/ticket/status/{id}', [NCTicketController::class, 'ticketStatus']);
 
     Route::post('/ticket/forward/{id}', [NCTicketController::class, 'forwardTicket']);
+
+    Route::post('/ticket/timeline/{id}', [NCTicketController::class, 'addTimelineForFirstTimePageLoad']);
 
     Route::apiResources([
         'click-activity' => ClickActivityController::class,

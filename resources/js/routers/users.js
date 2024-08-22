@@ -1,5 +1,5 @@
 const Profile = () => import("../views/admin/Profile/Index.vue");
-const ProfileSetting = () => import("../views/admin/Profile/Setting.vue");
+const ChangePassword = () => import("../views/admin/Profile/Setting.vue");
 const UserCreate = () => import("../views/admin/Users/Create.vue");
 const UserEdit = () => import("../views/admin/Users/Edit.vue");
 const UserList = () => import("../views/admin/Users/List.vue");
@@ -21,14 +21,14 @@ export default [
         },
     },
     {
-        name: "user-profile-setting",
-        path: "/admin/profile/setting",
-        component: ProfileSetting,
+        name: "user-change-password",
+        path: "/admin/change-password",
+        component: ChangePassword,
         meta: {
-            title: "Profile Setting",
+            title: "Change Password",
             middleware: "auth",
             requiresAuth: true,
-            requiresPermission: "user-profile-setting",
+            requiresPermission: "user-change-password",
         },
     },
     {

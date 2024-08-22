@@ -61,10 +61,10 @@
 
                     <router-link
                         class="dropdown-item"
-                        :to="{ name: 'user-profile-setting' }"
+                        :to="{ name: 'user-change-password' }"
                     >
                         <i class="icon-settings mr-2 text-gray-600"></i>
-                        Setting
+                        Change Password
                     </router-link>
 
                     <div class="dropdown-divider"></div>
