@@ -13,7 +13,6 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 
 class UsersController extends Controller
 {
@@ -91,6 +90,44 @@ class UsersController extends Controller
         ], 200);
 
     }
+
+    public function userIndex()
+    {
+        $currentUser = auth()->user();
+
+        $query = User::with(['group', 'latestLoginActivity', 'user_details']);
+
+        if ($currentUser->hasRole('superadmin')) {
+            // Super Admin can see all users, no need for additional filters
+        } elseif ($currentUser->hasRole('admin')) {
+            // Admin should not see Super Admin users
+            $query->whereHas('roles', function ($q) {
+                $q->where('name', '!=', 'superadmin');
+            });
+        } elseif ($currentUser->hasRole('owner')) {
+            // Owner can only see users based on their parent_id and group_id
+            $query->where('parent_id', $currentUser->id)
+                ->orWhere('group_id', $currentUser->group_id);
+        } elseif ($currentUser->hasRole('user')) {
+            // Regular User can only see their own data
+            $query->where('id', $currentUser->id);
+        }
+
+        // Get the users and apply additional processing
+        $users = $query->orderByDesc('id')
+            ->get()
+            ->map(function ($user) {
+                $user->level_label = $this->getLevelLabel($user->level);
+                return $user;
+            });
+
+        return response()->json([
+            'title' => 'Success.',
+            'message' => 'Users List.',
+            'data' => $users,
+        ], 200);
+    }
+
     public function assignPermissionToGroup($groupId)
     {
         $team = Group::find($groupId);
@@ -147,7 +184,6 @@ class UsersController extends Controller
 
     public function edit(Request $request, $id)
     {
-
         $user = User::findOrFail($id);
         $userId = $user->id;
 
@@ -157,65 +193,65 @@ class UsersController extends Controller
             'parent_id' => 'nullable|integer',
             'level' => 'nullable|integer',
             'status' => 'required|in:Active,Inactive,Pending',
-            'avatar' => 'nullable|string', // Make avatar nullable
+            'avatar' => 'nullable|string',
         ]);
 
-        // Log the received avatar data for debugging
-        // Log::info('Received avatar data: ', ['avatar' => $validatedData['avatar']]);
-
-        // Handle the avatar update
         if (!empty($validatedData['avatar'])) {
             $avatarPath = uploadMediaGetPath($validatedData['avatar']);
-
-            // Log the new avatar path
-            Log::info('New avatar path: ', ['avatarPath' => $avatarPath]);
-
-            // Only update the avatar if it's not empty
             if ($avatarPath) {
                 $validatedData['avatar'] = $avatarPath;
             } else {
-                // Remove the avatar field if saving failed
                 unset($validatedData['avatar']);
             }
         } else {
-            // If avatar is not provided or is empty, remove it from the update data
             unset($validatedData['avatar']);
         }
 
-        // If group id were change, need to flash the user roles/permissions as well.
-        // role will the group role id.
+        // Capture previous roles and permissions
+        $previousPermissions = $user->permissions->pluck('name')->toArray();
+        $previousRoles = $user->roles->pluck('name')->toArray();
 
-        /* $isUserMigrated = false;
-        if ($user->group_id != $validatedData['group_id']) {
-        $isUserMigrated = true;
-        } */
+        $groupPermissions = $user->group ? $user->group->permissions->pluck('name')->toArray() : [];
+        $previousAllPermissions = array_unique(array_merge($previousPermissions, $groupPermissions));
 
-        // save migrated user logs
+        // Determine if there are changes
+        $isUserMigrated = $user->group_id != $validatedData['group_id'];
+        $isParentChanged = $user->parent_id != $validatedData['parent_id'];
+        $isLevelChanged = $user->level != $validatedData['level'];
 
-        // get total ticket by this user
-        $totalTicket = NCTicket::where('ticket_created_by', $id)->count();
-        $userPermissions = $user->permissions;
-        $userRolePermissions = [
-            'permissions' => $userPermissions->pluck('name'),
-            'roles' => $user->roles->pluck('name'),
-        ];
-        $data = [
-            'user_id' => $userId,
-            'previous_group_id' => $user->group_id,
-            'current_group_id' => $validatedData['group_id'],
-            'total_ticket_created_till' => $totalTicket,
-            'previous_roles_permissions' => json_encode($userRolePermissions),
-            'previous_level' => $user->level,
-            'previous_parent_id' => $user->parent_id,
-            'current_level' => $validatedData['level'],
-            'current_parent_id' => $validatedData['parent_id'],
-            'updator_group_id' => Auth::user()->group_id,
-            'updated_by' => Auth::id(),
-            'updator_ip' => getIPAddress(),
-            'updator_device_name' => $this->agentHelper->getDeviceName(),
-        ];
+        if ($isUserMigrated || $isParentChanged || $isLevelChanged) {
+            // Handle group migration
+            if ($isUserMigrated) {
+                $user->permissions()->detach(); // Detach current permissions
 
-        $this->createUserMigrationLogs($data);
+                $newGroupPermissions = Group::find($validatedData['group_id'])->permissions->pluck('id')->toArray();
+                $user->permissions()->attach($newGroupPermissions);
+            }
+
+            // Save migrated user logs
+            $totalTicket = NCTicket::where('ticket_created_by', $id)->count();
+
+            $data = [
+                'user_id' => $userId,
+                'previous_group_id' => $user->group_id,
+                'current_group_id' => $validatedData['group_id'],
+                'total_ticket_created_till' => $totalTicket,
+                'previous_roles_permissions' => json_encode([
+                    'permissions' => $previousAllPermissions,
+                    'roles' => $previousRoles,
+                ]),
+                'previous_level' => $user->level,
+                'previous_parent_id' => $user->parent_id,
+                'current_level' => $validatedData['level'],
+                'current_parent_id' => $validatedData['parent_id'],
+                'updator_group_id' => Auth::user()->group_id,
+                'updated_by' => Auth::id(),
+                'updator_ip' => getIPAddress(),
+                'updator_device_name' => $this->agentHelper->getDeviceName(),
+            ];
+
+            $this->createUserMigrationLogs($data);
+        }
 
         // Update the user with validated data
         $user->update($validatedData);
@@ -224,8 +260,184 @@ class UsersController extends Controller
             'message' => 'User data updated.',
             'type' => 'success',
         ], 200);
-
     }
+
+    /* public function edit(Request $request, $id)
+    {
+    $user = User::findOrFail($id);
+    $userId = $user->id;
+
+    // Validate the input
+    $validatedData = $request->validate([
+    'group_id' => 'required',
+    'parent_id' => 'nullable|integer',
+    'level' => 'nullable|integer',
+    'status' => 'required|in:Active,Inactive,Pending',
+    'avatar' => 'nullable|string', // Make avatar nullable
+    ]);
+
+    // Handle the avatar update
+    if (!empty($validatedData['avatar'])) {
+    $avatarPath = uploadMediaGetPath($validatedData['avatar']);
+
+    // Only update the avatar if it's not empty
+    if ($avatarPath) {
+    $validatedData['avatar'] = $avatarPath;
+    } else {
+    // Remove the avatar field if saving failed
+    unset($validatedData['avatar']);
+    }
+    } else {
+    // If avatar is not provided or is empty, remove it from the update data
+    unset($validatedData['avatar']);
+    }
+
+    // Capture previous roles and permissions
+    $previousPermissions = $user->permissions->pluck('name')->toArray();
+
+    $groupPermissions = collect([]);
+    if ($user->group) {
+    $groupPermissions = $user->group->permissions->pluck('name');
+    }
+    $previousAllPermissions = $previousPermissions->merge($groupPermissions)->unique();
+
+    $previousRoles = $user->roles->pluck('name')->toArray();
+
+    // Check if the user is migrated to a new group, if parent_id changes, or if level changes
+    $isUserMigrated = false;
+    $isParentChanged = false;
+    $isLevelChanged = false;
+
+    if ($user->group_id != $validatedData['group_id']) {
+    $isUserMigrated = true;
+    }
+
+    if ($user->parent_id != $validatedData['parent_id']) {
+    $isParentChanged = true;
+    }
+
+    if ($user->level != $validatedData['level']) {
+    $isLevelChanged = true;
+    }
+
+    if ($isUserMigrated || $isParentChanged || $isLevelChanged) {
+    // Update permissions if the group changes
+    if ($isUserMigrated) {
+    $user->permissions()->detach(); // Detach current permissions
+
+    // Attach new group permissions based on the new group_id
+    $newGroupPermissions = Group::find($validatedData['group_id'])->permissions()->pluck('id')->toArray();
+    $user->permissions()->attach($newGroupPermissions);
+    }
+
+    // Save migrated user logs
+    $totalTicket = NCTicket::where('ticket_created_by', $id)->count();
+
+    $data = [
+    'user_id' => $userId,
+    'previous_group_id' => $user->group_id,
+    'current_group_id' => $validatedData['group_id'],
+    'total_ticket_created_till' => $totalTicket,
+    'previous_roles_permissions' => json_encode([
+    'permissions' => $previousAllPermissions,
+    'roles' => $previousRoles,
+    ]),
+    'previous_level' => $user->level,
+    'previous_parent_id' => $user->parent_id,
+    'current_level' => $validatedData['level'],
+    'current_parent_id' => $validatedData['parent_id'],
+    'updator_group_id' => Auth::user()->group_id,
+    'updated_by' => Auth::id(),
+    'updator_ip' => getIPAddress(),
+    'updator_device_name' => $this->agentHelper->getDeviceName(),
+    ];
+
+    $this->createUserMigrationLogs($data);
+    }
+
+    // Update the user with validated data
+    $user->update($validatedData);
+
+    return response()->json([
+    'message' => 'User data updated.',
+    'type' => 'success',
+    ], 200);
+    } */
+
+    /* public function edit(Request $request, $id)
+    {
+
+    $user = User::findOrFail($id);
+    $userId = $user->id;
+
+    // Validate the input
+    $validatedData = $request->validate([
+    'group_id' => 'required',
+    'parent_id' => 'nullable|integer',
+    'level' => 'nullable|integer',
+    'status' => 'required|in:Active,Inactive,Pending',
+    'avatar' => 'nullable|string', // Make avatar nullable
+    ]);
+
+    if (!empty($validatedData['avatar'])) {
+    $avatarPath = uploadMediaGetPath($validatedData['avatar']);
+
+    // Log the new avatar path
+    Log::info('New avatar path: ', ['avatarPath' => $avatarPath]);
+
+    // Only update the avatar if it's not empty
+    if ($avatarPath) {
+    $validatedData['avatar'] = $avatarPath;
+    } else {
+    // Remove the avatar field if saving failed
+    unset($validatedData['avatar']);
+    }
+    } else {
+    // If avatar is not provided or is empty, remove it from the update data
+    unset($validatedData['avatar']);
+    }
+
+    $isUserMigrated = false;
+    if ($user->group_id != $validatedData['group_id']) {
+    $isUserMigrated = true;
+    }
+
+    // save migrated user logs
+
+    // get total ticket by this user
+    $totalTicket = NCTicket::where('ticket_created_by', $id)->count();
+    $userPermissions = $user->permissions;
+    $userRolePermissions = [
+    'permissions' => $userPermissions->pluck('name'),
+    'roles' => $user->roles->pluck('name'),
+    ];
+    $data = [
+    'user_id' => $userId,
+    'previous_group_id' => $user->group_id,
+    'current_group_id' => $validatedData['group_id'],
+    'total_ticket_created_till' => $totalTicket,
+    'previous_roles_permissions' => json_encode($userRolePermissions),
+    'previous_level' => $user->level,
+    'previous_parent_id' => $user->parent_id,
+    'current_level' => $validatedData['level'],
+    'current_parent_id' => $validatedData['parent_id'],
+    'updator_group_id' => Auth::user()->group_id,
+    'updated_by' => Auth::id(),
+    'updator_ip' => getIPAddress(),
+    'updator_device_name' => $this->agentHelper->getDeviceName(),
+    ];
+
+    $this->createUserMigrationLogs($data);
+
+    // Update the user with validated data
+    $user->update($validatedData);
+
+    return response()->json([
+    'message' => 'User data updated.',
+    'type' => 'success',
+    ], 200);
+
+    } */
 
     /**
      * Save or update Users details with Role and Permission

@@ -155,7 +155,7 @@
 </template>
 
 <script>
-import axios from "../../../axios";
+import axios from "../../../axios.js";
 import * as notify from "../../../utils/notify.js";
 
 export default {

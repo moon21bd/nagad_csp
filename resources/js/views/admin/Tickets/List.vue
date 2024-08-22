@@ -3,6 +3,10 @@
         <div class="common-heading d-flex align-items-center mb-3">
             <h1 class="title">Tickets</h1>
             <router-link
+                v-if="
+                    hasRole('admin|superadmin|owner') ||
+                    hasPermission('ticket-create')
+                "
                 class="btn btn-site ml-auto"
                 :to="{ name: 'ticket-create' }"
                 ><i class="icon-plus"></i> New
@@ -67,6 +71,12 @@
                                     </td>
                                     <td class="text-right">
                                         <router-link
+                                            v-if="
+                                                hasRole(
+                                                    'admin|superadmin|owner'
+                                                ) ||
+                                                hasPermission('ticket-edit')
+                                            "
                                             class="btn-action btn-edit"
                                             :to="{
                                                 name: 'ticket-edit',
@@ -76,6 +86,12 @@
                                         ></router-link>
 
                                         <router-link
+                                            v-if="
+                                                hasRole(
+                                                    'admin|superadmin|owner'
+                                                ) ||
+                                                hasPermission('ticket-timeline')
+                                            "
                                             class="btn-action btn-edit"
                                             title="Ticket Timeline"
                                             :to="{
@@ -84,12 +100,16 @@
                                             }"
                                             ><i class="icon-ticket-fill"></i
                                         ></router-link>
-                                        <!-- <a
+                                        <a
+                                            v-if="
+                                                hasRole('superadmin') ||
+                                                hasPermission('ticket-delete')
+                                            "
                                             class="btn-action btn-trash"
-                                            @click.prevent="delete(item.id)"
+                                            @click.prevent="delete item.id"
                                         >
                                             <i class="icon-trash"></i>
-                                        </a> -->
+                                        </a>
                                     </td>
                                 </tr>
                             </tbody>
@@ -107,10 +127,13 @@ import "datatables.net-dt/css/jquery.dataTables.min.css";
 import "datatables.net-dt/js/dataTables.dataTables";
 import noData from "../components/noData.vue";
 import { formatDateTime } from "../../../utils/common";
+import PermissionsComponent from "../../../components/PermissionsComponent.vue";
+
 export default {
     components: {
         noData,
     },
+    mixins: [PermissionsComponent],
     data() {
         return {
             isLoading: false,

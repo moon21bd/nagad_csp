@@ -149,14 +149,25 @@ class PermissionsController extends Controller
 
     public function getCurrentUserPermissions()
     {
-        $user = auth()->user(); // Get the currently logged-in user
-        $permissions = $user->permissions; // Retrieve all permissions (direct and group-based)
+
+        $user = auth()->user();
+        $user->load('permissions', 'group.permissions');
+
+        $userPermissions = $user->permissions->pluck('name');
+
+        $groupPermissions = collect([]);
+        if ($user->group) {
+            $groupPermissions = $user->group->permissions->pluck('name');
+        }
+
+        $allPermissions = $userPermissions->merge($groupPermissions)->unique();
 
         return response()->json([
             'user' => $user->name,
-            'permissions' => $permissions->pluck('name'),
+            'permissions' => $allPermissions,
             'roles' => $user->roles->pluck('name'),
         ]);
+
     }
 
     public function getUserPermissionsById($id)

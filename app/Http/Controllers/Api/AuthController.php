@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Helpers\AgentHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\Models\Group;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserActivity;
@@ -50,6 +51,15 @@ class AuthController extends Controller
 
         try {
             $validatedData = $request->all();
+
+            if ($validatedData['level'] === config('nagad.USER') && $validatedData['parent_id'] === null) {
+                $error = [
+                    'title' => 'Failed to register.',
+                    'message' => 'Please choose a valid parent_id. A user level with parent_id 0 is not acceptable.',
+                ];
+                return $this->sendError($error);
+
+            }
 
             // Prevent duplicate group owners
             if ($validatedData['level'] == config('nagad.GROUP_OWNER')) {
@@ -174,6 +184,7 @@ class AuthController extends Controller
 
     protected function createUser($data, $authUserId)
     {
+        // Create the user
         $user = User::create([
             'name' => $data['employee_name'],
             'parent_id' => $data['parent_id'] ?? 0,
@@ -188,7 +199,7 @@ class AuthController extends Controller
             'updated_by' => $authUserId,
         ]);
 
-        // Role assignment based on level ID
+        // Determine role name based on level
         $roleName = match ($user->level) {
             1 => 'superadmin',
             2 => 'admin',
@@ -196,23 +207,36 @@ class AuthController extends Controller
             default => 'user',
         };
 
-        $user->attachRole($roleName);
-
+        // Attach the role to the user
         $role = Role::where('name', $roleName)->first();
-        $user->attachPermissions($role->permissions, $data['group_id']);
+        if ($role) {
+            $user->attachRole($role);
+
+            // Attach default role permissions
+            $user->attachPermissions($role->permissions);
+            Log::info('USER-ROLE-PERMISSIONS|' . json_encode($user->toArray()));
+        } else {
+            // Handle case where role is not found
+            throw new \Exception("Role {$roleName} not found.");
+        }
+
+        // Attach group permissions
+        $group = Group::find($data['group_id']);
+        if ($group) {
+            $groupPermissions = $group->permissions->pluck('id')->toArray();
+            $user->permissions()->sync($groupPermissions);
+            Log::info('USER-GROUP-ROLE-PERMISSIONS|' . json_encode($user->toArray()));
+
+        } else {
+            // Handle case where group is not found
+            throw new \Exception("Group with ID {$data['group_id']} not found.");
+        }
 
         return $user;
     }
 
     /* protected function createUser($data, $authUserId)
     {
-
-    // $team = Team::where('name', 'my-awesome-team')->first();
-    // $admin = Role::where('name', 'admin')->first();
-    // $owner = Role::where('name', 'owner')->first();
-
-    // $user->attachRoles([$admin, $owner], $team);
-
     $user = User::create([
     'name' => $data['employee_name'],
     'parent_id' => $data['parent_id'] ?? 0,
@@ -227,34 +251,18 @@ class AuthController extends Controller
     'updated_by' => $authUserId,
     ]);
 
-    if ($user->level == 1) {
-    $roleName = 'superadmin';
-    } elseif ($user->level == 2) {
-    $roleName = 'admin';
-    } elseif ($user->level == 3) {
-    $roleName = 'owner';
-    } else {
-    $roleName = 'user';
+    // Role assignment based on level ID
+    $roleName = match ($user->level) {
+    1 => 'superadmin',
+    2 => 'admin',
+    3 => 'owner',
+    default => 'user',
+    };
 
-    $user->attachRole('user');
-    }
+    $user->attachRole($roleName);
 
     $role = Role::where('name', $roleName)->first();
-
     $user->attachPermissions($role->permissions, $data['group_id']);
-
-    if ($user->level == 1) {
-    $user->attachRole('superadmin');
-    } elseif ($user->level == 2) {
-    $user->attachRole('admin');
-    } elseif ($user->level == 3) {
-    $user->attachRole('owner');
-    } else {
-    $user->attachRole('user');
-    }
-
-    // assigning default role to the user within this group
-    // $user->attachRole('default', $user->group_id);
 
     return $user;
     } */
@@ -279,8 +287,6 @@ class AuthController extends Controller
     {
         UserActivity::create([
             'user_id' => $userId,
-            //'login_device_name' => $this->agentHelper->getDeviceName(),
-            //'browser' => $this->agentHelper->getBrowser(),
             'creator_ip' => getIPAddress(),
             'creator_device' => $this->agentHelper->getDeviceName(),
             'last_update_date' => Carbon::now(),
@@ -384,12 +390,11 @@ class AuthController extends Controller
                 // Transforming the user and roles data
                 $userData = $user->only(['id', 'uuid', 'group_id', 'level', 'parent_id', 'mobile_no', 'name', 'avatar', 'email', 'status']);
                 $userData['roles'] = $user->roles->pluck('name');
-
                 return response([
                     'message' => 'Successfully logged in.',
                     'token' => $token,
                     'user' => $userData,
-                    'cando' => $cando,
+                    // 'cando' => $cando,
                 ]);
             }
         } catch (\Exception $e) {

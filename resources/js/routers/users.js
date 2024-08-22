@@ -1,5 +1,6 @@
 const Profile = () => import("../views/admin/Profile/Index.vue");
-const ChangePassword = () => import("../views/admin/Profile/Setting.vue");
+const ChangePassword = () =>
+    import("../views/admin/Profile/changePassword.vue");
 const UserCreate = () => import("../views/admin/Users/Create.vue");
 const UserEdit = () => import("../views/admin/Users/Edit.vue");
 const UserList = () => import("../views/admin/Users/List.vue");
@@ -17,7 +18,7 @@ export default [
             title: "Profile",
             middleware: "auth",
             requiresAuth: true,
-            requiresPermission: "user-profile",
+            // requiresPermission: "user-profile",
         },
     },
     {
@@ -28,7 +29,7 @@ export default [
             title: "Change Password",
             middleware: "auth",
             requiresAuth: true,
-            requiresPermission: "user-change-password",
+            // requiresPermission: "user-change-password",
         },
     },
     {

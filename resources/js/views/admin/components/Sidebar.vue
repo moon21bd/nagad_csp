@@ -21,31 +21,33 @@
                     </router-link>
                 </el-menu-item>
 
-                <el-menu-item index="tickets-index">
+                <el-menu-item
+                    index="tickets-index"
+                    v-if="
+                        hasRole('admin|superadmin|owner') ||
+                        hasPermission('ticket-list')
+                    "
+                >
                     <router-link :to="{ name: 'ticket-index' }">
                         <i class="icon-tickets"></i>
                         <span>Tickets</span>
                     </router-link>
                 </el-menu-item>
 
-                <el-menu-item index="admin-user-index">
+                <el-menu-item
+                    index="admin-user-index"
+                    v-if="
+                        hasRole('admin|superadmin|owner') ||
+                        hasPermission('user-list')
+                    "
+                >
                     <router-link :to="{ name: 'user-index' }">
                         <i class="icon-users"></i>
                         <span>Users</span>
                     </router-link>
                 </el-menu-item>
 
-                <el-menu-item index="user-location">
-                    <router-link
-                        :to="{
-                            name: 'user-location',
-                        }"
-                        ><i class="icon-map"></i>
-                        <span>User Location</span>
-                    </router-link>
-                </el-menu-item>
-
-                <div v-if="hasRole('admin|superadmin|owner')">
+                <div v-if="hasRole('admin|superadmin')">
                     <el-menu-item index="service-types-index">
                         <router-link :to="{ name: 'service-types-index' }">
                             <i class="icon-phone"></i>
@@ -116,6 +118,16 @@
                         <router-link :to="{ name: 'dnd-user-index' }">
                             <i class="icon-user-x"></i>
                             <span>DnD Users</span>
+                        </router-link>
+                    </el-menu-item>
+
+                    <el-menu-item index="user-location">
+                        <router-link
+                            :to="{
+                                name: 'user-location',
+                            }"
+                            ><i class="icon-map"></i>
+                            <span>User Location</span>
                         </router-link>
                     </el-menu-item>
                 </div>

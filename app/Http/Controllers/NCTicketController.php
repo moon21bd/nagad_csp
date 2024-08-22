@@ -170,11 +170,11 @@ class NCTicketController extends Controller
         // dd();
 
         // if group owner is visiting the ticket
-        if (Auth::user()->group->hasOwner()) {
+        if (Auth::user()->group->hasOwner() || Auth::user()->hasRole('admin') || Auth::user()->hasRole('superadmin')) {
             return response()->json([
                 'success' => true,
                 'showAlert' => false,
-                'message' => 'Ticket page visited by group owner.',
+                'message' => 'Ticket page visited by admin/owner user.',
             ]);
 
         }

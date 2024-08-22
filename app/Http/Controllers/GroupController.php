@@ -142,19 +142,55 @@ class GroupController extends Controller
         return response()->json($groups);
     }
 
-    public function assignPermission(Request $request, Group $team, $id)
+    public function assignPermission(Request $request, $id)
     {
-
         $group = Group::find($id);
 
+        // Get the IDs of the permissions being requested
         $permissionIds = LaratrustPermission::whereIn('name', $request->permissions)->pluck('id')->toArray();
 
+        // Get the IDs of the existing permissions for the group
         $existingPermissionIds = $group->permissions->pluck('id')->toArray();
+
+        // Determine which permissions to attach (new ones)
         $newPermissions = array_diff($permissionIds, $existingPermissionIds);
+
+        // Determine which permissions to detach (removed ones)
+        $permissionsToDetach = array_diff($existingPermissionIds, $permissionIds);
+
+        // Attach new permissions
         if (!empty($newPermissions)) {
             $group->permissions()->attach($newPermissions);
         }
 
-        return response()->json(['status' => 'Permission assigned']);
+        // Detach permissions that were removed
+        if (!empty($permissionsToDetach)) {
+            $group->permissions()->detach($permissionsToDetach);
+        }
+
+        return response()->json([
+            'message' => 'Permissions updated successfully',
+            'type' => 'success',
+        ]);
     }
+
+    /* public function assignPermission(Request $request, Group $team, $id)
+{
+
+$group = Group::find($id);
+
+$permissionIds = LaratrustPermission::whereIn('name', $request->permissions)->pluck('id')->toArray();
+
+$existingPermissionIds = $group->permissions->pluck('id')->toArray();
+$newPermissions = array_diff($permissionIds, $existingPermissionIds);
+dd('request->permissions', $request->permissions, 'newPermissions', $newPermissions, 'permissionIds', $permissionIds, 'existingPermissionIds', $existingPermissionIds);
+if (!empty($newPermissions)) {
+$group->permissions()->attach($newPermissions);
+}
+
+return response()->json([
+'message' => 'Permission assigned',
+'type' => 'success',
+]);
+} */
 }

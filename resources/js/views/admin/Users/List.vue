@@ -3,6 +3,7 @@
         <div class="common-heading d-flex align-items-center mb-3">
             <h1 class="title">Users</h1>
             <router-link
+                v-if="hasRole('admin|superadmin|owner')"
                 class="btn btn-site ml-auto"
                 :to="{ name: 'user-create' }"
                 ><i class="icon-plus"></i> New
@@ -57,12 +58,19 @@
                                     </td>
 
                                     <td>
-                                        {{
-                                            item?.user_login_activity
-                                                ?.last_online || ""
+                                        <!-- {{
+                                            item.latest_login_activity
+                                                .last_online || ""
                                         }}
-                                        <!-- Uncomment the following line if you want to format the last_online date -->
-                                        <!-- {{ item?.user_login_activity?.last_online ? new Date(item.user_login_activity.last_online).toDateString() : "" }} -->
+ -->
+                                        {{
+                                            item?.latest_login_activity
+                                                ?.last_online
+                                                ? new Date(
+                                                      item.latest_login_activity.last_online
+                                                  ).toDateString()
+                                                : ""
+                                        }}
                                     </td>
 
                                     <td>
@@ -95,11 +103,7 @@
                                         </router-link>
 
                                         <router-link
-                                            v-if="
-                                                hasRole(
-                                                    'admin|superadmin|owner'
-                                                )
-                                            "
+                                            v-if="hasRole('superadmin')"
                                             class="btn btn-action"
                                             title="User Role Manage"
                                             :to="{
@@ -191,7 +195,6 @@ export default {
                 } else {
                     console.log("no role found");
                 } */
-                return;
                 const loggedInUserId = this.$store.state.auth.user.id;
                 const user = this.users.find((user) => user.id === id);
 
@@ -225,8 +228,8 @@ export default {
         async fetchUsers() {
             try {
                 this.isLoading = true;
-                const response = await axios.get("/users");
-                console.log("response", response);
+                const response = await axios.get("/users-index");
+                console.log("response", response.data.data);
                 this.users = response.data.data;
             } catch (error) {
                 console.error("Error fetching users:", error);

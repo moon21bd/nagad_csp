@@ -166,6 +166,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::post('/ticket/timeline/{id}', [NCTicketController::class, 'addTimelineForFirstTimePageLoad']);
 
+    Route::get('users-index', [UsersController::class, 'userIndex']);
+
     Route::apiResources([
         'click-activity' => ClickActivityController::class,
         'tickets' => NCTicketController::class,

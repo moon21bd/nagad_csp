@@ -12,7 +12,7 @@
             <div class="overlay" v-if="isLoading">
                 <img src="/images/loader.gif" alt="Loading" />
             </div>
-            <form @submit.prevent="updateRole">
+            <form @submit.prevent="updateGroupPermissions">
                 <div class="card-body">
                     <div class="form-group">
                         <label for="groupName">Group Name</label>
@@ -216,7 +216,7 @@ export default {
             }
             return Object.keys(this.errors).length === 0;
         },
-        async updateRole() {
+        async updateGroupPermissions() {
             if (!this.validate()) return;
 
             this.isLoading = true;
@@ -229,7 +229,7 @@ export default {
                 );
 
                 this.$showToast(data.message, {
-                    type: "error",
+                    type: data.type,
                 });
                 this.$router.push({ name: "groups-index" });
             } catch (error) {

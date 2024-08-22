@@ -143,4 +143,9 @@ class User extends Authenticatable
         return $this->level == config('nagad.GROUP_OWNER');
     }
 
+    public function latestLoginActivity()
+    {
+        return $this->hasOne(UserLoginActivity::class)->latest();
+    }
+
 }

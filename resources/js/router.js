@@ -76,9 +76,18 @@ router.beforeEach(async (to, from, next) => {
 
     // WILL BE OPEN THIS LATER AFTER GETTING ALL OK FOR ROUTER PERMISSION CHECKS.
     // If the route requires a specific permission
-    /* if (to.meta.requiresPermission) {
-        await store.dispatch("permissions/fetchPermissions"); // Fetch permissions before checking
+    console.log("to.meta.requiresPermission", to.meta.requiresPermission);
+    if (to.meta.requiresPermission) {
+        await store.dispatch("permissions/fetchPermissions");
 
+        const userRoles = store.getters["permissions/userRoles"];
+        const isAdmin =
+            userRoles.includes("admin") || userRoles.includes("superadmin");
+
+        if (isAdmin) {
+            // If the user is Admin or Super Admin, allow access without permission check
+            return next();
+        }
         if (
             store.getters["permissions/hasPermission"](
                 to.meta.requiresPermission
@@ -90,7 +99,7 @@ router.beforeEach(async (to, from, next) => {
             // User doesn't have the required permission, redirect to forbidden page
             return next("/forbidden");
         }
-    } */
+    }
 
     // If no authentication or permission is required, or all checks passed
     next();
