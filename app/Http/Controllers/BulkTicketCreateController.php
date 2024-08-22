@@ -35,7 +35,17 @@ class BulkTicketCreateController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'excel_file' => 'required|file|mimes:xlsx,xls',
+        ]);
+
+        $file = $request->file('excel_file');
+        $path = $file->storeAs('uploads', 'ticket_creates.xlsx');
+
+        // Process the file
+        Excel::import(new BulkTicketCreateImport, storage_path('app/uploads/ticket_creates.xlsx'));
+
+        return response()->json(['message' => 'File imported successfully'], 200);
     }
 
     /**

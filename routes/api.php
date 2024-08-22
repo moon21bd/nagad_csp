@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api;
+use App\Http\Controllers\BulkTicketCreateController;
+use App\Http\Controllers\BulkTicketStatusUpdateController;
 use App\Http\Controllers\ClickActivityController;
 use App\Http\Controllers\DNDUserController;
 use App\Http\Controllers\EmailConfigController;
@@ -76,6 +78,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // GET ACTIVE USERS FOR FORWARD THE TICKET
     Route::get('/getActiveUsers', [UsersController::class, 'getActiveUsers']);
     Route::get('/getActiveGroups', [GroupController::class, 'getActiveGroups']);
+
+    // BULK TICKET CREATE/STATUS UPDATES
+
+    Route::post('/bulk-ticket-status-update', [BulkTicketStatusUpdateController::class, 'store']);
+    Route::post('/bulk-ticket-create', [BulkTicketCreateController::class, 'store']);
 
     // Group Permissions
 

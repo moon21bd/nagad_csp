@@ -3,6 +3,7 @@ import Router from "vue-router";
 import AdminLayout from "./views/admin/layout/index.vue";
 
 import defaultRoutes from "./routers/default";
+import bulkTicketsRoutes from "./routers/bulk-tickets";
 import sbadminRoutes from "./routers/sbadmin";
 import dndusersRoutes from "./routers/dndusers";
 import emailConfigRoutes from "./routers/emailconfig";
@@ -24,6 +25,7 @@ let router = new Router({
     mode: "history",
     routes: [
         ...defaultRoutes,
+        ...bulkTicketsRoutes,
         ...sbadminRoutes,
         ...dndusersRoutes,
         ...emailConfigRoutes,
