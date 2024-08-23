@@ -82,7 +82,12 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // BULK TICKET CREATE/STATUS UPDATES
 
     Route::post('/bulk-ticket-status-update', [BulkTicketStatusUpdateController::class, 'store']);
+    Route::get('/bulk-ticket-statuses', [BulkTicketStatusUpdateController::class, 'index']);
+    Route::delete('/bulk-ticket-statuses/{id}', [BulkTicketStatusUpdateController::class, 'destroy']);
+
     Route::post('/bulk-ticket-create', [BulkTicketCreateController::class, 'store']);
+    Route::get('/bulk-tickets', [BulkTicketCreateController::class, 'index']);
+    Route::delete('/bulk-tickets/{id}', [BulkTicketCreateController::class, 'destroy']);
 
     // Group Permissions
 

@@ -11,7 +11,7 @@ return [
     | by the framework. The "local" disk, as well as a variety of cloud
     | based disks are available to your application. Just store away!
     |
-    */
+     */
 
     'default' => env('FILESYSTEM_DRIVER', 'local'),
 
@@ -26,7 +26,7 @@ return [
     |
     | Supported Drivers: "local", "ftp", "sftp", "s3"
     |
-    */
+     */
 
     'disks' => [
 
@@ -38,7 +38,21 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => env('APP_URL') . '/storage',
+            'visibility' => 'public',
+        ],
+
+        'bulk_tickets_create' => [
+            'driver' => 'local',
+            'root' => public_path('uploads/bulk-tickets'),
+            'url' => env('APP_URL') . '/uploads/bulk-tickets',
+            'visibility' => 'public',
+        ],
+
+        'bulk_tickets_status_updates' => [
+            'driver' => 'local',
+            'root' => public_path('uploads/bulk-tickets-status'),
+            'url' => env('APP_URL') . '/uploads/bulk-tickets-status',
             'visibility' => 'public',
         ],
 
@@ -64,7 +78,7 @@ return [
     | `storage:link` Artisan command is executed. The array keys should be
     | the locations of the links and the values should be their targets.
     |
-    */
+     */
 
     'links' => [
         public_path('storage') => storage_path('app/public'),

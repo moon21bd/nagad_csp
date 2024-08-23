@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\BulkTicketStatusUpdateImport;
 use App\Models\BulkTicketStatusUpdate;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,8 @@ class BulkTicketStatusUpdateController extends Controller
      */
     public function index()
     {
-        //
+        $bulkTicket = BulkTicketStatusUpdate::all();
+        return response()->json($bulkTicket);
     }
 
     /**
@@ -40,12 +42,32 @@ class BulkTicketStatusUpdateController extends Controller
         ]);
 
         $file = $request->file('excel_file');
-        $path = $file->storeAs('uploads', 'status_updates.xlsx');
+        $fileName = 'bulk_ticket_status_updates_' . time() . '.' . $file->getClientOriginalExtension();
 
-        // Process the file
-        Excel::import(new BulkTicketStatusUpdateImport, storage_path('app/uploads/status_updates.xlsx'));
+        $file->storeAs('', $fileName, 'bulk_tickets_status_updates');
+        $fullFilePath = public_path('uploads/bulk-tickets-status/' . $fileName);
 
-        return response()->json(['message' => 'File imported successfully'], 200);
+        // Import data
+        $importer = new BulkTicketStatusUpdateImport();
+        $importer->import($fullFilePath);
+
+        $importedData = $importer->getImportedData();
+        $getUpdatedTickets = $importer->getUpdatedTickets();
+        $getNonMatchingTickets = $importer->getNonMatchingTickets();
+
+        // Save the file path and response
+        $bulkTicketsStatusUpdates = new BulkTicketStatusUpdate();
+        $bulkTicketsStatusUpdates->excel_file = 'uploads/bulk-tickets-status/' . $fileName;
+        $bulkTicketsStatusUpdates->response = base64_encode(json_encode([
+            'imported' => $importedData,
+            'updated' => $getUpdatedTickets,
+            'nonMatched' => $getNonMatchingTickets,
+        ]));
+        $bulkTicketsStatusUpdates->created_by = auth()->id();
+        $bulkTicketsStatusUpdates->lot = date('YmdHis');
+        $bulkTicketsStatusUpdates->save();
+
+        return response()->json(['message' => 'File imported and data saved successfully', 'file_path' => $bulkTicketsStatusUpdates->excel_file], 200);
     }
 
     /**
@@ -88,8 +110,9 @@ class BulkTicketStatusUpdateController extends Controller
      * @param  \App\Models\BulkTicketStatusUpdate  $bulkTicketStatusUpdate
      * @return \Illuminate\Http\Response
      */
-    public function destroy(BulkTicketStatusUpdate $bulkTicketStatusUpdate)
+    public function destroy($id)
     {
-        //
+        BulkTicketStatusUpdate::destroy($id);
+        return response()->json(null, 204);
     }
 }

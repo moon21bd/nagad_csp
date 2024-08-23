@@ -2,10 +2,33 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class BulkTicketCreate extends Model
 {
-    use HasFactory;
+
+    protected $table = "bulk_ticket_creates";
+    protected $fillable = [
+        'excel_file',
+        'response',
+        'lot',
+        'created_by',
+        'updated_by',
+    ];
+    protected $appends = ['excel_file_url', 'created_by_username'];
+
+    public function getExcelFileUrlAttribute()
+    {
+        return $this->excel_file ? asset($this->excel_file) : null;
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function getCreatedByUsernameAttribute()
+    {
+        return $this->creator ? $this->creator->name : 'Unknown User';
+    }
 }

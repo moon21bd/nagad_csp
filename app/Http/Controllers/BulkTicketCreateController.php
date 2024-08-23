@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\BulkTicketCreateImport;
 use App\Models\BulkTicketCreate;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,8 @@ class BulkTicketCreateController extends Controller
      */
     public function index()
     {
-        //
+        $bulkTicket = BulkTicketCreate::all();
+        return response()->json($bulkTicket);
     }
 
     /**
@@ -33,19 +35,35 @@ class BulkTicketCreateController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
     public function store(Request $request)
     {
+
         $request->validate([
             'excel_file' => 'required|file|mimes:xlsx,xls',
         ]);
 
         $file = $request->file('excel_file');
-        $path = $file->storeAs('uploads', 'ticket_creates.xlsx');
+        $fileName = 'bulk_ticket_creates_' . time() . '.' . $file->getClientOriginalExtension();
 
-        // Process the file
-        Excel::import(new BulkTicketCreateImport, storage_path('app/uploads/ticket_creates.xlsx'));
+        $file->storeAs('', $fileName, 'public_uploads');
+        $fullFilePath = public_path('uploads/bulk-tickets/' . $fileName);
 
-        return response()->json(['message' => 'File imported successfully'], 200);
+        // Import data
+        $importer = new BulkTicketCreateImport();
+        $importer->import($fullFilePath);
+
+        $importedData = $importer->getImportedData();
+
+        // Save the file path and response
+        $bulkTicketCreate = new BulkTicketCreate();
+        $bulkTicketCreate->excel_file = 'uploads/bulk-tickets/' . $fileName;
+        $bulkTicketCreate->response = base64_encode(json_encode($importedData));
+        $bulkTicketCreate->created_by = auth()->id();
+        $bulkTicketCreate->lot = date('YmdHis');
+        $bulkTicketCreate->save();
+
+        return response()->json(['message' => 'File imported and data saved successfully', 'file_path' => $bulkTicketCreate->excel_file], 200);
     }
 
     /**
@@ -88,8 +106,9 @@ class BulkTicketCreateController extends Controller
      * @param  \App\Models\BulkTicketCreate  $bulkTicketCreate
      * @return \Illuminate\Http\Response
      */
-    public function destroy(BulkTicketCreate $bulkTicketCreate)
+    public function destroy($id)
     {
-        //
+        BulkTicketCreate::destroy($id);
+        return response()->json(null, 204);
     }
 }

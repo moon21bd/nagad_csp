@@ -47,6 +47,34 @@
                     </router-link>
                 </el-menu-item>
 
+                <el-menu-item
+                    index="bulk-tickets-create-list"
+                    v-if="
+                        hasRole('admin|superadmin|owner') ||
+                        hasPermission('bulk-tickets-create-list')
+                    "
+                >
+                    <router-link :to="{ name: 'bulk-tickets-create-list' }">
+                        <i class="icon-tickets"></i>
+                        <span>Bulk Ticket Create</span>
+                    </router-link>
+                </el-menu-item>
+
+                <el-menu-item
+                    index="bulk-tickets-status-update-list"
+                    v-if="
+                        hasRole('admin|superadmin|owner') ||
+                        hasPermission('bulk-tickets-status-update-list')
+                    "
+                >
+                    <router-link
+                        :to="{ name: 'bulk-tickets-status-update-list' }"
+                    >
+                        <i class="icon-ticket-fill"></i>
+                        <span>Bulk Ticket Status Update</span>
+                    </router-link>
+                </el-menu-item>
+
                 <div v-if="hasRole('admin|superadmin')">
                     <el-menu-item index="service-types-index">
                         <router-link :to="{ name: 'service-types-index' }">
