@@ -5,7 +5,7 @@ return [
      * Require Location Access for Groups
      */
 
-    'requires_location_groups' => array_map('intval', explode(',', env('REQUIRES_LOCATION_GROUPS', ','))),
+    'requires_location_groups' => array_map('intval', explode(',', env('REQUIRES_LOCATION_GROUPS', null))),
     /*
      * User Roles Level
      */
