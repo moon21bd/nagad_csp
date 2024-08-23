@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\NCCallType;
 use App\Models\NCTicket;
-use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -15,9 +14,9 @@ class NCReportController extends Controller
 
         $assignedId = $id ?? '1';
         $totalCount = NCTicket::select('ticket_status', DB::raw('count(*) as total'))
-                              ->where('assign_to_group_id', $assignedId)
-                              ->groupBy('ticket_status')
-                              ->get();
+            ->where('assign_to_group_id', $assignedId)
+            ->groupBy('ticket_status')
+            ->get();
         if ($totalCount) {
             foreach ($totalCount as $count) {
                 if (strtoupper($count->ticket_status) == "PENDING") {
@@ -33,15 +32,15 @@ class NCReportController extends Controller
                 }
             }
             return response()->json([
-                'openTicket'       => $openTicket ?? 0,
+                'openTicket' => $openTicket ?? 0,
                 'inProgressTicket' => $inProgressTicket ?? 0,
-                'pendingTicket'    => $pendingTicket ?? 0,
-                'closedTicket'     => $closedTicket ?? 0,
-                'reopenTicket'     => $reopenTicket ?? 0,
+                'pendingTicket' => $pendingTicket ?? 0,
+                'closedTicket' => $closedTicket ?? 0,
+                'reopenTicket' => $reopenTicket ?? 0,
             ], 201);
         } else {
             return response()->json([
-                'msg' => 'No Report Found'
+                'msg' => 'No Report Found',
             ], 201);
         }
     }
@@ -50,14 +49,13 @@ class NCReportController extends Controller
     {
         $assignedId = $id ?? '1';
 
-
         $callTypeWiseCounts = NCTicket::select('call_type_id', 'call_type_name', DB::raw('count(*) as total'))
-                                      ->where('assign_to_group_id', $assignedId)
-                                      ->whereDate('ticket_created_at', '=', Carbon::today()
-                                                                                  ->toDateString())
-                                      ->join('nc_call_types', 'nc_call_types.id', 'nc_tickets.call_type_id')
-                                      ->groupBy('nc_tickets.call_type_id')
-                                      ->get();
+            ->where('assign_to_group_id', $assignedId)
+            ->whereDate('ticket_created_at', '=', Carbon::today()
+                    ->toDateString())
+            ->join('nc_call_types', 'nc_call_types.id', 'nc_tickets.call_type_id')
+            ->groupBy('nc_tickets.call_type_id')
+            ->get();
 
         if ($callTypeWiseCounts) {
             foreach ($callTypeWiseCounts as $callTypeWiseCount) {
@@ -71,16 +69,16 @@ class NCReportController extends Controller
             }
         }
 
-        $totalCount      = NCTicket::where('assign_to_group_id', $assignedId)
-                                   ->whereDate('ticket_created_at', '=', Carbon::today()
-                                                                               ->toDateString())
-                                   ->count();
+        $totalCount = NCTicket::where('assign_to_group_id', $assignedId)
+            ->whereDate('ticket_created_at', '=', Carbon::today()
+                    ->toDateString())
+            ->count();
         $groupWiseCounts = NCTicket::select('ticket_status', DB::raw('count(*) as total'))
-                                   ->where('assign_to_group_id', $assignedId)
-                                   ->whereDate('ticket_created_at', '=', Carbon::today()
-                                                                               ->toDateString())
-                                   ->groupBy('ticket_status')
-                                   ->get();
+            ->where('assign_to_group_id', $assignedId)
+            ->whereDate('ticket_created_at', '=', Carbon::today()
+                    ->toDateString())
+            ->groupBy('ticket_status')
+            ->get();
         if ($groupWiseCounts) {
             foreach ($groupWiseCounts as $count) {
                 if (strtoupper($count->ticket_status) == "CLOSED") {
@@ -91,25 +89,25 @@ class NCReportController extends Controller
             }
         }
         return response()->json([
-            'totalCount'            => $totalCount ?? 0,
-            'totalServiceRequest'   => $totalServiceRequest ?? 0,
-            'totalQuery'            => $totalQuery ?? 0,
-            'totalComplaint'        => $totalComplaint ?? 0,
+            'totalCount' => $totalCount ?? 0,
+            'totalServiceRequest' => $totalServiceRequest ?? 0,
+            'totalQuery' => $totalQuery ?? 0,
+            'totalComplaint' => $totalComplaint ?? 0,
             'totalInProgressTicket' => $inProgressTicket ?? 0,
-            'totalClosedTicket'     => $closedTicket ?? 0,
+            'totalClosedTicket' => $closedTicket ?? 0,
         ], 201);
     }
 
     public function getMonthWiseTicketStatusCount($id = null, $month = null)
     {
 
-        $assignedId  = $id ?? 1;
+        $assignedId = $id ?? 1;
         $monthNumber = $this->getMonthNumber(strtoupper($month));
-        $totalCount  = NCTicket::select('ticket_status', DB::raw('count(*) as total'))
-                               ->where('assign_to_group_id', $assignedId)
-                               ->whereMonth('ticket_created_at', $monthNumber)
-                               ->groupBy('ticket_status')
-                               ->get();
+        $totalCount = NCTicket::select('ticket_status', DB::raw('count(*) as total'))
+            ->where('assign_to_group_id', $assignedId)
+            ->whereMonth('ticket_created_at', $monthNumber)
+            ->groupBy('ticket_status')
+            ->get();
         if ($totalCount) {
             foreach ($totalCount as $count) {
                 if (strtoupper($count->ticket_status) == "PENDING") {
@@ -125,15 +123,15 @@ class NCReportController extends Controller
                 }
             }
             return response()->json([
-                'openTicket'       => $openTicket ?? 0,
+                'openTicket' => $openTicket ?? 0,
                 'inProgressTicket' => $inProgressTicket ?? 0,
-                'pendingTicket'    => $pendingTicket ?? 0,
-                'closedTicket'     => $closedTicket ?? 0,
-                'reopenTicket'     => $reopenTicket ?? 0,
+                'pendingTicket' => $pendingTicket ?? 0,
+                'closedTicket' => $closedTicket ?? 0,
+                'reopenTicket' => $reopenTicket ?? 0,
             ], 201);
         } else {
             return response()->json([
-                'msg' => 'No Report Found'
+                'msg' => 'No Report Found',
             ], 201);
         }
     }
@@ -149,14 +147,14 @@ class NCReportController extends Controller
         }
         $year = now()->format('Y');
 
-        $nextMonthNumber = (int)$monthNumber + 1;
-        $from            = "$year-$monthNumber-01";
-        $to              = "$year-$nextMonthNumber-01";
+        $nextMonthNumber = (int) $monthNumber + 1;
+        $from = "$year-$monthNumber-01";
+        $to = "$year-$nextMonthNumber-01";
 
         $callTypes = NCCallType::select('id', 'call_type_name')
-                               ->where('status', 'active')
-                               ->get()
-                               ->toArray();
+            ->where('status', 'active')
+            ->get()
+            ->toArray();
         if ($callTypes) {
             foreach ($callTypes as $callType) {
                 if (strtoupper($callType['call_type_name']) == 'COMPLAINT') {
@@ -169,7 +167,7 @@ class NCReportController extends Controller
             }
         } else {
             return response()->json([
-                'msg' => 'Call_Types_Found'
+                'msg' => 'Call_Types_Found',
             ], 201);
         }
 
@@ -184,12 +182,12 @@ class NCReportController extends Controller
         }
 
         $complaintTotalData = NCTicket::select(DB::raw('DATE(created_at) as time'), DB::raw('count(*) as count'))
-                        ->where('assign_to_group_id', $assignedId)
-                        ->where('call_type_id', $complaintId)
-                        ->whereDate('created_at', '>=', $from . ' 00:00:00')
-                        ->whereDate('created_at', '<=', $to . ' 23:59:59')
-                        ->groupBy('time')
-                        ->get();
+            ->where('assign_to_group_id', $assignedId)
+            ->where('call_type_id', $complaintId)
+            ->whereDate('created_at', '>=', $from . ' 00:00:00')
+            ->whereDate('created_at', '<=', $to . ' 23:59:59')
+            ->groupBy('time')
+            ->get();
 
         foreach ($complaintTotalData as $val) {
             $complaintData[$val->time] = $val->count;
@@ -201,12 +199,12 @@ class NCReportController extends Controller
             $range[$date->format("Y-m-d")] = 0;
         }
         $queryTotalData = NCTicket::select(DB::raw('DATE(created_at) as time'), DB::raw('count(*) as count'))
-                                      ->where('assign_to_group_id', $assignedId)
-                                      ->where('call_type_id', $queryId)
-                                      ->whereDate('created_at', '>=', $from . ' 00:00:00')
-                                      ->whereDate('created_at', '<=', $to . ' 23:59:59')
-                                      ->groupBy('time')
-                                      ->get();
+            ->where('assign_to_group_id', $assignedId)
+            ->where('call_type_id', $queryId)
+            ->whereDate('created_at', '>=', $from . ' 00:00:00')
+            ->whereDate('created_at', '<=', $to . ' 23:59:59')
+            ->groupBy('time')
+            ->get();
 
         foreach ($queryTotalData as $val) {
             $queryData[$val->time] = $val->count;
@@ -217,12 +215,12 @@ class NCReportController extends Controller
             $range[$date->format("Y-m-d")] = 0;
         }
         $serviceRequestTotalData = NCTicket::select(DB::raw('DATE(created_at) as time'), DB::raw('count(*) as count'))
-                                  ->where('assign_to_group_id', $assignedId)
-                                  ->where('call_type_id', $serviceRequestId)
-                                  ->whereDate('created_at', '>=', $from . ' 00:00:00')
-                                  ->whereDate('created_at', '<=', $to . ' 23:59:59')
-                                  ->groupBy('time')
-                                  ->get();
+            ->where('assign_to_group_id', $assignedId)
+            ->where('call_type_id', $serviceRequestId)
+            ->whereDate('created_at', '>=', $from . ' 00:00:00')
+            ->whereDate('created_at', '<=', $to . ' 23:59:59')
+            ->groupBy('time')
+            ->get();
 
         foreach ($serviceRequestTotalData as $val) {
             $serviceRequestData[$val->time] = $val->count;
@@ -230,9 +228,9 @@ class NCReportController extends Controller
         $serviceRequestTotalDataArray = array_replace($range, $serviceRequestData);
 
         return response()->json([
-            'totalComplaintData'       => $complaintTotalDataArray??[],
+            'totalComplaintData' => $complaintTotalDataArray ?? [],
             'totalQueryData' => $queryTotalDataArray ?? [],
-            'totalServiceRequestData'    => $serviceRequestTotalDataArray ?? [],
+            'totalServiceRequestData' => $serviceRequestTotalDataArray ?? [],
         ], 201);
 
     }
@@ -240,18 +238,18 @@ class NCReportController extends Controller
     public function getMonthNumber($month)
     {
         $monthList = [
-            'JANUARY'   => '01',
-            'FEBRUARY'  => '02',
-            'MARCH'     => '03',
-            'APRIL'     => '04',
-            'MAY'       => '05',
-            'JUNE'      => '06',
-            'JULY'      => '07',
-            'AUGUST'    => '08',
+            'JANUARY' => '01',
+            'FEBRUARY' => '02',
+            'MARCH' => '03',
+            'APRIL' => '04',
+            'MAY' => '05',
+            'JUNE' => '06',
+            'JULY' => '07',
+            'AUGUST' => '08',
             'SEPTEMBER' => '09',
-            'OCTOBER'   => '10',
-            'NOVEMBER'  => '11',
-            'DECEMBER'  => '12'
+            'OCTOBER' => '10',
+            'NOVEMBER' => '11',
+            'DECEMBER' => '12',
         ];
         return $monthList[$month];
     }

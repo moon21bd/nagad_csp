@@ -643,6 +643,7 @@ export default {
     },
     methods: {
         async init() {
+            this.userGroupId = this.$store.state.auth.user.group_id;
             await this.fetchTotalReportCount();
             await this.fetchDailyReportCount();
             await this.fetchColumnChartData();
