@@ -203,9 +203,9 @@ export default {
         return {
             monthValue: "",
             monthTickets: "",
-            totalReportCount: "",
-            dailyReportCount: "",
-            monthWiseReportCount: "",
+            totalReportCount: {},
+            dailyReportCount: {},
+            monthWiseReportCount: {},
             chartInstance: null,
             userGroupId: 1,
             columnChartData: {
