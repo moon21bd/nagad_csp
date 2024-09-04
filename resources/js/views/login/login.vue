@@ -36,11 +36,11 @@
                     <form class="user" @submit.prevent="login">
                         <div class="form-group">
                             <input
-                                type="email"
+                                type="text"
                                 class="form-control form-control-user"
                                 id="exampleInputEmail"
                                 aria-describedby="emailHelp"
-                                placeholder="Enter Email Address..."
+                                placeholder="Enter Email or Employee User ID"
                                 v-model="email"
                             />
                         </div>
@@ -114,6 +114,8 @@ export default {
 
     methods: {
         async login() {
+            console.log("email-creds", this.email);
+            // return;
             try {
                 const response = await axios.post("login", {
                     email: this.email,
@@ -173,12 +175,26 @@ export default {
                     this.$router.push("/admin");
                 }
             } catch (error) {
-                // console.error("Login error:", error);
-                this.notifyAuthError(
-                    error.response && error.response.data
-                        ? error.response.data.message
-                        : "Login failed. Please try again."
-                );
+                // Check if error response exists and has a message or validation errors
+                if (error.response) {
+                    const { data } = error.response;
+
+                    if (data.errors && data.errors.email) {
+                        // Specific handling for validation errors
+                        this.notifyAuthError(data.errors.email[0]);
+                    } else if (data.message) {
+                        // General error message from the server
+                        this.notifyAuthError(data.message);
+                    } else {
+                        // Fallback for unexpected error formats
+                        this.notifyAuthError("Login failed. Please try again.");
+                    }
+                } else {
+                    // Handle errors with no response
+                    this.notifyAuthError(
+                        "Network error. Please check your connection."
+                    );
+                }
             }
         },
         getLocation() {

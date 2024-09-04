@@ -26,6 +26,7 @@ class User extends Authenticatable
     protected $fillable = [
         'uuid',
         'group_id',
+        'employee_user_id',
         'level', // 1=Super Admin,2=Admin,3=Group Owner,4=User
         'parent_id', // default 0
         'mobile_no',

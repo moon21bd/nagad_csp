@@ -128,7 +128,7 @@ class NCTicketTimelineController extends Controller
                 'name' => $user->name,
                 'employee_id' => $user->user_details->employee_id,
                 'employee_name' => $user->user_details->employee_name,
-                'employee_user_id' => $user->user_details->employee_user_id,
+                'employee_user_id' => $user->employee_user_id ?? "",
                 'group_id' => $user->group_id,
                 'mobile_no' => $user->mobile_no,
                 'email' => $user->email,

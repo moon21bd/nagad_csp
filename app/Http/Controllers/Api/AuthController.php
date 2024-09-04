@@ -154,14 +154,14 @@ class AuthController extends Controller
             'parent_id' => 'nullable',
             'employee_name' => 'required',
             'employee_id' => 'required',
-            'employee_user_id' => 'required',
+            'employee_user_id' => 'required|unique:users',
             'nid_card_no' => 'required',
             'birth_date' => 'required|date',
             'mobile_no' => $this->phoneValidationRules() . "|unique:users",
             'address' => 'required',
             'gender' => 'required',
             'status' => 'nullable',
-            'avatar' => 'required|string',
+            'avatar' => 'nullable|string',
             'email' => 'required|string|email|unique:users',
             'password' => 'required|min:8|max:25',
         ];
@@ -190,10 +190,11 @@ class AuthController extends Controller
             'parent_id' => $data['parent_id'] ?? 0,
             'level' => $data['level'],
             'group_id' => $data['group_id'],
+            'employee_user_id' => $data['employee_user_id'],
             'mobile_no' => $data['mobile_no'],
             'email' => $data['email'],
             'status' => in_array($data['level'], [1, 2, 3]) ? 'Active' : 'Pending',
-            'avatar' => uploadMediaGetPath($data['avatar']),
+            'avatar' => !empty($data['avatar']) ? uploadMediaGetPath($data['avatar']) : null,
             'password' => Hash::make($data['password']),
             'created_by' => $authUserId,
             'updated_by' => $authUserId,
@@ -361,7 +362,9 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         try {
-            if (Auth::attempt($request->only('email', 'password'))) {
+            $credentials = $this->credentials($request);
+
+            if (Auth::attempt($credentials)) {
                 /** @var User $user */
                 $user = Auth::user();
 
@@ -467,6 +470,19 @@ class AuthController extends Controller
         return $user->roles->map(function ($role) {
             return $role->name;
         });
+    }
+
+    protected function credentials(Request $request)
+    {
+        $login = $request->input('email');
+
+        // Determine if the login input is an email or employee ID
+        $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'employee_user_id';
+
+        return [
+            $field => $login,
+            'password' => $request->input('password'),
+        ];
     }
 
     /*

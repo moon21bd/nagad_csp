@@ -22,7 +22,7 @@
                                         <input
                                             type="file"
                                             name="avatar"
-                                            v-validate="'required|image'"
+                                            v-validate="'image'"
                                             id="avatar"
                                             @change="handleFileUpload"
                                             accept="image/x-png,image/jpg,image/jpeg"
