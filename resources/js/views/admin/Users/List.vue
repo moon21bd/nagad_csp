@@ -142,8 +142,8 @@
 <script>
 import "datatables.net-dt/css/jquery.dataTables.min.css";
 import "datatables.net-dt/js/dataTables.dataTables";
-import noData from "../components/noData.vue";
 import { mapActions, mapGetters } from "vuex";
+import noData from "../components/noData.vue";
 
 export default {
     components: {
@@ -256,7 +256,8 @@ export default {
 };
 </script>
 <style>
-.table.dataTable > thead > tr > th {
+.table.dataTable > thead > tr > th,
+.table.dataTable > tbody > tr > td {
     white-space: nowrap;
 }
 .table > thead > tr > th:last-child,
