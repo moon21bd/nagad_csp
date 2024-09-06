@@ -44,7 +44,8 @@ class DNDUserController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'nullable|string',
+            'name' => 'required|string',
+            'message' => 'required|string|max:60',
             'mobile_no' => $this->phoneValidationRules() . "|unique:dnd_users",
         ], $this->phoneValidationErrorMessages());
 
@@ -59,6 +60,7 @@ class DNDUserController extends Controller
             $dndUser = DNDUser::create([
                 'name' => $validatedData['name'],
                 'mobile_no' => $validatedData['mobile_no'],
+                'message' => $validatedData['message'],
                 'status' => 'active',
                 'created_by' => $authUserId,
                 'last_updated_by' => $authUserId,
@@ -118,6 +120,7 @@ class DNDUserController extends Controller
         $phoneRules = explode('|', $this->phoneValidationRules());
         $rules = [
             'name' => 'sometimes|nullable|string|max:128',
+            'message' => 'sometimes|nullable|string|max:60',
             'mobile_no' => array_merge($phoneRules, [
                 Rule::unique('dnd_users')->ignore($id),
             ]),
@@ -175,8 +178,18 @@ class DNDUserController extends Controller
     public function getDNDNumberVerification(Request $request, $mobileNo)
     {
         $preparePhone = Str::substr($mobileNo, -11);
-        $dndExists = DNDUser::where('mobile_no', $preparePhone)->exists();
-        return response()->json(['in_dnd' => $dndExists]);
+
+        $dndUser = DNDUser::where('mobile_no', $preparePhone)
+            ->where('status', 'active')
+            ->first(); // Get the first matching record or null if none exists
+
+        $dndExists = !is_null($dndUser); // Check if a record was found
+        $message = $dndExists ? $dndUser->message : null; // Access the message if the record exists
+
+        return response()->json([
+            'in_dnd' => $dndExists,
+            'specialMessage' => $message,
+        ], 200);
     }
 
 }

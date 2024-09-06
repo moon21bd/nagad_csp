@@ -318,13 +318,13 @@
                                                 }"
                                             ></i>
                                         </span>
-                                        <small
-                                            class="text-danger"
-                                            v-show="errors.has('password')"
-                                        >
-                                            {{ errors.first("password") }}
-                                        </small>
                                     </div>
+                                    <small
+                                        class="text-danger"
+                                        v-show="errors.has('password')"
+                                    >
+                                        {{ errors.first("password") }}
+                                    </small>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
@@ -361,13 +361,13 @@
                                             ></i>
                                         </span>
                                     </div>
-                                    <small
-                                        class="text-danger"
-                                        v-show="errors.has('confirmPassword')"
-                                    >
-                                        {{ errors.first("confirmPassword") }}
-                                    </small>
                                 </div>
+                                <small
+                                    class="text-danger"
+                                    v-show="errors.has('confirmPassword')"
+                                >
+                                    {{ errors.first("confirmPassword") }}
+                                </small>
                                 <div class="col-md-12 form-group">
                                     <label class="control-label"
                                         >Address<sup>*</sup></label

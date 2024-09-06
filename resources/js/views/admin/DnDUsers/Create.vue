@@ -6,7 +6,7 @@
                 :to="{ name: 'dnd-user-index' }"
                 ><i class="icon-left"></i>
             </router-link>
-            <h1 class="title m-0">Create DnD User</h1>
+            <h1 class="title m-0">Add Customer Profile</h1>
         </div>
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
@@ -19,13 +19,13 @@
                             <div class="row">
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >User Name</label
+                                        >Customer Name<sup>*</sup></label
                                     >
                                     <input
                                         class="form-control"
                                         type="text"
                                         name="name"
-                                        placeholder="Name"
+                                        placeholder="Customer Name"
                                         v-model="formData.name"
                                     />
                                     <span
@@ -61,6 +61,25 @@
                                         v-show="errors.has('mobile_no')"
                                     >
                                         {{ errors.first("mobile_no") }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 form-group">
+                                    <label class="control-label"
+                                        >Message<sup>*</sup></label
+                                    >
+                                    <textarea
+                                        class="form-control"
+                                        name="message"
+                                        v-model="formData.message"
+                                        v-validate="'required'"
+                                    ></textarea>
+                                    <small
+                                        class="text-danger"
+                                        v-show="errors.has('message')"
+                                    >
+                                        {{ errors.first("message") }}
                                     </small>
                                 </div>
                             </div>
