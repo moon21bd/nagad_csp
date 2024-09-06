@@ -21,12 +21,16 @@
                         <i class="icon-search"></i>
                     </button>
                 </form> -->
-                <div class="verified-user d-flex" :class="{ dnd: !inDNDList }">
-                    <i v-if="inDNDList" class="icon-phone-call"></i>
-                    <i v-else class="icon-slash text-danger"></i>
+                <div class="verified-user d-flex">
+                    <i class="icon-phone-call"></i>
                     <h5>
                         In Call..<span>+88{{ this.callerMobileNo }}</span>
                     </h5>
+                </div>
+
+                <div class="special-message" v-if="inDNDList">
+                    special-message:
+                    <span v-if="specialMessage">{{ specialMessage }}</span>
                 </div>
 
                 <a
@@ -417,6 +421,7 @@ export default {
     data: () => ({
         isLoading: false,
         inDNDList: false,
+        specialMessage: "",
         showPrevTickets: false,
         prevTickets: [],
         popupMessages: [],
@@ -454,6 +459,7 @@ export default {
                         .get(`/in-dnd/${mobileNo}`)
                         .then((response) => {
                             this.inDNDList = response.data.in_dnd;
+                            this.specialMessage = response.data.specialMessage;
                         })
                         .catch((error) => {
                             console.error("Error fetching DND status:", error);

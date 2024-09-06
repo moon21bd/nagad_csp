@@ -138,6 +138,7 @@ export default {
             this.isLoading = true;
             try {
                 const response = await axios.get("/userLocations");
+                console.log("response.data.data", response.data.data);
                 this.allUsers = response.data.data;
             } catch (error) {
                 console.error("Error fetching users:", error);
