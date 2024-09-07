@@ -20,7 +20,6 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Name</th>
-                                    <th>Owner</th>
                                     <th>Status</th>
                                     <th class="text-right">Action</th>
                                 </tr>
@@ -37,7 +36,6 @@
                                 >
                                     <td>{{ id }}</td>
                                     <td>{{ name }}</td>
-                                    <td>{{ owner }}</td>
                                     <td>
                                         <span
                                             :class="
@@ -50,7 +48,7 @@
                                         >
                                     </td>
                                     <td class="text-right">
-                                        <router-link
+                                        <!-- <router-link
                                             class="btn-action btn-edit"
                                             :to="{
                                                 name: 'manageGroupPermission',
@@ -58,7 +56,7 @@
                                             }"
                                         >
                                             <i class="icon-settings"></i>
-                                        </router-link>
+                                        </router-link> -->
                                         <!-- <router-link
                                             class="btn-action btn-edit"
                                             :to="{

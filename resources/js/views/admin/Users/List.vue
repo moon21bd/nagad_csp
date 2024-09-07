@@ -182,14 +182,14 @@ export default {
         }, */
         async deleteUser(id) {
             try {
-                console.log(
+                /*  console.log(
                     "hasRole",
                     this.hasRole("admin"),
                     "userRoles",
                     this.userRoles,
                     "userPermissions",
                     this.userPermissions
-                );
+                ); */
                 /* if (this.hasRole("admin")) {
                     console.log("role found");
                 } else {

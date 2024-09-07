@@ -152,9 +152,9 @@
                                         disabled
                                     />
                                     <span
-                                        v-if="errors.employee_name"
+                                        v-if="errors.name"
                                         class="text-danger"
-                                        >{{ errors.employee_name[0] }}</span
+                                        >{{ errors.name[0] }}</span
                                     >
 
                                     <div
@@ -304,6 +304,35 @@
                                 </div>
 
                                 <div class="col-md-6 form-group">
+                                    <label class="control-label"
+                                        >User Type<sup>*</sup></label
+                                    >
+
+                                    <el-select
+                                        v-model="user.user_type"
+                                        placeholder="Select Type"
+                                        name="userType"
+                                        filterable
+                                        v-validate="'required'"
+                                    >
+                                        <el-option
+                                            v-for="option in typeOptions"
+                                            :key="option.value"
+                                            :label="option.label"
+                                            :value="option.value"
+                                        >
+                                        </el-option>
+                                    </el-select>
+
+                                    <div
+                                        class="text-danger"
+                                        v-show="errors.has('userType')"
+                                    >
+                                        {{ errors.first("userType") }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 form-group">
                                     <label class="control-label">Gender</label>
                                     <div class="d-flex">
                                         <label class="radio mr-2"
@@ -315,7 +344,6 @@
                                                     user.user_details.gender
                                                 "
                                                 v-validate="'required'"
-                                                disabled
                                             /><span class="radio-mark"></span
                                             >Male
                                         </label>
@@ -328,7 +356,6 @@
                                                     user.user_details.gender
                                                 "
                                                 v-validate="'required'"
-                                                disabled
                                             /><span class="radio-mark"></span
                                             >Female
                                         </label>
@@ -405,6 +432,11 @@ export default {
             formErrors: [],
             temp_avatar: null,
             userLevels: [],
+            selectedType: "",
+            typeOptions: [
+                { value: "internal", label: "Internal" },
+                { value: "external", label: "External" },
+            ],
             user: {
                 group_id: null,
                 status: "Pending",
@@ -481,6 +513,8 @@ export default {
         },
         async handleSubmit() {
             const _this = this;
+            // console.log("_this", _this.user);
+            // return false;
             _this.$validator.validateAll().then(async (result) => {
                 if (result) {
                     axios({

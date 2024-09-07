@@ -386,6 +386,35 @@
                                     </small>
                                 </div>
 
+                                <div class="col-md-6 form-group">
+                                    <label class="control-label"
+                                        >User Type<sup>*</sup></label
+                                    >
+
+                                    <el-select
+                                        v-model="formData.selectedType"
+                                        placeholder="Select Type"
+                                        name="userType"
+                                        filterable
+                                        v-validate="'required'"
+                                    >
+                                        <el-option
+                                            v-for="option in typeOptions"
+                                            :key="option.value"
+                                            :label="option.label"
+                                            :value="option.value"
+                                        >
+                                        </el-option>
+                                    </el-select>
+
+                                    <div
+                                        class="text-danger"
+                                        v-show="errors.has('userType')"
+                                    >
+                                        {{ errors.first("userType") }}
+                                    </div>
+                                </div>
+
                                 <div class="col-md-12 form-group">
                                     <div class="d-flex align-items-center">
                                         <label class="control-label m-0 mr-3"
@@ -458,6 +487,11 @@ export default {
             temp_avatar: "/images/user-avatar.png",
             groups: [],
             formErrors: [],
+            selectedType: "",
+            typeOptions: [
+                { value: "internal", label: "Internal" },
+                { value: "external", label: "External" },
+            ],
             formData: {
                 group_id: null,
                 status: "Pending",
