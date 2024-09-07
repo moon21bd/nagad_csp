@@ -22,7 +22,7 @@
                                     <th>SL</th>
                                     <th>User</th>
                                     <th>UserID</th>
-                                    <th>Level</th>
+                                    <th>Role Level</th>
                                     <th>Email</th>
                                     <th>User Group</th>
                                     <th>Last Login</th>
@@ -103,11 +103,23 @@
                                         </router-link>
 
                                         <router-link
-                                            v-if="hasRole('superadmin')"
+                                            v-if="hasRole('superadmin|admin')"
                                             class="btn btn-action"
-                                            title="User Role Manage"
+                                            title="Reset Password"
                                             :to="{
-                                                name: 'user-roles-manage',
+                                                name: 'user-reset-password',
+                                                params: { id: item?.id },
+                                            }"
+                                        >
+                                            <i class="icon-rotate"></i>
+                                        </router-link>
+
+                                        <router-link
+                                            v-if="hasRole('superadmin|admin')"
+                                            class="btn btn-action"
+                                            title="Permissions Manage"
+                                            :to="{
+                                                name: 'user-permissions-manage',
                                                 params: { id: item?.id },
                                             }"
                                         >
@@ -173,28 +185,9 @@ export default {
     },
     methods: {
         ...mapActions("permissions", ["fetchPermissions"]),
-        /* async handleClick() {
-            if (this.hasRole("admin")) {
-                console.log("role found");
-            } else {
-                console.log("no role found");
-            }
-        }, */
+
         async deleteUser(id) {
             try {
-                /*  console.log(
-                    "hasRole",
-                    this.hasRole("admin"),
-                    "userRoles",
-                    this.userRoles,
-                    "userPermissions",
-                    this.userPermissions
-                ); */
-                /* if (this.hasRole("admin")) {
-                    console.log("role found");
-                } else {
-                    console.log("no role found");
-                } */
                 const loggedInUserId = this.$store.state.auth.user.id;
                 const user = this.users.find((user) => user.id === id);
 
@@ -210,17 +203,19 @@ export default {
                     }
 
                     if (confirm("Are you sure you want to delete this User?")) {
-                        await axios.delete(`/users/${id}`);
+                        await axios
+                            .delete(`/user/${id}/delete`)
+                            .then((response) => {
+                                this.getUsers();
+                            })
+                            .catch((error) => {
+                                console.log(error);
+                            });
                         this.fetchUsers();
                     }
                 } else {
                     alert("User not found.");
                 }
-
-                /* if (confirm("Are you sure you want to delete this User?")) {
-                    await axios.delete(`/users/${id}`);
-                    this.fetchUsers();
-                } */
             } catch (error) {
                 console.error("Error deleting user:", error);
             }

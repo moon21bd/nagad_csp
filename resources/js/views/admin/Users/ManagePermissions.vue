@@ -3,34 +3,31 @@
         <div class="common-heading d-flex align-items-center mb-3">
             <router-link
                 class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
-                :to="{ name: 'roles-index' }"
+                :to="{ name: 'user-index' }"
                 ><i class="icon-left"></i>
             </router-link>
-            <h1 class="title m-0">Assign Permissions to Role</h1>
+            <h1 class="title m-0">Assign Permissions</h1>
         </div>
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
                 <img src="/images/loader.gif" alt="Loading" />
             </div>
-            <form @submit.prevent="updateRole">
+            <form @submit.prevent="updateUserPermissions">
                 <div class="card-body">
                     <div class="form-group">
-                        <label for="roleName">Role Name</label>
+                        <label for="userName">User Name</label>
                         <input
                             type="text"
-                            id="roleName"
-                            v-model="roleName"
+                            id="userName"
+                            v-model="userName"
                             class="form-control"
-                            placeholder="Enter role name"
+                            disabled
                         />
-                        <span v-if="hasErrors" class="text-danger">{{
-                            errors.name
-                        }}</span>
                     </div>
                     <div class="permissions-assign">
                         <div
                             class="permissions-assign-box"
-                            v-for="(permissions, category) in permissionGroups"
+                            v-for="(permissions, category) in permissionUsers"
                             :key="category"
                         >
                             <h4>
@@ -87,27 +84,27 @@
 
 <script>
 export default {
-    name: "Edit",
+    name: "ManagePermissions",
     data() {
         return {
             isLoading: false,
+            id: this.$route.params.id,
             permissions: [],
-            roleName: "",
+            userName: "",
             selectedPermissions: [],
             errors: {},
-            id: this.$route.params.id,
         };
     },
     computed: {
         hasErrors() {
             return Object.keys(this.errors).length > 0;
         },
-        permissionGroups() {
-            return this.permissions.reduce((groups, permission) => {
+        permissionUsers() {
+            return this.permissions.reduce((users, permission) => {
                 const category = permission.name.split("-")[0];
-                if (!groups[category]) groups[category] = [];
-                groups[category].push(permission);
-                return groups;
+                if (!users[category]) users[category] = [];
+                users[category].push(permission);
+                return users;
             }, {});
         },
     },
@@ -157,32 +154,32 @@ export default {
                       ]),
                   ];
         },
-        async fetchRole(roleId) {
+        async fetchUser(id) {
             this.isLoading = true;
             try {
-                const { data: roleData } = await axios.get(`/roles/${roleId}`);
-                console.log("Role data:", roleData); // Log the entire response
+                const { data: userData } = await axios.get(`/user/${id}`);
+                console.log("User data:", userData);
+                // return;
 
-                this.roleName = roleData.role?.name || "";
-
-                // Ensure roleData.role.rolePermissions is an array
-                if (Array.isArray(roleData.role?.rolePermissions)) {
+                this.userName = userData.data.name || "";
+                console.log("userData.permission", userData.permissions);
+                // Ensure groupData.role.rolePermissions is an array
+                if (Array.isArray(userData.permissions)) {
                     const assignedPermissions = new Set(
-                        roleData.role.rolePermissions.map((p) => p.name)
+                        userData.permissions.map((p) => p.name)
                     );
                     this.selectedPermissions = this.permissions
                         .map((p) => p.name)
                         .filter((name) => assignedPermissions.has(name));
                 } else {
                     console.error(
-                        "Role permissions data is not in the expected format:",
-                        roleData.role?.rolePermissions
+                        "User permissions data is not in the expected format:"
                     );
                 }
             } catch (error) {
-                console.error("Error fetching role data:", error);
+                console.error("Error fetching user permissions data:", error);
 
-                this.$showToast("Error fetching role data", {
+                this.$showToast("Error fetching user permissions data", {
                     type: "error",
                 });
             } finally {
@@ -196,7 +193,7 @@ export default {
                 this.permissions = data.data || [];
 
                 if (this.$route.params.id) {
-                    await this.fetchRole(this.$route.params.id);
+                    await this.fetchUser(this.$route.params.id);
                 }
             } catch (error) {
                 console.error("Error fetching permissions:", error);
@@ -210,11 +207,7 @@ export default {
         },
         validate() {
             this.errors = {};
-            if (!this.roleName) {
-                this.errors.name = "Role name is required.";
-            } else if (this.roleName.length < 3) {
-                this.errors.name = "Role name must be at least 3 characters.";
-            }
+
             if (this.selectedPermissions.length === 0) {
                 this.$showToast("At least one permission must be selected.", {
                     type: "error",
@@ -223,24 +216,26 @@ export default {
             }
             return Object.keys(this.errors).length === 0;
         },
-        async updateRole() {
+        async updateUserPermissions() {
             if (!this.validate()) return;
 
             this.isLoading = true;
             try {
-                const { data } = await axios.put(`/roles/${this.id}`, {
-                    name: this.roleName,
-                    permissions: this.selectedPermissions,
-                });
+                const { data } = await axios.post(
+                    `/user/${this.$route.params.id}/permissions`,
+                    {
+                        permissions: this.selectedPermissions,
+                    }
+                );
 
                 this.$showToast(data.message, {
-                    type: "success",
+                    type: data.type,
                 });
-                this.$router.push({ name: "roles-index" });
+                this.$router.push({ name: "user-index" });
             } catch (error) {
-                console.error("Error updating role:", error);
+                console.error("Error updating user:", error);
 
-                this.$showToast("Error updating role", {
+                this.$showToast("Error updating user permissions", {
                     type: "error",
                 });
             } finally {

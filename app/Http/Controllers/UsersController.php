@@ -8,12 +8,16 @@ use App\Models\NCTicket;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\UserActivity;
 use App\Models\UserDetail;
 use App\Models\UserMigrationLog;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
+use Laratrust\Models\LaratrustPermission;
 
 class UsersController extends Controller
 {
@@ -260,6 +264,60 @@ class UsersController extends Controller
         ], 200);
     }
 
+    public function resetPassword(Request $request, $id)
+    {
+        try {
+            $validatedData = $request->validate([
+                'password' => 'required|string|min:8|max:25|confirmed',
+                'password_confirmation' => 'required|string|min:8|max:25',
+            ]);
+            // dd($validatedData, $id);
+            // Get the authenticated user
+            $user = User::find($id);
+            if ($user) {
+
+                $now = Carbon::now();
+
+                /* // Check if the old password is correct
+                if (!Hash::check($request->input('old_password'), $user->password)) {
+                return response()->json([
+                'message' => 'Old password is incorrect!',
+                ], Response::HTTP_NOT_FOUND);
+                } */
+
+                // Update the user's password
+                $user->password = Hash::make($request->input('password'));
+                $user->save();
+
+                // Update the user's activity log
+                UserActivity::where('user_id', $user->id)->update([
+                    'last_password_change_time' => $now,
+                    'last_update_date' => $now,
+                    'updated_at' => $now,
+                    'updator_device' => $this->agentHelper->getDeviceName(),
+                ]);
+
+                // Return a success response
+                return response()->json([
+                    'message' => 'Password updated successfully!',
+                ], Response::HTTP_OK);
+            }
+
+        } catch (ValidationException $e) {
+            // Return a detailed validation error response
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $e->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Exception $e) {
+            // Return a general error response
+            return response()->json([
+                'message' => 'An error occurred.',
+                'error' => $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     /* public function edit(Request $request, $id)
     {
     $user = User::findOrFail($id);
@@ -393,7 +451,9 @@ class UsersController extends Controller
      */
     public function destroy($id)
     {
-        $user = User::find($id);
+        // $user = User::find($id);
+        $user = User::withTrashed()->find($id); // Include soft-deleted users
+
         $user->syncRoles([]);
         $user->syncPermissions([]);
 
@@ -404,6 +464,22 @@ class UsersController extends Controller
             'message' => 'User Deleted.',
             'data' => '',
         ], 200);
+    }
+
+    public function restore($id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+        $user->restore(); // Restores the user
+
+        return response()->json(['message' => 'User restored successfully.']);
+    }
+
+    public function destroyPermanently($id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+        $user->forceDelete(); // Permanently deletes the user
+
+        return response()->json(['message' => 'User permanently deleted.']);
     }
 
     public function assignRoles(Request $request, $id)
@@ -432,6 +508,40 @@ class UsersController extends Controller
         $role = Role::findOrFail($roleId);
         $user->detachRole($role);
         return response()->json(['message' => 'Role removed successfully.']);
+    }
+
+    public function assignPermission(Request $request, $id)
+    {
+        $user = User::find($id);
+
+        dd($request->all(), $id);
+        // Get the IDs of the permissions being requested
+
+        $permissionIds = LaratrustPermission::whereIn('name', $request->permissions)->pluck('id')->toArray();
+
+        // Get the IDs of the existing permissions for the user
+        $existingPermissionIds = $user->permissions->pluck('id')->toArray();
+
+        // Determine which permissions to attach (new ones)
+        $newPermissions = array_diff($permissionIds, $existingPermissionIds);
+
+        // Determine which permissions to detach (removed ones)
+        $permissionsToDetach = array_diff($existingPermissionIds, $permissionIds);
+
+        // Attach new permissions
+        if (!empty($newPermissions)) {
+            $user->permissions()->attach($newPermissions);
+        }
+
+        // Detach permissions that were removed
+        if (!empty($permissionsToDetach)) {
+            $user->permissions()->detach($permissionsToDetach);
+        }
+
+        return response()->json([
+            'message' => 'Permissions updated successfully',
+            'type' => 'success',
+        ]);
     }
 
     public function getUserLocation()
