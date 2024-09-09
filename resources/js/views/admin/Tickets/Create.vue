@@ -1,7 +1,15 @@
 <template>
     <div class="card mb-4">
         <div class="card-header">
-            <h1 class="title mb-3">Customer Information</h1>
+            <h1 class="title mb-3">
+                Customer Information
+                <small class="special-message pl-2" v-if="inDNDList">
+                    <span v-if="specialMessage">
+                        <i class="icon-alert-triangle text-danger"></i>
+                        {{ specialMessage }}
+                    </span>
+                </small>
+            </h1>
             <div class="d-flex align-items-center">
                 <!-- do not delete this -->
                 <!-- <form action="" class="verify-user mr-0 mr-md-3">
@@ -26,11 +34,6 @@
                     <h5>
                         In Call..<span>+88{{ this.callerMobileNo }}</span>
                     </h5>
-                </div>
-
-                <div class="special-message" v-if="inDNDList">
-                    special-message:
-                    <span v-if="specialMessage">{{ specialMessage }}</span>
                 </div>
 
                 <a
@@ -267,24 +270,22 @@
                             </div>
                         </div>
 
-                        <div class="form-row">
-                            <div
-                                v-if="
-                                    serviceTypeConfigs?.is_show_popup_msg ===
-                                    'yes'
-                                "
-                                class="alert alert-danger mt-3"
-                            >
-                                <p>Important Messages:</p>
-                                <ul>
-                                    <li
-                                        v-for="(msg, index) in popupMessages"
-                                        :key="index"
-                                    >
-                                        {{ msg }}
-                                    </li>
-                                </ul>
-                            </div>
+                        <div
+                            v-if="
+                                serviceTypeConfigs?.is_show_popup_msg === 'yes'
+                            "
+                            class="ticket-item popupMessages"
+                        >
+                            <h2 class="sub-title">Important Messages</h2>
+                            <ul class="m-0 pl-3">
+                                <li
+                                    class="py-1"
+                                    v-for="(msg, index) in popupMessages"
+                                    :key="index"
+                                >
+                                    {{ msg }}
+                                </li>
+                            </ul>
                         </div>
 
                         <div class="form-row">
@@ -752,3 +753,8 @@ export default {
     },
 };
 </script>
+<style>
+.popupMessages ul li {
+    font-size: 14px;
+}
+</style>

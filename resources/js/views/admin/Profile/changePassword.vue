@@ -9,13 +9,13 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                         <form
                             class="user"
                             ref="changePasswordForm"
                             @submit.prevent="changePassword"
                         >
-                            <div class="col-md-4 form-group">
+                            <div class="form-group">
                                 <label class="control-label"
                                     >Old Password</label
                                 >
@@ -53,7 +53,7 @@
                                     </small>
                                 </div>
                             </div>
-                            <div class="col-md-4 form-group">
+                            <div class="form-group">
                                 <label class="control-label">Password</label>
                                 <div class="password">
                                     <input
@@ -89,7 +89,7 @@
                                     </small>
                                 </div>
                             </div>
-                            <div class="col-md-4 form-group">
+                            <div class="form-group">
                                 <label class="control-label"
                                     >Confirm Password</label
                                 >
@@ -129,7 +129,6 @@
                                     {{ errors.first("password_confirmation") }}
                                 </small>
                             </div>
-
                             <!-- Error Messages -->
                             <div
                                 v-if="apiErrors.length"
@@ -142,7 +141,10 @@
                                 </ul>
                             </div>
                             <div>
-                                <button type="submit" class="btn btn-site">
+                                <button
+                                    type="submit"
+                                    class="btn btn-site btn-sm"
+                                >
                                     Change Password
                                 </button>
                             </div>
@@ -156,7 +158,6 @@
 
 <script>
 import axios from "../../../axios.js";
-import * as notify from "../../../utils/notify.js";
 
 export default {
     name: "Reset",
@@ -241,3 +242,9 @@ export default {
     },
 };
 </script>
+<style>
+form.user .btn {
+    padding: 0.85rem 1rem;
+    min-width: 170px;
+}
+</style>

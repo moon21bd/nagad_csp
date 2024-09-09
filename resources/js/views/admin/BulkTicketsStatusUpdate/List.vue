@@ -72,8 +72,8 @@
 <script>
 import "datatables.net-dt/css/jquery.dataTables.min.css";
 import "datatables.net-dt/js/dataTables.dataTables";
-import noData from "../components/noData.vue";
 import axios from "../../../axios";
+import noData from "../components/noData.vue";
 
 export default {
     components: {
@@ -128,7 +128,7 @@ export default {
                             data: "excel_file_url",
                             render: function (data) {
                                 return data
-                                    ? `<a href="${data}" target="_blank" class="text-decoration-underline">Download</a>`
+                                    ? `<a href="${data}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="icon-download mr-1"></i>Download</a>`
                                     : "";
                             },
                         },

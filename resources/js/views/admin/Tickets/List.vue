@@ -98,7 +98,7 @@
                                                 name: 'ticket-timeline',
                                                 params: { id: item.id },
                                             }"
-                                            ><i class="icon-ticket-fill"></i
+                                            ><i class="icon-tickets"></i
                                         ></router-link>
                                         <a
                                             v-if="
@@ -125,9 +125,9 @@
 <script>
 import "datatables.net-dt/css/jquery.dataTables.min.css";
 import "datatables.net-dt/js/dataTables.dataTables";
-import noData from "../components/noData.vue";
-import { formatDateTime } from "../../../utils/common";
 import PermissionsComponent from "../../../components/PermissionsComponent.vue";
+import { formatDateTime } from "../../../utils/common";
+import noData from "../components/noData.vue";
 
 export default {
     components: {

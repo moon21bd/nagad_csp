@@ -40,7 +40,7 @@
 
                             <div class="">
                                 <a
-                                    class="btn btn-sm btn-success"
+                                    class="btn btn-outline-secondary"
                                     href="/templates/bulk_ticket_create_sample.xlsx"
                                     download
                                     target="_blank"
