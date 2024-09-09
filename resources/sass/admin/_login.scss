@@ -4,21 +4,82 @@
 .login {
     &-container {
         display: grid;
-        grid-template-columns: 480px 1fr;
+        grid-template-columns: 1fr 1fr;
+        background: -webkit-linear-gradient(#f37f2b, #b12702);
+        position: relative;
+        z-index: 1;
+        overflow: hidden;
+        &::before {
+            color: rgba($white, 0.08);
+            font-family: "nagad";
+            font-size: 296px;
+            font-size: clamp(196px, 21vw, 296px);
+            display: block;
+            content: "\e900";
+            z-index: -1;
+            position: absolute;
+            left: -30px;
+            bottom: -30px;
+            line-height: 1;
+        }
     }
-    &-img {
+    &-content {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        justify-content: space-around;
+        max-width: 360px;
+        margin: auto;
+
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        p {
+            font-size: 14px;
+            line-height: 24px;
+        }
+        .design {
+            font-size: 14px;
+            a {
+                color: $white;
+                font-weight: 600;
+            }
+        }
+
         img {
-            object-fit: cover;
+            height: 120px;
         }
     }
     &-box {
-        h1 {
-            color: $black;
-            font-weight: 700;
-            font-size: 36px;
+        background: $white;
+        align-self: stretch;
+        // display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        &-inner {
+            width: 480px;
         }
-        img {
-            height: 64px;
+        &::before {
+            height: 100%;
+            content: "";
+            width: 177px;
+            background: url("/images/login-bubble.svg") no-repeat;
+            position: absolute;
+            right: 100%;
+            top: 0;
+            z-index: 999;
+            background-size: cover;
+        }
+        h1 {
+            color: #f56530;
+            font-weight: 600;
+            font-size: 30px;
+        }
+        a {
+            color: #f56530;
+            font-weight: 500;
         }
     }
 }
@@ -30,14 +91,14 @@ form.user {
     }
 
     .form-control-user {
-        font-size: 0.8rem;
-        padding: 1.5rem 1rem;
+        padding: 1rem 1rem;
     }
 
     .btn {
-        padding: 0.75rem 1rem;
-        background: $red;
+        padding: 1rem 1rem;
+        background: #f56530;
         color: $white;
-        border-radius: 30px;
+        border-radius: 8px;
+        min-width: 200px;
     }
 }

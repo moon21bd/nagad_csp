@@ -1,53 +1,45 @@
 <template>
-    <div class="login-container align-items-center">
-        <div class="login-img vh-100 align-self-start">
-            <img
-                class="img-fluid vh-100"
-                src="/images/login-bg-sm.png"
-                alt=""
-            />
-            <!-- <img
-              class="img-fluid vh-100"
-              src="https://images.unsplash.com/photo-1719776049588-e1997c9066dd?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-              alt=""
-          /> -->
+    <div class="login-container vh-100 align-items-center">
+        <div class="login-content text-center text-white">
+            <h2>Welcome to</h2>
+            <img src="/images/logo-white.svg" alt="" />
+            <p>
+                With the love of crores of people Nagad won Most Emerging Brand
+                of Bangladesh {{ new Date().getFullYear() }}
+            </p>
+            <div class="design">Design by <a href="#">DIGICON</a></div>
         </div>
-        <div class="login-box">
-            <div class="d-flex justify-content-center">
-                <div class="col-md-7 col-xl-7">
-                    <img src="/images/logo.svg" alt="" />
-
-                    <div v-if="!emailSent">
-                        <h1 class="my-4">Forgot Password?</h1>
-
-                        <form class="user" @submit.prevent="forgot">
-                            <div class="form-group">
-                                <input
-                                    type="email"
-                                    class="form-control form-control-user"
-                                    aria-describedby="emailHelp"
-                                    placeholder="Enter Email Address..."
-                                    v-model="email"
-                                />
-                            </div>
-                            <LoadingButton
-                                text="Reset password"
-                                v-bind:isLoading="isLoading"
+        <div class="login-box d-flex vh-100 align-items-center">
+            <div class="login-box-inner">
+                <div v-if="!emailSent">
+                    <h1 class="my-4">Forgot Password?</h1>
+                    <form class="user" @submit.prevent="forgot">
+                        <div class="form-group">
+                            <input
+                                type="email"
+                                class="form-control form-control-user"
+                                aria-describedby="emailHelp"
+                                placeholder="Enter Email Address..."
+                                v-model="email"
                             />
-                        </form>
-                    </div>
-                    <div v-else>
-                        <span class="h4">
-                            <i class="icon-check"></i>
-                            Check your email!
-                        </span>
-                    </div>
+                        </div>
+                        <LoadingButton
+                            text="Reset password"
+                            v-bind:isLoading="isLoading"
+                        />
+                    </form>
+                </div>
+                <div v-else>
+                    <span class="h4">
+                        <i class="icon-check"></i>
+                        Check your email!
+                    </span>
+                </div>
 
-                    <div class="text-center">
-                        <router-link class="small" :to="{ name: 'login' }"
-                            >Already have an account? Login!</router-link
-                        >
-                    </div>
+                <div class="text-center">
+                    <router-link class="small" :to="{ name: 'login' }"
+                        >Already have an account? Login!</router-link
+                    >
                 </div>
             </div>
         </div>
