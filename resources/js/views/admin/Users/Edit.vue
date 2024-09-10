@@ -333,7 +333,9 @@
                                 </div>
 
                                 <div class="col-md-6 form-group">
-                                    <label class="control-label">Gender</label>
+                                    <label class="control-label"
+                                        >Gender<sup>*</sup></label
+                                    >
                                     <div class="d-flex">
                                         <label class="radio mr-2"
                                             ><input
@@ -369,7 +371,9 @@
                                 </div>
                                 <div></div>
                                 <div class="col-md-6 form-group">
-                                    <label class="control-label">Status</label>
+                                    <label class="control-label"
+                                        >Status<sup>*</sup></label
+                                    >
                                     <div class="d-flex">
                                         <label class="radio mr-2"
                                             ><input
