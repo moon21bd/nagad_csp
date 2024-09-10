@@ -3,7 +3,7 @@
         <div class="common-heading d-flex align-items-center mb-3">
             <router-link
                 class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
-                :to="{ name: 'dnd-user-index' }"
+                :to="{ name: 'customer-profile-index' }"
                 ><i class="icon-left"></i>
             </router-link>
             <h1 class="title m-0">Update Customer Profile</h1>
@@ -176,7 +176,9 @@ export default {
                             Vue.prototype.$showToast(response.data.message, {
                                 type: "success",
                             });
-                            _this.$router.push({ name: "dnd-user-index" });
+                            _this.$router.push({
+                                name: "customer-profile-index",
+                            });
                         })
                         .catch((errors) => {
                             console.log(

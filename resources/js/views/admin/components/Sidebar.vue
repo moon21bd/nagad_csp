@@ -14,7 +14,10 @@
                 class="el-menu-vertical-demo"
                 :unique-opened="true"
             >
-                <el-menu-item index="dashboard">
+                <el-menu-item
+                    index="dashboard"
+                    v-if="hasPermission('dashboard')"
+                >
                     <router-link :to="{ name: 'admin' }">
                         <i class="icon-grid"></i>
                         <span>Dashboard</span>
@@ -142,10 +145,10 @@
                         </router-link>
                     </el-menu-item>
 
-                    <el-menu-item index="dnd-user-index">
-                        <router-link :to="{ name: 'dnd-user-index' }">
+                    <el-menu-item index="customer-profile-index">
+                        <router-link :to="{ name: 'customer-profile-index' }">
                             <i class="icon-user-x"></i>
-                            <span>DnD Users</span>
+                            <span>Customer Profiles</span>
                         </router-link>
                     </el-menu-item>
 

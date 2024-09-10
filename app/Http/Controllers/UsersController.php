@@ -174,8 +174,9 @@ class UsersController extends Controller
      */
     public function getUserById($id)
     {
-        $user = User::with(['group', 'user_activity', 'user_details'])->find($id);
+        $user = User::with(['group', 'user_activity', 'user_details', 'roles.permissions'])->find($id);
         $user->allPermissions();
+
         $user->levels = $this->getUserLevels();
 
         // $userData = $user->only(['id', 'uuid', 'group_id', 'level', 'parent_id', 'mobile_no', 'name', 'avatar', 'email', 'status']);
@@ -510,37 +511,60 @@ class UsersController extends Controller
         return response()->json(['message' => 'Role removed successfully.']);
     }
 
+/*     public function assignPermission(Request $request, $id)
+{
+$request->validate([
+'permissions' => 'required|array',
+'permissions.*' => 'exists:permissions,name',
+]);
+
+$user = User::find($id);
+
+// Get the permission IDs based on the provided permission names
+$permissionIds = LaratrustPermission::whereIn('name', $request->permissions)
+->pluck('id')
+->toArray();
+
+// Using syncPermissions to automatically handle attaching and detaching permissions
+$user->syncPermissions($permissionIds);
+
+return response()->json([
+'message' => 'Permissions updated successfully',
+'type' => 'success',
+]);
+} */
+
     public function assignPermission(Request $request, $id)
     {
+        $request->validate([
+            'permissions' => 'required|array',
+            'permissions.*' => 'exists:permissions,name',
+        ]);
+
         $user = User::find($id);
 
-        dd($request->all(), $id);
-        // Get the IDs of the permissions being requested
-
-        $permissionIds = LaratrustPermission::whereIn('name', $request->permissions)->pluck('id')->toArray();
-
-        // Get the IDs of the existing permissions for the user
-        $existingPermissionIds = $user->permissions->pluck('id')->toArray();
-
-        // Determine which permissions to attach (new ones)
-        $newPermissions = array_diff($permissionIds, $existingPermissionIds);
-
-        // Determine which permissions to detach (removed ones)
-        $permissionsToDetach = array_diff($existingPermissionIds, $permissionIds);
-
-        // Attach new permissions
-        if (!empty($newPermissions)) {
-            $user->permissions()->attach($newPermissions);
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found.',
+                'type' => 'error',
+            ], 404);
         }
 
-        // Detach permissions that were removed
-        if (!empty($permissionsToDetach)) {
-            $user->permissions()->detach($permissionsToDetach);
-        }
+        // Get the permission IDs based on the provided permission names
+        $permissionIds = LaratrustPermission::whereIn('name', $request->permissions)
+            ->pluck('id')
+            ->toArray();
+
+        // Log permission IDs for debugging
+        \Log::info('Permission IDs:', $permissionIds);
+
+        // Sync permissions
+        $user->syncPermissions($permissionIds);
 
         return response()->json([
             'message' => 'Permissions updated successfully',
             'type' => 'success',
+            'permissions' => $user->permissions->pluck('name'), // Return current permissions
         ]);
     }
 
@@ -629,6 +653,47 @@ class UsersController extends Controller
     {
         $level = array_search($level, array_column($this->userLevels, 'value'));
         return $level !== false ? $this->userLevels[$level]['label'] : 'UNKNOWN';
+    }
+
+    // UserController.php
+    public function getUserPermissions($id)
+    {
+        $user = User::find($id);
+
+        // Ensure user exists
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        // Retrieve permissions
+        $permissions = $user->permissions->pluck('name'); // Adjust according to your actual permissions relationship
+        // dd($permissions);
+        return response()->json([
+            'permissions' => $permissions,
+        ]);
+    }
+
+    public function getUserPermissionsCount()
+    {
+        $user = auth()->user();
+
+        // Get the count of direct permissions
+        $directPermissionsCount = $user->permissions()->count();
+
+        // Get the count of permissions via roles
+        $rolePermissionsCount = $user->roles->map(function ($role) {
+            return $role->permissions()->count();
+        })->sum();
+
+        // Total permissions count (direct + via roles)
+        $totalPermissionsCount = $directPermissionsCount + $rolePermissionsCount;
+
+        return response()->json([
+            'user' => $user->name,
+            'direct_permissions_count' => $directPermissionsCount,
+            'role_permissions_count' => $rolePermissionsCount,
+            'total_permissions_count' => $totalPermissionsCount,
+        ]);
     }
 
 }

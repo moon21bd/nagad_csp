@@ -2,7 +2,7 @@ export default [
     {
         path: "/admin",
         name: "admin",
-        component: () => import("../views/admin/dashboard.vue"),
+        component: () => import("../views/admin/admin-blank.vue"),
         meta: {
             requiresAuth: true,
         },
@@ -12,6 +12,7 @@ export default [
         name: "home",
         component: () => import("../views/admin/dashboard.vue"),
         meta: {
+            requiresPermission: "dashboard",
             requiresAuth: true,
         },
     },

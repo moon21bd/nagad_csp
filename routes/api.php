@@ -142,7 +142,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::put('user/{id}/reset-password', [UsersController::class, 'resetPassword']);
     Route::post('usersdata/save', [UsersController::class, 'store']);
     Route::delete('user/{id}/delete', [UsersController::class, 'destroy']);
-    Route::post('/user/permissions/{id}', [UsersController::class, 'assignPermission']);
+    Route::post('user/{id}/permissions', [UsersController::class, 'assignPermission']);
+    Route::get('/user/{id}/permissions', [UsersController::class, 'getUserPermissions']);
 
     // APPLICATION RELATED ROUTES
     Route::get('get-category/{id}', [NCCallCategoryController::class, 'getActiveCategoryByCallTypeId']);
