@@ -4,7 +4,7 @@
             <h1 class="title">Customer Profiles</h1>
             <router-link
                 class="btn btn-site ml-auto"
-                :to="{ name: 'dnd-user-create' }"
+                :to="{ name: 'customer-profile-create' }"
                 ><i class="icon-plus"></i> New
             </router-link>
         </div>
@@ -47,7 +47,7 @@
                                         <router-link
                                             class="btn-action btn-edit"
                                             :to="{
-                                                name: 'dnd-user-edit',
+                                                name: 'customer-profile-edit',
                                                 params: { id: item.id },
                                             }"
                                             ><i class="icon-edit-pen"></i
@@ -96,7 +96,7 @@ export default {
                     this.fetchDnDUsers();
                 }
             } catch (error) {
-                console.error("Error deleting dnd users:", error);
+                console.error("Error deleting customer profile:", error);
             }
         },
         async fetchDnDUsers() {
@@ -105,7 +105,7 @@ export default {
                 const response = await axios.get("/dnd-user");
                 this.dndUsers = response.data;
             } catch (error) {
-                console.error("Error fetching dnd user:", error);
+                console.error("Error fetching customer profile:", error);
             } finally {
                 this.isLoading = false;
             }

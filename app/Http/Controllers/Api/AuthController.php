@@ -164,6 +164,7 @@ class AuthController extends Controller
             'avatar' => 'nullable|string',
             'email' => 'required|string|email|unique:users',
             'password' => 'required|min:8|max:25',
+            'selectedType' => 'required|string',
         ];
     }
 
@@ -190,6 +191,7 @@ class AuthController extends Controller
             'parent_id' => $data['parent_id'] ?? 0,
             'level' => $data['level'],
             'group_id' => $data['group_id'],
+            'user_type' => $data['selectedType'],
             'employee_user_id' => $data['employee_user_id'],
             'mobile_no' => $data['mobile_no'],
             'email' => $data['email'],
@@ -376,7 +378,7 @@ class AuthController extends Controller
                 }
 
                 // Check if the user belongs to a group that requires location prompting
-                if (in_array($user->group_id, $this->requiresLocationGroups)) {
+                if (config('nagad.is_requires_location') && in_array($user->group_id, $this->requiresLocationGroups)) {
                     return response(['message' => 'Location is required.', 'requiresLocation' => true, 'user' => $user]);
                 }
 

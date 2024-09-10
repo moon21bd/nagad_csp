@@ -95,6 +95,7 @@ export default {
             roleName: "",
             selectedPermissions: [],
             errors: {},
+            id: this.$route.params.id,
         };
     },
     computed: {
@@ -227,16 +228,13 @@ export default {
 
             this.isLoading = true;
             try {
-                const { data } = await axios.put(
-                    `/roles/${this.$route.params.id}`,
-                    {
-                        name: this.roleName,
-                        permissions: this.selectedPermissions,
-                    }
-                );
+                const { data } = await axios.put(`/roles/${this.id}`, {
+                    name: this.roleName,
+                    permissions: this.selectedPermissions,
+                });
 
                 this.$showToast(data.message, {
-                    type: "error",
+                    type: "success",
                 });
                 this.$router.push({ name: "roles-index" });
             } catch (error) {

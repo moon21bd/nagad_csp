@@ -68,12 +68,12 @@ class DNDUserController extends Controller
 
             return response()->json([
                 'title' => 'Success.',
-                'message' => 'DnD User created',
+                'message' => 'Customer Profile created',
                 'data' => $dndUser,
             ], 200);
 
         } catch (\Exception $e) {
-            Log::error('DND-USER-REGISTRATION-ERROR: ' . $e->getMessage());
+            Log::error('CUSTOMER-PROFILE-REGISTRATION-ERROR: ' . $e->getMessage());
 
             return response()->json([
                 'title' => 'Failed to register.',
@@ -147,13 +147,13 @@ class DNDUserController extends Controller
             // Return success response
             return response()->json([
                 'title' => 'Success.',
-                'message' => 'DnD User updated',
+                'message' => 'Customer Profile updated',
                 'data' => $dndUser,
             ], 200);
 
         } catch (\Exception $e) {
             // Log the error and return failure response
-            Log::error('DND-USER-UPDATE-ERROR: ' . $e->getMessage());
+            Log::error('CUSTOMER-PROFILE-UPDATE-ERROR: ' . $e->getMessage());
 
             return response()->json([
                 'title' => 'Failed to update.',

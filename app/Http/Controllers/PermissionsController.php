@@ -151,20 +151,15 @@ class PermissionsController extends Controller
     {
 
         $user = auth()->user();
-        $user->load('permissions', 'group.permissions');
+        $user->load('permissions');
 
         $userPermissions = $user->permissions->pluck('name');
 
-        $groupPermissions = collect([]);
-        if ($user->group) {
-            $groupPermissions = $user->group->permissions->pluck('name');
-        }
-
-        $allPermissions = $userPermissions->merge($groupPermissions)->unique();
+        // dd($userPermissions);
 
         return response()->json([
             'user' => $user->name,
-            'permissions' => $allPermissions,
+            'permissions' => $userPermissions,
             'roles' => $user->roles->pluck('name'),
         ]);
 

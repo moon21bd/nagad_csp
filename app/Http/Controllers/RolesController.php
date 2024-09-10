@@ -131,6 +131,7 @@ class RolesController extends Controller
             ];
             $role->update($data);
             $role->syncPermissions($request->permissions ?? []);
+            return response()->json(['message' => 'Role updated.'], 200);
 
         } catch (ModelNotFoundException $e) {
             return response()->json(['error' => 'Role not found'], 404);
