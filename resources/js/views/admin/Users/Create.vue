@@ -284,6 +284,7 @@
                                         {{ errors.first("email") }}
                                     </small>
                                 </div>
+
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
                                         >Password<sup>*</sup></label
@@ -293,6 +294,7 @@
                                         <input
                                             id="password"
                                             name="password"
+                                            @input="checkPasswordStrength"
                                             v-model="formData.password"
                                             class="form-control"
                                             placeholder="Password"
@@ -303,7 +305,7 @@
                                                     : 'password'
                                             "
                                             v-validate="
-                                                'required|min:8|max:25|alpha_num'
+                                                'required|min:8|max:25|password_format|strong_password'
                                             "
                                         />
                                         <span
@@ -319,6 +321,9 @@
                                             ></i>
                                         </span>
                                     </div>
+                                    <p v-if="passwordStrength">
+                                        Strength: {{ passwordStrengthText }}
+                                    </p>
                                     <small
                                         class="text-danger"
                                         v-show="errors.has('password')"
@@ -361,13 +366,14 @@
                                             ></i>
                                         </span>
                                     </div>
+                                    <small
+                                        class="text-danger"
+                                        v-show="errors.has('confirmPassword')"
+                                    >
+                                        {{ errors.first("confirmPassword") }}
+                                    </small>
                                 </div>
-                                <small
-                                    class="text-danger"
-                                    v-show="errors.has('confirmPassword')"
-                                >
-                                    {{ errors.first("confirmPassword") }}
-                                </small>
+
                                 <div class="col-md-12 form-group">
                                     <label class="control-label"
                                         >Address<sup>*</sup></label
@@ -477,6 +483,27 @@
 
 <script>
 import axios from "../../../axios";
+import zxcvbn from "zxcvbn";
+import { Validator } from "vee-validate";
+
+Validator.extend("password_format", {
+    getMessage: (field) =>
+        `${field} must include at least one uppercase letter, one lowercase letter, one number, and one special character.`,
+    validate: (value) => {
+        const regex =
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,25}$/;
+        console.log("Regex validation result:", regex.test(value)); // Add logging
+        return regex.test(value);
+    },
+});
+
+Validator.extend("strong_password", {
+    getMessage: (field) => `${field} must be strong enough.`,
+    validate: (value) => {
+        const result = zxcvbn(value);
+        return result.score >= 2; // Require at least "Fair" password strength (score 2 or higher)
+    },
+});
 
 export default {
     data() {
@@ -485,6 +512,7 @@ export default {
             showPassword: false,
             confirmPassword: false,
             temp_avatar: "/images/user-avatar.png",
+            passwordStrength: 0,
             groups: [],
             formErrors: [],
             selectedType: "",
@@ -520,8 +548,25 @@ export default {
         groupValidationRule() {
             return this.formData.level !== 1 ? "required" : "";
         },
+        passwordStrengthText() {
+            const strengthLevels = [
+                "Very Weak",
+                "Weak",
+                "Fair",
+                "Strong",
+                "Very Strong",
+            ];
+            return strengthLevels[this.passwordStrength];
+        },
     },
     methods: {
+        checkPasswordStrength() {
+            const result = zxcvbn(this.formData.password);
+            this.passwordStrength = result.score;
+
+            // Trigger validation
+            this.$validator.validate("password");
+        },
         async fetchUsers() {
             try {
                 const response = await axios.get("/users");
@@ -558,7 +603,11 @@ export default {
         async handleSubmit() {
             const _this = this;
             _this.$validator.validateAll().then(async (validated) => {
-                if (validated) {
+                // if (validated) {
+                if (validated && this.passwordStrength >= 2) {
+                    // Require minimum "Fair" strength
+                    // Proceed with form submission if validated and password strength is sufficient
+
                     // console.log("formData", _this.formData);
                     // return;
                     axios({
@@ -594,6 +643,11 @@ export default {
                         .finally(() => {
                             _this.isLoading = false;
                         });
+                } else if (this.passwordStrength < 2) {
+                    // Show error if password is too weak
+                    _this.formErrors.push(
+                        "Password strength is too weak. Please choose a stronger password."
+                    );
                 }
             });
         },

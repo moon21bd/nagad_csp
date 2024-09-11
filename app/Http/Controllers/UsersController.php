@@ -5,6 +5,7 @@ use App\Helpers\AgentHelper;
 use App\Http\Controllers\Controller;
 use App\Models\Group;
 use App\Models\NCTicket;
+use App\Models\PasswordHistory;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -269,25 +270,46 @@ class UsersController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'password' => 'required|string|min:8|max:25|confirmed',
+                'password' => [
+                    'required',
+                    'string',
+                    'min:8', // Minimum length
+                    'regex:/[a-z]/', // At least one lowercase letter
+                    'regex:/[A-Z]/', // At least one uppercase letter
+                    'regex:/[0-9]/', // At least one digit
+                    'regex:/[@$!%*?&#]/', // At least one special character
+                    'confirmed', // Match with password_confirmation
+                ],
                 'password_confirmation' => 'required|string|min:8|max:25',
             ]);
-            // dd($validatedData, $id);
-            // Get the authenticated user
+
+            // Get the user by ID
             $user = User::find($id);
             if ($user) {
-
                 $now = Carbon::now();
 
-                /* // Check if the old password is correct
-                if (!Hash::check($request->input('old_password'), $user->password)) {
-                return response()->json([
-                'message' => 'Old password is incorrect!',
-                ], Response::HTTP_NOT_FOUND);
-                } */
+                // Check for password reuse
+                $oldPasswords = PasswordHistory::where('user_id', $user->id)->get();
+                $newHashedPassword = Hash::make($request->input('password'));
+
+                foreach ($oldPasswords as $oldPassword) {
+                    // Check if the new hashed password matches any old hashed passwords
+                    if (Hash::check($request->input('password'), $oldPassword->password)) {
+                        return response()->json([
+                            'message' => 'You cannot reuse your old password.',
+                        ], Response::HTTP_PRECONDITION_FAILED);
+                    }
+                }
+
+                // Save the old password to the password history table
+                PasswordHistory::create([
+                    'user_id' => $user->id,
+                    'password' => $newHashedPassword, // Store current password (hashed)
+                ]);
 
                 // Update the user's password
-                $user->password = Hash::make($request->input('password'));
+                $user->password = $newHashedPassword;
+                $user->password_changed_at = $now;
                 $user->save();
 
                 // Update the user's activity log
@@ -318,6 +340,87 @@ class UsersController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    /* public function resetPassword(Request $request, $id)
+    {
+    try {
+    $validatedData = $request->validate([
+    // 'password' => 'required|string|min:8|max:25|confirmed',
+    'password' => [
+    'required',
+    'string',
+    'min:8', // Minimum length
+    'regex:/[a-z]/', // At least one lowercase letter
+    'regex:/[A-Z]/', // At least one uppercase letter
+    'regex:/[0-9]/', // At least one digit
+    'regex:/[@$!%*?&#]/', // At least one special character
+    'confirmed', // Match with password_confirmation
+    ],
+    'password_confirmation' => 'required|string|min:8|max:25',
+    ]);
+
+    // dd($validatedData, $id);
+    // Get the authenticated user
+    $user = User::find($id);
+    if ($user) {
+
+    $now = Carbon::now();
+
+    // Check for password reuse
+    $oldPasswords = PasswordHistory::where('user_id', $user->id)->get();
+
+    foreach ($oldPasswords as $oldPassword) {
+    // dd($request->password,
+    //     $oldPassword->password, Hash::check($request->password, $oldPassword->password));
+    if (Hash::check($request->password, $oldPassword->password)) {
+    // return back()->withErrors(['password' => '']);
+
+    return response()->json([
+    'message' => 'You cannot reuse their old password.',
+    ], Response::HTTP_OK);
+
+    }
+    }
+
+    // Save the old password to the password history table
+    PasswordHistory::create([
+    'user_id' => $user->id,
+    'password' => $user->password, // Store current password (hashed)
+    ]);
+
+    // Update the user's password
+    $user->password = Hash::make($request->input('password'));
+    $user->password_changed_at = $now;
+    $user->save();
+
+    // Update the user's activity log
+    UserActivity::where('user_id', $user->id)->update([
+    'last_password_change_time' => $now,
+    'last_update_date' => $now,
+    'updated_at' => $now,
+    'updator_device' => $this->agentHelper->getDeviceName(),
+    ]);
+
+    // Return a success response
+    return response()->json([
+    'message' => 'Password updated successfully!',
+    ], Response::HTTP_OK);
+    }
+
+    } catch (ValidationException $e) {
+    // Return a detailed validation error response
+    return response()->json([
+    'message' => 'The given data was invalid.',
+    'errors' => $e->errors(),
+    ], Response::HTTP_UNPROCESSABLE_ENTITY);
+    } catch (\Exception $e) {
+    // Return a general error response
+    return response()->json([
+    'message' => 'An error occurred.',
+    'error' => $e->getMessage(),
+    ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+    } */
 
     /* public function edit(Request $request, $id)
     {
@@ -425,7 +528,17 @@ class UsersController extends Controller
             $post_data = $request->validate([
                 'name' => 'required|string',
                 'email' => 'required|string|email|unique:users',
-                'password' => 'required|min:8',
+                // 'password' => 'required|min:8',
+                'password' => [
+                    'required',
+                    'string',
+                    'min:8', // Minimum length
+                    'regex:/[a-z]/', // At least one lowercase letter
+                    'regex:/[A-Z]/', // At least one uppercase letter
+                    'regex:/[0-9]/', // At least one digit
+                    'regex:/[@$!%*?&#]/', // At least one special character
+                    // 'confirmed', // Match with password_confirmation
+                ],
             ]);
 
             $user = User::create([

@@ -16,7 +16,9 @@
                             @submit.prevent="resetPassword"
                         >
                             <div class="col-md-4 form-group">
-                                <label class="control-label">Password</label>
+                                <label class="control-label"
+                                    >Password<sup>*</sup></label
+                                >
                                 <div class="password">
                                     <input
                                         id="password"
@@ -29,8 +31,9 @@
                                             showPassword ? 'text' : 'password'
                                         "
                                         v-validate="
-                                            'required|min:8|max:25|alpha_num'
+                                            'required|min:8|max:25|password_format|strong_password'
                                         "
+                                        @input="checkPasswordStrength"
                                     />
                                     <span
                                         class="password-toggle"
@@ -44,6 +47,9 @@
                                         ></i>
                                     </span>
                                 </div>
+                                <p v-if="passwordStrength">
+                                    Strength: {{ passwordStrengthText }}
+                                </p>
                                 <small
                                     class="text-danger"
                                     v-show="errors.has('password')"
@@ -53,7 +59,7 @@
                             </div>
                             <div class="col-md-4 form-group">
                                 <label class="control-label"
-                                    >Confirm Password</label
+                                    >Confirm Password<sup>*</sup></label
                                 >
                                 <div class="password">
                                     <input
@@ -93,16 +99,22 @@
                             </div>
 
                             <!-- Error Messages -->
-                            <div
-                                v-if="apiErrors.length"
-                                class="alert alert-danger mt-3"
-                            >
-                                <ul>
-                                    <li v-for="error in apiErrors" :key="error">
-                                        {{ error }}
-                                    </li>
-                                </ul>
+                            <div class="col-md-4 form-group">
+                                <div
+                                    v-if="apiErrors.length"
+                                    class="alert alert-danger mt-3"
+                                >
+                                    <ul>
+                                        <li
+                                            v-for="error in apiErrors"
+                                            :key="error"
+                                        >
+                                            {{ error }}
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
+
                             <div>
                                 <button type="submit" class="btn btn-site">
                                     Reset Password
@@ -120,11 +132,34 @@
 import axios from "../../../axios.js";
 import * as notify from "../../../utils/notify.js";
 
+import zxcvbn from "zxcvbn";
+import { Validator } from "vee-validate";
+
+Validator.extend("password_format", {
+    getMessage: (field) =>
+        `${field} must include at least one uppercase letter, one lowercase letter, one number, and one special character.`,
+    validate: (value) => {
+        const regex =
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,25}$/;
+        console.log("Regex validation result:", regex.test(value)); // Add logging
+        return regex.test(value);
+    },
+});
+
+Validator.extend("strong_password", {
+    getMessage: (field) => `${field} must be strong enough.`,
+    validate: (value) => {
+        const result = zxcvbn(value);
+        return result.score >= 2; // Require at least "Fair" password strength (score 2 or higher)
+    },
+});
+
 export default {
     name: "Reset",
 
     data() {
         return {
+            passwordStrength: 0,
             id: this.$route.params.id,
             showOldPassword: false,
             showPassword: false,
@@ -136,10 +171,26 @@ export default {
             apiErrors: [],
         };
     },
+    computed: {
+        passwordStrengthText() {
+            const strengthLevels = [
+                "Very Weak",
+                "Weak",
+                "Fair",
+                "Strong",
+                "Very Strong",
+            ];
+            return strengthLevels[this.passwordStrength];
+        },
+    },
     methods: {
-        /* created() {
-            this.id = this.$route.params.id;
-        }, */
+        checkPasswordStrength() {
+            const result = zxcvbn(this.password);
+            this.passwordStrength = result.score;
+
+            // Trigger validation
+            this.$validator.validate("password");
+        },
         toggleOldPassword() {
             this.showOldPassword = !this.showOldPassword;
         },
@@ -154,7 +205,7 @@ export default {
             this.apiErrors = []; // Clear previous errors
             const validated = await _this.$validator.validateAll();
             console.log("this.id", _this.id);
-            if (validated) {
+            if (validated && this.passwordStrength >= 2) {
                 _this.isLoading = true;
                 try {
                     const response = await axios.put(
@@ -203,6 +254,11 @@ export default {
                 } finally {
                     this.isLoading = false;
                 }
+            } else if (this.passwordStrength < 2) {
+                // Show error if password is too weak
+                this.formErrors.push(
+                    "Password strength is too weak. Please choose a stronger password."
+                );
             }
         },
     },

@@ -30,6 +30,7 @@ class User extends Authenticatable
         'level', // 1=Super Admin,2=Admin,3=Group Owner,4=User
         'parent_id', // default 0
         'mobile_no',
+        'password_changed_at',
         'name',
         'user_type',
         'api_token',
