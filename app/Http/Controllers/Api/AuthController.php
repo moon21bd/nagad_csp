@@ -6,6 +6,7 @@ use App\Helpers\AgentHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Models\Group;
+use App\Models\PasswordHistory;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserActivity;
@@ -102,7 +103,17 @@ class AuthController extends Controller
         try {
             $validatedData = $request->validate([
                 'old_password' => 'required|string',
-                'password' => 'required|string|min:8|max:25|confirmed',
+                // 'password' => 'required|string|min:8|max:25|confirmed',
+                'password' => [
+                    'required',
+                    'string',
+                    'min:8', // Minimum length
+                    'regex:/[a-z]/', // At least one lowercase letter
+                    'regex:/[A-Z]/', // At least one uppercase letter
+                    'regex:/[0-9]/', // At least one digit
+                    'regex:/[@$!%*?&#]/', // At least one special character
+                    'confirmed', // Match with password_confirmation
+                ],
                 'password_confirmation' => 'required|string|min:8|max:25',
             ]);
 
@@ -116,8 +127,28 @@ class AuthController extends Controller
                 ], Response::HTTP_NOT_FOUND);
             }
 
+            // Check for password reuse
+            $oldPasswords = PasswordHistory::where('user_id', $user->id)->get();
+            $newHashedPassword = Hash::make($request->input('password'));
+
+            foreach ($oldPasswords as $oldPassword) {
+                // Check if the new hashed password matches any old hashed passwords
+                if (Hash::check($request->input('password'), $oldPassword->password)) {
+                    return response()->json([
+                        'message' => 'You cannot reuse your old password.',
+                    ], Response::HTTP_PRECONDITION_FAILED);
+                }
+            }
+
+            // Save the old password to the password history table
+            PasswordHistory::create([
+                'user_id' => $user->id,
+                'password' => $newHashedPassword, // Store current password (hashed)
+            ]);
+
             // Update the user's password
-            $user->password = Hash::make($request->input('password'));
+            $user->password = $newHashedPassword;
+            $user->password_changed_at = Carbon::now();
             $user->save();
 
             // Update the user's activity log
@@ -163,7 +194,18 @@ class AuthController extends Controller
             'status' => 'nullable',
             'avatar' => 'nullable|string',
             'email' => 'required|string|email|unique:users',
-            'password' => 'required|min:8|max:25',
+            // 'password' => 'required|min:8|max:25',
+            'password' => [
+                'required',
+                'string',
+                'min:8', // Minimum length
+                'max:25',
+                'regex:/[a-z]/', // At least one lowercase letter
+                'regex:/[A-Z]/', // At least one uppercase letter
+                'regex:/[0-9]/', // At least one digit
+                'regex:/[@$!%*?&#]/', // At least one special character
+                'confirmed', // Match with password_confirmation
+            ],
             'selectedType' => 'required|string',
         ];
     }
@@ -369,6 +411,15 @@ class AuthController extends Controller
             if (Auth::attempt($credentials)) {
                 /** @var User $user */
                 $user = Auth::user();
+
+                // Check password expiration (e.g., 90 days)
+                if (now()->diffInDays($user->password_changed_at) > 90) {
+                    return response(['message' => 'Your password has expired. Please reset it.'], Response::HTTP_UNAUTHORIZED);
+
+                    /* return redirect()->route('password.reset')->withErrors([
+                'password' => 'Your password has expired. Please reset it.',
+                ]); */
+                }
 
                 // Check if user is active
                 if ($user->status !== 'Active') {
