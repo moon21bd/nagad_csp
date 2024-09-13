@@ -170,14 +170,14 @@ class NCTicketController extends Controller
         // dd();
 
         // if group owner is visiting the ticket
-        if (Auth::user()->group->hasOwner() || Auth::user()->hasRole('admin') || Auth::user()->hasRole('superadmin')) {
-            return response()->json([
-                'success' => true,
-                'showAlert' => false,
-                'message' => 'Ticket page visited by admin/owner user.',
-            ]);
+        /* if (Auth::user()->group->hasOwner() || Auth::user()->hasRole('admin') || Auth::user()->hasRole('superadmin')) {
+        return response()->json([
+        'success' => true,
+        'showAlert' => false,
+        'message' => 'Ticket page visited by admin/owner user.',
+        ]);
 
-        }
+        } */
 
         if ($ticket->initial_assign_id === null || $ticket->assign_to_user_id === null) {
             DB::transaction(function () use ($ticket, $authUserId, $authUserGroupId) {

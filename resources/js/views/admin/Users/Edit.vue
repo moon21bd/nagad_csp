@@ -77,7 +77,7 @@
                                     v-if="user.level !== 1"
                                 >
                                     <label class="control-label"
-                                        >Parent User</label
+                                        >Group Admin</label
                                     >
                                     <el-select
                                         class="d-block w-100"
@@ -305,7 +305,7 @@
 
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >User Type<sup>*</sup></label
+                                        >Employee Type<sup>*</sup></label
                                     >
 
                                     <el-select
@@ -438,8 +438,8 @@ export default {
             userLevels: [],
             selectedType: "",
             typeOptions: [
-                { value: "internal", label: "Internal" },
-                { value: "external", label: "External" },
+                { value: "Contractual", label: "Contractual" },
+                { value: "Permanent", label: "Permanent" },
             ],
             user: {
                 group_id: null,

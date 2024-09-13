@@ -117,6 +117,18 @@
                                         <router-link
                                             v-if="hasRole('superadmin|admin')"
                                             class="btn btn-action"
+                                            title="Role Manage"
+                                            :to="{
+                                                name: 'user-roles-manage',
+                                                params: { id: item?.id },
+                                            }"
+                                        >
+                                            <i class="icon-settings"></i>
+                                        </router-link>
+
+                                        <router-link
+                                            v-if="hasRole('superadmin|admin')"
+                                            class="btn btn-action"
                                             title="Permissions Manage"
                                             :to="{
                                                 name: 'user-permissions-manage',

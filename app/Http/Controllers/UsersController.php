@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Laratrust\Models\LaratrustPermission;
 
@@ -712,7 +713,11 @@ return response()->json([
                     $loginTime = $log->last_login ? formatTime($log->last_login) : ['formattedTime' => 'N/A', 'suffix' => ''];
                     $logoutTime = $log->last_logout ? formatTime($log->last_logout) : ['formattedTime' => 'N/A', 'suffix' => ''];
 
-                    $location = getLocationName($log->latitude, $log->longitude);
+                    $lat = $log->latitude ?? 0;
+                    $lon = $log->longitude ?? 0;
+                    Log::info('Fetching location for lat: ' . $lat . ', lon: ' . $lon);
+
+                    $location = getLocationName($lat, $lon);
 
                     $userLogs[] = [
                         'cdate' => $date,
@@ -734,7 +739,7 @@ return response()->json([
             $userData[] = [
                 'name' => $user->name,
                 'avatar' => $user->avatar_url,
-                'empId' => $user->user_details->employee_id ?? "",
+                'empId' => $user->employee_user_id ?? "",
                 'position' => $user->group->name ?? "",
                 'userLogs' => $userLogs,
             ];

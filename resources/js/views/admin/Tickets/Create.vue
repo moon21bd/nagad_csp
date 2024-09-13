@@ -36,6 +36,17 @@
                     </h5>
                 </div>
 
+                <!-- <div class="verify-user mr-0 mr-md-3">
+                    <input
+                        class="form-control"
+                        type="tel"
+                        v-model="callerMobileNo"
+                        name="customer"
+                        placeholder="Customer Account No"
+                        required
+                    />
+                </div> -->
+
                 <a
                     class="btn-prev-tickets ml-auto"
                     :class="{ show: callerPrevTickets }"
@@ -68,7 +79,11 @@
                                 v-for="ticket in prevTickets"
                                 :key="ticket.id"
                             >
-                                <td>{{ ticket.ticket_created_at }}</td>
+                                <td>
+                                    {{
+                                        formatDateTime(ticket.ticket_created_at)
+                                    }}
+                                </td>
                                 <td>{{ ticket.uuid }}</td>
                                 <td>{{ ticket.call_sub_category_name }}</td>
                                 <td>{{ ticket.ticket_status }}</td>
@@ -87,6 +102,22 @@
                         <i class="icon-tickets text-danger"></i> Create Ticket
                     </h4>
                     <form ref="ticketForm" @submit.prevent="handleSubmit">
+                        <div class="form-row">
+                            <div class="col-md-6 form-group">
+                                <label class="control-label"
+                                    >Customer Number<sup>*</sup></label
+                                >
+                                <input
+                                    class="form-control"
+                                    type="tel"
+                                    v-model="customerPhoneNumber"
+                                    name="customerPhoneNumber"
+                                    placeholder="Customer Account No"
+                                    required
+                                />
+                            </div>
+                        </div>
+
                         <div class="form-row">
                             <div class="col-md-4 form-group">
                                 <label class="control-label"
@@ -170,8 +201,17 @@
                                 <div class="form-row">
                                     <div class="col-md-12">
                                         <h5 class="sub-title text-danger">
-                                            Set No: {{ fieldsSet.id }}
+                                            Ticket No: {{ fieldsSet.id }}
                                         </h5>
+                                        <button
+                                            class="btn btn-danger btn-sm"
+                                            @click="deleteFieldsSet(setIndex)"
+                                            :disabled="
+                                                requiredFieldsSets.length === 1
+                                            "
+                                        >
+                                            Delete Ticket
+                                        </button>
                                     </div>
                                     <div
                                         class="col-md-4"
@@ -412,6 +452,7 @@
 import axios from "../../../axios";
 import noData from "../components/noData.vue";
 // import userInfo from "./components/userInfo.vue";
+import { formatDateTime } from "../../../utils/common";
 
 export default {
     components: {
@@ -429,6 +470,7 @@ export default {
         fieldSetIdentifier: 1,
         requiredFieldsSets: [],
         callerMobileNo: null,
+        customerPhoneNumber: null,
         callerPrevTickets: false,
         requiredFields: [],
         callTypes: [],
@@ -452,6 +494,16 @@ export default {
         this.checkDNDStatus();
     },
     methods: {
+        formatDateTime,
+        deleteFieldsSet(setIndex) {
+            if (this.requiredFieldsSets.length > 1) {
+                this.requiredFieldsSets.splice(setIndex, 1);
+
+                this.requiredFieldsSets.forEach((set, index) => {
+                    set.id = index + 1;
+                });
+            }
+        },
         checkDNDStatus() {
             const mobileNo = this.callerMobileNo;
             try {
@@ -514,7 +566,8 @@ export default {
                 }));
 
                 this.requiredFieldsSets.push({
-                    id: this.fieldSetIdentifier,
+                    // id: this.fieldSetIdentifier,
+                    id: this.requiredFieldsSets.length + 1,
                     fields: newFields,
                 });
 
