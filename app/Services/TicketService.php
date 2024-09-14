@@ -62,7 +62,7 @@ class TicketService
             $tickets = $query->where('assign_to_group_id', $user->group_id)->get();
         } else {
             // Regular User can only view tickets assigned to them
-            $tickets = $query->where('assign_to_user_id', $user->group_id)->get();
+            $tickets = $query->where('assign_to_group_id', $user->group_id)->get();
         }
         return $tickets;
     }
