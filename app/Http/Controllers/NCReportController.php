@@ -287,102 +287,212 @@ class NCReportController extends Controller
 
     public function getDateWiseColumnChartDataCount($id = null, $month = null)
     {
+        // Get the logged-in user
+        $user = auth()->user();
+
+        // Determine the assigned group id
         $assignedId = $id ?? 1;
 
-        if ($month != null) {
-            $monthNumber = $this->getMonthNumber(strtoupper($month));
+        // Apply role-based filtering
+        if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
+            // Admin or Super Admin can view all tickets, no filtering by assign_to_group_id
+            $query = NCTicket::query();
+        } elseif ($user->hasRole('owner') && $user->group->hasOwner()) {
+            // Group Owner can view tickets assigned to their group
+            $query = NCTicket::where('assign_to_group_id', $user->group_id);
         } else {
-            $monthNumber = now()->format('m');
+            // If the user doesn't have the required role, return unauthorized response
+            return response()->json([
+                'msg' => 'Unauthorized or no data available for your role.',
+            ], 403);
         }
-        $year = now()->format('Y');
 
+        // Handle the month and date logic
+        $monthNumber = $month ? $this->getMonthNumber(strtoupper($month)) : now()->format('m');
+        $year = now()->format('Y');
         $nextMonthNumber = (int) $monthNumber + 1;
         $from = "$year-$monthNumber-01";
         $to = "$year-$nextMonthNumber-01";
 
+        // Get the call type IDs
         $callTypes = NCCallType::select('id', 'call_type_name')
             ->where('status', 'active')
             ->get()
             ->toArray();
-        if ($callTypes) {
-            foreach ($callTypes as $callType) {
-                if (strtoupper($callType['call_type_name']) == 'COMPLAINT') {
+
+        foreach ($callTypes as $callType) {
+            switch (strtoupper($callType['call_type_name'])) {
+                case 'COMPLAINT':
                     $complaintId = $callType['id'];
-                } elseif (strtoupper($callType['call_type_name']) == 'QUERY') {
+                    break;
+                case 'QUERY':
                     $queryId = $callType['id'];
-                } elseif (strtoupper($callType['call_type_name']) == 'SERVICE REQUEST') {
+                    break;
+                case 'SERVICE REQUEST':
                     $serviceRequestId = $callType['id'];
-                }
+                    break;
             }
-        } else {
-            return response()->json([
-                'msg' => 'Call_Types_Found',
-            ], 201);
         }
 
+        // Initialize date range and result arrays
         $dbData = [];
         $period = new \DatePeriod(new \DateTime($from), new \DateInterval('P1D'), new \DateTime($to));
-        $complaintData = [];
-        $queryData = [];
-        $serviceRequestData = [];
-
+        $range = [];
         foreach ($period as $date) {
             $range[$date->format("Y-m-d")] = 0;
         }
 
-        $complaintTotalData = NCTicket::select(DB::raw('DATE(created_at) as time'), DB::raw('count(*) as count'))
-            ->where('assign_to_group_id', $assignedId)
+        // Fetch and organize the complaint data
+        $complaintTotalData = $query->clone()
+            ->select(DB::raw('DATE(created_at) as time'), DB::raw('count(*) as count'))
             ->where('call_type_id', $complaintId)
             ->whereDate('created_at', '>=', $from . ' 00:00:00')
             ->whereDate('created_at', '<=', $to . ' 23:59:59')
             ->groupBy('time')
             ->get();
 
+        $complaintData = [];
         foreach ($complaintTotalData as $val) {
             $complaintData[$val->time] = $val->count;
         }
-
         $complaintTotalDataArray = array_replace($range, $complaintData);
 
-        foreach ($period as $date) {
-            $range[$date->format("Y-m-d")] = 0;
-        }
-        $queryTotalData = NCTicket::select(DB::raw('DATE(created_at) as time'), DB::raw('count(*) as count'))
-            ->where('assign_to_group_id', $assignedId)
+        // Fetch and organize the query data
+        $queryTotalData = $query->clone()
+            ->select(DB::raw('DATE(created_at) as time'), DB::raw('count(*) as count'))
             ->where('call_type_id', $queryId)
             ->whereDate('created_at', '>=', $from . ' 00:00:00')
             ->whereDate('created_at', '<=', $to . ' 23:59:59')
             ->groupBy('time')
             ->get();
 
+        $queryData = [];
         foreach ($queryTotalData as $val) {
             $queryData[$val->time] = $val->count;
         }
         $queryTotalDataArray = array_replace($range, $queryData);
 
-        foreach ($period as $date) {
-            $range[$date->format("Y-m-d")] = 0;
-        }
-        $serviceRequestTotalData = NCTicket::select(DB::raw('DATE(created_at) as time'), DB::raw('count(*) as count'))
-            ->where('assign_to_group_id', $assignedId)
+        // Fetch and organize the service request data
+        $serviceRequestTotalData = $query->clone()
+            ->select(DB::raw('DATE(created_at) as time'), DB::raw('count(*) as count'))
             ->where('call_type_id', $serviceRequestId)
             ->whereDate('created_at', '>=', $from . ' 00:00:00')
             ->whereDate('created_at', '<=', $to . ' 23:59:59')
             ->groupBy('time')
             ->get();
 
+        $serviceRequestData = [];
         foreach ($serviceRequestTotalData as $val) {
             $serviceRequestData[$val->time] = $val->count;
         }
         $serviceRequestTotalDataArray = array_replace($range, $serviceRequestData);
 
+        // Return the data in a JSON response
         return response()->json([
             'totalComplaintData' => $complaintTotalDataArray ?? [],
             'totalQueryData' => $queryTotalDataArray ?? [],
             'totalServiceRequestData' => $serviceRequestTotalDataArray ?? [],
         ], 201);
-
     }
+
+    /* public function getDateWiseColumnChartDataCount($id = null, $month = null)
+    {
+    $assignedId = $id ?? 1;
+
+    if ($month != null) {
+    $monthNumber = $this->getMonthNumber(strtoupper($month));
+    } else {
+    $monthNumber = now()->format('m');
+    }
+    $year = now()->format('Y');
+
+    $nextMonthNumber = (int) $monthNumber + 1;
+    $from = "$year-$monthNumber-01";
+    $to = "$year-$nextMonthNumber-01";
+
+    $callTypes = NCCallType::select('id', 'call_type_name')
+    ->where('status', 'active')
+    ->get()
+    ->toArray();
+    if ($callTypes) {
+    foreach ($callTypes as $callType) {
+    if (strtoupper($callType['call_type_name']) == 'COMPLAINT') {
+    $complaintId = $callType['id'];
+    } elseif (strtoupper($callType['call_type_name']) == 'QUERY') {
+    $queryId = $callType['id'];
+    } elseif (strtoupper($callType['call_type_name']) == 'SERVICE REQUEST') {
+    $serviceRequestId = $callType['id'];
+    }
+    }
+    } else {
+    return response()->json([
+    'msg' => 'Call_Types_Found',
+    ], 201);
+    }
+
+    $dbData = [];
+    $period = new \DatePeriod(new \DateTime($from), new \DateInterval('P1D'), new \DateTime($to));
+    $complaintData = [];
+    $queryData = [];
+    $serviceRequestData = [];
+
+    foreach ($period as $date) {
+    $range[$date->format("Y-m-d")] = 0;
+    }
+
+    $complaintTotalData = NCTicket::select(DB::raw('DATE(created_at) as time'), DB::raw('count(*) as count'))
+    ->where('assign_to_group_id', $assignedId)
+    ->where('call_type_id', $complaintId)
+    ->whereDate('created_at', '>=', $from . ' 00:00:00')
+    ->whereDate('created_at', '<=', $to . ' 23:59:59')
+    ->groupBy('time')
+    ->get();
+
+    foreach ($complaintTotalData as $val) {
+    $complaintData[$val->time] = $val->count;
+    }
+
+    $complaintTotalDataArray = array_replace($range, $complaintData);
+
+    foreach ($period as $date) {
+    $range[$date->format("Y-m-d")] = 0;
+    }
+    $queryTotalData = NCTicket::select(DB::raw('DATE(created_at) as time'), DB::raw('count(*) as count'))
+    ->where('assign_to_group_id', $assignedId)
+    ->where('call_type_id', $queryId)
+    ->whereDate('created_at', '>=', $from . ' 00:00:00')
+    ->whereDate('created_at', '<=', $to . ' 23:59:59')
+    ->groupBy('time')
+    ->get();
+
+    foreach ($queryTotalData as $val) {
+    $queryData[$val->time] = $val->count;
+    }
+    $queryTotalDataArray = array_replace($range, $queryData);
+
+    foreach ($period as $date) {
+    $range[$date->format("Y-m-d")] = 0;
+    }
+    $serviceRequestTotalData = NCTicket::select(DB::raw('DATE(created_at) as time'), DB::raw('count(*) as count'))
+    ->where('assign_to_group_id', $assignedId)
+    ->where('call_type_id', $serviceRequestId)
+    ->whereDate('created_at', '>=', $from . ' 00:00:00')
+    ->whereDate('created_at', '<=', $to . ' 23:59:59')
+    ->groupBy('time')
+    ->get();
+
+    foreach ($serviceRequestTotalData as $val) {
+    $serviceRequestData[$val->time] = $val->count;
+    }
+    $serviceRequestTotalDataArray = array_replace($range, $serviceRequestData);
+
+    return response()->json([
+    'totalComplaintData' => $complaintTotalDataArray ?? [],
+    'totalQueryData' => $queryTotalDataArray ?? [],
+    'totalServiceRequestData' => $serviceRequestTotalDataArray ?? [],
+    ], 201);
+
+    } */
 
     public function getMonthNumber($month)
     {

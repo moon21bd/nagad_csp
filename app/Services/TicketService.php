@@ -69,11 +69,19 @@ class TicketService
 
     public function createTicket(array $validated)
     {
-        $inputRequiredFields = $validated['requiredField'] ?? [];
 
-        $ticketRelated = $this->generateRequiredFieldsAndTicketData($inputRequiredFields);
+        $ticketCount = 1;
 
-        $requiredFieldsNew = $this->prepareRequiredFields($ticketRelated['requiredFields']);
+        if (!empty($validated['requiredField'])) {
+            $inputRequiredFields = $validated['requiredField'] ?? [];
+
+            $ticketRelated = $this->generateRequiredFieldsAndTicketData($inputRequiredFields);
+
+            $requiredFieldsNew = $this->prepareRequiredFields($ticketRelated['requiredFields']);
+
+            $ticketCount = $ticketRelated['totalTickets'];
+
+        }
 
         // Fetch service type configurations and responsible group IDs
         $serviceTypeConfigs = $this->showServiceTypeConfig(
@@ -95,7 +103,7 @@ class TicketService
         $status = $escalation === 'yes' ? 'OPENED' : 'CLOSED';
 
         $ticketsData = [];
-        foreach (range(0, $ticketRelated['totalTickets'] - 1) as $i) {
+        foreach (range(0, $ticketCount - 1) as $i) {
 
             $ticketAttachments = uploadMediaGetPath($validated['attachment'], 'attachments') ?? null;
 
@@ -105,7 +113,7 @@ class TicketService
                 'call_category_id' => $validated['callCategoryId'],
                 'call_sub_category_id' => $validated['callSubCategoryId'],
                 'caller_mobile_no' => $validated['callerMobileNo'],
-                'required_fields' => json_encode($ticketRelated),
+                'required_fields' => !empty($ticketRelated) ? json_encode($ticketRelated) : '{}',
                 'responsible_group_ids' => $responsibleGroupIdsStr,
                 'is_ticket_reassign' => 0,
                 'comments' => $validated['comments'],
@@ -133,7 +141,9 @@ class TicketService
             // $ticketsData[] = $ticketId;
             $ticketsData[] = $ticketUuid;
 
-            $this->bulkInsertRequiredFields($ticketRelated['requiredFields'][$i], $ticketId, $authUserId);
+            if (!empty($ticketRelated['requiredFields'])) {
+                $this->bulkInsertRequiredFields($ticketRelated['requiredFields'][$i], $ticketId, $authUserId);
+            }
 
             $data = [
                 'ticket_id' => $ticketId,
