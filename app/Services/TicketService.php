@@ -28,8 +28,8 @@ class TicketService
 
     // Ticket statuses arr
     protected $statuses = [
+        ['value' => 'OPENED', 'label' => 'OPENED'],
         ['value' => 'NEW', 'label' => 'NEW'],
-        ['value' => 'OPEN', 'label' => 'OPEN'],
         ['value' => 'PENDING', 'label' => 'PENDING'],
         ['value' => 'CLOSED', 'label' => 'CLOSED'],
         ['value' => 'REOPEN', 'label' => 'REOPEN'],
@@ -64,7 +64,6 @@ class TicketService
             // Regular User can only view tickets assigned to them
             $tickets = $query->where('assign_to_user_id', $user->id)->get();
         }
-
         return $tickets;
     }
 
@@ -93,7 +92,7 @@ class TicketService
 
         $authUserId = Auth::id();
         $escalation = $this->prepareTicketEscalation($validated['callTypeId'], $serviceTypeConfigs->is_escalation ?? 'NO');
-        $status = $escalation === 'yes' ? 'NEW' : 'CLOSED';
+        $status = $escalation === 'yes' ? 'OPENED' : 'CLOSED';
 
         $ticketsData = [];
         foreach (range(0, $ticketRelated['totalTickets'] - 1) as $i) {
@@ -131,7 +130,8 @@ class TicketService
             'ticketUuid' => $ticketUuid,
             ]; */
 
-            $ticketsData[] = $ticketId;
+            // $ticketsData[] = $ticketId;
+            $ticketsData[] = $ticketUuid;
 
             $this->bulkInsertRequiredFields($ticketRelated['requiredFields'][$i], $ticketId, $authUserId);
 
@@ -334,7 +334,7 @@ class TicketService
         $authUserId = Auth::id();
 
         $escalation = $this->prepareTicketEscalation($validated['callTypeId'], $serviceTypeConfigs->is_escalation ?? 'NO');
-        $status = $escalation === 'yes' ? 'OPEN' : 'CLOSED';
+        $status = $escalation === 'yes' ? 'OPENED' : 'CLOSED';
 
         return [
             'uuid' => generateTicketUuid(), // Uuid::uuid4()->toString(),

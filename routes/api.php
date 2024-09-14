@@ -68,6 +68,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('change-password', [Api\AuthController::class, 'changePassword']);
 
     // GET CURRENTLY LOGGED IN USER ID
+    Route::post('/check-permission', [PermissionsController::class, 'checkPermission']);
+
     Route::get('/userPermissions', [PermissionsController::class, 'getCurrentUserPermissions']);
 
     Route::get('/user-permissions/{id}', [PermissionsController::class, 'getUserPermissionsById']);

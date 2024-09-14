@@ -242,7 +242,7 @@ export default {
                         let color = "#FF4E4E";
 
                         switch (timeline.ticket_status) {
-                            case "OPEN":
+                            case "OPENED":
                                 icon = "el-icon-folder-opened";
                                 break;
                             case "CLOSED":

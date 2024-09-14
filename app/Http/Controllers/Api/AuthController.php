@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Helpers\AgentHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
-use App\Models\Group;
 use App\Models\PasswordHistory;
 use App\Models\Role;
 use App\Models\User;
@@ -206,6 +205,7 @@ class AuthController extends Controller
                 'regex:/[@$!%*?&#]/', // At least one special character
                 'confirmed', // Match with password_confirmation
             ],
+            'password_confirmation' => 'required|string|min:8|max:25',
             'selectedType' => 'required|string',
         ];
     }
@@ -252,30 +252,30 @@ class AuthController extends Controller
             default => 'user',
         };
 
-        // Attach the role to the user
+        /* // Attach the role to the user
         $role = Role::where('name', $roleName)->first();
         if ($role) {
-            $user->attachRole($role);
+        $user->attachRole($role);
 
-            // Attach default role permissions
-            $user->attachPermissions($role->permissions);
-            Log::info('USER-ROLE-PERMISSIONS|' . json_encode($user->toArray()));
+        // Attach default role permissions
+        $user->attachPermissions($role->permissions);
+        Log::info('USER-ROLE-PERMISSIONS|' . json_encode($user->toArray()));
         } else {
-            // Handle case where role is not found
-            throw new \Exception("Role {$roleName} not found.");
+        // Handle case where role is not found
+        throw new \Exception("Role {$roleName} not found.");
         }
 
         // Attach group permissions
         $group = Group::find($data['group_id']);
         if ($group) {
-            $groupPermissions = $group->permissions->pluck('id')->toArray();
-            $user->permissions()->sync($groupPermissions);
-            Log::info('USER-GROUP-ROLE-PERMISSIONS|' . json_encode($user->toArray()));
+        $groupPermissions = $group->permissions->pluck('id')->toArray();
+        $user->permissions()->sync($groupPermissions);
+        Log::info('USER-GROUP-ROLE-PERMISSIONS|' . json_encode($user->toArray()));
 
         } else {
-            // Handle case where group is not found
-            throw new \Exception("Group with ID {$data['group_id']} not found.");
-        }
+        // Handle case where group is not found
+        throw new \Exception("Group with ID {$data['group_id']} not found.");
+        } */
 
         return $user;
     }

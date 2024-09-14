@@ -8,6 +8,7 @@
  */
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -225,54 +226,143 @@ if (!function_exists("formatTime")) {
 }
 
 if (!function_exists("getLocationName")) {
-
     function getLocationName($lat, $lon)
     {
-        $url = "https://nominatim.openstreetmap.org/reverse?format=json&lat={$lat}&lon={$lon}&addressdetails=1";
 
-        try {
-            $response = Http::withHeaders([
-                'Accept-Language' => 'en',
-                'User-Agent' => 'NagadWeb/1.0 (contact@nagad.com.bd)',
-            ])->get($url);
-
-            $logMessage = sprintf(
-                "GET-LOCATION-NAME|Response Status: %d | Response Headers: %s | Response Body: %s | %s",
-                $response->status(),
-                json_encode($response->headers()),
-                $response->body(),
-                'Response Data: ' . json_encode($response->json())
-            );
-
-            Log::info($logMessage);
-
-            $data = $response->json();
-
-            if (isset($data['address'])) {
-                $city = $data['address']['city'] ?? '';
-                $country = $data['address']['country'] ?? '';
-                $quarter = $data['address']['quarter'] ?? '';
-                $suburb = $data['address']['suburb'] ?? '';
-                return [
-                    'location' => $quarter . ', ' . $suburb,
-                    'city_country' => $city . ', ' . $country,
-                ];
-            } else {
-                return [
-                    'location' => 'Unknown',
-                    'city_country' => "Unknown",
-                ];
-            }
-        } catch (\Exception $e) {
-            Log::error('Error fetching location name: ' . $e->getMessage());
+        ini_set('max_execution_time', 60);
+        // Validate latitude and longitude
+        if (!is_numeric($lat) || !is_numeric($lon)) {
+            Log::error('Invalid latitude or longitude value.');
             return [
                 'location' => 'Unknown',
-                'city_country' => "Unknown",
+                'city_country' => 'Unknown',
             ];
-            // return 'Error fetching location';
+        }
+
+        $cacheKey = "location-{$lat}-{$lon}";
+
+        // Retrieve from cache if available
+        $cachedData = Cache::get($cacheKey);
+        if ($cachedData) {
+            return $cachedData;
+        }
+
+        $url = "https://nominatim.openstreetmap.org/reverse?format=json&lat={$lat}&lon={$lon}&addressdetails=1";
+        $attempts = 3;
+
+        while ($attempts > 0) {
+            try {
+                $response = Http::withHeaders([
+                    'Accept-Language' => 'en',
+                    'User-Agent' => 'NagadWeb/1.0 (contact@nagad.com.bd)',
+                ])->get($url);
+
+                $logMessage = sprintf(
+                    "GET-LOCATION-NAME|Response Status: %d | Response Headers: %s | Response Body: %s | %s",
+                    $response->status(),
+                    json_encode($response->headers()),
+                    $response->body(),
+                    'Response Data: ' . json_encode($response->json())
+                );
+
+                Log::info($logMessage);
+
+                $data = $response->json();
+
+                if (isset($data['address'])) {
+                    $city = $data['address']['city'] ?? '';
+                    $country = $data['address']['country'] ?? '';
+                    $quarter = $data['address']['quarter'] ?? '';
+                    $suburb = $data['address']['suburb'] ?? '';
+                    $result = [
+                        'location' => $quarter . ', ' . $suburb,
+                        'city_country' => $city . ', ' . $country,
+                    ];
+                } else {
+                    $result = [
+                        'location' => 'Unknown',
+                        'city_country' => 'Unknown',
+                    ];
+                }
+
+                // Store result in cache
+                Cache::put($cacheKey, $result, now()->addMinutes(120));
+
+                return $result;
+
+            } catch (\Exception $e) {
+                Log::error('Error fetching location name: ' . $e->getMessage());
+                $attempts--;
+                if ($attempts === 0) {
+                    return [
+                        'location' => 'Unknown',
+                        'city_country' => 'Unknown',
+                    ];
+                }
+                sleep(1); // Wait before retrying
+            }
         }
     }
 }
+
+/* if (!function_exists("getLocationName")) {
+
+function getLocationName($lat, $lon)
+{
+// Validate latitude and longitude
+if (!is_numeric($lat) || !is_numeric($lon)) {
+Log::error('Invalid latitude or longitude value.');
+return [
+'location' => 'Unknown',
+'city_country' => 'Unknown',
+];
+}
+
+$url = "https://nominatim.openstreetmap.org/reverse?format=json&lat={$lat}&lon={$lon}&addressdetails=1";
+
+try {
+$response = Http::withHeaders([
+'Accept-Language' => 'en',
+'User-Agent' => 'NagadWeb/1.0 (contact@nagad.com.bd)',
+])->get($url);
+
+$logMessage = sprintf(
+"GET-LOCATION-NAME|Response Status: %d | Response Headers: %s | Response Body: %s | %s",
+$response->status(),
+json_encode($response->headers()),
+$response->body(),
+'Response Data: ' . json_encode($response->json())
+);
+
+Log::info($logMessage);
+
+$data = $response->json();
+
+if (isset($data['address'])) {
+$city = $data['address']['city'] ?? '';
+$country = $data['address']['country'] ?? '';
+$quarter = $data['address']['quarter'] ?? '';
+$suburb = $data['address']['suburb'] ?? '';
+return [
+'location' => $quarter . ', ' . $suburb,
+'city_country' => $city . ', ' . $country,
+];
+} else {
+return [
+'location' => 'Unknown',
+'city_country' => "Unknown",
+];
+}
+} catch (\Exception $e) {
+Log::error('Error fetching location name: ' . $e->getMessage());
+return [
+'location' => 'Unknown',
+'city_country' => "Unknown",
+];
+// return 'Error fetching location';
+}
+}
+} */
 
 /**
  * Helper method to get the device icon class based on the device name.

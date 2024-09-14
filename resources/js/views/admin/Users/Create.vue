@@ -85,13 +85,13 @@
                                     v-if="formData.level !== 1"
                                 >
                                     <label class="control-label"
-                                        >Parent User</label
+                                        >Group Admin</label
                                     >
                                     <el-select
                                         class="d-block w-100"
                                         v-model="formData.parent_id"
                                         name="parent_id"
-                                        placeholder="Select Parent User"
+                                        placeholder="Select Group Admin"
                                     >
                                         <el-option
                                             :key="0"
@@ -339,7 +339,9 @@
                                         <input
                                             autocomplete="off"
                                             name="confirmPassword"
-                                            v-model="formData.confirmPassword"
+                                            v-model="
+                                                formData.password_confirmation
+                                            "
                                             class="form-control"
                                             placeholder="Confirm password"
                                             :type="
@@ -394,7 +396,7 @@
 
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >User Type<sup>*</sup></label
+                                        >Employee Type<sup>*</sup></label
                                     >
 
                                     <el-select
@@ -517,8 +519,8 @@ export default {
             formErrors: [],
             selectedType: "",
             typeOptions: [
-                { value: "internal", label: "Internal" },
-                { value: "external", label: "External" },
+                { value: "Contractual", label: "Contractual" },
+                { value: "Permanent", label: "Permanent" },
             ],
             formData: {
                 group_id: null,
@@ -532,7 +534,7 @@ export default {
                 address: "",
                 email: "",
                 password: "",
-                confirmPassword: "",
+                password_confirmation: "",
                 gender: "",
                 level: 4, // Default to 'User'
                 parent_id: null,

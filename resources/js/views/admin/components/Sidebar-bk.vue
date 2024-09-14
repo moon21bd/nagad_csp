@@ -18,7 +18,7 @@
                     index="dashboard"
                     v-if="hasPermission('dashboard')"
                 >
-                    <router-link :to="{ name: 'dashboard' }">
+                    <router-link :to="{ name: 'admin' }">
                         <i class="icon-grid"></i>
                         <span>Dashboard</span>
                     </router-link>
@@ -27,7 +27,7 @@
                 <el-menu-item
                     index="tickets-index"
                     v-if="
-                        hasRole('admin|superadmin') ||
+                        hasRole('admin|superadmin|owner') ||
                         hasPermission('ticket-list')
                     "
                 >
@@ -40,29 +40,13 @@
                 <el-menu-item
                     index="admin-user-index"
                     v-if="
-                        hasRole('admin|superadmin') ||
+                        hasRole('admin|superadmin|owner') ||
                         hasPermission('user-list')
                     "
                 >
                     <router-link :to="{ name: 'user-index' }">
                         <i class="icon-users"></i>
                         <span>Users</span>
-                    </router-link>
-                </el-menu-item>
-
-                <el-menu-item
-                    v-if="
-                        hasRole('admin|superadmin') ||
-                        hasPermission('user-location-view')
-                    "
-                    index="user-location"
-                >
-                    <router-link
-                        :to="{
-                            name: 'user-location',
-                        }"
-                        ><i class="icon-map"></i>
-                        <span>User Location</span>
                     </router-link>
                 </el-menu-item>
 
@@ -167,6 +151,16 @@
                             <span>Customer Profiles</span>
                         </router-link>
                     </el-menu-item>
+
+                    <el-menu-item index="user-location">
+                        <router-link
+                            :to="{
+                                name: 'user-location',
+                            }"
+                            ><i class="icon-map"></i>
+                            <span>User Location</span>
+                        </router-link>
+                    </el-menu-item>
                 </div>
 
                 <div v-if="hasRole('admin|superadmin|owner')">
@@ -197,6 +191,24 @@
                         </el-menu-item-group>
                     </el-submenu>
                 </div>
+
+                <!-- <el-submenu index="2">
+                    <template slot="title">
+                        <i class="icon-grid"></i>
+                        <span>Navigator One</span>
+                    </template>
+                    <el-menu-item-group title="Group One">
+                        <el-menu-item index="2-1">item one</el-menu-item>
+                        <el-menu-item index="2-2">item one</el-menu-item>
+                    </el-menu-item-group>
+                    <el-menu-item-group title="Group Two">
+                        <el-menu-item index="2-3">item three</el-menu-item>
+                    </el-menu-item-group>
+                    <el-submenu index="2-4">
+                        <template slot="title">item four</template>
+                        <el-menu-item index="2-4-1">item one</el-menu-item>
+                    </el-submenu>
+                </el-submenu> -->
             </el-menu>
         </div>
     </aside>

@@ -52,6 +52,12 @@ const excludedRoutes = [
     "/verify/user/:id",
 ];
 
+import axios from "./axios";
+async function checkPermission(permission) {
+    const response = await axios.post("/check-permission", { permission });
+    return response.data.allowed;
+}
+
 router.beforeEach(async (to, from, next) => {
     const isAuthenticated = store.getters["auth/authenticated"];
 

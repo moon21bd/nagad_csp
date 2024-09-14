@@ -42,7 +42,7 @@ class NCTicket extends Model
         'ticket_updated_at',
     ];
 
-    protected $appends = ['attachment_url'];
+    protected $appends = ['attachment_url', 'responsible_group_names'];
 
     // Accessor for the attachment URL
     public function getAttachmentUrlAttribute()

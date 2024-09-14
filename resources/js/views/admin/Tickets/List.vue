@@ -22,9 +22,8 @@
                         <table id="dataTable" class="table border rounded">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
                                     <th>Creation Time</th>
-                                    <th>Tracking</th>
+                                    <th>Ticket ID</th>
                                     <th>Status</th>
                                     <th>Responsible Groups</th>
                                     <th>Call No</th>
@@ -35,12 +34,10 @@
                             </thead>
                             <tbody>
                                 <tr v-for="(item, key) in tickets" :key="key">
-                                    <td>{{ item.id }}</td>
-
                                     <td>
                                         {{ formatDateTime(item.created_at) }}
                                     </td>
-                                    <td>{{ item.id }}</td>
+                                    <td>{{ item.uuid }}</td>
                                     <td>
                                         <span
                                             :class="
@@ -53,7 +50,7 @@
                                         >
                                     </td>
                                     <td>
-                                        {{ item.responsible_group_ids }}
+                                        {{ item.responsible_group_names }}
                                     </td>
                                     <td>
                                         {{ item.caller_mobile_no }}
