@@ -251,6 +251,9 @@ export default {
                             case "PENDING":
                                 icon = "el-icon-loading";
                                 break;
+                            case "RESOLVED":
+                                icon = "el-icon-loading";
+                                break;
 
                             default:
                                 icon = "el-icon-time";

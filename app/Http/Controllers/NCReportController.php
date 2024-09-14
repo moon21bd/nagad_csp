@@ -89,6 +89,9 @@ class NCReportController extends Controller
                     case "REOPEN":
                         $reopenTicket = $count->total;
                         break;
+                    case "RESOLVED":
+                        $reopenTicket = $count->total;
+                        break;
                     case "INPROGRESS":
                         $inProgressTicket = $count->total;
                         break;

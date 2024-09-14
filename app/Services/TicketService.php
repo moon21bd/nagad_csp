@@ -33,6 +33,7 @@ class TicketService
         ['value' => 'PENDING', 'label' => 'PENDING'],
         ['value' => 'CLOSED', 'label' => 'CLOSED'],
         ['value' => 'REOPEN', 'label' => 'REOPEN'],
+        ['value' => 'RESOLVED', 'label' => 'RESOLVED'],
     ];
 
     protected $ticketUuid;
