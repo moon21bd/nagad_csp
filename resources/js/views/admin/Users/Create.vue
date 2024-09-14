@@ -519,8 +519,8 @@ export default {
             formErrors: [],
             selectedType: "",
             typeOptions: [
-                { value: "internal", label: "Internal" },
-                { value: "external", label: "External" },
+                { value: "Contractual", label: "Contractual" },
+                { value: "Permanent", label: "Permanent" },
             ],
             formData: {
                 group_id: null,

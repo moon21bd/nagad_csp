@@ -102,8 +102,11 @@
                         <i class="icon-tickets text-danger"></i> Create Ticket
                     </h4>
                     <form ref="ticketForm" @submit.prevent="handleSubmit">
-                        <div class="form-row">
-                            <div class="col-md-6 form-group">
+                        <div
+                            class="form-row"
+                            v-if="isNagadSebaOrUddoktaPointCustomerGroup"
+                        >
+                            <div class="col-md-12 form-group">
                                 <label class="control-label"
                                     >Customer Number<sup>*</sup></label
                                 >
@@ -113,7 +116,6 @@
                                     v-model="customerPhoneNumber"
                                     name="customerPhoneNumber"
                                     placeholder="Customer Account No"
-                                    required
                                 />
                             </div>
                         </div>
@@ -305,7 +307,6 @@
                                 <textarea
                                     class="form-control"
                                     v-model="ticketInfos.comments"
-                                    required
                                 ></textarea>
                             </div>
                         </div>
@@ -342,6 +343,7 @@
                                 <input
                                     type="file"
                                     name="is_show_attachment"
+                                    required
                                     @change="handleAttachmentFileUpload"
                                     accept="image/png, image/jpeg, .pdf, .doc, .docx, .xls, .xlsx"
                                 />
@@ -493,8 +495,26 @@ export default {
         this.fetchCallTypes();
         this.checkDNDStatus();
     },
+    computed: {
+        // Fetch the logged-in user's data from Vuex store
+        user() {
+            return this.$store.state.auth.user;
+        },
+
+        // Check if the group_id is 3 or 4
+        isNagadSebaOrUddoktaPointCustomerGroup() {
+            return (
+                this.user &&
+                (this.user.group_id === 3 || this.user.group_id === 5)
+            );
+        },
+    },
     methods: {
         formatDateTime,
+        phoneValidationRules(number) {
+            const phoneRegex = /^(01)[3456789]{1}\d{8}$/;
+            return phoneRegex.test(number) && number.length === 11;
+        },
         deleteFieldsSet(setIndex) {
             if (this.requiredFieldsSets.length > 1) {
                 this.requiredFieldsSets.splice(setIndex, 1);
@@ -657,17 +677,47 @@ export default {
                 );
             }
         },
-        async getServiceTypeConfig() {
+        /* async getServiceTypeConfig() {
             try {
                 const response = await axios.get(
                     `/get-service-type-configs/${this.ticketInfos.callTypeId}/${this.ticketInfos.callCategoryId}/${this.ticketInfos.callSubCategoryId}`
                 );
                 const serviceConfigs = response.data.data;
                 this.serviceTypeConfigs = serviceConfigs;
-                this.popupMessages = JSON.parse(serviceConfigs.popup_msg_texts);
+                this.popupMessages = serviceConfigs.popup_msg_texts
+                    ? JSON.parse(serviceConfigs.popup_msg_texts)
+                    : [];
             } catch (error) {
                 console.error("Error fetching sub categories:", error);
                 this.serviceTypeConfigs = {};
+            }
+        }, */
+        async getServiceTypeConfig() {
+            try {
+                const response = await axios.get(
+                    `/get-service-type-configs/${this.ticketInfos.callTypeId}/${this.ticketInfos.callCategoryId}/${this.ticketInfos.callSubCategoryId}`
+                );
+                const serviceConfigs = response.data.data;
+
+                if (serviceConfigs && typeof serviceConfigs === "object") {
+                    this.serviceTypeConfigs = serviceConfigs;
+                    // Safely parse popup_msg_texts
+                    this.popupMessages = JSON.parse(
+                        serviceConfigs.popup_msg_texts || "{}"
+                    );
+                } else {
+                    // Handle unexpected structure
+                    console.error(
+                        "Unexpected serviceConfigs structure:",
+                        serviceConfigs
+                    );
+                    this.serviceTypeConfigs = {};
+                    this.popupMessages = {};
+                }
+            } catch (error) {
+                console.error("Error fetching service type configs:", error);
+                this.serviceTypeConfigs = {};
+                this.popupMessages = {};
             }
         },
         generateInputTypes(value) {
@@ -700,7 +750,7 @@ export default {
 
             return finalData;
         },
-        validateRequiredFields() {
+        /* validateRequiredFields() {
             let hasValidationError = false;
             const requiredFieldErrors = [];
 
@@ -724,19 +774,161 @@ export default {
                 hasValidationError,
                 requiredFieldErrors,
             };
-        },
-        async handleSubmit() {
-            if (this.callerMobileNo === null) {
-                this.$showToast("Caller mobile number needed.", {
-                    type: "error",
-                });
-                return;
+        }, */
+        /* validateRequiredFields() {
+            let hasValidationError = false;
+            const requiredFieldErrors = [];
+
+            // Validate callTypeId
+            if (!this.ticketInfos.callTypeId) {
+                hasValidationError = true;
+                requiredFieldErrors.push('The "Call Type" field is required.');
             }
+
+            // Validate callCategoryId
+            if (!this.ticketInfos.callCategoryId) {
+                hasValidationError = true;
+                requiredFieldErrors.push(
+                    'The "Call Category" field is required.'
+                );
+            }
+
+            // Validate callSubCategoryId
+            if (!this.ticketInfos.callSubCategoryId) {
+                hasValidationError = true;
+                requiredFieldErrors.push(
+                    'The "Call Sub-Category" field is required.'
+                );
+            }
+
+            // Validate requiredField (dynamic form fields)
+            this.requiredFieldsSets.forEach((set) => {
+                set.fields.forEach((field) => {
+                    const fieldValue = this.ticketInfos.requiredField[field.id];
+                    if (
+                        !fieldValue ||
+                        (typeof fieldValue === "string" &&
+                            fieldValue.trim() === "")
+                    ) {
+                        hasValidationError = true;
+                        requiredFieldErrors.push(
+                            `The field "${field.input_field_name}" is required.`
+                        );
+                    }
+                });
+            });
+
+            return {
+                hasValidationError,
+                requiredFieldErrors,
+            };
+        }, */
+        validateRequiredFields() {
+            let hasValidationError = false;
+            const requiredFieldErrors = [];
+
+            // Validate phone number
+            if (this.customerPhoneNumber) {
+                if (!this.phoneValidationRules(this.customerPhoneNumber)) {
+                    hasValidationError = true;
+                    requiredFieldErrors.push(
+                        "Invalid phone number format. Must be an 11-digit number starting with '01'."
+                    );
+                } else {
+                    this.callerMobileNo = this.customerPhoneNumber;
+                }
+            } else if (this.callerMobileNo === null) {
+                hasValidationError = true;
+                requiredFieldErrors.push("Caller mobile number is required.");
+            }
+
+            // Validate callTypeId
+            if (!this.ticketInfos.callTypeId) {
+                hasValidationError = true;
+                requiredFieldErrors.push('The "Call Type" field is required.');
+            }
+
+            // Validate callCategoryId
+            if (!this.ticketInfos.callCategoryId) {
+                hasValidationError = true;
+                requiredFieldErrors.push(
+                    'The "Call Category" field is required.'
+                );
+            }
+
+            // Validate callSubCategoryId
+            if (!this.ticketInfos.callSubCategoryId) {
+                hasValidationError = true;
+                requiredFieldErrors.push(
+                    'The "Call Sub-Category" field is required.'
+                );
+            }
+
+            // Validate callTypeId
+            if (!this.ticketInfos.comments) {
+                hasValidationError = true;
+                requiredFieldErrors.push('The "Comment" field is required.');
+            }
+
+            // Validate requiredField (dynamic form fields)
+            this.requiredFieldsSets.forEach((set) => {
+                set.fields.forEach((field) => {
+                    const fieldValue = this.ticketInfos.requiredField[field.id];
+                    if (
+                        !fieldValue ||
+                        (typeof fieldValue === "string" &&
+                            fieldValue.trim() === "")
+                    ) {
+                        hasValidationError = true;
+                        requiredFieldErrors.push(
+                            `The field "${field.input_field_name}" is required.`
+                        );
+                    }
+                });
+            });
+
+            return {
+                hasValidationError,
+                requiredFieldErrors,
+            };
+        },
+
+        async handleSubmit() {
+            /* if (this.customerPhoneNumber) {
+                // Validate the phone number
+                if (!this.phoneValidationRules(this.customerPhoneNumber)) {
+                    this.$showToast(
+                        "Invalid phone number format. Must be an 11-digit number starting with '01'.",
+                        {
+                            type: "error",
+                        }
+                    );
+                    return;
+                }
+
+                this.callerMobileNo = this.customerPhoneNumber;
+            } else {
+                if (this.callerMobileNo === null) {
+                    this.$showToast("Caller mobile number needed.", {
+                        type: "error",
+                    });
+                    return;
+                }
+            } */
+
+            // console.log("customerPhoneNumber", this.customerPhoneNumber);
+            // return;
 
             // Validate required fields
             const { hasValidationError, requiredFieldErrors } =
                 this.validateRequiredFields();
 
+            console.log(
+                "hasValidationError",
+                hasValidationError,
+                "requiredFieldErrors",
+                requiredFieldErrors
+            );
             if (hasValidationError) {
                 this.requiredFieldErrors = requiredFieldErrors;
                 return;
@@ -799,6 +991,9 @@ export default {
                 attachment: "",
                 is_verified: "no",
             };
+            this.customerPhoneNumber = "";
+            this.callerMobileNo = null;
+            this.requiredFieldErrors = [];
         },
     },
     created() {

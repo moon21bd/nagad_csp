@@ -286,7 +286,7 @@ if (!function_exists("getLocationName")) {
                 }
 
                 // Store result in cache
-                Cache::put($cacheKey, $result, now()->addMinutes(10));
+                Cache::put($cacheKey, $result, now()->addMinutes(120));
 
                 return $result;
 
