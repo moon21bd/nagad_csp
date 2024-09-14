@@ -104,26 +104,26 @@
 
                                         <router-link
                                             v-if="hasRole('superadmin|admin')"
-                                            class="btn btn-action"
+                                            class="btn-action btn-edit"
                                             title="Reset Password"
                                             :to="{
                                                 name: 'user-reset-password',
                                                 params: { id: item?.id },
                                             }"
                                         >
-                                            <i class="icon-rotate"></i>
+                                            <i class="icon-unlock"></i>
                                         </router-link>
 
                                         <router-link
                                             v-if="hasRole('superadmin|admin')"
-                                            class="btn btn-action"
+                                            class="btn-action btn-edit"
                                             title="Permissions Manage"
                                             :to="{
                                                 name: 'user-permissions-manage',
                                                 params: { id: item?.id },
                                             }"
                                         >
-                                            <i class="icon-settings"></i>
+                                            <i class="icon-shield"></i>
                                         </router-link>
 
                                         <a

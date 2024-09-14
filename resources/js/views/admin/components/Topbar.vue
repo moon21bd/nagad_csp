@@ -63,7 +63,7 @@
                         class="dropdown-item"
                         :to="{ name: 'user-change-password' }"
                     >
-                        <i class="icon-settings mr-2 text-gray-600"></i>
+                        <i class="icon-lock mr-2 text-gray-600"></i>
                         Change Password
                     </router-link>
 
