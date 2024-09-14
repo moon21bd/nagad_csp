@@ -7,7 +7,7 @@
                 With the love of crores of people Nagad won Most Emerging Brand
                 of Bangladesh {{ new Date().getFullYear() }}
             </p>
-            <div class="design">Design by <a href="#">DIGICON</a></div>
+            <div class="design">Developed by Digicon Technologies PLC</a></div>
         </div>
         <div class="login-box d-flex vh-100 align-items-center">
             <div class="login-box-inner">
