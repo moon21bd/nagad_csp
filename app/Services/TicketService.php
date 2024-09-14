@@ -62,7 +62,7 @@ class TicketService
             $tickets = $query->where('assign_to_group_id', $user->group_id)->get();
         } else {
             // Regular User can only view tickets assigned to them
-            $tickets = $query->where('assign_to_user_id', $user->id)->get();
+            $tickets = $query->where('assign_to_user_id', $user->group_id)->get();
         }
         return $tickets;
     }
@@ -100,7 +100,7 @@ class TicketService
 
         $authUserId = Auth::id();
         $escalation = $this->prepareTicketEscalation($validated['callTypeId'], $serviceTypeConfigs->is_escalation ?? 'NO');
-        $status = $escalation === 'yes' ? 'OPENED' : 'CLOSED';
+        $status = $escalation === 'yes' ? 'NEW' : 'CLOSED';
 
         $ticketsData = [];
         foreach (range(0, $ticketCount - 1) as $i) {
@@ -344,7 +344,7 @@ class TicketService
         $authUserId = Auth::id();
 
         $escalation = $this->prepareTicketEscalation($validated['callTypeId'], $serviceTypeConfigs->is_escalation ?? 'NO');
-        $status = $escalation === 'yes' ? 'OPENED' : 'CLOSED';
+        $status = $escalation === 'yes' ? 'NEW' : 'CLOSED';
 
         return [
             'uuid' => generateTicketUuid(), // Uuid::uuid4()->toString(),
