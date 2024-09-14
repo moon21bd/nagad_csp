@@ -169,7 +169,10 @@
                     </el-menu-item>
                 </div>
 
-                <div v-if="hasRole('admin|superadmin|owner')">
+                <div
+                    v-if="hasRole('admin|superadmin|owner')"
+                    class="sticky-dashboard"
+                >
                     <el-submenu index="1" class="all-dashboard">
                         <template slot="title">
                             <i class="icon-user"></i>

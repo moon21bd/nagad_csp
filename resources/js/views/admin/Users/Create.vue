@@ -287,8 +287,8 @@
 
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >Password<sup>*</sup></label
-                                    >
+                                        >Password<sup>*</sup>
+                                    </label>
 
                                     <div class="password">
                                         <input
@@ -297,7 +297,7 @@
                                             @input="checkPasswordStrength"
                                             v-model="formData.password"
                                             class="form-control"
-                                            placeholder="Password"
+                                            placeholder="Ex:Ab@12345"
                                             ref="password"
                                             :type="
                                                 showPassword
@@ -321,9 +321,54 @@
                                             ></i>
                                         </span>
                                     </div>
-                                    <p v-if="passwordStrength">
-                                        Strength: {{ passwordStrengthText }}
-                                    </p>
+                                    <small
+                                        class="d-block mt-1"
+                                        v-if="passwordStrength"
+                                    >
+                                        Strength:
+                                        <span
+                                            v-if="
+                                                passwordStrengthText ===
+                                                'Very Weak'
+                                            "
+                                            class="text-danger"
+                                            >{{ passwordStrengthText }}</span
+                                        >
+                                        <span
+                                            v-else-if="
+                                                passwordStrengthText === 'Weak'
+                                            "
+                                            class="text-danger"
+                                            >{{ passwordStrengthText }}</span
+                                        >
+                                        <span
+                                            v-else-if="
+                                                passwordStrengthText === 'Fair'
+                                            "
+                                            class="text-info"
+                                            >{{ passwordStrengthText }}</span
+                                        >
+                                        <span
+                                            v-else-if="
+                                                passwordStrengthText ===
+                                                'Strong'
+                                            "
+                                            class="text-success"
+                                            >{{ passwordStrengthText }}</span
+                                        >
+                                        <span
+                                            v-else-if="
+                                                passwordStrengthText ===
+                                                'Very Strong'
+                                            "
+                                            class="text-success"
+                                            ><i class="icon-check mr-1"></i
+                                            >{{ passwordStrengthText }}</span
+                                        >
+                                        <span v-else class="text-dark">{{
+                                            passwordStrengthText
+                                        }}</span>
+                                    </small>
                                     <small
                                         class="text-danger"
                                         v-show="errors.has('password')"
@@ -484,9 +529,9 @@
 </template>
 
 <script>
-import axios from "../../../axios";
-import zxcvbn from "zxcvbn";
 import { Validator } from "vee-validate";
+import zxcvbn from "zxcvbn";
+import axios from "../../../axios";
 
 Validator.extend("password_format", {
     getMessage: (field) =>

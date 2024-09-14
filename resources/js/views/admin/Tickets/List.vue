@@ -39,7 +39,7 @@
                                     </td>
                                     <td>{{ item.uuid }}</td>
                                     <td>
-                                        <span
+                                        <!-- <span
                                             :class="
                                                 item.ticket_status === 'OPEN'
                                                     ? 'active'
@@ -47,7 +47,37 @@
                                             "
                                             class="badge"
                                             >{{ item.ticket_status }}</span
+                                        > -->
+                                        <span
+                                            v-if="item.ticket_status === 'OPEN'"
+                                            class="badge badge-warning"
+                                            >{{ item.ticket_status }}</span
                                         >
+                                        <span
+                                            v-else-if="
+                                                item.ticket_status === 'PENDING'
+                                            "
+                                            class="badge badge-danger"
+                                            >{{ item.ticket_status }}</span
+                                        >
+                                        <span
+                                            v-else-if="
+                                                item.ticket_status === 'CLOSED'
+                                            "
+                                            class="badge badge-success"
+                                            >{{ item.ticket_status }}</span
+                                        >
+                                        <span
+                                            v-else-if="
+                                                item.ticket_status ===
+                                                'RESOLVED'
+                                            "
+                                            class="badge badge-info"
+                                            >{{ item.ticket_status }}</span
+                                        >
+                                        <span v-else class="badge badge-dark">{{
+                                            item.ticket_status
+                                        }}</span>
                                     </td>
                                     <td>
                                         {{ item.responsible_group_names }}
@@ -182,7 +212,7 @@ export default {
     },
 };
 </script>
-<style>
+<style scoped>
 .table.dataTable > thead > tr > th {
     white-space: nowrap;
 }
@@ -195,5 +225,11 @@ export default {
 }
 .table > thead > tr > th:last-child {
     background: #fff9f9;
+}
+.table > tbody > tr > td .badge {
+    font-size: 11px !important;
+    min-width: 70px;
+    padding: 5px 5px 4px;
+    line-height: normal;
 }
 </style>
