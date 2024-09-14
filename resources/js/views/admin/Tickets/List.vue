@@ -41,7 +41,7 @@
                                     <td>
                                         <span
                                             :class="
-                                                item.ticket_status === 'OPEN'
+                                                item.ticket_status === 'OPENED'
                                                     ? 'active'
                                                     : 'inactive'
                                             "

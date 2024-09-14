@@ -190,7 +190,7 @@ class NCTicketController extends Controller
             $data = [
                 'ticket_id' => $ticket->id,
                 'responsible_group_ids' => $ticket->responsible_group_ids,
-                'ticket_status' => 'OPEN',
+                'ticket_status' => 'OPENED',
                 'ticket_comments' => $ticket->comments,
                 'ticket_attachments' => $ticket->ticket_attachments,
                 'ticket_opened_by' => $authUserId,
@@ -299,7 +299,7 @@ class NCTicketController extends Controller
             $data = [
                 'ticket_id' => $ticket->id,
                 'responsible_group_ids' => $ticket->responsible_group_ids,
-                'ticket_status' => 'OPEN',
+                'ticket_status' => 'OPENED',
                 'ticket_comments' => $comment,
                 'ticket_attachments' => $ticket->attachment,
                 'ticket_opened_by' => $userId,

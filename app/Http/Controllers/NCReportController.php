@@ -9,28 +9,93 @@ use Illuminate\Support\Facades\DB;
 
 class NCReportController extends Controller
 {
-    public function getTotalReportCount($id = null)
+    /* public function getTotalReportCount($id = null)
     {
 
-        $assignedId = $id ?? '1';
-        $totalCount = NCTicket::select('ticket_status', DB::raw('count(*) as total'))
-            ->where('assign_to_group_id', $assignedId)
-            ->groupBy('ticket_status')
-            ->get();
-        if ($totalCount) {
+    $assignedId = $id ?? '1';
+    $totalCount = NCTicket::select('ticket_status', DB::raw('count(*) as total'))
+    ->where('assign_to_group_id', $assignedId)
+    ->groupBy('ticket_status')
+    ->get();
+    if ($totalCount) {
+    foreach ($totalCount as $count) {
+    if (strtoupper($count->ticket_status) == "PENDING") {
+    $pendingTicket = $count->total;
+    } elseif (strtoupper($count->ticket_status) == "OPEN") {
+    $openTicket = $count->total;
+    } elseif (strtoupper($count->ticket_status) == "CLOSED") {
+    $closedTicket = $count->total;
+    } elseif (strtoupper($count->ticket_status) == "REOPEN") {
+    $reopenTicket = $count->total;
+    } elseif (strtoupper($count->ticket_status) == "INPROGRESS") {
+    $inProgressTicket = $count->total;
+    }
+    }
+    return response()->json([
+    'openTicket' => $openTicket ?? 0,
+    'inProgressTicket' => $inProgressTicket ?? 0,
+    'pendingTicket' => $pendingTicket ?? 0,
+    'closedTicket' => $closedTicket ?? 0,
+    'reopenTicket' => $reopenTicket ?? 0,
+    ], 201);
+    } else {
+    return response()->json([
+    'msg' => 'No Report Found',
+    ], 201);
+    }
+    } */
+
+    public function getTotalReportCount($id = null)
+    {
+        // Get the logged-in user
+        $user = auth()->user();
+
+        // Initialize the base query
+        $query = NCTicket::select('ticket_status', DB::raw('count(*) as total'));
+
+        // Apply role-based filtering
+        if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
+            // Admin or Super Admin can view all tickets, no filtering by assign_to_group_id
+            $tickets = $query; // No assign_to_group_id filtering needed here
+        } elseif ($user->hasRole('owner') && $user->group->hasOwner()) {
+            // Group Owner can view tickets assigned to their group
+            $tickets = $query->where('assign_to_group_id', $user->group_id);
+        } else {
+            // Handle unauthorized users
+            return response()->json([
+                'msg' => 'Unauthorized or no tickets available for your role.',
+            ], 403);
+        }
+
+        // Continue with counting ticket statuses
+        $totalCount = $tickets->groupBy('ticket_status')->get();
+
+        // Initialize the ticket status counts
+        $pendingTicket = $openTicket = $closedTicket = $reopenTicket = $inProgressTicket = 0;
+
+        // Count the tickets based on their status
+        if ($totalCount->isNotEmpty()) {
             foreach ($totalCount as $count) {
-                if (strtoupper($count->ticket_status) == "PENDING") {
-                    $pendingTicket = $count->total;
-                } elseif (strtoupper($count->ticket_status) == "OPEN") {
-                    $openTicket = $count->total;
-                } elseif (strtoupper($count->ticket_status) == "CLOSED") {
-                    $closedTicket = $count->total;
-                } elseif (strtoupper($count->ticket_status) == "REOPEN") {
-                    $reopenTicket = $count->total;
-                } elseif (strtoupper($count->ticket_status) == "INPROGRESS") {
-                    $inProgressTicket = $count->total;
+                switch (strtoupper($count->ticket_status)) {
+                    case "PENDING":
+                        $pendingTicket = $count->total;
+                        break;
+                    case "OPENED":
+                        $openTicket = $count->total;
+                        break;
+                    case "CLOSED":
+                        $closedTicket = $count->total;
+                        break;
+                    case "REOPEN":
+                        $reopenTicket = $count->total;
+                        break;
+                    case "INPROGRESS":
+                        $inProgressTicket = $count->total;
+                        break;
                 }
             }
+
+            // Return the ticket status counts in a JSON response
             return response()->json([
                 'openTicket' => $openTicket ?? 0,
                 'inProgressTicket' => $inProgressTicket ?? 0,
@@ -39,6 +104,7 @@ class NCReportController extends Controller
                 'reopenTicket' => $reopenTicket ?? 0,
             ], 201);
         } else {
+            // If no reports are found, return a message
             return response()->json([
                 'msg' => 'No Report Found',
             ], 201);
@@ -47,47 +113,78 @@ class NCReportController extends Controller
 
     public function getDailyReportCount($id = null)
     {
-        $assignedId = $id ?? '1';
+        // Get the logged-in user
+        $user = auth()->user();
 
-        $callTypeWiseCounts = NCTicket::select('call_type_id', 'call_type_name', DB::raw('count(*) as total'))
-            ->where('assign_to_group_id', $assignedId)
-            ->whereDate('ticket_created_at', '=', Carbon::today()
-                    ->toDateString())
+        // Initialize the base query
+        $query = NCTicket::select('call_type_id', 'call_type_name', DB::raw('count(*) as total'))
             ->join('nc_call_types', 'nc_call_types.id', 'nc_tickets.call_type_id')
-            ->groupBy('nc_tickets.call_type_id')
-            ->get();
+            ->whereDate('ticket_created_at', '=', Carbon::today()->toDateString());
 
-        if ($callTypeWiseCounts) {
+        // Apply role-based filtering
+        if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
+            // Admin or Super Admin can view all tickets, no filtering by assign_to_group_id
+            $tickets = $query; // No assign_to_group_id filtering needed
+        } elseif ($user->hasRole('owner') && $user->group->hasOwner()) {
+            // Group Owner can view tickets assigned to their group
+            $tickets = $query->where('assign_to_group_id', $user->group_id);
+        } else {
+            // Handle unauthorized users
+            return response()->json([
+                'msg' => 'Unauthorized or no tickets available for your role.',
+            ], 403);
+        }
+
+        // Call type-wise counts
+        $callTypeWiseCounts = $tickets->groupBy('nc_tickets.call_type_id')->get();
+
+        // Initialize the call type counts
+        $totalComplaint = $totalQuery = $totalServiceRequest = 0;
+
+        // Count the tickets based on call type
+        if ($callTypeWiseCounts->isNotEmpty()) {
             foreach ($callTypeWiseCounts as $callTypeWiseCount) {
-                if (strtoupper($callTypeWiseCount->call_type_name) == "COMPLAINT") {
-                    $totalComplaint = $callTypeWiseCount->total;
-                } elseif (strtoupper($callTypeWiseCount->call_type_name) == "QUERY") {
-                    $totalQuery = $callTypeWiseCount->total;
-                } elseif (strtoupper($callTypeWiseCount->call_type_name) == "SERVICE REQUEST") {
-                    $totalServiceRequest = $callTypeWiseCount->total;
+                switch (strtoupper($callTypeWiseCount->call_type_name)) {
+                    case "COMPLAINT":
+                        $totalComplaint = $callTypeWiseCount->total;
+                        break;
+                    case "QUERY":
+                        $totalQuery = $callTypeWiseCount->total;
+                        break;
+                    case "SERVICE REQUEST":
+                        $totalServiceRequest = $callTypeWiseCount->total;
+                        break;
                 }
             }
         }
 
-        $totalCount = NCTicket::where('assign_to_group_id', $assignedId)
-            ->whereDate('ticket_created_at', '=', Carbon::today()
-                    ->toDateString())
-            ->count();
+        // Total ticket count for today
+        $totalCount = $tickets->count();
+
+        // Status-wise counts
         $groupWiseCounts = NCTicket::select('ticket_status', DB::raw('count(*) as total'))
-            ->where('assign_to_group_id', $assignedId)
-            ->whereDate('ticket_created_at', '=', Carbon::today()
-                    ->toDateString())
+            ->whereDate('ticket_created_at', '=', Carbon::today()->toDateString())
             ->groupBy('ticket_status')
             ->get();
-        if ($groupWiseCounts) {
+
+        // Initialize the status counts
+        $closedTicket = $inProgressTicket = 0;
+
+        // Count the tickets based on their status
+        if ($groupWiseCounts->isNotEmpty()) {
             foreach ($groupWiseCounts as $count) {
-                if (strtoupper($count->ticket_status) == "CLOSED") {
-                    $closedTicket = $count->total;
-                } elseif (strtoupper($count->ticket_status) == "INPROGRESS") {
-                    $inProgressTicket = $count->total;
+                switch (strtoupper($count->ticket_status)) {
+                    case "CLOSED":
+                        $closedTicket = $count->total;
+                        break;
+                    case "INPROGRESS":
+                        $inProgressTicket = $count->total;
+                        break;
                 }
             }
         }
+
+        // Return the counts in a JSON response
         return response()->json([
             'totalCount' => $totalCount ?? 0,
             'totalServiceRequest' => $totalServiceRequest ?? 0,
@@ -97,6 +194,58 @@ class NCReportController extends Controller
             'totalClosedTicket' => $closedTicket ?? 0,
         ], 201);
     }
+    /* public function getDailyReportCount($id = null)
+    {
+    $assignedId = $id ?? '1';
+
+    $callTypeWiseCounts = NCTicket::select('call_type_id', 'call_type_name', DB::raw('count(*) as total'))
+    ->where('assign_to_group_id', $assignedId)
+    ->whereDate('ticket_created_at', '=', Carbon::today()
+    ->toDateString())
+    ->join('nc_call_types', 'nc_call_types.id', 'nc_tickets.call_type_id')
+    ->groupBy('nc_tickets.call_type_id')
+    ->get();
+
+    if ($callTypeWiseCounts) {
+    foreach ($callTypeWiseCounts as $callTypeWiseCount) {
+    if (strtoupper($callTypeWiseCount->call_type_name) == "COMPLAINT") {
+    $totalComplaint = $callTypeWiseCount->total;
+    } elseif (strtoupper($callTypeWiseCount->call_type_name) == "QUERY") {
+    $totalQuery = $callTypeWiseCount->total;
+    } elseif (strtoupper($callTypeWiseCount->call_type_name) == "SERVICE REQUEST") {
+    $totalServiceRequest = $callTypeWiseCount->total;
+    }
+    }
+    }
+
+    $totalCount = NCTicket::where('assign_to_group_id', $assignedId)
+    ->whereDate('ticket_created_at', '=', Carbon::today()
+    ->toDateString())
+    ->count();
+    $groupWiseCounts = NCTicket::select('ticket_status', DB::raw('count(*) as total'))
+    ->where('assign_to_group_id', $assignedId)
+    ->whereDate('ticket_created_at', '=', Carbon::today()
+    ->toDateString())
+    ->groupBy('ticket_status')
+    ->get();
+    if ($groupWiseCounts) {
+    foreach ($groupWiseCounts as $count) {
+    if (strtoupper($count->ticket_status) == "CLOSED") {
+    $closedTicket = $count->total;
+    } elseif (strtoupper($count->ticket_status) == "INPROGRESS") {
+    $inProgressTicket = $count->total;
+    }
+    }
+    }
+    return response()->json([
+    'totalCount' => $totalCount ?? 0,
+    'totalServiceRequest' => $totalServiceRequest ?? 0,
+    'totalQuery' => $totalQuery ?? 0,
+    'totalComplaint' => $totalComplaint ?? 0,
+    'totalInProgressTicket' => $inProgressTicket ?? 0,
+    'totalClosedTicket' => $closedTicket ?? 0,
+    ], 201);
+    } */
 
     public function getMonthWiseTicketStatusCount($id = null, $month = null)
     {
@@ -112,7 +261,7 @@ class NCReportController extends Controller
             foreach ($totalCount as $count) {
                 if (strtoupper($count->ticket_status) == "PENDING") {
                     $pendingTicket = $count->total;
-                } elseif (strtoupper($count->ticket_status) == "OPEN") {
+                } elseif (strtoupper($count->ticket_status) == "OPENED") {
                     $openTicket = $count->total;
                 } elseif (strtoupper($count->ticket_status) == "CLOSED") {
                     $closedTicket = $count->total;
