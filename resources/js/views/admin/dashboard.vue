@@ -1,7 +1,16 @@
 <template>
     <div>
         <div class="common-heading d-flex align-items-center mb-3">
-            <h1 class="title m-0">Dashboard</h1>
+            <h1 class="title m-0 mr-2">Dashboard</h1>
+            <el-select v-model="filterGroup" placeholder="Select Group">
+                <el-option
+                    v-for="group in groups"
+                    :key="group.id"
+                    :label="group.name"
+                    :value="group.id"
+                >
+                </el-option>
+            </el-select>
         </div>
         <div class="dashboard-card">
             <ul>
@@ -201,8 +210,10 @@ export default {
     },
     data() {
         return {
+            groups: [],
             monthValue: "",
             monthTickets: "",
+            filterGroup: "",
             totalReportCount: {},
             dailyReportCount: {},
             monthWiseReportCount: {},
@@ -640,8 +651,17 @@ export default {
     mounted() {
         this.init();
         this.initializeChart();
+        this.fetchGroups();
     },
     methods: {
+        async fetchGroups() {
+            try {
+                const response = await axios.get("/groups");
+                this.groups = response.data;
+            } catch (error) {
+                console.error("Error fetching groups:", error);
+            }
+        },
         async init() {
             this.userGroupId = this.$store.state.auth.user.group_id;
             await this.fetchTotalReportCount();

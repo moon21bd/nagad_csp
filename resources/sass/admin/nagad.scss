@@ -181,28 +181,31 @@ body {
         }
     }
 }
-.btn-prev-tickets {
+.tickets-tabs {
     cursor: pointer;
-    padding: 10px 15px;
-    color: $white;
-    background: $red;
+    padding: 8px 15px;
+    color: $gray-800;
     border-radius: 40px;
     transition: all 0.3s linear;
     display: flex;
     align-items: center;
     line-height: 21px;
+    border: 1px solid $gray-800;
     i {
         transition: all 0.3s linear;
         display: inline-flex;
         margin-left: 5px;
     }
     &:hover {
-        background: $black;
+        background: $red;
         text-decoration: none;
         color: $white;
+        border-color: $red;
     }
-    &.show {
-        background: $black;
+    &.active {
+        background: $red;
+        color: $white;
+        border-color: $red;
         i {
             transform: rotate(180deg);
         }

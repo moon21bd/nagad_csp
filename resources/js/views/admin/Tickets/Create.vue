@@ -47,321 +47,339 @@
                     />
                 </div> -->
 
-                <a
+                <!-- <a
                     class="btn-prev-tickets ml-auto"
                     :class="{ show: callerPrevTickets }"
                     @click.prevent="togglePrevTickets()"
                 >
                     Previous Tickets <i class="icon-arrow-down-circle"></i>
-                </a>
+                </a> -->
             </div>
         </div>
         <div class="card-body">
-            <div v-if="showPrevTickets">
-                <div v-if="prevTickets.length && !isLoading">
-                    <div class="table-responsive">
-                        <table class="table prev-table border rounded">
-                            <thead>
-                                <tr>
-                                    <th>Date Time</th>
-                                    <th>Ticket No</th>
-                                    <th>Sub Category</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tr v-if="prevTickets.length === 0">
-                                <td colspan="5" class="text-center">
-                                    No previous data found
-                                </td>
-                            </tr>
-                            <tr
-                                v-else
-                                v-for="ticket in prevTickets"
-                                :key="ticket.ticket_id"
-                            >
-                                <td>
-                                    {{
-                                        formatDateTime(ticket.ticket_created_at)
-                                    }}
-                                </td>
-                                <td>{{ ticket.uuid }}</td>
-                                <td>{{ ticket.call_sub_category_name }}</td>
-                                <td>{{ ticket.ticket_status }}</td>
-                                <td class="text-right">
-                                    <router-link
-                                        class="btn-action btn-edit"
-                                        title="Ticket Timeline"
-                                        :to="{
-                                            name: 'ticket-timeline',
-                                            params: { id: ticket.ticket_id },
-                                        }"
-                                        ><i class="icon-tickets"></i
-                                    ></router-link>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <!-- <div class="col-md-3">
+            <ul class="nav nav-pills mb-3">
+                <li class="nav-item">
+                    <a
+                        class="tickets-tabs active mr-2"
+                        data-toggle="pill"
+                        href="#create-ticket"
+                        >Create Ticket</a
+                    >
+                </li>
+                <li class="nav-item">
+                    <a
+                        class="tickets-tabs"
+                        data-toggle="pill"
+                        href="#prev-ticket"
+                        >Previous Tickets</a
+                    >
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="create-ticket">
+                    <div class="row">
+                        <!-- <div class="col-md-3">
                     <userInfo />
                 </div> -->
-                <div class="col-md-10">
-                    <h4 class="sub-title mb-2">
-                        <i class="icon-tickets text-danger"></i> Create Ticket
-                    </h4>
-                    <form ref="ticketForm" @submit.prevent="handleSubmit">
-                        <div
-                            class="form-row"
-                            v-if="isNagadSebaOrUddoktaPointCustomerGroup"
-                        >
-                            <div class="col-md-12 form-group">
-                                <label class="control-label"
-                                    >Customer Number<sup>*</sup></label
-                                >
-                                <input
-                                    class="form-control"
-                                    type="tel"
-                                    v-model="customerPhoneNumber"
-                                    name="customerPhoneNumber"
-                                    placeholder="Customer Account No"
-                                />
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="col-md-4 form-group">
-                                <label class="control-label"
-                                    >Service Type<sup>*</sup></label
-                                >
-                                <div class="custom-style">
-                                    <el-select
-                                        class="d-block w-100"
-                                        v-model="ticketInfos.callTypeId"
-                                        @change="fetchCategories"
-                                        required
-                                        filterable
-                                        placeholder="Select Type"
-                                    >
-                                        <el-option
-                                            v-for="types in callTypes"
-                                            :key="types.id"
-                                            :label="types.call_type_name"
-                                            :value="types.id"
-                                        >
-                                        </el-option>
-                                    </el-select>
-                                </div>
-                            </div>
-                            <div class="col-md-4 form-group">
-                                <label class="control-label"
-                                    >Service Category<sup>*</sup></label
-                                >
-
-                                <el-select
-                                    class="d-block w-150"
-                                    v-model="ticketInfos.callCategoryId"
-                                    @change="fetchSubCategory"
-                                    required
-                                    filterable
-                                    placeholder="Select Category"
-                                >
-                                    <el-option
-                                        v-for="category in callCategories"
-                                        :key="category.id"
-                                        :label="category.call_category_name"
-                                        :value="category.id"
-                                    >
-                                    </el-option>
-                                </el-select>
-                            </div>
-                            <div class="col-md-4 form-group">
-                                <label class="control-label"
-                                    >Service Sub Category<sup>*</sup></label
-                                >
-
-                                <el-select
-                                    class="d-block w-150"
-                                    v-model="ticketInfos.callSubCategoryId"
-                                    @change="onCategoryChange"
-                                    required
-                                    filterable
-                                    placeholder="Select Sub Category"
-                                >
-                                    <el-option
-                                        v-for="subCategory in callSubCategories"
-                                        :key="subCategory.id"
-                                        :label="
-                                            subCategory.call_sub_category_name
-                                        "
-                                        :value="subCategory.id"
-                                    >
-                                    </el-option>
-                                </el-select>
-                            </div>
-                        </div>
-
-                        <div v-if="requiredFieldsSets.length > 0">
-                            <div
-                                class="ticket-item"
-                                v-for="(
-                                    fieldsSet, setIndex
-                                ) in requiredFieldsSets"
-                                :key="setIndex"
+                        <div class="col-md-10">
+                            <form
+                                ref="ticketForm"
+                                @submit.prevent="handleSubmit"
                             >
-                                <div class="form-row">
-                                    <div class="col-md-12">
-                                        <h5 class="sub-title text-danger">
-                                            Ticket No: {{ fieldsSet.id }}
-                                        </h5>
-                                        <button
-                                            class="btn btn-danger btn-sm"
-                                            @click="deleteFieldsSet(setIndex)"
-                                            :disabled="
-                                                requiredFieldsSets.length === 1
-                                            "
+                                <div
+                                    class="form-row"
+                                    v-if="
+                                        isNagadSebaOrUddoktaPointCustomerGroup
+                                    "
+                                >
+                                    <div class="col-md-12 form-group">
+                                        <label class="control-label"
+                                            >Customer Number<sup>*</sup></label
                                         >
-                                            Delete Ticket
-                                        </button>
+                                        <input
+                                            class="form-control"
+                                            type="tel"
+                                            v-model="customerPhoneNumber"
+                                            name="customerPhoneNumber"
+                                            placeholder="Customer Account No"
+                                        />
                                     </div>
-                                    <div
-                                        class="col-md-4"
-                                        v-for="field in fieldsSet.fields"
-                                        :key="field.id"
-                                    >
-                                        <div
-                                            class="form-group"
-                                            v-if="field.input_type === 'select'"
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="col-md-4 form-group">
+                                        <label class="control-label"
+                                            >Service Type<sup>*</sup></label
                                         >
-                                            <label class="control-label">{{
-                                                field.input_field_name
-                                            }}</label>
+                                        <div class="custom-style">
                                             <el-select
                                                 class="d-block w-100"
-                                                v-model="
-                                                    ticketInfos.requiredField[
-                                                        field.id
-                                                    ]
-                                                "
+                                                v-model="ticketInfos.callTypeId"
+                                                @change="fetchCategories"
                                                 required
                                                 filterable
                                                 placeholder="Select Type"
                                             >
                                                 <el-option
-                                                    v-for="(
-                                                        option, i
-                                                    ) in field.input_value"
-                                                    :key="i"
-                                                    :value="option"
-                                                    >{{ option }}</el-option
+                                                    v-for="types in callTypes"
+                                                    :key="types.id"
+                                                    :label="
+                                                        types.call_type_name
+                                                    "
+                                                    :value="types.id"
                                                 >
+                                                </el-option>
                                             </el-select>
                                         </div>
-                                        <div
-                                            class="form-group"
-                                            v-else-if="
-                                                field.input_type === 'datetime'
-                                            "
+                                    </div>
+                                    <div class="col-md-4 form-group">
+                                        <label class="control-label"
+                                            >Service Category<sup>*</sup></label
                                         >
-                                            <label class="control-label">{{
-                                                field.input_field_name
-                                            }}</label>
-                                            <el-date-picker
-                                                class="d-block w-100"
-                                                v-model="
-                                                    ticketInfos.requiredField[
-                                                        field.id
-                                                    ]
+
+                                        <el-select
+                                            class="d-block w-150"
+                                            v-model="ticketInfos.callCategoryId"
+                                            @change="fetchSubCategory"
+                                            required
+                                            filterable
+                                            placeholder="Select Category"
+                                        >
+                                            <el-option
+                                                v-for="category in callCategories"
+                                                :key="category.id"
+                                                :label="
+                                                    category.call_category_name
                                                 "
-                                                type="datetime"
-                                                placeholder="Select date and time"
-                                            />
-                                        </div>
-                                        <div class="form-group" v-else>
-                                            <label class="control-label">{{
-                                                field.input_field_name
-                                            }}</label>
-                                            <input
-                                                type="text"
-                                                v-model="
-                                                    ticketInfos.requiredField[
-                                                        field.id
-                                                    ]
+                                                :value="category.id"
+                                            >
+                                            </el-option>
+                                        </el-select>
+                                    </div>
+                                    <div class="col-md-4 form-group">
+                                        <label class="control-label"
+                                            >Service Sub Category<sup
+                                                >*</sup
+                                            ></label
+                                        >
+
+                                        <el-select
+                                            class="d-block w-150"
+                                            v-model="
+                                                ticketInfos.callSubCategoryId
+                                            "
+                                            @change="onCategoryChange"
+                                            required
+                                            filterable
+                                            placeholder="Select Sub Category"
+                                        >
+                                            <el-option
+                                                v-for="subCategory in callSubCategories"
+                                                :key="subCategory.id"
+                                                :label="
+                                                    subCategory.call_sub_category_name
                                                 "
-                                                class="form-control"
-                                                :placeholder="
-                                                    'Enter ' +
-                                                    field.input_field_name
-                                                "
-                                            />
-                                        </div>
+                                                :value="subCategory.id"
+                                            >
+                                            </el-option>
+                                        </el-select>
                                     </div>
                                 </div>
-                            </div>
-                            <button
-                                type="button"
-                                class="btn btn-site mb-3"
-                                @click="addFieldsSet"
-                                :disabled="requiredFieldsSets.length >= 3"
-                            >
-                                <i class="icon-submit"></i> New
-                            </button>
-                        </div>
 
-                        <div class="form-row">
-                            <div class="col-md-12 form-group">
-                                <label class="control-label"
-                                    >Comments<sup>*</sup></label
+                                <div v-if="requiredFieldsSets.length > 0">
+                                    <div
+                                        class="ticket-item"
+                                        v-for="(
+                                            fieldsSet, setIndex
+                                        ) in requiredFieldsSets"
+                                        :key="setIndex"
+                                    >
+                                        <div class="form-row">
+                                            <div class="col-md-12">
+                                                <h5
+                                                    class="sub-title d-flex align-items-center text-danger"
+                                                >
+                                                    Ticket No:
+                                                    {{ fieldsSet.id }}
+                                                    <button
+                                                        class="btn btn-danger btn-sm ml-auto"
+                                                        @click="
+                                                            deleteFieldsSet(
+                                                                setIndex
+                                                            )
+                                                        "
+                                                        :disabled="
+                                                            requiredFieldsSets.length ===
+                                                            1
+                                                        "
+                                                    >
+                                                        <i
+                                                            class="icon-trash"
+                                                        ></i>
+                                                        Remove
+                                                    </button>
+                                                </h5>
+                                            </div>
+                                            <div
+                                                class="col-md-4"
+                                                v-for="field in fieldsSet.fields"
+                                                :key="field.id"
+                                            >
+                                                <div
+                                                    class="form-group"
+                                                    v-if="
+                                                        field.input_type ===
+                                                        'select'
+                                                    "
+                                                >
+                                                    <label
+                                                        class="control-label"
+                                                        >{{
+                                                            field.input_field_name
+                                                        }}</label
+                                                    >
+                                                    <el-select
+                                                        class="d-block w-100"
+                                                        v-model="
+                                                            ticketInfos
+                                                                .requiredField[
+                                                                field.id
+                                                            ]
+                                                        "
+                                                        required
+                                                        filterable
+                                                        placeholder="Select Type"
+                                                    >
+                                                        <el-option
+                                                            v-for="(
+                                                                option, i
+                                                            ) in field.input_value"
+                                                            :key="i"
+                                                            :value="option"
+                                                            >{{
+                                                                option
+                                                            }}</el-option
+                                                        >
+                                                    </el-select>
+                                                </div>
+                                                <div
+                                                    class="form-group"
+                                                    v-else-if="
+                                                        field.input_type ===
+                                                        'datetime'
+                                                    "
+                                                >
+                                                    <label
+                                                        class="control-label"
+                                                        >{{
+                                                            field.input_field_name
+                                                        }}</label
+                                                    >
+                                                    <el-date-picker
+                                                        class="d-block w-100"
+                                                        v-model="
+                                                            ticketInfos
+                                                                .requiredField[
+                                                                field.id
+                                                            ]
+                                                        "
+                                                        type="datetime"
+                                                        placeholder="Select date and time"
+                                                    />
+                                                </div>
+                                                <div class="form-group" v-else>
+                                                    <label
+                                                        class="control-label"
+                                                        >{{
+                                                            field.input_field_name
+                                                        }}</label
+                                                    >
+                                                    <input
+                                                        type="text"
+                                                        v-model="
+                                                            ticketInfos
+                                                                .requiredField[
+                                                                field.id
+                                                            ]
+                                                        "
+                                                        class="form-control"
+                                                        :placeholder="
+                                                            'Enter ' +
+                                                            field.input_field_name
+                                                        "
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        class="btn btn-site mb-3"
+                                        @click="addFieldsSet"
+                                        :disabled="
+                                            requiredFieldsSets.length >= 3
+                                        "
+                                    >
+                                        <i class="icon-submit"></i> New
+                                    </button>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="col-md-12 form-group">
+                                        <label class="control-label"
+                                            >Comments<sup>*</sup></label
+                                        >
+                                        <textarea
+                                            class="form-control"
+                                            v-model="ticketInfos.comments"
+                                        ></textarea>
+                                    </div>
+                                </div>
+
+                                <div
+                                    v-if="
+                                        serviceTypeConfigs?.is_show_popup_msg ===
+                                        'yes'
+                                    "
+                                    class="ticket-item popupMessages"
                                 >
-                                <textarea
-                                    class="form-control"
-                                    v-model="ticketInfos.comments"
-                                ></textarea>
-                            </div>
-                        </div>
+                                    <h2 class="sub-title">
+                                        Important Messages
+                                    </h2>
+                                    <ul class="m-0 pl-3">
+                                        <li
+                                            class="py-1"
+                                            v-for="(
+                                                msg, index
+                                            ) in popupMessages"
+                                            :key="index"
+                                        >
+                                            {{ msg }}
+                                        </li>
+                                    </ul>
+                                </div>
 
-                        <div
-                            v-if="
-                                serviceTypeConfigs?.is_show_popup_msg === 'yes'
-                            "
-                            class="ticket-item popupMessages"
-                        >
-                            <h2 class="sub-title">Important Messages</h2>
-                            <ul class="m-0 pl-3">
-                                <li
-                                    class="py-1"
-                                    v-for="(msg, index) in popupMessages"
-                                    :key="index"
-                                >
-                                    {{ msg }}
-                                </li>
-                            </ul>
-                        </div>
+                                <div class="form-row">
+                                    <div
+                                        v-if="
+                                            serviceTypeConfigs?.is_show_attachment ===
+                                            'yes'
+                                        "
+                                        class="col-md-6 form-group uploads"
+                                    >
+                                        <label class="control-label"
+                                            >Attachment<sup>*</sup></label
+                                        >
+                                        <input
+                                            type="file"
+                                            name="is_show_attachment"
+                                            required
+                                            @change="handleAttachmentFileUpload"
+                                            accept="image/png, image/jpeg, .pdf, .doc, .docx, .xls, .xlsx"
+                                        />
+                                    </div>
 
-                        <div class="form-row">
-                            <div
-                                v-if="
-                                    serviceTypeConfigs?.is_show_attachment ===
-                                    'yes'
-                                "
-                                class="col-md-6 form-group uploads"
-                            >
-                                <label class="control-label"
-                                    >Attachment<sup>*</sup></label
-                                >
-                                <input
-                                    type="file"
-                                    name="is_show_attachment"
-                                    required
-                                    @change="handleAttachmentFileUpload"
-                                    accept="image/png, image/jpeg, .pdf, .doc, .docx, .xls, .xlsx"
-                                />
-                            </div>
-
-                            <!-- <div
+                                    <!-- <div
                                 v-if="
                                     serviceTypeConfigs?.is_verification_check ===
                                     'yes'
@@ -392,29 +410,192 @@
                                     </label>
                                 </div>
                             </div> -->
-                        </div>
+                                </div>
 
-                        <!-- Error Message Display Section -->
-                        <div
-                            v-if="requiredFieldErrors.length > 0"
-                            class="alert alert-danger"
-                        >
-                            <ul>
-                                <li
-                                    v-for="(
-                                        error, index
-                                    ) in requiredFieldErrors"
-                                    :key="index"
+                                <!-- Error Message Display Section -->
+                                <div
+                                    v-if="requiredFieldErrors.length > 0"
+                                    class="alert alert-danger"
                                 >
-                                    {{ error }}
-                                </li>
-                            </ul>
-                        </div>
+                                    <ul>
+                                        <li
+                                            v-for="(
+                                                error, index
+                                            ) in requiredFieldErrors"
+                                            :key="index"
+                                        >
+                                            {{ error }}
+                                        </li>
+                                    </ul>
+                                </div>
 
-                        <button class="btn btn-site" type="submit">
-                            Submit
-                        </button>
+                                <button class="btn btn-site" type="submit">
+                                    Submit
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="prev-ticket">
+                    <form action="#">
+                        <div class="form-row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <input
+                                        class="form-control"
+                                        type="tel"
+                                        v-model="callerMobileNo"
+                                        name="customer"
+                                        placeholder="Customer Account No"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div class="col-md-3 form-group">
+                                <div class="custom-style">
+                                    <el-select
+                                        class="d-block w-100"
+                                        v-model="selectedStatus"
+                                        v-validate="'required'"
+                                        filterable
+                                        name="ticketStatus"
+                                        placeholder="Select Status"
+                                    >
+                                        <el-option
+                                            v-for="status in ticketInfos.statuses"
+                                            :key="status.value"
+                                            :label="status.label"
+                                            :value="status.value"
+                                        >
+                                        </el-option>
+                                    </el-select>
+                                    <small
+                                        class="text-danger"
+                                        v-show="errors.has('ticketStatus')"
+                                    >
+                                        {{ errors.first("ticketStatus") }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button
+                                    class="btn btn-site"
+                                    name="search-tickets"
+                                >
+                                    <i class="icon-search"></i> Search
+                                </button>
+                            </div>
+                        </div>
                     </form>
+                    <div>
+                        <h2 class="control-label">All Ticket Details</h2>
+                        <div class="table-responsive">
+                            <table class="table prev-table border rounded">
+                                <thead>
+                                    <tr>
+                                        <th>Date Time</th>
+                                        <th>Ticket No</th>
+                                        <th>Sub Category</th>
+                                        <th>Status</th>
+                                        <th class="text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-if="prevTickets.length === 0">
+                                        <td colspan="5" class="text-center">
+                                            No previous data found
+                                        </td>
+                                    </tr>
+                                    <tr
+                                        v-else
+                                        v-for="ticket in prevTickets"
+                                        :key="ticket.ticket_id"
+                                    >
+                                        <td>
+                                            {{
+                                                formatDateTime(
+                                                    ticket.ticket_created_at
+                                                )
+                                            }}
+                                        </td>
+                                        <td>{{ ticket.uuid }}</td>
+                                        <td>
+                                            {{ ticket.call_sub_category_name }}
+                                        </td>
+                                        <td>{{ ticket.ticket_status }}</td>
+                                        <td class="text-right">
+                                            <router-link
+                                                class="btn-action btn-edit"
+                                                title="Ticket Timeline"
+                                                :to="{
+                                                    name: 'ticket-timeline',
+                                                    params: {
+                                                        id: ticket.ticket_id,
+                                                    },
+                                                }"
+                                                ><i class="icon-tickets"></i
+                                            ></router-link>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div v-if="prevTickets.length && !isLoading">
+                        <h2 class="control-label">Last 3 Ticket Details</h2>
+                        <div class="table-responsive">
+                            <table class="table prev-table border rounded">
+                                <thead>
+                                    <tr>
+                                        <th>Date Time</th>
+                                        <th>Ticket No</th>
+                                        <th>Sub Category</th>
+                                        <th>Status</th>
+                                        <th class="text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-if="prevTickets.length === 0">
+                                        <td colspan="5" class="text-center">
+                                            No previous data found
+                                        </td>
+                                    </tr>
+                                    <tr
+                                        v-else
+                                        v-for="ticket in prevTickets"
+                                        :key="ticket.ticket_id"
+                                    >
+                                        <td>
+                                            {{
+                                                formatDateTime(
+                                                    ticket.ticket_created_at
+                                                )
+                                            }}
+                                        </td>
+                                        <td>{{ ticket.uuid }}</td>
+                                        <td>
+                                            {{ ticket.call_sub_category_name }}
+                                        </td>
+                                        <td>{{ ticket.ticket_status }}</td>
+                                        <td class="text-right">
+                                            <router-link
+                                                class="btn-action btn-edit"
+                                                title="Ticket Timeline"
+                                                :to="{
+                                                    name: 'ticket-timeline',
+                                                    params: {
+                                                        id: ticket.ticket_id,
+                                                    },
+                                                }"
+                                                ><i class="icon-tickets"></i
+                                            ></router-link>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <no-data v-else />
                 </div>
             </div>
         </div>
@@ -478,7 +659,6 @@ export default {
         isLoading: false,
         inDNDList: false,
         specialMessage: "",
-        showPrevTickets: false,
         prevTickets: [],
         popupMessages: [],
         fieldSetIdentifier: 1,
@@ -506,6 +686,9 @@ export default {
     mounted() {
         this.fetchCallTypes();
         this.checkDNDStatus();
+        if (this.prevTickets.length === 0) {
+            this.fetchPrevTickets(); // Fetch tickets if not already populated
+        }
     },
     computed: {
         // Fetch the logged-in user's data from Vuex store
@@ -554,13 +737,13 @@ export default {
                 console.error("Error fetching DND status:", error);
             }
         },
-        togglePrevTickets() {
-            this.showPrevTickets = !this.showPrevTickets; // Toggle the view
+        // togglePrevTickets() {
+        //     this.showPrevTickets = !this.showPrevTickets; // Toggle the view
 
-            if (this.showPrevTickets && this.prevTickets.length === 0) {
-                this.fetchPrevTickets(); // Fetch tickets if not already populated
-            }
-        },
+        //     if (this.showPrevTickets && this.prevTickets.length === 0) {
+        //         this.fetchPrevTickets(); // Fetch tickets if not already populated
+        //     }
+        // },
 
         fetchPrevTickets() {
             if (this.callerMobileNo === null) {
@@ -1016,5 +1199,8 @@ export default {
 <style>
 .popupMessages ul li {
     font-size: 14px;
+}
+h2.control-label {
+    font-size: 16px;
 }
 </style>

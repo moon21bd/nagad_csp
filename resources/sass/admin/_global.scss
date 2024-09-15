@@ -306,13 +306,15 @@ select.form-control {
         border-bottom: none;
     }
 }
-.inactive {
-    color: $red !important;
-    background-color: rgba($red, 0.15) !important;
-}
-.active {
-    color: $teal !important;
-    background-color: rgba($teal, 0.15) !important;
+.badge {
+    &.inactive {
+        color: $red !important;
+        background-color: rgba($red, 0.15) !important;
+    }
+    &.active {
+        color: $teal !important;
+        background-color: rgba($teal, 0.15) !important;
+    }
 }
 // data table
 .dataTables_wrapper {
