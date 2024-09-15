@@ -22,6 +22,7 @@
                         <table id="dataTable" class="table border rounded">
                             <thead>
                                 <tr>
+                                    <th>ID</th>
                                     <th>Creation Time</th>
                                     <th>Ticket ID</th>
                                     <th>Status</th>
@@ -34,6 +35,7 @@
                             </thead>
                             <tbody>
                                 <tr v-for="(item, key) in tickets" :key="key">
+                                    <td>{{ item.id }}</td>
                                     <td>
                                         {{ formatDateTime(item.created_at) }}
                                     </td>
@@ -41,7 +43,7 @@
                                     <td>
                                         <!-- <span
                                             :class="
-                                                item.ticket_status === 'OPEN'
+                                                item.ticket_status === 'OPENED'
                                                     ? 'active'
                                                     : 'inactive'
                                             "

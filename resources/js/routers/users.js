@@ -6,7 +6,7 @@ const UserEdit = () => import("../views/admin/Users/Edit.vue");
 const UserList = () => import("../views/admin/Users/List.vue");
 const ResetPassword = () => import("../views/admin/Users/resetPassword.vue");
 const ManageUserPermissions = () =>
-    import("../views/admin/Users/managePermissions.vue");
+    import("../views/admin/Users/ManagePermissions.vue");
 const UserLocation = () => import("../views/admin/Users/Location.vue");
 const ManageUserRoles = () =>
     import("../views/admin/Users/ManageUserRoles.vue");

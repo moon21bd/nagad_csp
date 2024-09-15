@@ -95,7 +95,7 @@ class NCTicket extends Model
 
     public function callSubCategory()
     {
-        return $this->belongsTo(NCCallSubCategory::class, 'call_category_id');
+        return $this->belongsTo(NCCallSubCategory::class, 'call_sub_category_id');
     }
 
     public function ticketsRequiredFields()

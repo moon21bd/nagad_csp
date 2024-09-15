@@ -66,18 +66,19 @@
                                     <th>Date Time</th>
                                     <th>Ticket No</th>
                                     <th>Sub Category</th>
-                                    <th>Ticket Status</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tr v-if="prevTickets.length === 0">
-                                <td colspan="4" class="text-center">
+                                <td colspan="5" class="text-center">
                                     No previous data found
                                 </td>
                             </tr>
                             <tr
                                 v-else
                                 v-for="ticket in prevTickets"
-                                :key="ticket.id"
+                                :key="ticket.ticket_id"
                             >
                                 <td>
                                     {{
@@ -87,6 +88,17 @@
                                 <td>{{ ticket.uuid }}</td>
                                 <td>{{ ticket.call_sub_category_name }}</td>
                                 <td>{{ ticket.ticket_status }}</td>
+                                <td class="text-right">
+                                    <router-link
+                                        class="btn-action btn-edit"
+                                        title="Ticket Timeline"
+                                        :to="{
+                                            name: 'ticket-timeline',
+                                            params: { id: ticket.ticket_id },
+                                        }"
+                                        ><i class="icon-tickets"></i
+                                    ></router-link>
+                                </td>
                             </tr>
                         </table>
                     </div>
