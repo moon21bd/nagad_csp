@@ -55,7 +55,8 @@
         //     }
         // }
         a {
-            &.router-link-exact-active {
+            &.router-link-exact-active,
+            &.router-link-active {
                 font-weight: 600;
                 i {
                     color: $red !important;

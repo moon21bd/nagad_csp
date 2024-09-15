@@ -32,12 +32,21 @@
                         >{{ totalReportCount.pendingTicket ?? 0 }}
                     </h3>
                 </li>
-                <li>
+                <li class="progress-sla">
                     <div class="img">
                         <img src="/images/tickets-progress.svg" alt="" />
                     </div>
                     <h3>
-                        <span>Working in Progress</span
+                        <span>In progress With SLA</span
+                        >{{ totalReportCount.inProgressTicket ?? 0 }}
+                    </h3>
+                </li>
+                <li class="failed-sla">
+                    <div class="img">
+                        <img src="/images/tickets-progress.svg" alt="" />
+                    </div>
+                    <h3>
+                        <span>In progress Failed SLA</span
                         >{{ totalReportCount.inProgressTicket ?? 0 }}
                     </h3>
                 </li>

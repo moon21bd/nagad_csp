@@ -53,7 +53,7 @@ body {
         margin: 0;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-        grid-gap: 1.5rem;
+        grid-gap: 15px;
         li {
             background: #fff;
             padding: 15px 2px;
@@ -84,6 +84,22 @@ body {
                     color: #41435c;
                     font-size: 14px;
                     margin-bottom: 5px;
+                }
+            }
+            &.progress-sla {
+                h3 {
+                    color: #008937;
+                    span {
+                        color: #008937;
+                    }
+                }
+            }
+            &.failed-sla {
+                h3 {
+                    color: $red;
+                    span {
+                        color: $red;
+                    }
                 }
             }
         }
