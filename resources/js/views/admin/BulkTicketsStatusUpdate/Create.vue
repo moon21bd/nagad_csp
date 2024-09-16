@@ -46,7 +46,7 @@
                                     target="_blank"
                                 >
                                     <i class="icon-download"></i>
-                                    &nbsp;&nbsp;Sample Template
+                                    Sample Template
                                 </a>
                             </div>
                             <br />
