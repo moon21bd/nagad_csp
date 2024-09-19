@@ -243,6 +243,7 @@
                                         type="button"
                                         class="btn btn-sm btn-outline-danger mt-2"
                                         @click="removeComment(index)"
+                                        :disabled="ticketComments.length <= 1"
                                     >
                                         Remove
                                     </button>

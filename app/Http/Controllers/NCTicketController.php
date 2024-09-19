@@ -135,9 +135,22 @@ class NCTicketController extends Controller
      * @param  \App\Models\NCTicket  $nCTicket
      * @return \Illuminate\Http\Response
      */
-    public function destroy(NCTicket $nCTicket)
+
+    public function destroy($id)
     {
-        //
+        $Ticket = NCTicket::findOrFail($id);
+
+        // Delete associated NCTicketTimeline records
+        $Ticket->NCTicketTimelines()->delete();
+
+        // Delete the NCTicket
+        $Ticket->delete();
+
+        return response()->json([
+            'title' => 'Success.',
+            'message' => 'Ticket deleted.',
+            'data' => '',
+        ], 200);
     }
 
     public function getPreviousTicket(Request $request, $mobileNo)

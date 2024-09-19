@@ -69,7 +69,7 @@
                 <el-menu-item
                     index="bulk-tickets-create-list"
                     v-if="
-                        hasRole('admin|superadmin|owner') ||
+                        hasRole('admin|superadmin') ||
                         hasPermission('bulk-tickets-create-list')
                     "
                 >
@@ -82,7 +82,7 @@
                 <el-menu-item
                     index="bulk-tickets-status-update-list"
                     v-if="
-                        hasRole('admin|superadmin|owner') ||
+                        hasRole('admin|superadmin') ||
                         hasPermission('bulk-tickets-status-update-list')
                     "
                 >
@@ -170,7 +170,7 @@
                 </div>
 
                 <div
-                    v-if="hasRole('admin|superadmin|owner')"
+                    v-if="hasRole('admin|superadmin')"
                     class="sticky-dashboard"
                 >
                     <el-submenu index="1" class="all-dashboard">

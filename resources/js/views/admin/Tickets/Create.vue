@@ -436,7 +436,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="tab-pane fade" id="prev-ticket">
+                <div
+                    class="tab-pane fade"
+                    id="prev-ticket"
+                    v-if="callerMobileNo"
+                >
                     <form action="#">
                         <div class="form-row">
                             <div class="col-md-3">
@@ -704,6 +708,19 @@ export default {
             );
         },
     },
+    watch: {
+        "ticketInfos.callCategoryId": function (newCategory) {
+            if (newCategory) {
+                this.ticketInfos.callSubCategoryId = null;
+                this.callSubCategories = [];
+                this.requiredFields = [];
+                this.requiredFieldsSets = [];
+                this.fetchSubCategory();
+                // this.fetchRequiredFields();
+                // this.getServiceTypeConfig();
+            }
+        },
+    },
     methods: {
         formatDateTime,
         phoneValidationRules(number) {
@@ -811,10 +828,17 @@ export default {
 
         async fetchCallTypes() {
             try {
-                const response = await axios.get("/get-service-types");
                 this.requiredFields = [];
+                this.requiredFieldsSets = [];
+                this.fieldSetIdentifier = 1;
+                this.callCategories = [];
                 this.callSubCategories = [];
+                this.ticketInfos.callCategoryId = null;
                 this.ticketInfos.callSubCategoryId = null;
+                this.serviceTypeConfigs = {};
+                this.popupMessages = {};
+                const response = await axios.get("/get-service-types");
+
                 this.callTypes = response.data;
             } catch (error) {
                 console.error("Error fetching call types:", error);
@@ -822,12 +846,19 @@ export default {
         },
         async fetchCategories() {
             try {
+                this.requiredFields = [];
+                this.callCategories = [];
+                this.ticketInfos.callCategoryId = null;
+                this.requiredFieldsSets = [];
+                this.fieldSetIdentifier = 1;
+                this.serviceTypeConfigs = {};
+                this.popupMessages = {};
+                this.callSubCategories = [];
+                this.ticketInfos.callSubCategoryId = null;
                 const response = await axios.get(
                     `/get-category/${this.ticketInfos.callTypeId}`
                 );
-                this.requiredFields = [];
-                this.callSubCategories = [];
-                this.ticketInfos.callSubCategoryId = null;
+
                 this.callCategories = response.data;
             } catch (error) {
                 console.error("Error fetching categories:", error);
@@ -835,10 +866,15 @@ export default {
         },
         async fetchSubCategory() {
             try {
+                this.requiredFields = [];
+                this.requiredFieldsSets = [];
+                this.serviceTypeConfigs = {};
+                this.popupMessages = {};
+
                 const response = await axios.get(
                     `/call-sub-by-call-cat-id/${this.ticketInfos.callTypeId}/${this.ticketInfos.callCategoryId}`
                 );
-                this.callSubCategories;
+
                 this.callSubCategories = response.data;
             } catch (error) {
                 console.error("Error fetching sub categories:", error);
@@ -872,21 +908,7 @@ export default {
                 );
             }
         },
-        /* async getServiceTypeConfig() {
-            try {
-                const response = await axios.get(
-                    `/get-service-type-configs/${this.ticketInfos.callTypeId}/${this.ticketInfos.callCategoryId}/${this.ticketInfos.callSubCategoryId}`
-                );
-                const serviceConfigs = response.data.data;
-                this.serviceTypeConfigs = serviceConfigs;
-                this.popupMessages = serviceConfigs.popup_msg_texts
-                    ? JSON.parse(serviceConfigs.popup_msg_texts)
-                    : [];
-            } catch (error) {
-                console.error("Error fetching sub categories:", error);
-                this.serviceTypeConfigs = {};
-            }
-        }, */
+
         async getServiceTypeConfig() {
             try {
                 const response = await axios.get(
@@ -945,79 +967,7 @@ export default {
 
             return finalData;
         },
-        /* validateRequiredFields() {
-            let hasValidationError = false;
-            const requiredFieldErrors = [];
 
-            this.requiredFieldsSets.forEach((set) => {
-                set.fields.forEach((field) => {
-                    const fieldValue = this.ticketInfos.requiredField[field.id];
-                    if (
-                        !fieldValue ||
-                        (typeof fieldValue === "string" &&
-                            fieldValue.trim() === "")
-                    ) {
-                        hasValidationError = true;
-                        requiredFieldErrors.push(
-                            `The field "${field.input_field_name}" is required.`
-                        );
-                    }
-                });
-            });
-
-            return {
-                hasValidationError,
-                requiredFieldErrors,
-            };
-        }, */
-        /* validateRequiredFields() {
-            let hasValidationError = false;
-            const requiredFieldErrors = [];
-
-            // Validate callTypeId
-            if (!this.ticketInfos.callTypeId) {
-                hasValidationError = true;
-                requiredFieldErrors.push('The "Call Type" field is required.');
-            }
-
-            // Validate callCategoryId
-            if (!this.ticketInfos.callCategoryId) {
-                hasValidationError = true;
-                requiredFieldErrors.push(
-                    'The "Call Category" field is required.'
-                );
-            }
-
-            // Validate callSubCategoryId
-            if (!this.ticketInfos.callSubCategoryId) {
-                hasValidationError = true;
-                requiredFieldErrors.push(
-                    'The "Call Sub-Category" field is required.'
-                );
-            }
-
-            // Validate requiredField (dynamic form fields)
-            this.requiredFieldsSets.forEach((set) => {
-                set.fields.forEach((field) => {
-                    const fieldValue = this.ticketInfos.requiredField[field.id];
-                    if (
-                        !fieldValue ||
-                        (typeof fieldValue === "string" &&
-                            fieldValue.trim() === "")
-                    ) {
-                        hasValidationError = true;
-                        requiredFieldErrors.push(
-                            `The field "${field.input_field_name}" is required.`
-                        );
-                    }
-                });
-            });
-
-            return {
-                hasValidationError,
-                requiredFieldErrors,
-            };
-        }, */
         validateRequiredFields() {
             let hasValidationError = false;
             const requiredFieldErrors = [];
@@ -1089,41 +1039,10 @@ export default {
         },
 
         async handleSubmit() {
-            /* if (this.customerPhoneNumber) {
-                // Validate the phone number
-                if (!this.phoneValidationRules(this.customerPhoneNumber)) {
-                    this.$showToast(
-                        "Invalid phone number format. Must be an 11-digit number starting with '01'.",
-                        {
-                            type: "error",
-                        }
-                    );
-                    return;
-                }
-
-                this.callerMobileNo = this.customerPhoneNumber;
-            } else {
-                if (this.callerMobileNo === null) {
-                    this.$showToast("Caller mobile number needed.", {
-                        type: "error",
-                    });
-                    return;
-                }
-            } */
-
-            // console.log("customerPhoneNumber", this.customerPhoneNumber);
-            // return;
-
             // Validate required fields
             const { hasValidationError, requiredFieldErrors } =
                 this.validateRequiredFields();
 
-            console.log(
-                "hasValidationError",
-                hasValidationError,
-                "requiredFieldErrors",
-                requiredFieldErrors
-            );
             if (hasValidationError) {
                 this.requiredFieldErrors = requiredFieldErrors;
                 return;

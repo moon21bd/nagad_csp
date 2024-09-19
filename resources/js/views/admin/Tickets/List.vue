@@ -4,7 +4,7 @@
             <h1 class="title">Tickets</h1>
             <router-link
                 v-if="
-                    hasRole('admin|superadmin|owner') ||
+                    hasRole('admin|superadmin') ||
                     hasPermission('ticket-create')
                 "
                 class="btn btn-site ml-auto"
@@ -51,7 +51,9 @@
                                             >{{ item.ticket_status }}</span
                                         > -->
                                         <span
-                                            v-if="item.ticket_status === 'OPEN'"
+                                            v-if="
+                                                item.ticket_status === 'OPENED'
+                                            "
                                             class="badge badge-warning"
                                             >{{ item.ticket_status }}</span
                                         >
@@ -101,9 +103,7 @@
                                     <td class="text-right">
                                         <router-link
                                             v-if="
-                                                hasRole(
-                                                    'admin|superadmin|owner'
-                                                ) ||
+                                                hasRole('admin|superadmin') ||
                                                 hasPermission('ticket-edit')
                                             "
                                             class="btn-action btn-edit"
@@ -116,9 +116,7 @@
 
                                         <router-link
                                             v-if="
-                                                hasRole(
-                                                    'admin|superadmin|owner'
-                                                ) ||
+                                                hasRole('admin|superadmin') ||
                                                 hasPermission('ticket-timeline')
                                             "
                                             class="btn-action btn-edit"
@@ -135,7 +133,9 @@
                                                 hasPermission('ticket-delete')
                                             "
                                             class="btn-action btn-trash"
-                                            @click.prevent="delete item.id"
+                                            @click.prevent="
+                                                deleteTicket(item.id)
+                                            "
                                         >
                                             <i class="icon-trash"></i>
                                         </a>
@@ -172,14 +172,34 @@ export default {
 
     methods: {
         formatDateTime,
-        async delete(id) {
+        async deleteTicket(id) {
             try {
                 if (confirm("Are you sure you want to delete this Ticket?")) {
-                    await axios.delete(`/tickets/${id}`);
-                    this.fetchTickets();
+                    const response = await axios.delete(`/tickets/${id}`);
+
+                    if (response.status === 200) {
+                        this.fetchTickets();
+                        this.$showToast("Ticket deleted successfully!", {
+                            type: "success",
+                        });
+                    } else {
+                        this.$showToast(
+                            "Failed to delete the ticket. Please try again.",
+                            {
+                                type: "error",
+                            }
+                        );
+                    }
                 }
             } catch (error) {
-                console.error("Error deleting user:", error);
+                console.error("Error deleting ticket:", error);
+
+                this.$showToast(
+                    "An error occurred while deleting the ticket.",
+                    {
+                        type: "error",
+                    }
+                );
             }
         },
         async fetchTickets() {

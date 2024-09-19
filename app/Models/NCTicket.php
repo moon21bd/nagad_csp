@@ -102,4 +102,9 @@ class NCTicket extends Model
     {
         return $this->hasMany(TicketsRequiredField::class, 'ticket_id');
     }
+
+    public function NCTicketTimelines()
+    {
+        return $this->hasMany(NCTicketTimeline::class, 'ticket_id');
+    }
 }

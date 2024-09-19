@@ -3,7 +3,7 @@
         <div class="common-heading d-flex align-items-center mb-3">
             <h1 class="title">Users</h1>
             <router-link
-                v-if="hasRole('admin|superadmin|owner')"
+                v-if="hasRole('admin|superadmin')"
                 class="btn btn-site ml-auto"
                 :to="{ name: 'user-create' }"
                 ><i class="icon-plus"></i> New
@@ -103,7 +103,7 @@
                                                 <router-link
                                                     v-if="
                                                         hasRole(
-                                                            'admin|superadmin|owner'
+                                                            'admin|superadmin'
                                                         )
                                                     "
                                                     class="dropdown-item text-gray-600"
@@ -185,7 +185,7 @@
                                                 <a
                                                     v-if="
                                                         hasRole(
-                                                            'admin|superadmin|owner'
+                                                            'admin|superadmin'
                                                         )
                                                     "
                                                     class="dropdown-item text-danger"
