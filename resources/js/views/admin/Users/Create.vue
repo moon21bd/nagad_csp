@@ -297,7 +297,7 @@
                                             @input="checkPasswordStrength"
                                             v-model="formData.password"
                                             class="form-control"
-                                            placeholder="Ex:Ab@12345"
+                                            placeholder="Ex: Ab@!M345"
                                             ref="password"
                                             :type="
                                                 showPassword
@@ -548,7 +548,7 @@ Validator.extend("strong_password", {
     getMessage: (field) => `${field} must be strong enough.`,
     validate: (value) => {
         const result = zxcvbn(value);
-        return result.score >= 2; // Require at least "Fair" password strength (score 2 or higher)
+        return result.score >= 2;
     },
 });
 

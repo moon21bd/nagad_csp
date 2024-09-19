@@ -430,8 +430,6 @@ export default {
     data() {
         return {
             isLoading: false,
-            showPassword: false,
-            confirmPassword: false,
             groups: [],
             formErrors: [],
             temp_avatar: null,
@@ -467,12 +465,6 @@ export default {
         this.fetchAllUsers();
     },
     methods: {
-        togglePassword() {
-            this.showPassword = !this.showPassword;
-        },
-        toggleConfirmPassword() {
-            this.confirmPassword = !this.confirmPassword;
-        },
         handleFileUpload(event) {
             // `files` is always an array because the file input may be in multiple mode
             let reader = new FileReader();
@@ -517,8 +509,7 @@ export default {
         },
         async handleSubmit() {
             const _this = this;
-            // console.log("_this", _this.user);
-            // return false;
+
             _this.$validator.validateAll().then(async (result) => {
                 if (result) {
                     axios({
