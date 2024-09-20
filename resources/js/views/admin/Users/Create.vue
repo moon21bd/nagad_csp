@@ -308,7 +308,7 @@
                                                 'required|min:8|max:25|password_format|strong_password'
                                             "
                                         />
-                                        <span
+                                        <!-- <span
                                             class="password-toggle"
                                             @click="togglePassword"
                                         >
@@ -319,9 +319,26 @@
                                                     'icon-eye': !showPassword,
                                                 }"
                                             ></i>
+                                        </span> -->
+                                        <span
+                                            class="password-toggle"
+                                            @click="togglePassword"
+                                        >
+                                            <i :class="passwordIcon"></i>
                                         </span>
                                     </div>
+
                                     <small
+                                        class="d-block mt-1"
+                                        v-if="this.formData.password"
+                                    >
+                                        Strength:
+                                        <span :class="passwordStrengthClass">{{
+                                            passwordStrengthText
+                                        }}</span>
+                                    </small>
+
+                                    <!-- <small
                                         class="d-block mt-1"
                                         v-if="passwordStrength"
                                     >
@@ -368,7 +385,8 @@
                                         <span v-else class="text-dark">{{
                                             passwordStrengthText
                                         }}</span>
-                                    </small>
+                                    </small> -->
+
                                     <small
                                         class="text-danger"
                                         v-show="errors.has('password')"
@@ -595,6 +613,9 @@ export default {
         groupValidationRule() {
             return this.formData.level !== 1 ? "required" : "";
         },
+        passwordIcon() {
+            return this.showPassword ? "icon-eye-off" : "icon-eye";
+        },
         passwordStrengthText() {
             const strengthLevels = [
                 "Very Weak",
@@ -604,6 +625,20 @@ export default {
                 "Very Strong",
             ];
             return strengthLevels[this.passwordStrength];
+        },
+        passwordStrengthClass() {
+            switch (this.passwordStrengthText) {
+                case "Very Weak":
+                case "Weak":
+                    return "text-danger";
+                case "Fair":
+                    return "text-info";
+                case "Strong":
+                case "Very Strong":
+                    return "text-success";
+                default:
+                    return "text-dark";
+            }
         },
     },
     methods: {

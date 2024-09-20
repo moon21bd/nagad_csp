@@ -55,14 +55,16 @@
                                 </small>
                             </div>
                             <div class="form-group">
-                                <label class="control-label">Password</label>
+                                <label class="control-label"
+                                    >New Password</label
+                                >
                                 <div class="password">
                                     <input
                                         id="password"
                                         name="password"
                                         v-model="password"
                                         class="form-control"
-                                        placeholder="Password"
+                                        placeholder="Ex: Ab@!M345"
                                         ref="password"
                                         :type="
                                             showPassword ? 'text' : 'password'
@@ -73,7 +75,7 @@
                                         @input="checkPasswordStrength"
                                     />
 
-                                    <span
+                                    <!-- <span
                                         class="password-toggle"
                                         @click="togglePassword"
                                     >
@@ -83,11 +85,23 @@
                                                 'icon-eye': !showPassword,
                                             }"
                                         ></i>
+                                    </span> -->
+                                    <span
+                                        class="password-toggle"
+                                        @click="togglePassword"
+                                    >
+                                        <i :class="passwordIcon"></i>
                                     </span>
                                 </div>
-                                <p v-if="passwordStrength">
-                                    Strength: {{ passwordStrengthText }}
-                                </p>
+                                <small
+                                    class="d-block mt-1"
+                                    v-if="this.password"
+                                >
+                                    Strength:
+                                    <span :class="passwordStrengthClass">{{
+                                        passwordStrengthText
+                                    }}</span>
+                                </small>
 
                                 <small
                                     class="text-danger"
@@ -212,6 +226,9 @@ export default {
         };
     },
     computed: {
+        passwordIcon() {
+            return this.showPassword ? "icon-eye-off" : "icon-eye";
+        },
         passwordStrengthText() {
             const strengthLevels = [
                 "Very Weak",
@@ -221,6 +238,20 @@ export default {
                 "Very Strong",
             ];
             return strengthLevels[this.passwordStrength];
+        },
+        passwordStrengthClass() {
+            switch (this.passwordStrengthText) {
+                case "Very Weak":
+                case "Weak":
+                    return "text-danger";
+                case "Fair":
+                    return "text-info";
+                case "Strong":
+                case "Very Strong":
+                    return "text-success";
+                default:
+                    return "text-dark";
+            }
         },
     },
     methods: {

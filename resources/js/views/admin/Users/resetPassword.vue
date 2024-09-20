@@ -9,33 +9,42 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-8">
                         <form
                             class="user"
                             ref="resetPasswordForm"
                             @submit.prevent="resetPassword"
                         >
-                            <div class="col-md-4 form-group">
-                                <label class="control-label"
-                                    >Password<sup>*</sup></label
-                                >
-                                <div class="password">
-                                    <input
-                                        id="password"
-                                        name="password"
-                                        v-model="password"
-                                        class="form-control"
-                                        placeholder="Password"
-                                        ref="password"
-                                        :type="
-                                            showPassword ? 'text' : 'password'
-                                        "
-                                        v-validate="
-                                            'required|min:8|max:25|password_format|strong_password'
-                                        "
-                                        @input="checkPasswordStrength"
-                                    />
-                                    <span
+                            <div class="row">
+                                <div class="col-md-12 form-group">
+                                    <label class="control-label"
+                                        >Password<sup>*</sup></label
+                                    >
+                                    <div class="password">
+                                        <input
+                                            id="password"
+                                            name="password"
+                                            v-model="password"
+                                            class="form-control"
+                                            placeholder="Ex: Ab@!M345"
+                                            ref="password"
+                                            :type="
+                                                showPassword
+                                                    ? 'text'
+                                                    : 'password'
+                                            "
+                                            v-validate="
+                                                'required|min:8|max:25|password_format|strong_password'
+                                            "
+                                            @input="checkPasswordStrength"
+                                        />
+                                        <span
+                                            class="password-toggle"
+                                            @click="togglePassword"
+                                        >
+                                            <i :class="passwordIcon"></i>
+                                        </span>
+                                        <!-- <span
                                         class="password-toggle"
                                         @click="togglePassword"
                                     >
@@ -45,61 +54,75 @@
                                                 'icon-eye': !showPassword,
                                             }"
                                         ></i>
-                                    </span>
-                                </div>
-                                <p v-if="passwordStrength">
-                                    Strength: {{ passwordStrengthText }}
-                                </p>
-                                <small
-                                    class="text-danger"
-                                    v-show="errors.has('password')"
-                                >
-                                    {{ errors.first("password") }}
-                                </small>
-                            </div>
-                            <div class="col-md-4 form-group">
-                                <label class="control-label"
-                                    >Confirm Password<sup>*</sup></label
-                                >
-                                <div class="password">
-                                    <input
-                                        autocomplete="off"
-                                        name="password_confirmation"
-                                        v-model="password_confirmation"
-                                        class="form-control"
-                                        placeholder="Confirm password"
-                                        :type="
-                                            confirmPassword
-                                                ? 'text'
-                                                : 'password'
-                                        "
-                                        v-validate="
-                                            'required|confirmed:password|min:8|max:25'
-                                        "
-                                        data-vv-as="password"
-                                    />
-                                    <span
-                                        class="password-toggle"
-                                        @click="toggleConfirmPassword"
+                                    </span> -->
+                                    </div>
+                                    <small
+                                        class="d-block mt-1"
+                                        v-if="this.password"
                                     >
-                                        <i
-                                            :class="{
-                                                'icon-eye-off': confirmPassword,
-                                                'icon-eye': !confirmPassword,
-                                            }"
-                                        ></i>
-                                    </span>
+                                        Strength:
+                                        <span :class="passwordStrengthClass">{{
+                                            passwordStrengthText
+                                        }}</span>
+                                    </small>
+                                    <small
+                                        class="text-danger"
+                                        v-show="errors.has('password')"
+                                    >
+                                        {{ errors.first("password") }}
+                                    </small>
                                 </div>
-                                <small
-                                    class="text-danger"
-                                    v-show="errors.has('password_confirmation')"
-                                >
-                                    {{ errors.first("password_confirmation") }}
-                                </small>
+                                <div class="col-md-12 form-group">
+                                    <label class="control-label"
+                                        >Confirm Password<sup>*</sup></label
+                                    >
+                                    <div class="password">
+                                        <input
+                                            autocomplete="off"
+                                            name="password_confirmation"
+                                            v-model="password_confirmation"
+                                            class="form-control"
+                                            placeholder="Confirm password"
+                                            :type="
+                                                confirmPassword
+                                                    ? 'text'
+                                                    : 'password'
+                                            "
+                                            v-validate="
+                                                'required|confirmed:password|min:8|max:25'
+                                            "
+                                            data-vv-as="password"
+                                        />
+                                        <span
+                                            class="password-toggle"
+                                            @click="toggleConfirmPassword"
+                                        >
+                                            <i
+                                                :class="{
+                                                    'icon-eye-off':
+                                                        confirmPassword,
+                                                    'icon-eye':
+                                                        !confirmPassword,
+                                                }"
+                                            ></i>
+                                        </span>
+                                    </div>
+                                    <small
+                                        class="text-danger"
+                                        v-show="
+                                            errors.has('password_confirmation')
+                                        "
+                                    >
+                                        {{
+                                            errors.first(
+                                                "password_confirmation"
+                                            )
+                                        }}
+                                    </small>
+                                </div>
                             </div>
-
                             <!-- Error Messages -->
-                            <div class="col-md-4 form-group">
+                            <div class="col-md-6 form-group">
                                 <div
                                     v-if="apiErrors.length"
                                     class="alert alert-danger mt-3"
@@ -172,6 +195,9 @@ export default {
         };
     },
     computed: {
+        passwordIcon() {
+            return this.showPassword ? "icon-eye-off" : "icon-eye";
+        },
         passwordStrengthText() {
             const strengthLevels = [
                 "Very Weak",
@@ -181,6 +207,20 @@ export default {
                 "Very Strong",
             ];
             return strengthLevels[this.passwordStrength];
+        },
+        passwordStrengthClass() {
+            switch (this.passwordStrengthText) {
+                case "Very Weak":
+                case "Weak":
+                    return "text-danger";
+                case "Fair":
+                    return "text-info";
+                case "Strong":
+                case "Very Strong":
+                    return "text-success";
+                default:
+                    return "text-dark";
+            }
         },
     },
     methods: {
