@@ -86,7 +86,7 @@ class NCTicketTimelineController extends Controller
 
         if ($ticket->comments) {
             $comments[] = [
-                'date_time' => Carbon::parse($ticket->updated_at)->format('M j, Y'),
+                'date_time' => Carbon::parse($ticket->updated_at)->format('M j, Y h:i A'),
                 'avatar_url' => $user->avatar_url ?? null,
                 'comment' => $ticket->comments,
                 'username' => $user->name ?? 'Unknown',
@@ -98,7 +98,7 @@ class NCTicketTimelineController extends Controller
                 $commentingUser = User::find($timeline->ticket_opened_by) ?: User::find($timeline->ticket_status_updated_by);
 
                 $comments[] = [
-                    'date_time' => Carbon::parse($timeline->updated_at)->format('M j, Y'),
+                    'date_time' => Carbon::parse($timeline->updated_at)->format('M j, Y h:i A'),
                     'avatar_url' => $commentingUser->avatar_url ?? null,
                     'comment' => $timeline->ticket_comments,
                     'username' => $commentingUser->name ?? 'Unknown',

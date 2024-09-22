@@ -462,7 +462,7 @@ export default {
         this.id = this.$route.params.id;
         this.fetchGroups();
         this.fetchUser();
-        this.fetchAllUsers();
+        this.fetchGroupAdmins();
     },
     methods: {
         handleFileUpload(event) {
@@ -486,9 +486,9 @@ export default {
         setUserAvatar(user) {
             this.temp_avatar = user.avatar_url;
         },
-        async fetchAllUsers() {
+        async fetchGroupAdmins() {
             try {
-                const response = await axios.get("/users");
+                const response = await axios.get("/parents");
                 this.users = response.data.data;
             } catch (error) {
                 console.error("Error fetching users:", error);

@@ -76,6 +76,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     // GET LOCATION OF REQUIRES GROUPS
     Route::get('/userLocations', [UsersController::class, 'getUserLocation']);
+    Route::get('/userList', [UsersController::class, 'getUserList']);
+    Route::get('/userLocationLogs/{id}', [UsersController::class, 'getUserLocationLogs']);
 
     // GET ACTIVE USERS FOR FORWARD THE TICKET
     Route::get('/getActiveUsers', [UsersController::class, 'getActiveUsers']);
@@ -139,6 +141,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     // USERS ROUTES
     Route::get('users', [UsersController::class, 'index']);
+    Route::get('parents', [UsersController::class, 'getParentUsers']);
     Route::get('user/{id}', [UsersController::class, 'getUserById']);
     Route::put('user/{id}', [UsersController::class, 'edit']);
     Route::put('user/{id}/reset-password', [UsersController::class, 'resetPassword']);

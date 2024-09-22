@@ -29,7 +29,7 @@
                             <ul>
                                 <li
                                     v-for="user in filteredUsers"
-                                    :key="user.empId"
+                                    :key="user.userId"
                                     @click="selectUser(user)"
                                 >
                                     <div class="user-search-img">
@@ -134,7 +134,7 @@ export default {
         },
     },
     methods: {
-        async fetchAllUsers() {
+        /* async fetchAllUsers() {
             this.isLoading = true;
             try {
                 const response = await axios.get("/userLocations");
@@ -145,11 +145,35 @@ export default {
             } finally {
                 this.isLoading = false;
             }
+        }, */
+        async fetchAllUsers() {
+            this.isLoading = true;
+            try {
+                const response = await axios.get("/userList");
+                this.allUsers = response.data.data;
+            } catch (error) {
+                console.error("Error fetching users:", error);
+            } finally {
+                this.isLoading = false;
+            }
         },
-        selectUser(user) {
+        async selectUser(user) {
+            this.isLoading = true;
+            try {
+                const response = await axios.get(
+                    `/userLocationLogs/${user.userId}`
+                );
+                this.selectedUser = { ...user, userLogs: response.data.data };
+            } catch (error) {
+                console.error("Error fetching user logs:", error);
+            } finally {
+                this.isLoading = false;
+            }
+        },
+        /* selectUser(user) {
             this.selectedUser = user;
             this.searchQuery = ""; // Clear the search input
-        },
+        }, */
     },
     created() {
         this.fetchAllUsers();

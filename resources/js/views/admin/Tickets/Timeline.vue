@@ -6,7 +6,7 @@
                 :to="{ name: 'ticket-index' }"
                 ><i class="icon-left"></i>
             </router-link>
-            <h1 class="title m-0">Ticket I’d : {{ ticketId }}</h1>
+            <h1 class="title m-0">Ticket Id : {{ ticketId }}</h1>
             <div class="btn btn-site btn-sm ml-auto">
                 <i class="icon-check-circle"></i>
                 {{ ticket.ticket_status }}

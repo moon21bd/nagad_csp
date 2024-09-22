@@ -98,6 +98,27 @@ class UsersController extends Controller
 
     }
 
+    /**
+     * Users List w/o pagination.
+     *
+     * @param  array  $request
+     * @return json array response
+     */
+    public function getParentUsers()
+    {
+
+        $users = User::where('parent_id', 0)
+            ->orderByDesc('id')
+            ->get();
+
+        return response()->json([
+            'title' => 'Success.',
+            'message' => 'Users List.',
+            'data' => $users,
+        ], 200);
+
+    }
+
     public function userIndex()
     {
         $currentUser = auth()->user();
@@ -342,175 +363,6 @@ class UsersController extends Controller
         }
     }
 
-    /* public function resetPassword(Request $request, $id)
-    {
-    try {
-    $validatedData = $request->validate([
-    // 'password' => 'required|string|min:8|max:25|confirmed',
-    'password' => [
-    'required',
-    'string',
-    'min:8', // Minimum length
-    'regex:/[a-z]/', // At least one lowercase letter
-    'regex:/[A-Z]/', // At least one uppercase letter
-    'regex:/[0-9]/', // At least one digit
-    'regex:/[@$!%*?&#]/', // At least one special character
-    'confirmed', // Match with password_confirmation
-    ],
-    'password_confirmation' => 'required|string|min:8|max:25',
-    ]);
-
-    // dd($validatedData, $id);
-    // Get the authenticated user
-    $user = User::find($id);
-    if ($user) {
-
-    $now = Carbon::now();
-
-    // Check for password reuse
-    $oldPasswords = PasswordHistory::where('user_id', $user->id)->get();
-
-    foreach ($oldPasswords as $oldPassword) {
-    // dd($request->password,
-    //     $oldPassword->password, Hash::check($request->password, $oldPassword->password));
-    if (Hash::check($request->password, $oldPassword->password)) {
-    // return back()->withErrors(['password' => '']);
-
-    return response()->json([
-    'message' => 'You cannot reuse their old password.',
-    ], Response::HTTP_OK);
-
-    }
-    }
-
-    // Save the old password to the password history table
-    PasswordHistory::create([
-    'user_id' => $user->id,
-    'password' => $user->password, // Store current password (hashed)
-    ]);
-
-    // Update the user's password
-    $user->password = Hash::make($request->input('password'));
-    $user->password_changed_at = $now;
-    $user->save();
-
-    // Update the user's activity log
-    UserActivity::where('user_id', $user->id)->update([
-    'last_password_change_time' => $now,
-    'last_update_date' => $now,
-    'updated_at' => $now,
-    'updator_device' => $this->agentHelper->getDeviceName(),
-    ]);
-
-    // Return a success response
-    return response()->json([
-    'message' => 'Password updated successfully!',
-    ], Response::HTTP_OK);
-    }
-
-    } catch (ValidationException $e) {
-    // Return a detailed validation error response
-    return response()->json([
-    'message' => 'The given data was invalid.',
-    'errors' => $e->errors(),
-    ], Response::HTTP_UNPROCESSABLE_ENTITY);
-    } catch (\Exception $e) {
-    // Return a general error response
-    return response()->json([
-    'message' => 'An error occurred.',
-    'error' => $e->getMessage(),
-    ], Response::HTTP_INTERNAL_SERVER_ERROR);
-    }
-    } */
-
-    /* public function edit(Request $request, $id)
-    {
-    $user = User::findOrFail($id);
-    $userId = $user->id;
-    // dd($request->all());
-    // Validate the input
-    $validatedData = $request->validate([
-    'group_id' => 'required',
-    'parent_id' => 'nullable|integer',
-    'level' => 'nullable|integer',
-    'status' => 'required|in:Active,Inactive,Pending',
-    'avatar' => 'nullable|string',
-    'user_details.gender' => 'required|string',
-    ]);
-    // dd($validatedData);
-    if (!empty($validatedData['avatar'])) {
-    $avatarPath = uploadMediaGetPath($validatedData['avatar']);
-    if ($avatarPath) {
-    $validatedData['avatar'] = $avatarPath;
-    } else {
-    unset($validatedData['avatar']);
-    }
-    } else {
-    unset($validatedData['avatar']);
-    }
-
-    // Capture previous roles and permissions
-    $previousPermissions = $user->permissions->pluck('name')->toArray();
-    $previousRoles = $user->roles->pluck('name')->toArray();
-
-    $groupPermissions = $user->group ? $user->group->permissions->pluck('name')->toArray() : [];
-    $previousAllPermissions = array_unique(array_merge($previousPermissions, $groupPermissions));
-
-    // Determine if there are changes
-    $isUserMigrated = $user->group_id != $validatedData['group_id'];
-    $isParentChanged = $user->parent_id != $validatedData['parent_id'];
-    $isLevelChanged = $user->level != $validatedData['level'];
-
-    if ($isUserMigrated || $isParentChanged || $isLevelChanged) {
-    // Handle group migration
-    if ($isUserMigrated) {
-    $user->permissions()->detach(); // Detach current permissions
-
-    $newGroupPermissions = Group::find($validatedData['group_id'])->permissions->pluck('id')->toArray();
-    $user->permissions()->attach($newGroupPermissions);
-    }
-
-    // Save migrated user logs
-    $totalTicket = NCTicket::where('ticket_created_by', $id)->count();
-
-    $data = [
-    'user_id' => $userId,
-    'previous_group_id' => $user->group_id,
-    'current_group_id' => $validatedData['group_id'],
-    'total_ticket_created_till' => $totalTicket,
-    'previous_roles_permissions' => json_encode([
-    'permissions' => $previousAllPermissions,
-    'roles' => $previousRoles,
-    ]),
-    'previous_level' => $user->level,
-    'previous_parent_id' => $user->parent_id,
-    'current_level' => $validatedData['level'],
-    'current_parent_id' => $validatedData['parent_id'],
-    'updator_group_id' => Auth::user()->group_id,
-    'updated_by' => Auth::id(),
-    'updator_ip' => getIPAddress(),
-    'updator_device_name' => $this->agentHelper->getDeviceName(),
-    ];
-
-    $this->createUserMigrationLogs($data);
-    }
-
-    // Update the user with validated data
-    // $validatedData['gender'] = $user->user_details->gender;
-    $user->update($validatedData);
-
-    $userDetails = UserDetail::where('user_id', $user->id)->first();
-    // dd('user-detail', $userDetails->toArray(), $validatedData['user_details']['gender']);
-    if ($userDetails) {
-    $userDetails->update(['gender' => $validatedData['user_details']['gender']]);
-    }
-
-    return response()->json([
-    'message' => 'User data updated.',
-    'type' => 'success',
-    ], 200);
-    } */
-
     public function store(Request $request)
     {
         $id = $request->input('id');
@@ -625,29 +477,6 @@ class UsersController extends Controller
         return response()->json(['message' => 'Role removed successfully.']);
     }
 
-/*     public function assignPermission(Request $request, $id)
-{
-$request->validate([
-'permissions' => 'required|array',
-'permissions.*' => 'exists:permissions,name',
-]);
-
-$user = User::find($id);
-
-// Get the permission IDs based on the provided permission names
-$permissionIds = LaratrustPermission::whereIn('name', $request->permissions)
-->pluck('id')
-->toArray();
-
-// Using syncPermissions to automatically handle attaching and detaching permissions
-$user->syncPermissions($permissionIds);
-
-return response()->json([
-'message' => 'Permissions updated successfully',
-'type' => 'success',
-]);
-} */
-
     public function assignPermission(Request $request, $id)
     {
         $request->validate([
@@ -749,6 +578,76 @@ return response()->json([
             'title' => 'Success.',
             'message' => 'Users List.',
             'data' => $userData,
+        ], 200);
+    }
+
+    public function getUserList()
+    {
+        $users = User::with('group')
+            ->whereIn('group_id', $this->requiresLocationGroups)
+            ->orderByDesc('created_at')
+            ->get();
+
+        $userData = $users->map(function ($user) {
+            return [
+                'name' => $user->name,
+                'avatar' => $user->avatar_url,
+                'empId' => $user->employee_user_id ?? "",
+                'userId' => $user->id ?? null,
+                'position' => $user->group->name ?? "",
+            ];
+        });
+
+        return response()->json([
+            'title' => 'Success.',
+            'message' => 'User List.',
+            'data' => $userData,
+        ], 200);
+    }
+
+    public function getUserLocationLogs($userId)
+    {
+        $user = User::with(['user_login_activity'])
+            ->where('id', $userId)
+            ->firstOrFail();
+
+        // Group logs by date
+        $logsGroupedByDate = $user->user_login_activity
+            ->groupBy(function ($log) {
+                return Carbon::parse($log->last_login)->format('Y-m-d');
+            })
+            ->sortByDesc(function ($logs, $date) {
+                return Carbon::parse($date);
+            });
+
+        $userLogs = [];
+        foreach ($logsGroupedByDate as $date => $logs) {
+            foreach ($logs as $log) {
+                $loginTime = $log->last_login ? formatTime($log->last_login) : ['formattedTime' => 'N/A', 'suffix' => ''];
+                $logoutTime = $log->last_logout ? formatTime($log->last_logout) : ['formattedTime' => 'N/A', 'suffix' => ''];
+                $location = getLocationName($log->latitude ?? 0, $log->longitude ?? 0);
+
+                $userLogs[] = [
+                    'cdate' => $date,
+                    'date' => Carbon::parse($log->last_login)->format('l, M d, Y'),
+                    'loginTime' => $loginTime['formattedTime'],
+                    'loginSuffix' => $loginTime['suffix'],
+                    'logoutTime' => $logoutTime['formattedTime'],
+                    'logoutSuffix' => $logoutTime['suffix'],
+                    'device_name' => $log->login_device_name,
+                    'device_icon' => getDeviceIcon($log->login_device_name),
+                    'location' => $location['location'],
+                    'latitude' => $log->latitude,
+                    'longitude' => $log->longitude,
+                    'cityCountry' => $location['city_country'],
+                ];
+            }
+        }
+
+        return response()->json([
+            'title' => 'Success.',
+            'message' => 'User Logs.',
+            'data' => $userLogs,
         ], 200);
     }
 

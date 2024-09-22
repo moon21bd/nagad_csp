@@ -607,7 +607,7 @@ export default {
     },
     created() {
         this.fetchGroups();
-        this.fetchUsers();
+        this.fetchGroupAdmins();
     },
     computed: {
         groupValidationRule() {
@@ -649,12 +649,12 @@ export default {
             // Trigger validation
             this.$validator.validate("password");
         },
-        async fetchUsers() {
+        async fetchGroupAdmins() {
             try {
-                const response = await axios.get("/users");
+                const response = await axios.get("/parents");
                 this.users = response.data.data;
             } catch (error) {
-                console.error("Error fetching users:", error);
+                console.error("Error fetching parents:", error);
                 this.users = [];
             }
         },
