@@ -58,4 +58,9 @@ export default [
         name: "reset",
         component: () => import("../views/reset/index.vue"),
     },
+    {
+        path: "/change-password/:token",
+        name: "change-password",
+        component: () => import("../views/login/changePassword.vue"),
+    },
 ];

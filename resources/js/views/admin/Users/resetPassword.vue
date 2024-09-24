@@ -225,6 +225,9 @@ export default {
     },
     methods: {
         checkPasswordStrength() {
+            if (!this.password || this.password.length === 0) {
+                return;
+            }
             const result = zxcvbn(this.password);
             this.passwordStrength = result.score;
 

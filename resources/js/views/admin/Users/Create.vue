@@ -643,6 +643,13 @@ export default {
     },
     methods: {
         checkPasswordStrength() {
+            if (
+                !this.formData.password ||
+                this.formData.password.length === 0
+            ) {
+                return;
+            }
+
             const result = zxcvbn(this.formData.password);
             this.passwordStrength = result.score;
 

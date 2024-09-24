@@ -40,7 +40,23 @@
                             aria-describedby="emailHelp"
                             placeholder="Enter Email or Employee User ID"
                             v-model="email"
+                            name="emailOrEmployeeId"
+                            v-validate="'required'"
                         />
+                        <small
+                            class="text-danger"
+                            v-show="
+                                errors.has(
+                                    'emailOrEmployeeId'
+                                )
+                            "
+                        >
+                            {{
+                                errors.first(
+                                    "emailOrEmployeeId"
+                                )
+                            }}
+                        </small>
                     </div>
                     <div class="form-group">
                         <div class="password">
@@ -49,8 +65,10 @@
                                 class="form-control form-control-user"
                                 id="exampleInputPassword"
                                 placeholder="Password"
+                                name="password"
                                 v-model="password"
                                 :type="showPassword ? 'text' : 'password'"
+                                v-validate="'required|min:8|max:25'"
                             />
                             <span
                                 class="password-toggle"
@@ -64,6 +82,20 @@
                                 ></i>
                             </span>
                         </div>
+                         <small
+                            class="text-danger"
+                            v-show="
+                                errors.has(
+                                    'password'
+                                )
+                            "
+                        >
+                            {{
+                                errors.first(
+                                    "password"
+                                )
+                            }}
+                        </small>
                     </div>
                     <div class="form-group">
                         <div
@@ -89,10 +121,9 @@
 
 <script>
 import axios from "../../axios";
-
+import * as notify from "../../utils/notify.js";
 export default {
     name: "Login",
-    components: {},
     data() {
         return {
             showPassword: false,
@@ -124,88 +155,102 @@ export default {
             this.showPassword = !this.showPassword;
         },
         async login() {
-            console.log("email-creds", this.email);
-            // return;
-            try {
-                const response = await axios.post("login", {
-                    email: this.email,
-                    password: this.password,
-                });
 
-                const user = response.data.user;
+            const validated = await this.$validator.validateAll();
 
-                if (response.data.requiresLocation) {
-                    try {
-                        const location = await this.getLocation();
-                        const locationResponse = await axios.post(
-                            "complete-login",
-                            {
-                                userId: user.id,
-                                location,
+            if (validated) {
+
+                try {
+                    const response = await axios.post("login", {
+                        email: this.email,
+                        password: this.password,
+                    });
+
+                    const user = response.data.user;
+
+                    if (response.data.requiresLocation) {
+                        try {
+                            const location = await this.getLocation();
+                            const locationResponse = await axios.post(
+                                "complete-login",
+                                {
+                                    userId: user.id,
+                                    location,
+                                }
+                            );
+
+                            const token = locationResponse.data.token;
+                            console.log("token", token);
+                            localStorage.setItem("token", token);
+
+                            this.$store.dispatch(
+                                "auth/setUser",
+                                locationResponse.data.user
+                            );
+                            this.$store.commit("auth/SET_TOKEN", token);
+
+                            axios.defaults.headers.common[
+                                "Authorization"
+                            ] = `Bearer ${token}`;
+                            this.$router.push("/admin");
+                        } catch (locationError) {
+                            // console.error("Error getting location:", locationError);
+                            if (locationError.code === 1) {
+                                this.notifyAuthError(
+                                    "Location access denied. Please enable location services to proceed."
+                                );
+                            } else {
+                                this.notifyAuthError(
+                                    "Error getting location. Please try again."
+                                );
                             }
+                        }
+                    } else if (response.data.requiresFirstPasswordChange) {
+                        const { data } = response;
+
+                        this.notifyAuthError(
+                            data.message
                         );
 
-                        const token = locationResponse.data.token;
+                        this.$router.push({ name: 'change-password', params: { token:data.token } });
+                        
+                    } else {
+                        const token = response.data.token;
                         console.log("token", token);
                         localStorage.setItem("token", token);
 
-                        this.$store.dispatch(
-                            "auth/setUser",
-                            locationResponse.data.user
-                        );
+                        this.$store.dispatch("auth/setUser", response.data.user);
                         this.$store.commit("auth/SET_TOKEN", token);
 
                         axios.defaults.headers.common[
                             "Authorization"
                         ] = `Bearer ${token}`;
                         this.$router.push("/admin");
-                    } catch (locationError) {
-                        // console.error("Error getting location:", locationError);
-                        if (locationError.code === 1) {
-                            this.notifyAuthError(
-                                "Location access denied. Please enable location services to proceed."
-                            );
+                    }
+                } catch (error) {
+                    // Check if error response exists and has a message or validation errors
+                    if (error.response) {
+                        const { data } = error.response;
+
+                        if (data.errors && data.errors.email) {
+                            // Specific handling for validation errors
+                            this.notifyAuthError(data.errors.email[0]);
+                        } else if (data.message) {
+                            // General error message from the server
+                            this.notifyAuthError(data.message);
                         } else {
-                            this.notifyAuthError(
-                                "Error getting location. Please try again."
-                            );
+                            // Fallback for unexpected error formats
+                            this.notifyAuthError("Login failed. Please try again.");
                         }
-                    }
-                } else {
-                    const token = response.data.token;
-                    console.log("token", token);
-                    localStorage.setItem("token", token);
-
-                    this.$store.dispatch("auth/setUser", response.data.user);
-                    this.$store.commit("auth/SET_TOKEN", token);
-
-                    axios.defaults.headers.common[
-                        "Authorization"
-                    ] = `Bearer ${token}`;
-                    this.$router.push("/admin");
-                }
-            } catch (error) {
-                // Check if error response exists and has a message or validation errors
-                if (error.response) {
-                    const { data } = error.response;
-
-                    if (data.errors && data.errors.email) {
-                        // Specific handling for validation errors
-                        this.notifyAuthError(data.errors.email[0]);
-                    } else if (data.message) {
-                        // General error message from the server
-                        this.notifyAuthError(data.message);
                     } else {
-                        // Fallback for unexpected error formats
-                        this.notifyAuthError("Login failed. Please try again.");
+                        // Handle errors with no response
+                        this.notifyAuthError(
+                            "Network error. Please check your connection."
+                        );
                     }
-                } else {
-                    // Handle errors with no response
-                    this.notifyAuthError(
-                        "Network error. Please check your connection."
-                    );
                 }
             }
+            
         },
         getLocation() {
             return new Promise((resolve, reject) => {

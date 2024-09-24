@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -159,6 +160,74 @@ class AuthController extends Controller
             // Return a success response
             return response()->json([
                 'message' => 'Password updated successfully!',
+            ], Response::HTTP_OK);
+
+        } catch (ValidationException $e) {
+            // Return a detailed validation error response
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $e->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Exception $e) {
+            // Return a general error response
+            return response()->json([
+                'message' => 'An error occurred.',
+                'error' => $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public function changePasswordForFirstTime(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'token' => 'required',
+                'new_password' => [
+                    'required',
+                    'string',
+                    'min:8', // Minimum length
+                    'regex:/[a-z]/', // At least one lowercase letter
+                    'regex:/[A-Z]/', // At least one uppercase letter
+                    'regex:/[0-9]/', // At least one digit
+                    'regex:/[@$!%*?&#]/', // At least one special character
+                    'confirmed', // Match with password_confirmation
+                ],
+            ]);
+
+            $sessionToken = $request->session()->get('password_change_token');
+
+            if ($request->token !== $sessionToken) {
+                return response()->json(['message' => 'Unauthorized action.'], Response::HTTP_BAD_REQUEST);
+            }
+
+            // Get the authenticated user
+            $user = auth()->user();
+            $newHashedPassword = Hash::make($request->input('new_password'));
+
+            // Save the old password to the password history table
+            PasswordHistory::create([
+                'user_id' => $user->id,
+                'password' => $newHashedPassword, // Store current password (hashed)
+            ]);
+
+            // Update the user's password
+            $user->password = $newHashedPassword;
+            $user->password_changed_at = Carbon::now();
+            $user->first_password_change = Carbon::now();
+            $user->save();
+
+            // Update the user's activity log
+            UserActivity::where('user_id', $user->id)->update([
+                'last_password_change_time' => Carbon::now(),
+                'last_update_date' => Carbon::now(),
+            ]);
+
+            // Clear the session token
+            $request->session()->forget('password_change_token');
+
+            // Return a success response
+            return response()->json([
+                'message' => 'Password updated successfully! You need to login again.',
             ], Response::HTTP_OK);
 
         } catch (ValidationException $e) {
@@ -412,20 +481,31 @@ class AuthController extends Controller
                 /** @var User $user */
                 $user = Auth::user();
 
-                // Check password expiration (e.g., 90 days)
-                if (now()->diffInDays($user->password_changed_at) > 90) {
-                    return response(['message' => 'Your password has expired. Please reset it.'], Response::HTTP_UNAUTHORIZED);
-
-                    /* return redirect()->route('password.reset')->withErrors([
-                'password' => 'Your password has expired. Please reset it.',
-                ]); */
-                }
-
                 // Check if user is active
                 if ($user->status !== 'Active') {
                     Auth::logout();
                     $this->incrementFailedLogins($user);
                     return response(['message' => 'Your account status is Pending. Please contact your system administrator.'], Response::HTTP_UNAUTHORIZED);
+                }
+
+                // Check if the user needs to change their password after first login
+                if (is_null($user->first_password_change)) {
+                    $userData = $user->only(['id', 'email', 'status']);
+                    $passwordChangeToken = Str::random(60);
+                    $request->session()->put('password_change_token', $passwordChangeToken);
+
+                    return response([
+                        'message' => 'You need to change your password after your first login',
+                        'redirect' => 'change-password',
+                        'requiresFirstPasswordChange' => true,
+                        'user' => $userData,
+                        'token' => $passwordChangeToken,
+                    ]);
+                }
+
+                // Check password expiration (e.g., 90 days)
+                if (now()->diffInDays($user->password_changed_at) > 90) {
+                    return response(['message' => 'Your password has expired. Please reset it.'], Response::HTTP_UNAUTHORIZED);
                 }
 
                 // Check if the user belongs to a group that requires location prompting

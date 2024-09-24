@@ -67,6 +67,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // CHANGE PASSWORD
     Route::post('change-password', [Api\AuthController::class, 'changePassword']);
 
+    Route::post('change-password-first-time', [Api\AuthController::class, 'changePasswordForFirstTime']);
+
     // GET CURRENTLY LOGGED IN USER ID
     Route::post('/check-permission', [PermissionsController::class, 'checkPermission']);
 
