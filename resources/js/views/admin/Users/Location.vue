@@ -55,44 +55,98 @@
                             <h3 class="title text-center text-danger mb-3">
                                 {{ selectedUser.name }}’s Logs Info
                             </h3>
-                            <div
-                                v-for="(log, logIndex) in selectedUser.userLogs"
-                                :key="logIndex"
-                            >
-                                <div class="user-logs-time">
-                                    <span>{{ log.date }}</span>
+
+                            <!-- Date range filters -->
+                            <div class="date-filters mb-3">
+                                <label for="startDate">Start Date</label>
+                                <input
+                                    type="date"
+                                    v-model="startDate"
+                                    class="form-control"
+                                    id="startDate"
+                                />
+
+                                <label for="endDate">End Date</label>
+                                <input
+                                    type="date"
+                                    v-model="endDate"
+                                    class="form-control"
+                                    id="endDate"
+                                />
+
+                                <div class="filter-buttons mt-2">
+                                    <button
+                                        class="btn btn-primary"
+                                        @click="filterByDate"
+                                    >
+                                        Filter
+                                    </button>
+                                    <button
+                                        class="btn btn-secondary ml-2"
+                                        @click="resetFilters"
+                                    >
+                                        Reset Filter
+                                    </button>
                                 </div>
-                                <div class="user-logs__item">
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="device-location">
-                                                <i :class="log.device_icon"></i>
+                            </div>
+
+                            <div
+                                v-if="
+                                    !selectedUser.userLogs ||
+                                    selectedUser.userLogs.length === 0
+                                "
+                            >
+                                <p class="text-center">
+                                    No data available for the selected date
+                                    range.
+                                </p>
+                            </div>
+
+                            <div v-else>
+                                <div
+                                    v-for="(
+                                        log, logIndex
+                                    ) in selectedUser.userLogs"
+                                    :key="logIndex"
+                                >
+                                    <div class="user-logs-time">
+                                        <span>{{ log.date }}</span>
+                                    </div>
+                                    <div class="user-logs__item">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="device-location">
+                                                    <i
+                                                        :class="log.device_icon"
+                                                    ></i>
+                                                </div>
+                                                <ul>
+                                                    <li>
+                                                        Login: {{ log.loginTime
+                                                        }}<sub>{{
+                                                            log.loginSuffix
+                                                        }}</sub>
+                                                    </li>
+                                                    <li>
+                                                        Logout:
+                                                        {{ log.logoutTime
+                                                        }}<sub>{{
+                                                            log.logoutSuffix
+                                                        }}</sub>
+                                                    </li>
+                                                </ul>
                                             </div>
-                                            <ul>
-                                                <li>
-                                                    Login: {{ log.loginTime
-                                                    }}<sub>{{
-                                                        log.loginSuffix
-                                                    }}</sub>
-                                                </li>
-                                                <li>
-                                                    Logout: {{ log.logoutTime
-                                                    }}<sub>{{
-                                                        log.logoutSuffix
-                                                    }}</sub>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="device-location">
-                                                <i class="icon-map"></i>
+                                            <div class="col-md-6">
+                                                <div class="device-location">
+                                                    <i class="icon-map"></i>
+                                                </div>
+                                                <h4>
+                                                    {{ log.location }}
+                                                    <span>{{
+                                                        log.cityCountry
+                                                    }}</span>
+                                                </h4>
                                             </div>
-                                            <h4>
-                                                {{ log.location }}
-                                                <span>{{
-                                                    log.cityCountry
-                                                }}</span>
-                                            </h4>
                                         </div>
                                     </div>
                                 </div>
@@ -116,6 +170,8 @@ export default {
             searchQuery: "",
             allUsers: [],
             selectedUser: null,
+            startDate: "",
+            endDate: "",
         };
     },
     computed: {
@@ -134,18 +190,6 @@ export default {
         },
     },
     methods: {
-        /* async fetchAllUsers() {
-            this.isLoading = true;
-            try {
-                const response = await axios.get("/userLocations");
-                console.log("response.data.data", response.data.data);
-                this.allUsers = response.data.data;
-            } catch (error) {
-                console.error("Error fetching users:", error);
-            } finally {
-                this.isLoading = false;
-            }
-        }, */
         async fetchAllUsers() {
             this.isLoading = true;
             try {
@@ -158,6 +202,8 @@ export default {
             }
         },
         async selectUser(user) {
+            this.startDate = "";
+            this.endDate = "";
             this.isLoading = true;
             try {
                 const response = await axios.get(
@@ -170,10 +216,40 @@ export default {
                 this.isLoading = false;
             }
         },
-        /* selectUser(user) {
-            this.selectedUser = user;
-            this.searchQuery = ""; // Clear the search input
-        }, */
+        async filterByDate() {
+            this.isLoading = true;
+            try {
+                const response = await axios.get(
+                    `/userLocationLogs/${this.selectedUser.userId}`,
+                    {
+                        params: {
+                            start_date: this.startDate,
+                            end_date: this.endDate,
+                        },
+                    }
+                );
+                this.selectedUser.userLogs = response.data.data;
+            } catch (error) {
+                console.error("Error fetching user logs:", error);
+            } finally {
+                this.isLoading = false;
+            }
+        },
+        async resetFilters() {
+            this.startDate = "";
+            this.endDate = "";
+            this.isLoading = true;
+            try {
+                const response = await axios.get(
+                    `/userLocationLogs/${this.selectedUser.userId}`
+                );
+                this.selectedUser.userLogs = response.data.data;
+            } catch (error) {
+                console.error("Error fetching user logs:", error);
+            } finally {
+                this.isLoading = false;
+            }
+        },
     },
     created() {
         this.fetchAllUsers();

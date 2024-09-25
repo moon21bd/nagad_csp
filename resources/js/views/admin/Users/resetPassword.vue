@@ -28,6 +28,7 @@
                                             class="form-control"
                                             placeholder="Ex: Ab@!M345"
                                             ref="password"
+                                            autocomplete="new-password"
                                             :type="
                                                 showPassword
                                                     ? 'text'
@@ -78,11 +79,11 @@
                                     >
                                     <div class="password">
                                         <input
-                                            autocomplete="off"
                                             name="password_confirmation"
                                             v-model="password_confirmation"
                                             class="form-control"
                                             placeholder="Confirm password"
+                                            autocomplete="new-password"
                                             :type="
                                                 confirmPassword
                                                     ? 'text'

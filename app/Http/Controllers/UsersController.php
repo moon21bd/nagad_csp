@@ -607,12 +607,36 @@ class UsersController extends Controller
 
     public function getUserLocationLogs($userId)
     {
+
+        $startDate = request('start_date');
+        $endDate = request('end_date');
+
+        if (!$startDate && !$endDate) {
+
+            $defaultDays = 10;
+            $startDate = Carbon::now()->subDays($defaultDays)->startOfDay(); // 7 days ago
+            $endDate = Carbon::now()->endOfDay(); // Today
+        } elseif ($endDate) {
+            $endDate = Carbon::parse($endDate)->endOfDay();
+        }
+
         $user = User::with(['user_login_activity'])
             ->where('id', $userId)
             ->firstOrFail();
 
+        $logs = $user->user_login_activity;
+
+        // Apply date range filter
+        if ($startDate && $endDate) {
+            $logs = $logs->whereBetween('last_login', [$startDate, $endDate]);
+        } elseif ($startDate) {
+            $logs = $logs->where('last_login', '>=', $startDate);
+        } elseif ($endDate) {
+            $logs = $logs->where('last_login', '<=', $endDate);
+        }
+
         // Group logs by date
-        $logsGroupedByDate = $user->user_login_activity
+        $logsGroupedByDate = $logs
             ->groupBy(function ($log) {
                 return Carbon::parse($log->last_login)->format('Y-m-d');
             })
@@ -642,6 +666,15 @@ class UsersController extends Controller
                     'cityCountry' => $location['city_country'],
                 ];
             }
+        }
+
+        // Check if userLogs array is empty
+        if (empty($userLogs)) {
+            return response()->json([
+                'title' => 'No Data',
+                'message' => 'No data available for the selected date range.',
+                'data' => [],
+            ], 200);
         }
 
         return response()->json([
