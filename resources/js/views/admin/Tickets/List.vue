@@ -3,15 +3,75 @@
         <div class="common-heading d-flex align-items-center mb-3">
             <h1 class="title">Tickets</h1>
             <router-link
-                v-if="
-                    hasRole('admin|superadmin') ||
-                    hasPermission('ticket-create')
-                "
+                v-if="canCreateTicket"
                 class="btn btn-site ml-auto"
                 :to="{ name: 'ticket-create' }"
-                ><i class="icon-plus"></i> New
+            >
+                <i class="icon-plus"></i> New
             </router-link>
         </div>
+
+        <div class="filter-section mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="statusFilter">Ticket Status</label>
+                    <select
+                        v-model="filters.status"
+                        @change="fetchTickets"
+                        class="form-control"
+                        id="statusFilter"
+                    >
+                        <option value="">All</option>
+                        <option value="OPENED">Opened</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="CLOSED">Closed</option>
+                        <option value="RESOLVED">Resolved</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="groupFilter">Responsible Groups</label>
+                    <el-select
+                        v-model="filters.groups"
+                        placeholder="Select Groups"
+                        multiple
+                        @change="fetchTickets"
+                    >
+                        <el-option
+                            v-for="group in groupOptions"
+                            :key="group.id"
+                            :label="group.name"
+                            :value="group.id"
+                        >
+                        </el-option>
+                    </el-select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="control-label" for="serviceCategoryFilter"
+                        >Service Category</label
+                    >
+
+                    <el-select
+                        class="form-control"
+                        v-model="filters.service_category"
+                        @change="fetchTickets"
+                        filterable
+                        placeholder="Select Service Sub Category"
+                    >
+                        <el-option value="">All</el-option>
+                        <el-option
+                            v-for="category in serviceCategories"
+                            :key="category.id"
+                            :label="category.name"
+                            :value="category.id"
+                        >
+                        </el-option>
+                    </el-select>
+                </div>
+            </div>
+        </div>
+
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
                 <img src="/images/loader.gif" alt="" />
@@ -40,49 +100,14 @@
                                         {{ formatDateTime(item.created_at) }}
                                     </td>
                                     <td>{{ item.uuid }}</td>
-                                    <td>
-                                        <!-- <span
-                                            :class="
-                                                item.ticket_status === 'OPENED'
-                                                    ? 'active'
-                                                    : 'inactive'
-                                            "
-                                            class="badge"
-                                            >{{ item.ticket_status }}</span
-                                        > -->
-                                        <span
-                                            v-if="
-                                                item.ticket_status === 'OPENED'
-                                            "
-                                            class="badge badge-warning"
-                                            >{{ item.ticket_status }}</span
-                                        >
-                                        <span
-                                            v-else-if="
-                                                item.ticket_status === 'PENDING'
-                                            "
-                                            class="badge badge-danger"
-                                            >{{ item.ticket_status }}</span
-                                        >
-                                        <span
-                                            v-else-if="
-                                                item.ticket_status === 'CLOSED'
-                                            "
-                                            class="badge badge-success"
-                                            >{{ item.ticket_status }}</span
-                                        >
-                                        <span
-                                            v-else-if="
-                                                item.ticket_status ===
-                                                'RESOLVED'
-                                            "
-                                            class="badge badge-info"
-                                            >{{ item.ticket_status }}</span
-                                        >
-                                        <span v-else class="badge badge-dark">{{
-                                            item.ticket_status
-                                        }}</span>
-                                    </td>
+                                    <td
+                                        v-html="
+                                            renderTicketStatus(
+                                                item.ticket_status
+                                            )
+                                        "
+                                    ></td>
+
                                     <td>
                                         {{ item.responsible_group_names }}
                                     </td>
@@ -167,7 +192,23 @@ export default {
         return {
             isLoading: false,
             tickets: [],
+            groupOptions: [],
+            serviceCategories: [],
+            filters: {
+                status: "",
+                groups: [],
+                service_category: "",
+            },
         };
+    },
+    computed: {
+        // Check if the user has permission to create tickets
+        canCreateTicket() {
+            return (
+                this.hasRole("admin|superadmin") ||
+                this.hasPermission("ticket-create")
+            );
+        },
     },
 
     methods: {
@@ -205,8 +246,9 @@ export default {
         async fetchTickets() {
             try {
                 this.isLoading = true;
-                const response = await axios.get("/tickets");
-                console.log("response", response);
+                const response = await axios.get("/tickets", {
+                    params: this.filters, // Send filters to backend
+                });
                 this.tickets = response.data;
             } catch (error) {
                 console.error("Error fetching tickets:", error);
@@ -214,6 +256,48 @@ export default {
                 this.isLoading = false;
             }
         },
+        async fetchFilterOptions() {
+            try {
+                const [groupsResponse, categoriesResponse] = await Promise.all([
+                    axios.get("/groups"),
+                    axios.get("/call-categories"),
+                ]);
+
+                this.groupOptions = groupsResponse.data.map((group) => ({
+                    id: group.id,
+                    name: group.name,
+                }));
+                console.log("Filtered groupOptions", this.groupOptions);
+
+                this.serviceCategories = categoriesResponse.data.map(
+                    (category) => ({
+                        id: category.id,
+                        name: `${category.call_type.call_type_name} > ${category.call_category_name}`,
+                        type: category.call_type.call_type_name,
+                        category: category.call_category_name,
+                    })
+                );
+
+                console.log(
+                    "Filtered serviceCategories",
+                    this.serviceCategories
+                );
+            } catch (error) {
+                console.error("Error fetching filter options:", error);
+            }
+        },
+        renderTicketStatus(status) {
+            const statusMap = {
+                OPENED: { class: "badge-warning", label: "OPENED" },
+                PENDING: { class: "badge-danger", label: "PENDING" },
+                CLOSED: { class: "badge-success", label: "CLOSED" },
+                RESOLVED: { class: "badge-info", label: "RESOLVED" },
+            };
+            return statusMap[status]
+                ? `<span class="badge ${statusMap[status].class}">${statusMap[status].label}</span>`
+                : `<span class="badge badge-dark">${status}</span>`;
+        },
+
         initializeDataTable() {
             this.$nextTick(() => {
                 $("#dataTable").DataTable({
@@ -223,6 +307,7 @@ export default {
         },
     },
     mounted() {
+        this.fetchFilterOptions();
         this.fetchTickets();
     },
     watch: {

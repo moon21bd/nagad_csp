@@ -34,9 +34,15 @@ class NCTicketController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    /* public function index()
     {
-        $tickets = $this->ticketService->getAllTickets();
+    $tickets = $this->ticketService->getAllTickets();
+    return response()->json($tickets);
+    } */
+
+    public function index(Request $request)
+    {
+        $tickets = $this->ticketService->getAllTickets($request->all());
         return response()->json($tickets);
     }
 

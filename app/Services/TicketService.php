@@ -47,22 +47,28 @@ class TicketService
         $this->authUserId = Auth::id();
     }
 
-    public function getAllTickets()
+    public function getAllTickets(array $filters = [])
     {
         $user = auth()->user();
-        // dd($user->group_id);
-        // Base query with relationships
         $query = NCTicket::with(['callType', 'callCategory', 'callSubCategory']);
 
-        // Apply filters based on role
+        if (isset($filters['status']) && $filters['status'] !== '') {
+            $query->where('ticket_status', $filters['status']);
+        }
+
+        if (isset($filters['groups']) && !empty($filters['groups'])) {
+            $query->whereIn('assign_to_group_id', $filters['groups']);
+        }
+
+        if (isset($filters['service_category']) && $filters['service_category'] !== '') {
+            $query->where('call_category_id', $filters['service_category']);
+        }
+
         if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
-            // Admin or Super Admin can view all tickets, no further filtering needed
             $tickets = $query->get();
         } elseif ($user->hasRole('owner') && $user->group->hasOwner()) {
-            // Group Owner can view tickets assigned to their group
             $tickets = $query->where('assign_to_group_id', $user->group_id)->get();
         } else {
-            // Regular User can only view tickets assigned to them
             $tickets = $query->where('assign_to_group_id', $user->group_id)->get();
         }
         return $tickets;
