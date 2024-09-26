@@ -70,6 +70,9 @@
                     </el-select>
                 </div>
             </div>
+            <button class="btn btn-secondary ml-2" @click="resetFilters">
+                Reset Filter
+            </button>
         </div>
 
         <div class="card mb-4">
@@ -241,6 +244,24 @@ export default {
                         type: "error",
                     }
                 );
+            }
+        },
+        async resetFilters() {
+            this.startDate = "";
+            this.endDate = "";
+            this.filters = {
+                status: "",
+                groups: [],
+                service_category: "",
+            };
+            this.isLoading = true;
+            try {
+                const response = await axios.get("/tickets");
+                this.tickets = response.data;
+            } catch (error) {
+                console.error("Error resetting filter:", error);
+            } finally {
+                this.isLoading = false;
             }
         },
         async fetchTickets() {
