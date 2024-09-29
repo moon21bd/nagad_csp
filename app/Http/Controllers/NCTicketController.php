@@ -164,7 +164,7 @@ class NCTicketController extends Controller
         $tickets = NCTicket::with(['callSubCategory'])
             ->where('caller_mobile_no', $mobileNo)
             ->latest()
-            ->take(3)
+        // ->take(5)
             ->get()
             ->map(function ($ticket) {
                 return [
@@ -343,6 +343,38 @@ class NCTicketController extends Controller
                 'message' => 'Failed to save ticket timeline data.',
             ], 500);
         }
+    }
+
+    public function ticketStatuses(Request $request)
+    {
+        $statuses = $this->ticketService->getStatuses();
+        return response()->json(['statuses' => $statuses]);
+    }
+
+    public function searchTickets(Request $request)
+    {
+        $mobileNo = $request->input('mobile_no');
+        $status = $request->input('status');
+        $query = NCTicket::with(['callSubCategory'])
+            ->where('caller_mobile_no', $mobileNo);
+
+        if ($status) {
+            $query->where('ticket_status', $status);
+        }
+
+        $tickets = $query->latest() // Order by the latest tickets
+            ->get()
+            ->map(function ($ticket) {
+                return [
+                    'ticket_id' => $ticket->id,
+                    'ticket_created_at' => $ticket->ticket_created_at,
+                    'uuid' => $ticket->uuid,
+                    'ticket_status' => $ticket->ticket_status,
+                    'call_sub_category_name' => $ticket->callSubCategory->call_sub_category_name,
+                ];
+            });
+
+        return response()->json($tickets);
     }
 
 /**

@@ -35,25 +35,6 @@
                         In Call..<span>+88{{ this.callerMobileNo }}</span>
                     </h5>
                 </div>
-
-                <!-- <div class="verify-user mr-0 mr-md-3">
-                    <input
-                        class="form-control"
-                        type="tel"
-                        v-model="callerMobileNo"
-                        name="customer"
-                        placeholder="Customer Account No"
-                        required
-                    />
-                </div> -->
-
-                <!-- <a
-                    class="btn-prev-tickets ml-auto"
-                    :class="{ show: callerPrevTickets }"
-                    @click.prevent="togglePrevTickets()"
-                >
-                    Previous Tickets <i class="icon-arrow-down-circle"></i>
-                </a> -->
             </div>
         </div>
         <div class="card-body">
@@ -63,6 +44,7 @@
                         class="tickets-tabs active mr-2"
                         data-toggle="pill"
                         href="#create-ticket"
+                        @click="resetFilter"
                         >Create Ticket</a
                     >
                 </li>
@@ -71,6 +53,7 @@
                         class="tickets-tabs"
                         data-toggle="pill"
                         href="#prev-ticket"
+                        @click="handlePrevTicketClick"
                         >Previous Tickets</a
                     >
                 </li>
@@ -378,41 +361,8 @@
                                             accept="image/png, image/jpeg, .pdf, .doc, .docx, .xls, .xlsx"
                                         />
                                     </div>
-
-                                    <!-- <div
-                                v-if="
-                                    serviceTypeConfigs?.is_verification_check ===
-                                    'yes'
-                                "
-                                class="col-md-4 form-group"
-                            >
-                                <label class="control-label m-0 mr-3"
-                                    >Is Verified</label
-                                >
-                                <div class="d-flex">
-                                    <label class="radio mr-2">
-                                        <input
-                                            type="radio"
-                                            value="yes"
-                                            name="is_verified"
-                                            v-model="ticketInfos.is_verified"
-                                        />
-                                        <span class="radio-mark"></span>Yes
-                                    </label>
-                                    <label class="radio">
-                                        <input
-                                            type="radio"
-                                            value="no"
-                                            name="is_verified"
-                                            v-model="ticketInfos.is_verified"
-                                        />
-                                        <span class="radio-mark"></span>No
-                                    </label>
-                                </div>
-                            </div> -->
                                 </div>
 
-                                <!-- Error Message Display Section -->
                                 <div
                                     v-if="requiredFieldErrors.length > 0"
                                     class="alert alert-danger"
@@ -441,7 +391,7 @@
                     id="prev-ticket"
                     v-if="callerMobileNo"
                 >
-                    <form action="#">
+                    <form>
                         <div class="form-row">
                             <div class="col-md-3">
                                 <div class="form-group">
@@ -449,7 +399,7 @@
                                         class="form-control"
                                         type="tel"
                                         v-model="callerMobileNo"
-                                        name="customer"
+                                        name="callerMobileNo"
                                         placeholder="Customer Account No"
                                         required
                                     />
@@ -460,7 +410,6 @@
                                     <el-select
                                         class="d-block w-100"
                                         v-model="selectedStatus"
-                                        v-validate="'required'"
                                         filterable
                                         name="ticketStatus"
                                         placeholder="Select Status"
@@ -473,18 +422,13 @@
                                         >
                                         </el-option>
                                     </el-select>
-                                    <small
-                                        class="text-danger"
-                                        v-show="errors.has('ticketStatus')"
-                                    >
-                                        {{ errors.first("ticketStatus") }}
-                                    </small>
                                 </div>
                             </div>
                             <div class="col-md-2">
                                 <button
                                     class="btn btn-site"
                                     name="search-tickets"
+                                    @click.prevent="searchTickets"
                                 >
                                     <i class="icon-search"></i> Search
                                 </button>
@@ -494,7 +438,10 @@
                     <div>
                         <h2 class="control-label">All Ticket Details</h2>
                         <div class="table-responsive">
-                            <table class="table prev-table border rounded">
+                            <table
+                                id="dataTable"
+                                class="table prev-table border rounded"
+                            >
                                 <thead>
                                     <tr>
                                         <th>Date Time</th>
@@ -545,7 +492,7 @@
                             </table>
                         </div>
                     </div>
-                    <div v-if="prevTickets.length && !isLoading">
+                    <!-- <div v-if="prevTickets.length && !isLoading">
                         <h2 class="control-label">Last 3 Ticket Details</h2>
                         <div class="table-responsive">
                             <table class="table prev-table border rounded">
@@ -599,7 +546,7 @@
                             </table>
                         </div>
                     </div>
-                    <no-data v-else />
+                    <no-data v-else /> -->
                 </div>
             </div>
         </div>
@@ -637,9 +584,6 @@
                         >
                             Close
                         </button>
-                        <!-- <button type="button" class="btn btn-primary">
-                            Save changes
-                        </button> -->
                     </div>
                 </div>
             </div>
@@ -670,13 +614,16 @@ export default {
         callerMobileNo: null,
         customerPhoneNumber: null,
         callerPrevTickets: false,
+        selectedStatus: null,
         requiredFields: [],
         callTypes: [],
         callCategories: [],
         callSubCategories: [],
         serviceTypeConfigs: {},
         requiredFieldErrors: [],
+        isPrevTicketActive: false,
         ticketInfos: {
+            statuses: [],
             callTypeId: null,
             callCategoryId: null,
             callSubCategoryId: null,
@@ -687,20 +634,16 @@ export default {
         },
         modalBody: "",
     }),
+
     mounted() {
         this.fetchCallTypes();
         this.checkDNDStatus();
-        if (this.prevTickets.length === 0) {
-            this.fetchPrevTickets(); // Fetch tickets if not already populated
-        }
+        this.fetchTicketStatuses();
     },
     computed: {
-        // Fetch the logged-in user's data from Vuex store
         user() {
             return this.$store.state.auth.user;
         },
-
-        // Check if the group_id is 3 or 4
         isNagadSebaOrUddoktaPointCustomerGroup() {
             return (
                 this.user &&
@@ -716,12 +659,98 @@ export default {
                 this.requiredFields = [];
                 this.requiredFieldsSets = [];
                 this.fetchSubCategory();
-                // this.fetchRequiredFields();
-                // this.getServiceTypeConfig();
             }
         },
     },
     methods: {
+        resetFilter() {
+            // this.callerMobileNo = "";
+            this.selectedStatus = "";
+            this.prevTickets = [];
+        },
+        initializeDataTable() {
+            this.$nextTick(() => {
+                const tableElement = $("#dataTable");
+
+                if (!tableElement.length) {
+                    console.error("DataTable element not found.");
+                    return;
+                }
+
+                if ($.fn.dataTable.isDataTable(tableElement)) {
+                    tableElement.DataTable().destroy();
+                }
+
+                const table = tableElement.DataTable();
+                table.clear();
+
+                this.prevTickets.forEach((ticket) => {
+                    table.row.add([
+                        this.formatDateTime(ticket.ticket_created_at),
+                        ticket.uuid,
+                        ticket.call_sub_category_name,
+                        ticket.ticket_status,
+                        `<a href="/ticket-timeline/${ticket.ticket_id}" class="btn-action btn-edit">
+                    <i class="icon-tickets"></i>
+                 </a>`,
+                    ]);
+                });
+
+                table.draw();
+            });
+        },
+
+        async searchTickets() {
+            if (!this.callerMobileNo) {
+                alert("Please enter a mobile number.");
+                return;
+            }
+
+            this.isLoading = true;
+            this.prevTickets = [];
+            try {
+                const response = await axios.get("/ticket/search", {
+                    params: {
+                        mobile_no: this.callerMobileNo,
+                        status: this.selectedStatus,
+                    },
+                });
+
+                this.prevTickets = response.data;
+
+                this.$nextTick(() => {
+                    setTimeout(() => {
+                        this.initializeDataTable();
+                    }, 100);
+                });
+            } catch (error) {
+                this.prevTickets = [];
+                console.error("Failed to fetch tickets", error);
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        handlePrevTicketClick() {
+            this.isPrevTicketActive = true; // Set the tab to active
+
+            if (!this.customerPhoneNumber && !this.callerMobileNo) {
+                const mobileNo = this.$route.query?.msisdn || null;
+                if (!mobileNo) {
+                    this.$showToast("Please enter a mobile number", {
+                        type: "error",
+                    });
+                } else {
+                    this.callerMobileNo = mobileNo;
+                    this.fetchPrevTickets();
+                }
+            } else {
+                this.callerMobileNo =
+                    this.customerPhoneNumber || this.callerMobileNo;
+                this.fetchPrevTickets();
+            }
+        },
+
         formatDateTime,
         phoneValidationRules(number) {
             const phoneRegex = /^(01)[3456789]{1}\d{8}$/;
@@ -754,14 +783,16 @@ export default {
                 console.error("Error fetching DND status:", error);
             }
         },
-        // togglePrevTickets() {
-        //     this.showPrevTickets = !this.showPrevTickets; // Toggle the view
-
-        //     if (this.showPrevTickets && this.prevTickets.length === 0) {
-        //         this.fetchPrevTickets(); // Fetch tickets if not already populated
-        //     }
-        // },
-
+        fetchTicketStatuses() {
+            axios
+                .get("/ticket/statuses")
+                .then((response) => {
+                    this.ticketInfos.statuses = response.data.statuses;
+                })
+                .catch((error) => {
+                    console.error("Error fetching ticket statuses:", error);
+                });
+        },
         fetchPrevTickets() {
             if (this.callerMobileNo === null) {
                 this.$showToast("Caller mobile number needed.", {
@@ -769,43 +800,42 @@ export default {
                 });
                 return;
             }
-
+            this.prevTickets = [];
             axios
                 .get(`/previous-ticket/${this.callerMobileNo}`)
                 .then((response) => {
                     this.prevTickets = response.data;
 
+                    this.$nextTick(() => {
+                        setTimeout(() => {
+                            this.initializeDataTable();
+                        }, 100);
+                    });
                     this.isLoading = false;
-
-                    // After fetching, assign the data to callerPrevTickets
-                    // this.callerPrevTickets = this.prevTickets.length > 0;
                 })
                 .catch((error) => {
+                    this.prevTickets = [];
                     console.error("Error fetching previous tickets:", error);
                 });
         },
         addFieldsSet() {
             if (this.requiredFieldsSets.length < 3) {
-                console.log("this.requiredFields", this.requiredFields);
-
                 const newFields = this.requiredFields.map((field) => ({
                     id: `${field.id}-${this.fieldSetIdentifier}`,
 
                     input_field_name: field.input_field_name,
                     input_type: field.input_type,
                     input_value: field.input_value || [],
-                    value: "", // Initialize value as empty string
+                    value: "",
                 }));
 
                 this.requiredFieldsSets.push({
-                    // id: this.fieldSetIdentifier,
                     id: this.requiredFieldsSets.length + 1,
                     fields: newFields,
                 });
 
                 this.fieldSetIdentifier++;
 
-                // Ensure each new field is initialized in ticketInfos
                 newFields.forEach((field) => {
                     if (!this.ticketInfos.requiredField[field.id]) {
                         this.$set(this.ticketInfos.requiredField, field.id, "");
@@ -899,7 +929,7 @@ export default {
                     this.requiredFieldsSets = [
                         { id: this.fieldSetIdentifier, fields: data },
                     ];
-                    this.fieldSetIdentifier++; // Increment identifier for the first set
+                    this.fieldSetIdentifier++;
                     this.generateInputTypes(data);
                 }
             } catch (error) {
@@ -918,12 +948,11 @@ export default {
 
                 if (serviceConfigs && typeof serviceConfigs === "object") {
                     this.serviceTypeConfigs = serviceConfigs;
-                    // Safely parse popup_msg_texts
+
                     this.popupMessages = JSON.parse(
                         serviceConfigs.popup_msg_texts || "{}"
                     );
                 } else {
-                    // Handle unexpected structure
                     console.error(
                         "Unexpected serviceConfigs structure:",
                         serviceConfigs
@@ -972,7 +1001,6 @@ export default {
             let hasValidationError = false;
             const requiredFieldErrors = [];
 
-            // Validate phone number
             if (this.customerPhoneNumber) {
                 if (!this.phoneValidationRules(this.customerPhoneNumber)) {
                     hasValidationError = true;
@@ -987,13 +1015,11 @@ export default {
                 requiredFieldErrors.push("Caller mobile number is required.");
             }
 
-            // Validate callTypeId
             if (!this.ticketInfos.callTypeId) {
                 hasValidationError = true;
                 requiredFieldErrors.push('The "Call Type" field is required.');
             }
 
-            // Validate callCategoryId
             if (!this.ticketInfos.callCategoryId) {
                 hasValidationError = true;
                 requiredFieldErrors.push(
@@ -1001,7 +1027,6 @@ export default {
                 );
             }
 
-            // Validate callSubCategoryId
             if (!this.ticketInfos.callSubCategoryId) {
                 hasValidationError = true;
                 requiredFieldErrors.push(
@@ -1009,13 +1034,11 @@ export default {
                 );
             }
 
-            // Validate callTypeId
             if (!this.ticketInfos.comments) {
                 hasValidationError = true;
                 requiredFieldErrors.push('The "Comment" field is required.');
             }
 
-            // Validate requiredField (dynamic form fields)
             this.requiredFieldsSets.forEach((set) => {
                 set.fields.forEach((field) => {
                     const fieldValue = this.ticketInfos.requiredField[field.id];
@@ -1039,7 +1062,6 @@ export default {
         },
 
         async handleSubmit() {
-            // Validate required fields
             const { hasValidationError, requiredFieldErrors } =
                 this.validateRequiredFields();
 
@@ -1049,7 +1071,6 @@ export default {
             }
 
             try {
-                // Track click event
                 this.$trackClick(
                     "ticket_create",
                     JSON.stringify(this.ticketInfos),
@@ -1078,8 +1099,6 @@ export default {
                     );
                 }
             } catch (error) {
-                // Handle error response
-                console.error("There was an error submitting the ticket!");
                 this.$showToast(
                     "There was an error submitting the ticket form.",
                     {
@@ -1103,6 +1122,7 @@ export default {
                 requiredField: {},
                 comments: "",
                 attachment: "",
+                selectedStatus: null,
                 is_verified: "no",
             };
             this.customerPhoneNumber = "";

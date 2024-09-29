@@ -183,10 +183,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // Ticket assignId
     Route::post('/ticket/assign/{id}', [NCTicketController::class, 'assignTicket']);
     Route::get('/ticket/status/{id}', [NCTicketController::class, 'ticketStatus']);
-
     Route::post('/ticket/forward/{id}', [NCTicketController::class, 'forwardTicket']);
-
     Route::post('/ticket/timeline/{id}', [NCTicketController::class, 'addTimelineForFirstTimePageLoad']);
+    Route::get('/ticket/search', [NCTicketController::class, 'searchTickets']);
+    Route::get('/ticket/statuses', [NCTicketController::class, 'ticketStatuses']);
 
     Route::get('users-index', [UsersController::class, 'userIndex']);
 
