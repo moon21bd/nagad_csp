@@ -613,7 +613,7 @@ class UsersController extends Controller
 
         if (!$startDate && !$endDate) {
 
-            $defaultDays = 10;
+            $defaultDays = 30;
             $startDate = Carbon::now()->subDays($defaultDays)->startOfDay(); // 7 days ago
             $endDate = Carbon::now()->endOfDay(); // Today
         } elseif ($endDate) {
