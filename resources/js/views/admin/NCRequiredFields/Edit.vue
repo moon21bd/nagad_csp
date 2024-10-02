@@ -149,7 +149,7 @@
                                         placeholder="Enter Input Value"
                                     />
                                 </div>
-                                <div class="col-md-12 form-group">
+                                <!-- <div class="col-md-12 form-group">
                                     <label class="control-label"
                                         >Input Validatio/Rules<sup
                                             >*</sup
@@ -169,7 +169,7 @@
                                         class="form-text text-muted"
                                         >Help text goes here</small
                                     >
-                                </div>
+                                </div> -->
 
                                 <div
                                     class="form-group d-flex align-items-center"

@@ -203,7 +203,7 @@
                                             placeholder="Select Status"
                                         >
                                             <el-option
-                                                v-for="status in ticketInfos.statuses"
+                                                v-for="status in filteredStatuses"
                                                 :key="status.value"
                                                 :label="status.label"
                                                 :value="status.value"
@@ -380,7 +380,7 @@ export default {
         authUserId: null,
         ticketId: null,
         isLoading: false,
-        selectedStatus: "",
+        selectedStatus: null,
         forwardSelected: false,
         activeSelection: null,
         selectedUser: null,
@@ -403,6 +403,7 @@ export default {
                 call_sub_category_name: "",
             },
             requiredField: {},
+            ticket_status: null,
             comments: "",
             attachment: "",
             attachment_url: "",
@@ -414,6 +415,31 @@ export default {
         ...mapGetters("auth", ["user"]),
         user() {
             return this.$store.getters["auth/user"];
+        },
+        filteredStatuses() {
+            switch (this.ticketInfos.ticket_status) {
+                case "CREATED":
+                    return this.ticketInfos.statuses.filter(
+                        (status) => status.value === "OPENED"
+                    );
+                case "REOPEN":
+                case "OPENED":
+                    return this.ticketInfos.statuses.filter(
+                        (status) => status.value === "RESOLVED"
+                    );
+                case "RESOLVED":
+                    return this.ticketInfos.statuses.filter(
+                        (status) =>
+                            status.value === "CLOSED" ||
+                            status.value === "REOPEN"
+                    );
+                case "CLOSED":
+                    return this.ticketInfos.statuses.filter(
+                        (status) => status.value === "REOPEN"
+                    );
+                default:
+                    return this.ticketInfos.statuses;
+            }
         },
     },
     created() {
@@ -627,7 +653,9 @@ export default {
                     this.ticketInfos = {
                         ...response.data,
                         required_fields: this.requiredFields,
+                        ticket_status: response.data.ticket_status,
                     };
+                    console.log("this.ticketInfos", this.ticketInfos);
                 })
                 .catch((error) => {
                     console.error("Error fetching ticket infos:", error);

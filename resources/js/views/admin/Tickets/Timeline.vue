@@ -75,9 +75,9 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>Device Name</td>
+                                        <td>Group Name</td>
                                         <td>
-                                            {{ agentUser.device_name }}
+                                            {{ agentUser.group_name }}
                                         </td>
                                     </tr>
 

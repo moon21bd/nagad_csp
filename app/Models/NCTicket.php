@@ -33,6 +33,7 @@ class NCTicket extends Model
         'assign_to_user_id',
         'ticket_attachment',
         'ticket_status',
+        'ticket_source',
         'ticket_channel',
         'ticket_created_by',
         'sla_updated_at',

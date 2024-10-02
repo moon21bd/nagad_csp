@@ -130,6 +130,7 @@ class NCTicketTimelineController extends Controller
                 'employee_name' => $user->user_details->employee_name,
                 'employee_user_id' => $user->employee_user_id ?? "",
                 'group_id' => $user->group_id,
+                'group_name' => $user->group->name ?? null,
                 'mobile_no' => $user->mobile_no,
                 'email' => $user->email,
                 'ip_address' => $userLoginActivities->first()->ip_address ?? null,

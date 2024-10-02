@@ -29,7 +29,7 @@ class TicketService
     // Ticket statuses arr
     protected $statuses = [
         ['value' => 'OPENED', 'label' => 'OPENED'],
-        ['value' => 'NEW', 'label' => 'NEW'],
+        ['value' => 'CREATED', 'label' => 'CREATED'],
         ['value' => 'PENDING', 'label' => 'PENDING'],
         ['value' => 'CLOSED', 'label' => 'CLOSED'],
         ['value' => 'REOPEN', 'label' => 'REOPEN'],
@@ -81,13 +81,9 @@ class TicketService
 
         if (!empty($validated['requiredField'])) {
             $inputRequiredFields = $validated['requiredField'] ?? [];
-
             $ticketRelated = $this->generateRequiredFieldsAndTicketData($inputRequiredFields);
-
             $requiredFieldsNew = $this->prepareRequiredFields($ticketRelated['requiredFields']);
-
             $ticketCount = $ticketRelated['totalTickets'];
-
         }
 
         // Fetch service type configurations and responsible group IDs
@@ -107,7 +103,10 @@ class TicketService
 
         $authUserId = Auth::id();
         $escalation = $this->prepareTicketEscalation($validated['callTypeId'], $serviceTypeConfigs->is_escalation ?? 'NO');
-        $status = $escalation === 'yes' ? 'NEW' : 'CLOSED';
+        $status = $escalation === 'yes' ? 'CREATED' : 'CLOSED';
+
+        $authUserGroupId = Auth::user()->group_id;
+        $ticketSource = $authUserGroupId === 3 ? "NAGAD-SEBA" : ($authUserGroupId === 1 ? 'NAGAD-CC-AGENT' : 'PANEL');
 
         $ticketsData = [];
         foreach (range(0, $ticketCount - 1) as $i) {
@@ -130,6 +129,7 @@ class TicketService
                 'is_customer_notified' => 0,
                 'ticket_created_at' => Carbon::now(),
                 'ticket_status' => $status,
+                'ticket_source' => $ticketSource,
                 'ticket_channel' => 'PANEL',
                 'ticket_created_by' => $authUserId,
                 'ticket_updated_by' => $authUserId,
@@ -351,7 +351,7 @@ class TicketService
         $authUserId = Auth::id();
 
         $escalation = $this->prepareTicketEscalation($validated['callTypeId'], $serviceTypeConfigs->is_escalation ?? 'NO');
-        $status = $escalation === 'yes' ? 'NEW' : 'CLOSED';
+        $status = $escalation === 'yes' ? 'CREATED' : 'CLOSED';
 
         return [
             'uuid' => generateTicketUuid(), // Uuid::uuid4()->toString(),
