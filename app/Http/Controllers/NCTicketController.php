@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Group;
 use App\Models\NCTicket;
+use App\Models\TicketComment;
 use App\Models\TicketsRequiredField;
 use App\Models\User;
 use App\Services\NotificationService;
@@ -72,6 +73,7 @@ class NCTicketController extends Controller
             'requiredField' => 'nullable|array',
             'comments' => 'nullable|string',
             'attachment' => 'nullable|string',
+            'attachmentType' => 'nullable|string',
             // |mimes:jpeg,png,jpg,gif,pdf,doc,docx,xls,xlsx',
         ]);
 
@@ -89,7 +91,7 @@ class NCTicketController extends Controller
 
     public function show($id)
     {
-        $ticket = NCTicket::with(['callType', 'callCategory', 'callSubCategory'])
+        $ticket = NCTicket::with(['callType', 'callCategory', 'callSubCategory', 'attachments', 'comments'])
             ->findOrFail($id);
         $statuses = $this->ticketService->getStatuses();
 
@@ -211,7 +213,7 @@ class NCTicketController extends Controller
                 'responsible_group_ids' => $ticket->responsible_group_ids,
                 'ticket_status' => 'OPENED',
                 'ticket_comments' => $ticket->comments,
-                'ticket_attachments' => $ticket->ticket_attachments,
+                // 'ticket_attachments' => $ticket->ticket_attachments,
                 'ticket_opened_by' => $authUserId,
                 'ticket_status_updated_by' => $authUserId,
                 'opened_at' => $now,
@@ -320,7 +322,7 @@ class NCTicketController extends Controller
                 'responsible_group_ids' => $ticket->responsible_group_ids,
                 'ticket_status' => 'OPENED',
                 'ticket_comments' => $comment,
-                'ticket_attachments' => $ticket->attachment,
+                // 'ticket_attachments' => $ticket->attachment,
                 'ticket_opened_by' => $userId,
                 'ticket_status_updated_by' => $userId,
                 'opened_at' => $now,
@@ -431,12 +433,18 @@ class NCTicketController extends Controller
             'responsible_group_ids' => $ticket->responsible_group_ids,
             'ticket_status' => $ticketStatus,
             'ticket_comments' => $comment,
-            'ticket_attachments' => $ticket->attachment,
+            //'ticket_attachments' => $ticket->attachment,
             'ticket_opened_by' => $userId,
             'ticket_status_updated_by' => $userId,
             'opened_at' => $now,
             'last_time_opened_at' => $now,
         ];
+
+        $comment = TicketComment::create([
+            'ticket_id' => $ticket->id,
+            'comment' => $ticket->id,
+            'created_by' => $userId,
+        ]);
 
         $this->ticketService->createTicketTimeline($data);
 

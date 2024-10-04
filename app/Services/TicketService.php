@@ -2,11 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\Attachment;
 use App\Models\Group;
 use App\Models\NCCallType;
 use App\Models\NCServiceResponsibleGroup;
 use App\Models\NCTicket;
 use App\Models\NCTicketTimeline;
+use App\Models\TicketComment;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -50,7 +52,7 @@ class TicketService
     public function getAllTickets(array $filters = [])
     {
         $user = auth()->user();
-        $query = NCTicket::with(['callType', 'callCategory', 'callSubCategory']);
+        $query = NCTicket::with(['callType', 'callCategory', 'callSubCategory', 'attachments', 'comments']);
 
         if (isset($filters['status']) && $filters['status'] !== '') {
             $query->where('ticket_status', $filters['status']);
@@ -111,8 +113,6 @@ class TicketService
         $ticketsData = [];
         foreach (range(0, $ticketCount - 1) as $i) {
 
-            $ticketAttachments = uploadMediaGetPath($validated['attachment'], 'attachments') ?? null;
-
             $ticketInfo = [
                 'uuid' => generateTicketUuid(), // Uuid::uuid4()->toString(),
                 'call_type_id' => $validated['callTypeId'],
@@ -122,9 +122,8 @@ class TicketService
                 'required_fields' => !empty($ticketRelated) ? json_encode($ticketRelated) : '{}',
                 'responsible_group_ids' => $responsibleGroupIdsStr,
                 'is_ticket_reassign' => 0,
-                'comments' => $validated['comments'],
+                // 'comments' => $validated['comments'],
                 'sla_status' => 'NORMAL',
-                'attachment' => $ticketAttachments,
                 'ticket_notification_status' => 1,
                 'is_customer_notified' => 0,
                 'ticket_created_at' => Carbon::now(),
@@ -156,8 +155,8 @@ class TicketService
                 'ticket_id' => $ticketId,
                 'responsible_group_ids' => $responsibleGroupIdsStr,
                 'ticket_status' => $status,
-                'ticket_comments' => $validated['comments'],
-                'ticket_attachments' => $ticketAttachments,
+                // 'ticket_comments' => $validated['comments'],
+                // 'ticket_attachments' => $ticketAttachments,
                 'ticket_opened_by' => null,
                 'ticket_status_updated_by' => $authUserId,
                 'opened_at' => $ticket->ticket_created_at,
@@ -165,6 +164,22 @@ class TicketService
             ];
 
             $this->createTicketTimeline($data);
+            if (!empty($validated['attachment'])) {
+                $ticketAttachments = uploadAttachment($validated['attachment'], $validated['attachmentType']) ?? null;
+                Attachment::create([
+                    'ticket_id' => $ticketId,
+                    'path' => $ticketAttachments,
+                    'created_by' => $authUserId,
+                ]);
+            }
+
+            if (!empty($validated['comments'])) {
+                TicketComment::create([
+                    'ticket_id' => $ticketId,
+                    'comment' => $validated['comments'],
+                    'created_by' => $authUserId,
+                ]);
+            }
 
             // Send notification for each ticket
             $this->notificationService->sendTicketNotification($ticket, $serviceTypeConfigs, $responsibleGroupIdsStr);
@@ -235,14 +250,22 @@ class TicketService
                 'ticket_id' => $ticketId,
                 'responsible_group_ids' => $ticket->responsible_group_ids,
                 'ticket_status' => $ticketStatus,
-                'ticket_comments' => json_encode($validated['comments']),
-                'ticket_attachments' => $ticket->attachment,
+                // 'ticket_comments' => json_encode($validated['comments']),
+                // 'ticket_attachments' => $ticket->attachment,
                 'ticket_opened_by' => $ticket->ticket_updated_by,
                 'ticket_status_updated_by' => $ticket->ticket_updated_by,
                 'opened_at' => Carbon::now(),
                 'last_time_opened_at' => Carbon::now(),
             ];
             $this->createTicketTimeline($data);
+            // dd($validated['comments']);
+            foreach ($validated['comments'] ?? [] as $key => $comment) {
+                $comment = TicketComment::create([
+                    'ticket_id' => $ticketId,
+                    'comment' => $comment['text'],
+                    'created_by' => Auth::id(),
+                ]);
+            }
 
             return [
                 'code' => Response::HTTP_OK,
@@ -291,7 +314,7 @@ class TicketService
     {
         $dataArr = [
             'ticket_status' => $validated['selectedStatus'],
-            'comments' => $validated['comments'],
+            // 'comments' => $validated['comments'],
             'updated_by' => Auth::id(),
             'ticket_updated_at' => Carbon::now(),
             'ticket_updated_by' => Auth::id(),
@@ -364,7 +387,7 @@ class TicketService
             'is_ticket_reassign' => 0,
             'comments' => $validated['comments'],
             'sla_status' => 'NORMAL',
-            'attachment' => uploadMediaGetPath($validated['attachment'], 'attachments') ?? null,
+            // 'attachment' => uploadMediaGetPath($validated['attachment'], 'attachments') ?? null,
             'ticket_notification_status' => 1,
             'is_customer_notified' => 0,
             'ticket_status' => $status,

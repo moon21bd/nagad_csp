@@ -6,7 +6,7 @@
                 :to="{ name: 'ticket-index' }"
                 ><i class="icon-left"></i>
             </router-link>
-            <h1 class="title m-0">Ticket Id : {{ ticketId }}</h1>
+            <h1 class="title m-0">Ticket Id : {{ this.ticket.uuid }}</h1>
             <div class="btn btn-site btn-sm ml-auto">
                 <i class="icon-check-circle"></i>
                 {{ ticket.ticket_status }}
@@ -145,7 +145,7 @@
                             class="alert alert-danger text-center"
                             role="alert"
                         >
-                            Tansferred to {{ this.groupNames }}
+                            Transferred to {{ this.ticket.assign_group_name }}
                         </div>
                         <h2 class="sub-title text-danger">Comments</h2>
                         <div class="comments">
@@ -211,7 +211,7 @@ export default {
             isLoading: false,
             ticket: {},
             ticketId: null,
-            groupNames: "",
+            // groupNames: "",
             agentUser: {},
             requiredFields: [],
             comments: [],
@@ -232,7 +232,7 @@ export default {
                 .then((response) => {
                     const data = response.data.data;
                     this.ticket = data.ticket;
-                    this.groupNames = data.group_names;
+                    // this.groupNames = data.group_names;
                     this.agentUser = data.agent_user_info;
                     this.requiredFields = data.required_fields;
                     this.comments = data.ticket.comments;

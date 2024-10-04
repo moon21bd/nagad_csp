@@ -69,6 +69,21 @@ class NCTicket extends Model
         return implode(', ', $groupNames);
     }
 
+    public function attachments()
+    {
+        return $this->hasMany(Attachment::class, 'ticket_id');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(TicketComment::class, 'ticket_id', 'id');
+    }
+
+    public function assignToGroup()
+    {
+        return $this->belongsTo(Group::class, 'assign_to_group_id');
+    }
+
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');

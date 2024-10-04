@@ -47,7 +47,7 @@ class BulkTicketStatusUpdateImport
             // Update the ticket
             $ticket->update([
                 'ticket_status' => $ticketStatus,
-                'ticket_comment' => $data['comment'],
+                // 'ticket_comment' => $data['comment'],
                 'ticket_updated_by' => $authUserId,
                 'updated_at' => $now,
             ]);
@@ -57,8 +57,8 @@ class BulkTicketStatusUpdateImport
                 'ticket_id' => $ticket->id,
                 'responsible_group_ids' => $ticket->responsible_group_ids,
                 'ticket_status' => $ticketStatus,
-                'ticket_comments' => $ticket->comments,
-                'ticket_attachments' => $ticket->ticket_attachments,
+                // 'ticket_comments' => $ticket->comments,
+                // 'ticket_attachments' => $ticket->ticket_attachments,
                 'ticket_opened_by' => $authUserId,
                 'ticket_status_updated_by' => $authUserId,
                 'ticket_updated_channel' => 'BULK_UPDATE',

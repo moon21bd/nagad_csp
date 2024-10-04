@@ -85,9 +85,9 @@
                         <table id="dataTable" class="table border rounded">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th>SL</th>
                                     <th>Creation Time</th>
-                                    <th>Ticket ID</th>
+                                    <th>TicketID</th>
                                     <th>Status</th>
                                     <th>Responsible Groups</th>
                                     <th>Call No</th>

@@ -14,7 +14,7 @@
                     <div class="col-md-12">
                         <form ref="ticketForm" @submit.prevent="handleSubmit">
                             <div class="form-row">
-                                <div class="col-md-3 form-group">
+                                <!-- <div class="col-md-3 form-group">
                                     <label class="control-label"
                                         >Ticket ID<sup>*</sup></label
                                     >
@@ -25,7 +25,7 @@
                                         name="service_type"
                                         disabled
                                     />
-                                </div>
+                                </div> -->
 
                                 <div class="col-md-3 form-group">
                                     <label class="control-label"
@@ -104,41 +104,55 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- <div v-else>No required fields available.</div> -->
 
-                            <div class="form-row">
-                                <div class="col-md-12 form-group">
-                                    <label class="control-label"
-                                        >Comment<sup>*</sup></label
+                            <div
+                                v-if="
+                                    ticketInfos.comments &&
+                                    ticketInfos.comments.length > 0
+                                "
+                                class="ticket-item popupMessages"
+                            >
+                                <h2 class="sub-title">Comments</h2>
+                                <ul class="m-0 pl-3">
+                                    <li
+                                        class="py-1"
+                                        v-for="comment in ticketInfos.comments"
+                                        :key="comment.id"
                                     >
-                                    <textarea
-                                        class="form-control"
-                                        v-model="ticketInfos.comments"
-                                        disabled
-                                    ></textarea>
-                                </div>
+                                        {{ comment.comment }}
+                                    </li>
+                                </ul>
                             </div>
 
                             <!-- Attachment Section -->
                             <div class="form-row">
-                                <div class="col-md-6 form-group">
+                                <div
+                                    class="col-md-6 form-group"
+                                    v-if="
+                                        ticketInfos.attachments &&
+                                        ticketInfos.attachments.length
+                                    "
+                                >
                                     <label class="control-label"
-                                        >Attachment</label
+                                        >Attachments</label
                                     >
-                                    <div v-if="ticketInfos.attachment_url">
+
+                                    <div
+                                        v-for="(
+                                            attachment, index
+                                        ) in ticketInfos.attachments"
+                                        :key="index"
+                                        class="attachment-item"
+                                    >
                                         <div
-                                            v-if="
-                                                isImage(
-                                                    ticketInfos.attachment_url
-                                                )
-                                            "
+                                            v-if="isImage(attachment.path_url)"
                                         >
                                             <a
-                                                :href="`${ticketInfos.attachment_url}`"
+                                                :href="attachment.path_url"
                                                 target="_blank"
                                             >
                                                 <img
-                                                    :src="`${ticketInfos.attachment_url}`"
+                                                    :src="attachment.path_url"
                                                     alt="Attachment"
                                                     class="img-thumbnail"
                                                 />
@@ -146,78 +160,42 @@
                                         </div>
                                         <div
                                             v-else-if="
-                                                isPDF(
-                                                    ticketInfos.attachment_url
-                                                )
+                                                isPDF(attachment.path_url)
                                             "
                                         >
                                             <a
-                                                :href="`${ticketInfos.attachment_url}`"
+                                                :href="attachment.path_url"
                                                 target="_blank"
+                                                >View PDF</a
                                             >
-                                                View PDF
-                                            </a>
                                         </div>
                                         <div
                                             v-else-if="
-                                                isDocument(
-                                                    ticketInfos.attachment_url
-                                                )
+                                                isDocument(attachment.path_url)
                                             "
                                         >
                                             <a
-                                                :href="`${ticketInfos.attachment_url}`"
+                                                :href="attachment.path_url"
                                                 target="_blank"
+                                                >View Document</a
                                             >
-                                                View Document
-                                            </a>
                                         </div>
                                         <div v-else>
                                             <a
-                                                :href="`${ticketInfos.attachment_url}`"
+                                                :href="attachment.path_url"
                                                 target="_blank"
+                                                >Download Attachment</a
                                             >
-                                                Download Attachment
-                                            </a>
                                         </div>
                                     </div>
-                                    <div
-                                        v-else
-                                        class="py-2 alert alert-warning text-center m-0"
-                                        role="alert"
-                                    >
-                                        No attachment available.
-                                    </div>
                                 </div>
-                                <div class="col-md-6 form-group">
-                                    <label class="control-label"
-                                        >Ticket Status<sup>*</sup></label
-                                    >
-                                    <div class="custom-style">
-                                        <el-select
-                                            class="d-block w-100"
-                                            v-model="selectedStatus"
-                                            v-validate="'required'"
-                                            filterable
-                                            name="ticketStatus"
-                                            placeholder="Select Status"
-                                        >
-                                            <el-option
-                                                v-for="status in filteredStatuses"
-                                                :key="status.value"
-                                                :label="status.label"
-                                                :value="status.value"
-                                            >
-                                            </el-option>
-                                        </el-select>
-                                        <small
-                                            class="text-danger"
-                                            v-show="errors.has('ticketStatus')"
-                                        >
-                                            {{ errors.first("ticketStatus") }}
-                                        </small>
-                                    </div>
-                                </div>
+                                <!-- <div
+                                    v-else
+                                    class="py-2 alert alert-warning text-center m-0"
+                                    role="alert"
+                                >
+                                    No attachment available.
+                                </div> -->
                             </div>
 
                             <!-- Comment Section -->
@@ -249,7 +227,7 @@
                                     </button>
                                 </div>
                             </div>
-                            <div class="dropdown-divider mt-0 mb-3"></div>
+
                             <div class="form-row">
                                 <div class="col-md-2">
                                     <button
@@ -260,6 +238,39 @@
                                     >
                                         <i class="icon-plus"></i> New
                                     </button>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider mt-0 mb-3"></div>
+
+                            <div class="form-row">
+                                <div class="col-md-6 form-group">
+                                    <label class="control-label"
+                                        >Ticket Status<sup>*</sup></label
+                                    >
+                                    <div class="custom-style">
+                                        <el-select
+                                            class="d-block w-100"
+                                            v-model="selectedStatus"
+                                            v-validate="'required'"
+                                            filterable
+                                            name="ticketStatus"
+                                            placeholder="Select Status"
+                                        >
+                                            <el-option
+                                                v-for="status in filteredStatuses"
+                                                :key="status.value"
+                                                :label="status.label"
+                                                :value="status.value"
+                                            >
+                                            </el-option>
+                                        </el-select>
+                                        <small
+                                            class="text-danger"
+                                            v-show="errors.has('ticketStatus')"
+                                        >
+                                            {{ errors.first("ticketStatus") }}
+                                        </small>
+                                    </div>
                                 </div>
                             </div>
 
@@ -404,9 +415,9 @@ export default {
             },
             requiredField: {},
             ticket_status: null,
-            comments: "",
-            attachment: "",
-            attachment_url: "",
+            comments: [],
+            attachments: [],
+            path_url: "",
         },
         ticketComments: [{ text: "" }],
     }),
@@ -638,7 +649,6 @@ export default {
                     );
                 });
         },
-
         fetchTicketInfos() {
             axios
                 .get(`/tickets/${this.ticketId}`)
@@ -654,6 +664,8 @@ export default {
                         ...response.data,
                         required_fields: this.requiredFields,
                         ticket_status: response.data.ticket_status,
+                        attachments: response.data.attachments,
+                        comments: response.data.comments,
                     };
                     console.log("this.ticketInfos", this.ticketInfos);
                 })

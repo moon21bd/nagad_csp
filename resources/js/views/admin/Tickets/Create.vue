@@ -630,6 +630,7 @@ export default {
             requiredField: {},
             comments: "",
             attachment: "",
+            attachmentType: "",
             is_verified: "no",
         },
         modalBody: "",
@@ -650,6 +651,9 @@ export default {
                 (this.user.group_id === 3 || this.user.group_id === 5)
             );
         },
+    },
+    created() {
+        this.callerMobileNo = this.$route.query?.msisdn || null;
     },
     watch: {
         "ticketInfos.callCategoryId": function (newCategory) {
@@ -699,7 +703,6 @@ export default {
                 table.draw();
             });
         },
-
         async searchTickets() {
             if (!this.callerMobileNo) {
                 alert("Please enter a mobile number.");
@@ -730,7 +733,6 @@ export default {
                 this.isLoading = false;
             }
         },
-
         handlePrevTicketClick() {
             this.isPrevTicketActive = true; // Set the tab to active
 
@@ -750,7 +752,6 @@ export default {
                 this.fetchPrevTickets();
             }
         },
-
         formatDateTime,
         phoneValidationRules(number) {
             const phoneRegex = /^(01)[3456789]{1}\d{8}$/;
@@ -843,19 +844,26 @@ export default {
                 });
             }
         },
-
         showPopup(message) {
             this.modalBody = message;
             $("#ticketSuccessPopup").modal("show");
+            $("#ticketSuccessPopup").on("hidden.bs.modal", () => {
+                this.redirectToTicketList();
+            });
+        },
+        redirectToTicketList() {
+            this.$router.push({ name: "ticket-index" });
         },
         handleAttachmentFileUpload(event) {
-            let reader = new FileReader();
-            reader.readAsDataURL(event.target.files[0]);
+            const file = event.target.files[0]; // Get the file
+            const reader = new FileReader();
+
+            reader.readAsDataURL(file); // Convert file to Base64
             reader.onload = () => {
-                this.ticketInfos.attachment = reader.result;
+                this.ticketInfos.attachment = reader.result; // Store Base64 data
+                this.ticketInfos.attachmentType = file.type; // Store the file's MIME type
             };
         },
-
         async fetchCallTypes() {
             try {
                 this.requiredFields = [];
@@ -938,7 +946,6 @@ export default {
                 );
             }
         },
-
         async getServiceTypeConfig() {
             try {
                 const response = await axios.get(
@@ -996,7 +1003,6 @@ export default {
 
             return finalData;
         },
-
         validateRequiredFields() {
             let hasValidationError = false;
             const requiredFieldErrors = [];
@@ -1060,7 +1066,6 @@ export default {
                 requiredFieldErrors,
             };
         },
-
         async handleSubmit() {
             const { hasValidationError, requiredFieldErrors } =
                 this.validateRequiredFields();
@@ -1125,13 +1130,11 @@ export default {
                 selectedStatus: null,
                 is_verified: "no",
             };
+            this.popupMessages = {};
             this.customerPhoneNumber = "";
             this.callerMobileNo = null;
             this.requiredFieldErrors = [];
         },
-    },
-    created() {
-        this.callerMobileNo = this.$route.query?.msisdn || null;
     },
 };
 </script>

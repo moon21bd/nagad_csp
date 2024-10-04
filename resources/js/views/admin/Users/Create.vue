@@ -207,23 +207,14 @@
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >NID Card No<sup>*</sup>
+                                        >NID Card No
                                     </label>
                                     <input
                                         class="form-control"
                                         type="text"
                                         name="nid_card_no"
                                         v-model="formData.nid_card_no"
-                                        v-validate="
-                                            'required|numeric|min:10|max:15'
-                                        "
                                     />
-                                    <small
-                                        class="text-danger"
-                                        v-show="errors.has('nid_card_no')"
-                                    >
-                                        {{ errors.first("nid_card_no") }}
-                                    </small>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"

@@ -33,7 +33,7 @@ export default {
         async fetchPermissions({ commit }) {
             try {
                 const { data } = await axios.get("/userPermissions");
-                console.log("getCurrentUserPermissions", data);
+                // console.log("getCurrentUserPermissions", data);
                 commit("SET_USER_ROLES", data.roles);
                 commit("SET_USER_PERMISSIONS", data.userPermissions);
                 commit("SET_ROLE_PERMISSIONS", data.rolePermissions);

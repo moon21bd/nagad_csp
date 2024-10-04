@@ -109,7 +109,7 @@ class User extends Authenticatable
 
     public function getAvatarUrlAttribute()
     {
-        return $this->avatar ? asset('uploads/' . $this->avatar) : null;
+        return $this->avatar ? asset('uploads/' . $this->avatar) : asset('images/user-avatar.png');
     }
 
     // Relationship to the parent user

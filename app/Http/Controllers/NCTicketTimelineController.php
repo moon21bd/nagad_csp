@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\NCTicket;
 use App\Models\NCTicketTimeline;
+use App\Models\TicketComment;
 use App\Models\TicketsRequiredField;
 use App\Models\User;
 use Carbon\Carbon;
@@ -55,6 +56,7 @@ class NCTicketTimelineController extends Controller
             'callType',
             'callCategory',
             'callSubCategory',
+            'assignToGroup',
         ])->find($id);
 
         if (!$ticket) {
@@ -84,32 +86,26 @@ class NCTicketTimelineController extends Controller
 
         $comments = [];
 
-        if ($ticket->comments) {
+        $getComments = TicketComment::with('createdByUser')
+            ->where('ticket_id', $id)
+            ->get();
+
+        foreach ($getComments as $comment) {
+            $commentingUser = $comment->createdByUser;
+
             $comments[] = [
-                'date_time' => Carbon::parse($ticket->updated_at)->format('M j, Y h:i A'),
-                'avatar_url' => $user->avatar_url ?? null,
-                'comment' => $ticket->comments,
-                'username' => $user->name ?? 'Unknown',
+                'date_time' => Carbon::parse($comment->created_at)->format('M j, Y h:i A'),
+                'avatar_url' => $commentingUser->avatar_url ?? null,
+                'comment' => $comment->comment,
+                'username' => $commentingUser->name ?? 'Unknown',
             ];
-        }
-
-        foreach ($timelines as $timeline) {
-            if ($timeline->ticket_comments) {
-                $commentingUser = User::find($timeline->ticket_opened_by) ?: User::find($timeline->ticket_status_updated_by);
-
-                $comments[] = [
-                    'date_time' => Carbon::parse($timeline->updated_at)->format('M j, Y h:i A'),
-                    'avatar_url' => $commentingUser->avatar_url ?? null,
-                    'comment' => $timeline->ticket_comments,
-                    'username' => $commentingUser->name ?? 'Unknown',
-                ];
-            }
         }
 
         $response = [
             'ticket_id' => $ticket->id,
             'ticket' => [
                 'id' => $ticket->id,
+                'uuid' => $ticket->uuid,
                 'caller_mobile_no' => $ticket->caller_mobile_no,
                 'assign_to_user_id' => $ticket->assign_to_user_id,
                 'comments' => $comments,
@@ -120,8 +116,10 @@ class NCTicketTimelineController extends Controller
                 'call_type' => $ticket->callType ? $ticket->callType->call_type_name : null,
                 'call_category' => $ticket->callCategory ? $ticket->callCategory->call_category_name : null,
                 'call_sub_category' => $ticket->callSubCategory ? $ticket->callSubCategory->call_sub_category_name : null,
+                'assign_group_name' => $ticket->assignToGroup->name ?? "N/A",
             ],
-            'group_names' => $ticket->responsible_group_names,
+            // 'group_names' => $ticket->responsible_group_names,
+
             'required_fields' => $requiredFields,
             'agent_user_info' => $user ? [
                 'id' => $user->id,
@@ -144,7 +142,7 @@ class NCTicketTimelineController extends Controller
                     'id' => $item->id,
                     'ticket_status' => $item->ticket_status,
                     'ticket_comments' => $item->ticket_comments,
-                    'ticket_attachments' => $item->ticket_attachments,
+                    //'ticket_attachments' => $item->ticket_attachments,
                     'ticket_opened_by' => $item->ticket_opened_by,
                     'ticket_status_updated_by' => $item->ticket_status_updated_by,
                     'username' => $user->name ?? 'Unknown',
