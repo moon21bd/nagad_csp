@@ -3,7 +3,11 @@
         <div class="card-header">
             <h1 class="title mb-3">
                 Customer Information
-                <small class="special-message pl-2" v-if="inDNDList">
+
+                <small
+                    class="special-message pl-2 text-danger font-weight-bold"
+                    v-if="inDNDList"
+                >
                     <span v-if="specialMessage">
                         <i class="icon-alert-triangle text-danger"></i>
                         {{ specialMessage }}
@@ -430,7 +434,7 @@
                             </div>
                             <div class="col-md-2">
                                 <button
-                                    class="btn btn-site"
+                                    class="btn btn-site text-nowrap"
                                     name="search-tickets"
                                     @click.prevent="searchTickets"
                                 >
@@ -511,28 +515,27 @@
         >
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="ticketSuccessPopupLabel">
-                            Ticket Created
-                        </h5>
+                    <div class="modal-header border-0">
                         <button
                             type="button"
-                            class="close"
+                            class="close text-danger"
                             data-dismiss="modal"
                             aria-label="Close"
                         >
-                            <i class="icon-close"></i>
+                            <i class="icon-close-circle"></i>
                         </button>
                     </div>
-                    <div class="modal-body">{{ modalBody }}</div>
-                    <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            data-dismiss="modal"
-                        >
-                            Close
-                        </button>
+                    <div class="modal-body ticket-success">
+                        <div class="ticket-success-icon">
+                            <i class="icon-check"></i>
+                        </div>
+
+                        <h3 class="sub-title mb-3">
+                            Ticket Created Successfully
+                        </h3>
+                        <p>
+                            {{ modalBody }}
+                        </p>
                     </div>
                 </div>
             </div>

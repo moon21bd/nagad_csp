@@ -167,6 +167,9 @@
                                         <h5 class="mt-0 mb-1">
                                             {{ comment.username }}
                                             <span>{{ comment.date_time }}</span>
+                                            <strong
+                                                >Nagad - Technology Operation
+                                            </strong>
                                         </h5>
                                         <p>{{ comment.comment }}</p>
                                     </div>

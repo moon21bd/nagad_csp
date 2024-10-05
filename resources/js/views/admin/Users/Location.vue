@@ -51,43 +51,39 @@
                         </div>
                     </div>
                     <div class="col-md-8" v-if="selectedUser">
-                        <div class="user-logs">
-                            <h3 class="title text-center text-danger mb-3">
+                        <div class="user-logs mt-3 mt-md-0">
+                            <h3 class="sub-title text-danger mb-3">
                                 {{ selectedUser.name }}’s Logs Info
                             </h3>
 
                             <!-- Date range filters -->
-                            <div class="date-filters mb-3">
-                                <label for="startDate">Start Date</label>
-                                <input
-                                    type="date"
+                            <div
+                                class="date-filters d-flex flex-wrap flex-md-nowrap mb-3"
+                            >
+                                <el-date-picker
                                     v-model="startDate"
-                                    class="form-control"
-                                    id="startDate"
-                                />
-
-                                <label for="endDate">End Date</label>
-                                <input
                                     type="date"
+                                    placeholder="Start Date"
+                                >
+                                </el-date-picker>
+                                <el-date-picker
                                     v-model="endDate"
-                                    class="form-control"
-                                    id="endDate"
-                                />
-
-                                <div class="filter-buttons mt-2">
-                                    <button
-                                        class="btn btn-primary"
-                                        @click="filterByDate"
-                                    >
-                                        Filter
-                                    </button>
-                                    <button
-                                        class="btn btn-secondary ml-2"
-                                        @click="resetFilters"
-                                    >
-                                        Reset Filter
-                                    </button>
-                                </div>
+                                    type="date"
+                                    placeholder="End Date"
+                                >
+                                </el-date-picker>
+                                <button
+                                    class="btn btn-site ml-auto"
+                                    @click="filterByDate"
+                                >
+                                    Filter
+                                </button>
+                                <button
+                                    class="btn btn-site bg-dark"
+                                    @click="resetFilters"
+                                >
+                                    Reset
+                                </button>
                             </div>
 
                             <div
@@ -96,10 +92,11 @@
                                     selectedUser.userLogs.length === 0
                                 "
                             >
-                                <p class="text-center">
+                                <!-- <p class="text-center">
                                     No data available for the selected date
                                     range.
-                                </p>
+                                </p> -->
+                                <no-data />
                             </div>
 
                             <div v-else>
@@ -161,9 +158,12 @@
 
 <script>
 import axios from "../../../axios";
-
+import noData from "../components/noData.vue";
 export default {
     name: "UserLocation",
+    components: {
+        noData,
+    },
     data() {
         return {
             isLoading: false,

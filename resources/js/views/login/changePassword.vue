@@ -1,28 +1,26 @@
 <template>
-    <div>
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-xl-10 col-lg-12 col-md-9">
-                    <div class="card o-hidden border-0 shadow-lg my-5">
-                        <div class="card-body p-0">
-                            <!-- Nested Row within Card Body -->
-                            <div class="row">
-                                <div
-                                    class="col-lg-6 d-none d-lg-block bg-password-image"
-                                ></div>
-                                <div class="col-lg-6">
-                                    <div class="p-5">
-                                        <div class="text-center">
-                                            <h1 class="h4 text-gray-900 mb-2">
-                                                Change your password
-                                            </h1>
-                                        </div>
-                                        <form
+    <div class="login-container vh-100 align-items-center">
+        <div class="login-content text-center text-white">
+            <h2>Welcome to</h2>
+            <img src="/images/logo-white.svg" alt="" />
+            <p>
+                With the love of crores of people Nagad won Most Emerging Brand
+                of Bangladesh {{ new Date().getFullYear() }}
+            </p>
+            <div class="design">Developed by Digicon Technologies PLC</a></div>
+        </div>
+        <div class="login-box d-flex vh-100 align-items-center">
+            <div class="login-box-inner">
+                <h1 class="my-4"> Change your password</h1>
+               
+               
+                <form
                                             class="user"
                                             @submit.prevent="changePassword"
                                             ref="changePasswordForm"
                                         >
                                             <div class="form-group">
+                                               <div class="password">
                                                 <input
                                                     type="password"
                                                     class="form-control form-control-user"
@@ -51,6 +49,7 @@
                                                         :class="passwordIcon"
                                                     ></i>
                                                 </span>
+                                               </div>
 
                                                 <small
                                                     class="d-block mt-1"
@@ -83,7 +82,8 @@
                                                 </small>
                                             </div>
                                             <div class="form-group">
-                                                <input
+                                                <div class="password">
+                                                    <input
                                                     type="password"
                                                     class="form-control form-control-user"
                                                     v-model="
@@ -117,6 +117,7 @@
                                                         }"
                                                     ></i>
                                                 </span>
+                                                </div>
                                                 <small
                                                     class="text-danger"
                                                     v-show="
@@ -156,22 +157,15 @@
                                                 Change Password
                                             </button>
                                         </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import axios from "../../axios.js";
-import * as notify from "../../utils/notify.js";
-import zxcvbn from "zxcvbn";
 import { Validator } from "vee-validate";
+import zxcvbn from "zxcvbn";
+import axios from "../../axios.js";
 
 Validator.extend("password_format", {
     getMessage: (field) =>

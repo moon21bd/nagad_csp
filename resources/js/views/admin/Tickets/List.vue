@@ -11,30 +11,32 @@
             </router-link>
         </div>
 
-        <div class="filter-section mb-4">
-            <div class="row">
-                <div class="col-md-4">
-                    <label for="statusFilter">Ticket Status</label>
-                    <select
+        <div class="card mb-4">
+            <div class="overlay" v-if="isLoading">
+                <img src="/images/loader.gif" alt="" />
+            </div>
+            <div class="card-body">
+                <div
+                    class="filter-tickets d-flex flex-wrap flex-md-nowrap mb-3"
+                >
+                    <el-select
                         v-model="filters.status"
                         @change="fetchTickets"
-                        class="form-control"
+                        filterable
                         id="statusFilter"
+                        placeholder="Ticket Status"
                     >
-                        <option value="">All</option>
-                        <option value="OPENED">Opened</option>
-                        <option value="PENDING">Pending</option>
-                        <option value="CLOSED">Closed</option>
-                        <option value="RESOLVED">Resolved</option>
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label for="groupFilter">Responsible Groups</label>
+                        <el-option value="">All</el-option>
+                        <el-option value="OPENED">Opened</el-option>
+                        <el-option value="PENDING">Pending</el-option>
+                        <el-option value="CLOSED">Closed</el-option>
+                        <el-option value="RESOLVED">Resolved</el-option>
+                    </el-select>
                     <el-select
                         v-model="filters.groups"
-                        placeholder="Select Groups"
+                        placeholder="Select Responsible Groups"
                         multiple
+                        collapse-tags
                         @change="fetchTickets"
                     >
                         <el-option
@@ -45,15 +47,7 @@
                         >
                         </el-option>
                     </el-select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="control-label" for="serviceCategoryFilter"
-                        >Service Category</label
-                    >
-
                     <el-select
-                        class="form-control"
                         v-model="filters.service_category"
                         @change="fetchTickets"
                         filterable
@@ -68,18 +62,13 @@
                         >
                         </el-option>
                     </el-select>
+                    <button
+                        class="btn btn-site bg-dark ml-auto"
+                        @click="resetFilters"
+                    >
+                        Reset Filter
+                    </button>
                 </div>
-            </div>
-            <button class="btn btn-secondary ml-2" @click="resetFilters">
-                Reset Filter
-            </button>
-        </div>
-
-        <div class="card mb-4">
-            <div class="overlay" v-if="isLoading">
-                <img src="/images/loader.gif" alt="" />
-            </div>
-            <div class="card-body">
                 <div v-if="tickets.length && !isLoading">
                     <div class="table-responsive">
                         <table id="dataTable" class="table border rounded">
@@ -109,14 +98,15 @@
                                                 name: 'ticket-timeline',
                                                 params: { id: item.id },
                                             }"
-                                            class="btn-action btn-edit"
+                                            class="text-danger text-nowrap"
                                             title="Ticket Timeline"
                                         >
+                                            <i class="icon-clock"></i>
                                             {{ item.uuid }}
                                         </router-link>
                                     </td>
 
-                                    <td>
+                                    <td class="text-nowrap">
                                         {{ item.creator?.name || "N/A" }}
                                     </td>
                                     <td
@@ -128,7 +118,11 @@
                                     ></td>
 
                                     <td>
-                                        {{ item.responsible_group_names }}
+                                        {{
+                                            item.responsible_group_names
+                                                ? item.responsible_group_names
+                                                : "N/A"
+                                        }}
                                     </td>
                                     <td>
                                         {{ item.caller_mobile_no }}

@@ -582,6 +582,13 @@ body {
                         font-size: 13px;
                         margin-left: 10px;
                     }
+                    strong {
+                        display: block;
+                        font-size: 13px;
+                        font-weight: 500;
+                        color: #545454;
+                        margin-top: 2px;
+                    }
                 }
                 p {
                     font-size: 14px;
@@ -603,7 +610,11 @@ body {
         }
     }
 }
-.ticket-item {
+.el-timeline-item__icon {
+    font-size: 10px !important;
+}
+.ticket-item,
+.required-fields-item {
     background: #fffbfb;
     padding: 0 15px 15px;
     margin-bottom: 15px;
@@ -635,6 +646,46 @@ body {
     input[type="file"]::file-selector-button:active {
         background-color: #e5e7eb;
     }
+}
+.date-filters {
+    align-items: center;
+    gap: 15px;
+    position: sticky;
+    top: -15px;
+    background: #fff;
+    z-index: 99;
+    padding: 15px;
+    margin: -15px -15px 0 !important;
+}
+.filter-tickets {
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    margin: -20px -20px 0;
+    border-bottom: 1px solid #e9f0f9;
+}
+.ticket-success {
+    font-size: 14px;
+    text-align: center;
+    color: #5c5c5c;
+    line-height: 1.5;
+
+    &-icon {
+        width: 64px;
+        height: 64px;
+        background: #16a085;
+        color: #fff;
+        font-size: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin: -15px auto 15px;
+    }
+}
+.modal-header .close {
+    opacity: 1;
+    font-size: 28px !important;
 }
 @media all and (min-width: 992px) {
     ::-webkit-scrollbar,
