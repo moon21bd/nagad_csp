@@ -361,9 +361,7 @@
                             <div class="form-row">
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >Notification Channels<sup
-                                            >*</sup
-                                        ></label
+                                        >Notification Channels</label
                                     >
                                     <div class="d-flex">
                                         <!-- <label class="checkbox mr-3">
@@ -689,12 +687,12 @@ export default {
         callCategories: [],
         callSubCategories: [],
         selectedGroups: [],
-        smsConfigs: [], // Array of SMS config options
-        emailConfigs: [], // Array of Email config options
-        selectedNotificationChannels: [], // Array to manage selected notification channels
-        showMessageBox: false, // Controls the visibility of the message box
-        newPopupMessage: "", // Holds the new popup message input
-        maxMessages: 3, // Maximum number of popup messages allowed
+        smsConfigs: [],
+        emailConfigs: [],
+        selectedNotificationChannels: [],
+        showMessageBox: false,
+        newPopupMessage: "",
+        maxMessages: 3,
         configurationInfos: {
             callTypeId: null,
             callCategoryId: null,
@@ -704,7 +702,7 @@ export default {
             email_config_id: null,
             selectedNotificationChannels: [],
             is_show_popup_msg: "no",
-            popupMessages: [], // Array to hold additional messages
+            popupMessages: [],
             is_escalation: "no",
             is_show_attachment: "no",
             is_verification_check: "no",

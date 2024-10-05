@@ -48,7 +48,10 @@
                         >Create Ticket</a
                     >
                 </li>
-                <li class="nav-item">
+                <li
+                    class="nav-item"
+                    v-if="this.customerPhoneNumber || this.callerMobileNo"
+                >
                     <a
                         class="tickets-tabs"
                         data-toggle="pill"
@@ -400,6 +403,7 @@
                                         type="tel"
                                         v-model="callerMobileNo"
                                         name="callerMobileNo"
+                                        @input="handlePhoneNumberChange"
                                         placeholder="Customer Account No"
                                         required
                                     />
@@ -492,61 +496,6 @@
                             </table>
                         </div>
                     </div>
-                    <!-- <div v-if="prevTickets.length && !isLoading">
-                        <h2 class="control-label">Last 3 Ticket Details</h2>
-                        <div class="table-responsive">
-                            <table class="table prev-table border rounded">
-                                <thead>
-                                    <tr>
-                                        <th>Date Time</th>
-                                        <th>Ticket No</th>
-                                        <th>Sub Category</th>
-                                        <th>Status</th>
-                                        <th class="text-right">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-if="prevTickets.length === 0">
-                                        <td colspan="5" class="text-center">
-                                            No previous data found
-                                        </td>
-                                    </tr>
-                                    <tr
-                                        v-else
-                                        v-for="ticket in prevTickets"
-                                        :key="ticket.ticket_id"
-                                    >
-                                        <td>
-                                            {{
-                                                formatDateTime(
-                                                    ticket.ticket_created_at
-                                                )
-                                            }}
-                                        </td>
-                                        <td>{{ ticket.uuid }}</td>
-                                        <td>
-                                            {{ ticket.call_sub_category_name }}
-                                        </td>
-                                        <td>{{ ticket.ticket_status }}</td>
-                                        <td class="text-right">
-                                            <router-link
-                                                class="btn-action btn-edit"
-                                                title="Ticket Timeline"
-                                                :to="{
-                                                    name: 'ticket-timeline',
-                                                    params: {
-                                                        id: ticket.ticket_id,
-                                                    },
-                                                }"
-                                                ><i class="icon-tickets"></i
-                                            ></router-link>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <no-data v-else /> -->
                 </div>
             </div>
         </div>
@@ -665,6 +614,17 @@ export default {
                 this.fetchSubCategory();
             }
         },
+        prevTickets(newTickets) {
+            if ($.fn.DataTable.isDataTable("#dataTable")) {
+                $("#dataTable").DataTable().destroy(); // Destroy old instance
+            }
+
+            if (newTickets.length > 0) {
+                this.$nextTick(() => {
+                    $("#dataTable").DataTable(); // Initialize when new data exists
+                });
+            }
+        },
     },
     methods: {
         resetFilter() {
@@ -672,37 +632,81 @@ export default {
             this.selectedStatus = "";
             this.prevTickets = [];
         },
+        handlePhoneNumberChange() {
+            // Clear previous tickets
+            this.prevTickets = [];
+
+            // Fetch tickets for the new number immediately
+            if (this.callerMobileNo) {
+                this.fetchPrevTickets();
+            }
+        },
         initializeDataTable() {
             this.$nextTick(() => {
                 const tableElement = $("#dataTable");
 
+                // Check if the table element exists
                 if (!tableElement.length) {
                     console.error("DataTable element not found.");
                     return;
                 }
 
+                // Destroy existing DataTable instance if it exists
                 if ($.fn.dataTable.isDataTable(tableElement)) {
                     tableElement.DataTable().destroy();
                 }
 
-                const table = tableElement.DataTable();
+                // Clear previous rows
+                tableElement.find("tbody").empty();
+
+                // If no tickets are found, skip the DataTable initialization
+                if (!this.prevTickets || this.prevTickets.length === 0) {
+                    // Handle the empty data scenario
+                    console.log("No tickets available.");
+
+                    // Optionally, display a message to the user in the table
+                    tableElement.html(`
+                <tr>
+                    <td colspan="5" class="text-center">No previous data found</td>
+                </tr>
+            `);
+
+                    return; // Exit the function if no tickets are available
+                }
+
+                // Initialize the DataTable with correct column configuration
+                const table = tableElement.DataTable({
+                    columns: [
+                        { title: "Date Time" },
+                        { title: "Ticket No" },
+                        { title: "Sub Category" },
+                        { title: "Status" },
+                        { title: "Action", className: "text-right" },
+                    ],
+                    ordering: false, // Disable automatic sorting
+                });
+
+                // Clear the table before adding new rows
                 table.clear();
 
+                // Add new rows for each ticket
                 this.prevTickets.forEach((ticket) => {
                     table.row.add([
-                        this.formatDateTime(ticket.ticket_created_at),
-                        ticket.uuid,
-                        ticket.call_sub_category_name,
-                        ticket.ticket_status,
+                        this.formatDateTime(ticket.ticket_created_at), // Date Time
+                        ticket.uuid, // Ticket No
+                        ticket.call_sub_category_name, // Sub Category
+                        ticket.ticket_status, // Status
                         `<a href="/ticket-timeline/${ticket.ticket_id}" class="btn-action btn-edit">
                     <i class="icon-tickets"></i>
-                 </a>`,
+                 </a>`, // Action (Hyperlink)
                     ]);
                 });
 
+                // Redraw the table with the new data
                 table.draw();
             });
         },
+
         async searchTickets() {
             if (!this.callerMobileNo) {
                 alert("Please enter a mobile number.");
@@ -733,7 +737,7 @@ export default {
                 this.isLoading = false;
             }
         },
-        handlePrevTicketClick() {
+        /* handlePrevTicketClick() {
             this.isPrevTicketActive = true; // Set the tab to active
 
             if (!this.customerPhoneNumber && !this.callerMobileNo) {
@@ -751,6 +755,24 @@ export default {
                     this.customerPhoneNumber || this.callerMobileNo;
                 this.fetchPrevTickets();
             }
+        }, */
+        handlePrevTicketClick() {
+            this.isPrevTicketActive = true; // Set the tab to active
+
+            // Validate both phone numbers
+            if (!this.customerPhoneNumber && !this.callerMobileNo) {
+                this.$showToast("Please enter a mobile number", {
+                    type: "error",
+                });
+                return;
+            }
+
+            // Set callerMobileNo based on the input
+            this.callerMobileNo =
+                this.customerPhoneNumber || this.callerMobileNo;
+
+            // Fetch previous tickets based on the phone number
+            this.fetchPrevTickets();
         },
         formatDateTime,
         phoneValidationRules(number) {
@@ -795,30 +817,51 @@ export default {
                 });
         },
         fetchPrevTickets() {
-            if (this.callerMobileNo === null) {
+            // Check for required mobile number
+            if (!this.customerPhoneNumber && !this.callerMobileNo) {
                 this.$showToast("Caller mobile number needed.", {
                     type: "error",
                 });
                 return;
             }
-            this.prevTickets = [];
-            axios
-                .get(`/previous-ticket/${this.callerMobileNo}`)
-                .then((response) => {
-                    this.prevTickets = response.data;
 
-                    this.$nextTick(() => {
-                        setTimeout(() => {
-                            this.initializeDataTable();
-                        }, 100);
-                    });
-                    this.isLoading = false;
+            this.isLoading = true; // Indicate loading state
+            this.prevTickets = []; // Reset previous tickets
+            const mobileNoToUse =
+                this.callerMobileNo || this.customerPhoneNumber;
+
+            // Make API call to fetch previous tickets
+            axios
+                .get(`/previous-ticket/${mobileNoToUse}`)
+                .then((response) => {
+                    this.prevTickets = response.data; // Update prevTickets with fetched data
+
+                    // Check if data is available and handle initialization
+                    if (this.prevTickets.length > 0) {
+                        this.$nextTick(() => {
+                            setTimeout(() => {
+                                this.initializeDataTable(); // Initialize DataTable with fetched tickets
+                            }, 100);
+                        });
+                    } else {
+                        // Handle case when no tickets are found
+                        this.$showToast("No previous tickets found.", {
+                            type: "info",
+                        });
+                    }
+
+                    this.isLoading = false; // Reset loading state
                 })
                 .catch((error) => {
-                    this.prevTickets = [];
+                    this.prevTickets = []; // Reset tickets on error
                     console.error("Error fetching previous tickets:", error);
+                    this.$showToast("Error fetching previous tickets.", {
+                        type: "error",
+                    });
+                    this.isLoading = false; // Reset loading state
                 });
         },
+
         addFieldsSet() {
             if (this.requiredFieldsSets.length < 3) {
                 const newFields = this.requiredFields.map((field) => ({
@@ -1135,6 +1178,12 @@ export default {
             this.callerMobileNo = null;
             this.requiredFieldErrors = [];
         },
+    },
+    beforeDestroy() {
+        const tableElement = $("#dataTable");
+        if ($.fn.dataTable.isDataTable(tableElement)) {
+            tableElement.DataTable().destroy(); // Clean up DataTable instance
+        }
     },
 };
 </script>

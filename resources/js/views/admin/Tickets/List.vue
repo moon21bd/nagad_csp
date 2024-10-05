@@ -85,9 +85,10 @@
                         <table id="dataTable" class="table border rounded">
                             <thead>
                                 <tr>
-                                    <th>SL</th>
+                                    <th>SN</th>
                                     <th>Creation Time</th>
                                     <th>TicketID</th>
+                                    <th>Creator</th>
                                     <th>Status</th>
                                     <th>Responsible Groups</th>
                                     <th>Call No</th>
@@ -102,7 +103,22 @@
                                     <td>
                                         {{ formatDateTime(item.created_at) }}
                                     </td>
-                                    <td>{{ item.uuid }}</td>
+                                    <td>
+                                        <router-link
+                                            :to="{
+                                                name: 'ticket-timeline',
+                                                params: { id: item.id },
+                                            }"
+                                            class="btn-action btn-edit"
+                                            title="Ticket Timeline"
+                                        >
+                                            {{ item.uuid }}
+                                        </router-link>
+                                    </td>
+
+                                    <td>
+                                        {{ item.creator?.name || "N/A" }}
+                                    </td>
                                     <td
                                         v-html="
                                             renderTicketStatus(
@@ -143,10 +159,6 @@
                                         ></router-link>
 
                                         <router-link
-                                            v-if="
-                                                hasRole('admin|superadmin') ||
-                                                hasPermission('ticket-timeline')
-                                            "
                                             class="btn-action btn-edit"
                                             title="Ticket Timeline"
                                             :to="{

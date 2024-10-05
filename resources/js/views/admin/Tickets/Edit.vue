@@ -592,12 +592,12 @@ export default {
                 .get(`/ticket/status/${ticketId}`)
                 .then((response) => {
                     if (!response.data.engaged) {
-                        console.log(
+                        /* console.log(
                             "TICKET-STATUS",
                             response.data.engaged,
                             "ticketId",
                             ticketId
-                        );
+                        ); */
 
                         this.assignTicket(ticketId);
                     } else {
@@ -711,7 +711,6 @@ export default {
                 }
             });
         },
-
         addComment() {
             if (this.ticketComments.length < this.maxTicketComments) {
                 this.ticketComments.push({ text: "" });
@@ -728,7 +727,6 @@ export default {
                 alert("At least one comment is required.");
             }
         },
-
         isImage(file) {
             return /\.(jpg|jpeg|png|gif)$/i.test(file);
         },

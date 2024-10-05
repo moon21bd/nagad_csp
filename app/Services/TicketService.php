@@ -52,7 +52,7 @@ class TicketService
     public function getAllTickets(array $filters = [])
     {
         $user = auth()->user();
-        $query = NCTicket::with(['callType', 'callCategory', 'callSubCategory', 'attachments', 'comments']);
+        $query = NCTicket::with(['creator:id,name', 'callType', 'callCategory', 'callSubCategory', 'attachments', 'comments']);
 
         if (isset($filters['status']) && $filters['status'] !== '') {
             $query->where('ticket_status', $filters['status']);

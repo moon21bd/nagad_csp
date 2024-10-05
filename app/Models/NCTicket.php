@@ -86,7 +86,7 @@ class NCTicket extends Model
 
     public function creator()
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'ticket_created_by');
     }
 
     public function updater()

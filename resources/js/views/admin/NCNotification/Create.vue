@@ -610,7 +610,7 @@
 
                                 <div class="col-md-4 form-group">
                                     <label class="control-label m-0 mr-3"
-                                        >Is User Notified By SMS</label
+                                        >Is Customer Notified By SMS</label
                                     >
                                     <div class="d-flex">
                                         <label class="radio mr-2">
