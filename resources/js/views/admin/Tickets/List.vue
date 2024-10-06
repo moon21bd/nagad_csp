@@ -64,8 +64,17 @@
                         >
                         </el-option>
                     </el-select>
+                    <label class="checkbox text-nowrap"
+                        ><input
+                            type="checkbox"
+                            name="role-create"
+                            id="role-create"
+                        />
+                        <span class="checkmark"></span>
+                        My Tickets
+                    </label>
                     <button
-                        class="btn btn-site bg-dark ml-auto"
+                        class="btn btn-site bg-dark ml-auto text-nowrap"
                         @click="resetFilters"
                     >
                         Reset Filter
@@ -100,7 +109,7 @@
                                                 name: 'ticket-timeline',
                                                 params: { id: item.id },
                                             }"
-                                            class="text-danger text-nowrap"
+                                            class="text-nowrap btn btn btn-sm btn-outline-danger"
                                             title="Ticket Timeline"
                                         >
                                             <i class="icon-clock"></i>
@@ -120,11 +129,27 @@
                                     ></td>
 
                                     <td>
-                                        {{
-                                            item.responsible_group_names
-                                                ? item.responsible_group_names
-                                                : "N/A"
-                                        }}
+                                        <div class="btn-group">
+                                            <button
+                                                type="button"
+                                                class="btn btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                data-toggle="dropdown"
+                                                aria-haspopup="true"
+                                                aria-expanded="false"
+                                            >
+                                                Groups
+                                                <i class="icon-more"></i>
+                                            </button>
+                                            <div
+                                                class="dropdown-menu p-3 text-wrap dropdown-menu-right"
+                                            >
+                                                {{
+                                                    item.responsible_group_names
+                                                        ? item.responsible_group_names
+                                                        : "N/A"
+                                                }}
+                                            </div>
+                                        </div>
                                     </td>
                                     <td>
                                         {{ item.caller_mobile_no }}
@@ -354,7 +379,7 @@ export default {
     },
 };
 </script>
-<style scoped>
+<!-- <style scoped>
 .table.dataTable > thead > tr > th {
     white-space: nowrap;
 }
@@ -368,10 +393,58 @@ export default {
 .table > thead > tr > th:last-child {
     background: #fff9f9;
 }
+
+</style> -->
+
+<style scoped>
 .table > tbody > tr > td .badge {
     font-size: 11px !important;
     min-width: 70px;
     padding: 5px 5px 4px;
     line-height: normal;
+}
+.table.dataTable > thead > tr > th,
+.table.dataTable > tbody > tr > td {
+    white-space: nowrap;
+}
+.table > thead > tr > th:last-child,
+.table > tbody > tr > td:last-child {
+    white-space: nowrap;
+    position: relative;
+    overflow: visible;
+}
+.table > thead > tr > th:last-child {
+    background: #fff9f9;
+}
+.dropdown-menu {
+    color: #b1b5b9;
+    font-size: 14px;
+    box-shadow: 0 0 18px -10px rgba(0, 0, 0, 0.15) !important;
+}
+.dropdown-menu::before {
+    content: "";
+    height: 10px;
+    width: 10px;
+    background: white;
+    position: absolute;
+    right: 10px;
+    top: -5px;
+    border-radius: 3px 0px 0px 0px;
+    transform: rotate(45deg);
+}
+.dropdown-toggle::after {
+    display: none;
+}
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    line-height: 1;
+    gap: 3px;
+}
+.dropdown-item i {
+    font-size: 16px;
 }
 </style>
