@@ -86,7 +86,7 @@ class NCTicketTimelineController extends Controller
 
         $comments = [];
 
-        $getComments = TicketComment::with('createdByUser')
+        $getComments = TicketComment::with(['createdByUser.group'])
             ->where('ticket_id', $id)
             ->get();
 
@@ -98,6 +98,7 @@ class NCTicketTimelineController extends Controller
                 'avatar_url' => $commentingUser->avatar_url ?? null,
                 'comment' => $comment->comment,
                 'username' => $commentingUser->name ?? 'Unknown',
+                'group_name' => $commentingUser->group->name ?? 'N/A',
             ];
         }
 

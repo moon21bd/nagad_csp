@@ -110,18 +110,36 @@
                                     ticketInfos.comments &&
                                     ticketInfos.comments.length > 0
                                 "
-                                class="ticket-item popupMessages"
                             >
-                                <h2 class="sub-title">Comments</h2>
-                                <ul class="m-0 pl-3">
-                                    <li
-                                        class="py-1"
-                                        v-for="comment in ticketInfos.comments"
-                                        :key="comment.id"
-                                    >
-                                        {{ comment.comment }}
-                                    </li>
-                                </ul>
+                                <h2 class="sub-title text-danger">Comments</h2>
+                                <div class="comments">
+                                    <ul class="list-unstyled">
+                                        <li
+                                            v-for="comment in ticketInfos.comments"
+                                            :key="comment.id"
+                                            class="media"
+                                        >
+                                            <img
+                                                class="mr-3"
+                                                :src="comment.avatar_url"
+                                                alt="User avatar"
+                                            />
+                                            <div class="media-body">
+                                                <h5 class="mt-0 mb-1">
+                                                    {{ comment.username }}
+                                                    <span>{{
+                                                        comment.date_time
+                                                    }}</span>
+                                                    <strong
+                                                        >Nagad - Technology
+                                                        Operation
+                                                    </strong>
+                                                </h5>
+                                                <p>{{ comment.comment }}</p>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
 
                             <!-- Attachment Section -->
@@ -189,16 +207,10 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- <div
-                                    v-else
-                                    class="py-2 alert alert-warning text-center m-0"
-                                    role="alert"
-                                >
-                                    No attachment available.
-                                </div> -->
                             </div>
 
                             <!-- Comment Section -->
+
                             <div class="form-row">
                                 <div
                                     class="col form-group"
@@ -550,42 +562,6 @@ export default {
                         type: "error",
                     });
                 });
-
-            /* if (this.activeSelection === "user" && this.selectedUser) {
-                // Logic to forward ticket to selected user
-                axios
-                    .post(`/ticket/forward/${this.ticketId}`, {
-                        userId: this.selectedUser,
-                    })
-                    .then((response) => {
-                        this.$showToast(
-                            "Ticket successfully forwarded to user.",
-                            { type: "success" }
-                        );
-                    })
-                    .catch((error) => {
-                        this.$showToast("Failed to forward ticket to user.", {
-                            type: "error",
-                        });
-                    });
-            } else if (this.activeSelection === "group" && this.selectedGroup) {
-                // Logic to forward ticket to selected group
-                axios
-                    .post(`/ticket/forward/${this.ticketId}`, {
-                        groupId: this.selectedGroup,
-                    })
-                    .then((response) => {
-                        this.$showToast(
-                            "Ticket successfully forwarded to group.",
-                            { type: "success" }
-                        );
-                    })
-                    .catch((error) => {
-                        this.$showToast("Failed to forward ticket to group.", {
-                            type: "error",
-                        });
-                    });
-            } */
         },
         checkTicketStatus(ticketId) {
             axios
@@ -665,9 +641,8 @@ export default {
                         required_fields: this.requiredFields,
                         ticket_status: response.data.ticket_status,
                         attachments: response.data.attachments,
-                        comments: response.data.comments,
+                        comments: response.data.user_comments,
                     };
-                    console.log("this.ticketInfos", this.ticketInfos);
                 })
                 .catch((error) => {
                     console.error("Error fetching ticket infos:", error);

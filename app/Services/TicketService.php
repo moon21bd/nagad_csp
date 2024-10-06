@@ -193,7 +193,7 @@ class TicketService
                 'status' => 'success',
                 'message' => 'Tickets have been created. Responsible groups: ' . $groupName,
                 'data' => [
-                    'ticketId' => json_encode($ticketsData),
+                    'ticketId' => implode(', ', $ticketsData),
                 ],
             ];
         }

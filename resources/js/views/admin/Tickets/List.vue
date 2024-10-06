@@ -26,11 +26,13 @@
                         id="statusFilter"
                         placeholder="Ticket Status"
                     >
-                        <el-option value="">All</el-option>
-                        <el-option value="OPENED">Opened</el-option>
-                        <el-option value="PENDING">Pending</el-option>
-                        <el-option value="CLOSED">Closed</el-option>
-                        <el-option value="RESOLVED">Resolved</el-option>
+                        <el-option
+                            v-for="status in statuses"
+                            :key="status.value"
+                            :label="status.label"
+                            :value="status.value"
+                        >
+                        </el-option>
                     </el-select>
                     <el-select
                         v-model="filters.groups"
@@ -203,6 +205,7 @@ export default {
             tickets: [],
             groupOptions: [],
             serviceCategories: [],
+            statuses: [],
             filters: {
                 status: "",
                 groups: [],
@@ -222,6 +225,16 @@ export default {
 
     methods: {
         formatDateTime,
+        fetchTicketStatuses() {
+            axios
+                .get("/ticket/statuses")
+                .then((response) => {
+                    this.statuses = response.data.statuses;
+                })
+                .catch((error) => {
+                    console.error("Error fetching ticket statuses:", error);
+                });
+        },
         async deleteTicket(id) {
             try {
                 if (confirm("Are you sure you want to delete this Ticket?")) {
@@ -294,7 +307,6 @@ export default {
                     id: group.id,
                     name: group.name,
                 }));
-                console.log("Filtered groupOptions", this.groupOptions);
 
                 this.serviceCategories = categoriesResponse.data.map(
                     (category) => ({
@@ -303,11 +315,6 @@ export default {
                         type: category.call_type.call_type_name,
                         category: category.call_category_name,
                     })
-                );
-
-                console.log(
-                    "Filtered serviceCategories",
-                    this.serviceCategories
                 );
             } catch (error) {
                 console.error("Error fetching filter options:", error);
@@ -336,6 +343,7 @@ export default {
     mounted() {
         this.fetchFilterOptions();
         this.fetchTickets();
+        this.fetchTicketStatuses();
     },
     watch: {
         tickets(newValue) {

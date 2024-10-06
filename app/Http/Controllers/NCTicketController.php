@@ -88,15 +88,15 @@ class NCTicketController extends Controller
      * @param  \App\Models\NCTicket  $nCTicket
      * @return \Illuminate\Http\Response
      */
-
     public function show($id)
     {
-        $ticket = NCTicket::with(['callType', 'callCategory', 'callSubCategory', 'attachments', 'comments'])
+        $ticket = NCTicket::with(['callType', 'callCategory', 'callSubCategory', 'attachments'])
             ->findOrFail($id);
-        $statuses = $this->ticketService->getStatuses();
 
+        $statuses = $this->ticketService->getStatuses();
         $ticketCollection = collect($ticket);
         $ticketCollection->put('statuses', $statuses);
+
         $requiredFields = TicketsRequiredField::where('ticket_id', $id)
             ->with('requiredFields')
             ->get()
@@ -109,6 +109,27 @@ class NCTicketController extends Controller
             });
 
         $ticketCollection->put('required_fields', $requiredFields);
+
+        $comments = [];
+
+        $getComments = TicketComment::with(['createdByUser.group'])
+            ->where('ticket_id', $id)
+            ->get();
+
+        foreach ($getComments as $comment) {
+            $commentingUser = $comment->createdByUser;
+
+            $comments[] = [
+                'date_time' => Carbon::parse($comment->created_at)->format('M j, Y h:i A'),
+                'avatar_url' => $commentingUser->avatar_url ?? null,
+                'comment' => $comment->comment,
+                'username' => $commentingUser->name ?? 'Unknown',
+                'group_name' => $commentingUser->group->name ?? 'N/A',
+            ];
+        }
+
+        $ticketCollection->put('user_comments', $comments);
+
         return response()->json($ticketCollection, 200);
     }
 
@@ -379,9 +400,9 @@ class NCTicketController extends Controller
         return response()->json($tickets);
     }
 
-/**
- * Handle forwarding the ticket to a specific user.
- */
+    /**
+     * Handle forwarding the ticket to a specific user.
+     */
     private function forwardToUser($ticket, $userId, $comment, $ticketStatus, $now)
     {
         $user = User::where('id', $userId)
@@ -399,9 +420,9 @@ class NCTicketController extends Controller
         }
     }
 
-/**
- * Handle forwarding the ticket to a specific group.
- */
+    /**
+     * Handle forwarding the ticket to a specific group.
+     */
     private function forwardToGroup($ticket, $groupId, $comment, $ticketStatus, $now)
     {
         $group = Group::find($groupId);
@@ -423,9 +444,9 @@ class NCTicketController extends Controller
         }
     }
 
-/**
- * Create a ticket timeline and send a notification to the user.
- */
+    /**
+     * Create a ticket timeline and send a notification to the user.
+     */
     private function createTicketTimelineAndNotify($ticket, $userId, $comment, $ticketStatus, $now)
     {
         $data = [

@@ -123,4 +123,5 @@ class NCTicket extends Model
     {
         return $this->hasMany(NCTicketTimeline::class, 'ticket_id');
     }
+
 }

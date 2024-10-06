@@ -150,4 +150,9 @@ class User extends Authenticatable
         return $this->hasOne(UserLoginActivity::class)->latest();
     }
 
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
 }

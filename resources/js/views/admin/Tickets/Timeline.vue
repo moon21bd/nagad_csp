@@ -157,49 +157,21 @@
                                 >
                                     <img
                                         class="mr-3"
-                                        :src="
-                                            comment.avatar_url ||
-                                            '/images/user-avatar.png'
-                                        "
-                                        alt="User avatar"
+                                        :src="comment.avatar_url"
+                                        alt="Avatar"
                                     />
                                     <div class="media-body">
                                         <h5 class="mt-0 mb-1">
                                             {{ comment.username }}
                                             <span>{{ comment.date_time }}</span>
                                             <strong
-                                                >Nagad - Technology Operation
+                                                >{{ comment.group_name }}
                                             </strong>
                                         </h5>
                                         <p>{{ comment.comment }}</p>
                                     </div>
                                 </li>
                             </ul>
-
-                            <!-- <div class="comments-form">
-                                <form action="">
-                                    <div class="d-flex align-items-center">
-                                        <img
-                                            class="mr-3"
-                                            src="/images/user-avatar.png"
-                                            alt="Generic placeholder image"
-                                        />
-                                        <Textarea
-                                            class="form-control"
-                                            placeholder="Add a comment…"
-                                            col="2"
-                                        ></Textarea>
-                                    </div>
-                                    <div class="text-right">
-                                        <button
-                                            class="btn btn-send mt-3"
-                                            type="button"
-                                        >
-                                            Send
-                                        </button>
-                                    </div>
-                                </form>
-                            </div> -->
                         </div>
                     </div>
                 </div>
