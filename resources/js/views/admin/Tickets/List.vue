@@ -64,11 +64,46 @@
                         >
                         </el-option>
                     </el-select>
+
+                    <el-select
+                        v-model="filters.created_by"
+                        @change="fetchTickets"
+                        name="created_by"
+                        placeholder="Select Created By"
+                    >
+                        <el-option value="">All</el-option>
+                        <el-option
+                            v-for="user in users"
+                            :key="user.id"
+                            :label="user.name"
+                            :value="user.id"
+                        >
+                        </el-option>
+                    </el-select>
+
+                    <el-select
+                        v-model="filters.ticket_source"
+                        @change="fetchTickets"
+                        name="ticket_source"
+                        placeholder="Ticket Source"
+                    >
+                        <el-option value="">All</el-option>
+                        <el-option
+                            v-for="source in ticketSource"
+                            :key="source.value"
+                            :label="source.label"
+                            :value="source.value"
+                        >
+                        </el-option>
+                    </el-select>
+
                     <label class="checkbox text-nowrap"
                         ><input
                             type="checkbox"
-                            name="role-create"
-                            id="role-create"
+                            name="my-tickets"
+                            id="my-tickets"
+                            v-model="filters.my_tickets"
+                            @change="fetchTickets"
                         />
                         <span class="checkmark"></span>
                         My Tickets
@@ -235,7 +270,12 @@ export default {
                 status: "",
                 groups: [],
                 service_category: "",
+                my_tickets: null,
+                created_by: null,
+                ticket_source: null,
             },
+            users: [],
+            ticketSource: [],
         };
     },
     computed: {
@@ -250,6 +290,15 @@ export default {
 
     methods: {
         formatDateTime,
+        async fetchUsers() {
+            try {
+                const response = await axios.get("/users");
+                this.users = response.data.data;
+            } catch (error) {
+                console.error("Error fetching users:", error);
+                this.users = [];
+            }
+        },
         fetchTicketStatuses() {
             axios
                 .get("/ticket/statuses")
@@ -258,6 +307,17 @@ export default {
                 })
                 .catch((error) => {
                     console.error("Error fetching ticket statuses:", error);
+                });
+        },
+        fetchTicketSources() {
+            axios
+                .get("/ticket/sources")
+                .then((response) => {
+                    console.log("response.data", response.data.sources);
+                    this.ticketSource = response.data.sources;
+                })
+                .catch((error) => {
+                    console.error("Error fetching ticket sources:", error);
                 });
         },
         async deleteTicket(id) {
@@ -297,6 +357,9 @@ export default {
                 status: "",
                 groups: [],
                 service_category: "",
+                my_tickets: null,
+                created_by: null,
+                ticket_source: null,
             };
             this.isLoading = true;
             try {
@@ -312,7 +375,12 @@ export default {
             try {
                 this.isLoading = true;
                 const response = await axios.get("/tickets", {
-                    params: this.filters, // Send filters to backend
+                    params: {
+                        ...this.filters,
+                        my_tickets: this.filters.my_tickets
+                            ? this.$store.state.auth.user.id
+                            : null,
+                    },
                 });
                 this.tickets = response.data;
             } catch (error) {
@@ -369,6 +437,8 @@ export default {
         this.fetchFilterOptions();
         this.fetchTickets();
         this.fetchTicketStatuses();
+        this.fetchUsers();
+        this.fetchTicketSources();
     },
     watch: {
         tickets(newValue) {
@@ -379,22 +449,6 @@ export default {
     },
 };
 </script>
-<!-- <style scoped>
-.table.dataTable > thead > tr > th {
-    white-space: nowrap;
-}
-.table > thead > tr > th:last-child,
-.table > tbody > tr > td:last-child {
-    white-space: nowrap;
-    position: sticky;
-    right: 0;
-    background: #fff;
-}
-.table > thead > tr > th:last-child {
-    background: #fff9f9;
-}
-
-</style> -->
 
 <style scoped>
 .table > tbody > tr > td .badge {

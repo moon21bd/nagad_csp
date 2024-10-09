@@ -38,6 +38,12 @@ class TicketService
         ['value' => 'RESOLVED', 'label' => 'RESOLVED'],
     ];
 
+    // Ticket sources arr
+    protected $sources = [
+        ['value' => 'NAGAD-SEBA', 'label' => 'Nagad Seba'],
+        ['value' => 'CALL-CENTER', 'label' => 'Call Center'],
+    ];
+
     protected $ticketUuid;
 
     public function __construct(ServiceTypeConfigService $serviceTypeConfigService, NotificationService $notificationService, GroupService $groupService)
@@ -60,6 +66,18 @@ class TicketService
 
         if (isset($filters['groups']) && !empty($filters['groups'])) {
             $query->whereIn('assign_to_group_id', $filters['groups']);
+        }
+
+        if (isset($filters['my_tickets']) && !empty($filters['my_tickets'])) {
+            $query->where('assign_to_user_id', $filters['my_tickets']);
+        }
+
+        if (isset($filters['created_by']) && !empty($filters['created_by'])) {
+            $query->where('ticket_created_by', $filters['created_by']);
+        }
+
+        if (isset($filters['ticket_source']) && !empty($filters['ticket_source'])) {
+            $query->where('ticket_source', $filters['ticket_source']);
         }
 
         if (isset($filters['service_category']) && $filters['service_category'] !== '') {
@@ -233,6 +251,11 @@ class TicketService
     public function getStatuses()
     {
         return $this->statuses;
+    }
+
+    public function getSources()
+    {
+        return $this->sources;
     }
 
     public function updateTicket(Request $request, $id)

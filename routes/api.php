@@ -187,6 +187,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/ticket/timeline/{id}', [NCTicketController::class, 'addTimelineForFirstTimePageLoad']);
     Route::get('/ticket/search', [NCTicketController::class, 'searchTickets']);
     Route::get('/ticket/statuses', [NCTicketController::class, 'ticketStatuses']);
+    Route::get('/ticket/sources', [NCTicketController::class, 'ticketSources']);
 
     Route::get('users-index', [UsersController::class, 'userIndex']);
 

@@ -368,10 +368,16 @@ class NCTicketController extends Controller
         }
     }
 
-    public function ticketStatuses(Request $request)
+    public function ticketStatuses()
     {
         $statuses = $this->ticketService->getStatuses();
         return response()->json(['statuses' => $statuses]);
+    }
+
+    public function ticketSources()
+    {
+        $sources = $this->ticketService->getSources();
+        return response()->json(['sources' => $sources]);
     }
 
     public function searchTickets(Request $request)
