@@ -35,11 +35,6 @@ class NCTicketController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    /* public function index()
-    {
-    $tickets = $this->ticketService->getAllTickets();
-    return response()->json($tickets);
-    } */
 
     public function index(Request $request)
     {
@@ -74,12 +69,11 @@ class NCTicketController extends Controller
             'comments' => 'nullable|string',
             'attachment' => 'nullable|string',
             'attachmentType' => 'nullable|string',
-            // |mimes:jpeg,png,jpg,gif,pdf,doc,docx,xls,xlsx',
         ]);
 
         $ticket = $this->ticketService->createTicket($validated);
 
-        return response()->json($ticket, 201);
+        return response()->json($ticket, $ticket['code']);
     }
 
     /**

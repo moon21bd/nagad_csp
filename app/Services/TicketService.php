@@ -97,13 +97,33 @@ class TicketService
     public function createTicket(array $validated)
     {
 
-        $ticketCount = 1;
+        $ticketCount = 1; // by default ticket
 
         if (!empty($validated['requiredField'])) {
             $inputRequiredFields = $validated['requiredField'] ?? [];
             $ticketRelated = $this->generateRequiredFieldsAndTicketData($inputRequiredFields);
-            $requiredFieldsNew = $this->prepareRequiredFields($ticketRelated['requiredFields']);
             $ticketCount = $ticketRelated['totalTickets'];
+
+            $configResult = $this->getTransactionIdConfig($validated);
+
+            if ($configResult) {
+                $transactionConfigId = $configResult->id;
+
+                foreach ($ticketRelated['requiredFields'] as $i => $requiredFields) {
+                    if (isset($requiredFields[$transactionConfigId])) {
+                        $transactionId = $requiredFields[$transactionConfigId];
+
+                        if ($this->checkTransactionIdExists($validated, $transactionId, $transactionConfigId)) {
+                            return [
+                                'code' => Response::HTTP_CONFLICT,
+                                'status' => 'error',
+                                'message' => "Transaction ID ($transactionId) already exists. Ticket creation aborted.",
+                            ];
+                        }
+                    }
+                }
+            }
+
         }
 
         // Fetch service type configurations and responsible group IDs
@@ -113,13 +133,11 @@ class TicketService
             $validated['callSubCategoryId']
         );
 
-        $responsibleGroupIds = $this->getResponsibleGroupIds([
+        $responsibleGroupIdsStr = $responsibleGroupIds = $this->getResponsibleGroupIds([
             'call_type_id' => $validated['callTypeId'],
             'call_category_id' => $validated['callCategoryId'],
             'call_sub_category_id' => $validated['callSubCategoryId'],
-        ]);
-
-        $responsibleGroupIdsStr = $responsibleGroupIds->implode(',');
+        ])->implode(',');
 
         $authUserId = Auth::id();
         $escalation = $this->prepareTicketEscalation($validated['callTypeId'], $serviceTypeConfigs->is_escalation ?? 'NO');
@@ -166,7 +184,11 @@ class TicketService
             $ticketsData[] = $ticketUuid;
 
             if (!empty($ticketRelated['requiredFields'])) {
-                $this->bulkInsertRequiredFields($ticketRelated['requiredFields'][$i], $ticketId, $authUserId);
+                $this->bulkInsertRequiredFields($ticketRelated['requiredFields'][$i], $ticketId, $authUserId, [
+                    'call_type_id' => $validated['callTypeId'],
+                    'call_category_id' => $validated['callCategoryId'],
+                    'call_sub_category_id' => $validated['callSubCategoryId'],
+                ]);
             }
 
             $data = [
@@ -228,12 +250,16 @@ class TicketService
         return NCTicketTimeline::create($data);
     }
 
-    protected function bulkInsertRequiredFields(array $requiredFields, int $ticketId, int $userId)
+    protected function bulkInsertRequiredFields(array $requiredFields, int $ticketId, int $userId, array $wrappedUp)
     {
         // Prepare data for bulk insert
-        $insertData = array_map(function ($value, $key) use ($ticketId, $userId) {
+        $insertData = array_map(function ($value, $key) use ($ticketId, $userId, $wrappedUp) {
+
             return [
                 'ticket_id' => $ticketId,
+                'call_type_id' => $wrappedUp['call_type_id'],
+                'call_category_id' => $wrappedUp['call_category_id'],
+                'call_sub_category_id' => $wrappedUp['call_sub_category_id'],
                 'required_field_id' => (int) $key,
                 'required_field_value' => $value,
                 'created_by' => $userId,
@@ -246,6 +272,35 @@ class TicketService
 
         // Perform the bulk insert
         DB::table('tickets_required_fields')->insert($insertData);
+    }
+
+    protected function getTransactionIdConfig(array $validated)
+    {
+        $wrappedUp = [
+            'call_type_id' => $validated['callTypeId'],
+            'call_category_id' => $validated['callCategoryId'],
+            'call_sub_category_id' => $validated['callSubCategoryId'],
+        ];
+
+        return DB::table('nc_required_field_configs')
+            ->where('input_field_name', 'LIKE', '%Transaction id%')
+            ->where($wrappedUp)
+            ->first();
+    }
+
+    protected function checkTransactionIdExists(array $validated, $transactionId, $configId)
+    {
+        $wrappedUp = [
+            'call_type_id' => $validated['callTypeId'],
+            'call_category_id' => $validated['callCategoryId'],
+            'call_sub_category_id' => $validated['callSubCategoryId'],
+        ];
+
+        return DB::table('tickets_required_fields')
+            ->where('required_field_value', $transactionId)
+            ->where($wrappedUp)
+            ->where('required_field_id', $configId)
+            ->exists();
     }
 
     public function getStatuses()
@@ -281,7 +336,7 @@ class TicketService
                 'last_time_opened_at' => Carbon::now(),
             ];
             $this->createTicketTimeline($data);
-            // dd($validated['comments']);
+
             foreach ($validated['comments'] ?? [] as $key => $comment) {
                 $comment = TicketComment::create([
                     'ticket_id' => $ticketId,

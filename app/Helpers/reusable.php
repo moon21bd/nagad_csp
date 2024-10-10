@@ -434,3 +434,21 @@ if (!function_exists("getDeviceIcon")) {
     }
 
 }
+
+/**
+ * Check if a given string is a valid date-time string.
+ *
+ * @param string $value
+ * @return bool
+ */
+if (!function_exists("isDateTime")) {
+    function isDateTime($value)
+    {
+        try {
+            return (bool) Carbon::parse($value);
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+}

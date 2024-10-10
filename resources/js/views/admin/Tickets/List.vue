@@ -24,8 +24,9 @@
                         @change="fetchTickets"
                         filterable
                         id="statusFilter"
-                        placeholder="Ticket Status"
+                        placeholder="Status"
                     >
+                        <el-option value="">All</el-option>
                         <el-option
                             v-for="status in statuses"
                             :key="status.value"
@@ -36,11 +37,12 @@
                     </el-select>
                     <el-select
                         v-model="filters.groups"
-                        placeholder="Select Responsible Groups"
+                        placeholder="Groups"
                         multiple
                         collapse-tags
                         @change="fetchTickets"
                     >
+                        <el-option value="">All</el-option>
                         <el-option
                             v-for="group in groupOptions"
                             :key="group.id"
@@ -53,7 +55,7 @@
                         v-model="filters.service_category"
                         @change="fetchTickets"
                         filterable
-                        placeholder="Select Service Sub Category"
+                        placeholder="Sub Category"
                     >
                         <el-option value="">All</el-option>
                         <el-option
@@ -69,7 +71,7 @@
                         v-model="filters.created_by"
                         @change="fetchTickets"
                         name="created_by"
-                        placeholder="Select Created By"
+                        placeholder="Creator"
                     >
                         <el-option value="">All</el-option>
                         <el-option
@@ -85,7 +87,7 @@
                         v-model="filters.ticket_source"
                         @change="fetchTickets"
                         name="ticket_source"
-                        placeholder="Ticket Source"
+                        placeholder="Source"
                     >
                         <el-option value="">All</el-option>
                         <el-option
@@ -281,10 +283,8 @@ export default {
     computed: {
         // Check if the user has permission to create tickets
         canCreateTicket() {
-            return (
-                this.hasRole("admin|superadmin") ||
-                this.hasPermission("ticket-create")
-            );
+            return this.hasRole("admin|superadmin");
+            // || this.hasPermission("ticket-create")
         },
     },
 
@@ -313,7 +313,7 @@ export default {
             axios
                 .get("/ticket/sources")
                 .then((response) => {
-                    console.log("response.data", response.data.sources);
+                    // console.log("response.data", response.data.sources);
                     this.ticketSource = response.data.sources;
                 })
                 .catch((error) => {

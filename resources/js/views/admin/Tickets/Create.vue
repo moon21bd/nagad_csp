@@ -271,6 +271,11 @@
                                                         "
                                                         type="datetime"
                                                         placeholder="Select date and time"
+                                                        @change="
+                                                            formatDateTimeTest(
+                                                                field.id
+                                                            )
+                                                        "
                                                     />
                                                 </div>
                                                 <div class="form-group" v-else>
@@ -625,6 +630,24 @@ export default {
         },
     },
     methods: {
+        formatDateTimeTest(fieldId) {
+            const isoDateString = this.ticketInfos.requiredField[fieldId];
+            if (isoDateString) {
+                const date = new Date(isoDateString);
+
+                // Extract the components
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+                const day = String(date.getDate()).padStart(2, "0");
+                const hours = String(date.getHours()).padStart(2, "0");
+                const minutes = String(date.getMinutes()).padStart(2, "0");
+                const seconds = String(date.getSeconds()).padStart(2, "0");
+
+                // Format to 'YYYY-MM-DD HH:mm:ss'
+                const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+                this.ticketInfos.requiredField[fieldId] = formattedDate;
+            }
+        },
         resetFilter() {
             this.searchCallerMobileNo = "";
             this.selectedStatus = "";
@@ -1070,14 +1093,30 @@ export default {
                     this.showPopup(
                         `${response.data.message}. TicketId: ${response.data.data.ticketId}`
                     );
+                } else if (
+                    response.data.status === "error" &&
+                    response.data.code === 409
+                ) {
+                    this.$showToast(response.data.message, {
+                        type: "error",
+                    });
                 }
             } catch (error) {
-                this.$showToast(
-                    "There was an error submitting the ticket form.",
-                    {
+                if (
+                    error.response.data.status === "error" &&
+                    error.response.data.code === 409
+                ) {
+                    this.$showToast(error.response.data.message, {
                         type: "error",
-                    }
-                );
+                    });
+                } else {
+                    this.$showToast(
+                        "There was an error submitting the ticket form.",
+                        {
+                            type: "error",
+                        }
+                    );
+                }
             }
         },
         async onCategoryChange() {
