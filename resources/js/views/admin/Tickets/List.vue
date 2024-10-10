@@ -415,11 +415,28 @@ export default {
         },
         renderTicketStatus(status) {
             const statusMap = {
-                OPENED: { class: "badge-warning", label: "OPENED" },
-                PENDING: { class: "badge-danger", label: "PENDING" },
-                CLOSED: { class: "badge-success", label: "CLOSED" },
-                RESOLVED: { class: "badge-info", label: "RESOLVED" },
+                CREATED: { class: "badge-primary", label: "CREATED" }, // Blue
+                OPENED: { class: "badge-warning", label: "OPENED" }, // Yellow
+                RESOLVED: { class: "badge-success", label: "RESOLVED" }, // Green
+                CLOSED: {
+                    class: "badge-danger",
+                    label: "CLOSED", // General label for all closed statuses
+                },
+                REOPEN: { class: "badge-info", label: "REOPEN" }, // Lavender
             };
+
+            const closedStatuses = [
+                "CLOSED - REACHED",
+                "CLOSED - NOT RECEIVED",
+                "CLOSED - NOT CONNECTED",
+                "CLOSED - SWITCHED OFF",
+                "CLOSED - NOT COOPERATED",
+            ];
+
+            if (closedStatuses.includes(status)) {
+                return `<span class="badge ${statusMap.CLOSED.class}">${status}</span>`;
+            }
+
             return statusMap[status]
                 ? `<span class="badge ${statusMap[status].class}">${statusMap[status].label}</span>`
                 : `<span class="badge badge-dark">${status}</span>`;

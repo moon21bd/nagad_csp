@@ -30,12 +30,17 @@ class TicketService
 
     // Ticket statuses arr
     protected $statuses = [
-        ['value' => 'OPENED', 'label' => 'OPENED'],
         ['value' => 'CREATED', 'label' => 'CREATED'],
-        ['value' => 'PENDING', 'label' => 'PENDING'],
-        ['value' => 'CLOSED', 'label' => 'CLOSED'],
-        ['value' => 'REOPEN', 'label' => 'REOPEN'],
+        ['value' => 'OPENED', 'label' => 'OPENED'],
         ['value' => 'RESOLVED', 'label' => 'RESOLVED'],
+        // ['value' => 'PENDING', 'label' => 'PENDING'],
+        ['value' => 'CLOSED', 'label' => 'CLOSED'],
+        ['value' => 'CLOSED - REACHED', 'label' => 'CLOSED - REACHED'],
+        ['value' => 'CLOSED - NOT RECEIVED', 'label' => 'CLOSED - NOT RECEIVED'],
+        ['value' => 'CLOSED - NOT CONNECTED', 'label' => 'CLOSED - NOT CONNECTED'],
+        ['value' => 'CLOSED - SWITCHED OFF', 'label' => 'CLOSED - SWITCHED OFF'],
+        ['value' => 'CLOSED - NOT COOPERATED', 'label' => 'CLOSED - NOT COOPERATED'],
+        ['value' => 'REOPEN', 'label' => 'REOPEN'],
     ];
 
     // Ticket sources arr
@@ -60,7 +65,26 @@ class TicketService
         $user = auth()->user();
         $query = NCTicket::with(['creator:id,name', 'callType', 'callCategory', 'callSubCategory', 'attachments', 'comments']);
 
+        /* if (isset($filters['status']) && $filters['status'] !== '') {
+        $query->where('ticket_status', $filters['status']);
+        } */
+
         if (isset($filters['status']) && $filters['status'] !== '') {
+            /* $closedStatuses = [
+            'CLOSED',
+            'CLOSED - REACHED',
+            'CLOSED - NOT RECEIVED',
+            'CLOSED - NOT CONNECTED',
+            'CLOSED - SWITCHED OFF',
+            'CLOSED - NOT COOPERATED',
+            ];
+
+            if (in_array($filters['status'], $closedStatuses)) {
+            $query->whereIn('ticket_status', $closedStatuses);
+            } else {
+            $query->where('ticket_status', $filters['status']);
+            } */
+
             $query->where('ticket_status', $filters['status']);
         }
 

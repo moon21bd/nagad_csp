@@ -218,6 +218,7 @@ class NCTicketController extends Controller
         if ($ticket->initial_assign_id === null || $ticket->assign_to_user_id === null) {
             DB::transaction(function () use ($ticket, $authUserId, $authUserGroupId) {
                 $ticket->initial_assign_id = $ticket->assign_to_user_id = $authUserId;
+                $ticket->ticket_status = 'OPENED';
                 $ticket->assign_to_group_id = $authUserGroupId;
                 $ticket->save();
             });

@@ -414,6 +414,7 @@ export default {
         requiredFields: [],
         maxTicketComments: 5,
         serviceTypeConfigs: {},
+        filteredStatusList: [],
         ticketInfos: {
             id: null,
             call_type: {
@@ -433,6 +434,12 @@ export default {
         },
         ticketComments: [{ text: "" }],
     }),
+    watch: {
+        "ticketInfos.ticket_status": function (newStatus) {
+            this.updateFilteredStatuses();
+        },
+    },
+
     computed: {
         ...mapState("auth", ["user"]),
         ...mapGetters("auth", ["user"]),
@@ -440,29 +447,7 @@ export default {
             return this.$store.getters["auth/user"];
         },
         filteredStatuses() {
-            switch (this.ticketInfos.ticket_status) {
-                case "CREATED":
-                    return this.ticketInfos.statuses.filter(
-                        (status) => status.value === "OPENED"
-                    );
-                case "REOPEN":
-                case "OPENED":
-                    return this.ticketInfos.statuses.filter(
-                        (status) => status.value === "RESOLVED"
-                    );
-                case "RESOLVED":
-                    return this.ticketInfos.statuses.filter(
-                        (status) =>
-                            status.value === "CLOSED" ||
-                            status.value === "REOPEN"
-                    );
-                case "CLOSED":
-                    return this.ticketInfos.statuses.filter(
-                        (status) => status.value === "REOPEN"
-                    );
-                default:
-                    return this.ticketInfos.statuses;
-            }
+            return this.filteredStatusList;
         },
     },
     created() {
@@ -475,6 +460,50 @@ export default {
     },
     methods: {
         ...mapActions("auth", ["setUser"]),
+        updateFilteredStatuses() {
+            const closedStatuses = [
+                "CLOSED",
+                "CLOSED - REACHED",
+                "CLOSED - NOT RECEIVED",
+                "CLOSED - NOT CONNECTED",
+                "CLOSED - SWITCHED OFF",
+                "CLOSED - NOT COOPERATED",
+            ];
+
+            switch (this.ticketInfos.ticket_status.toUpperCase()) {
+                case "CREATED":
+                    this.filteredStatusList = this.ticketInfos.statuses.filter(
+                        (status) => status.value.toUpperCase() === "OPENED"
+                    );
+                    break;
+                case "REOPEN":
+                case "OPENED":
+                    this.filteredStatusList = this.ticketInfos.statuses.filter(
+                        (status) => status.value.toUpperCase() === "RESOLVED"
+                    );
+                    break;
+                case "RESOLVED":
+                    this.filteredStatusList = this.ticketInfos.statuses.filter(
+                        (status) =>
+                            status.value.toUpperCase() === "REOPEN" ||
+                            closedStatuses.includes(status.value.toUpperCase())
+                    );
+                    break;
+                case "CLOSED":
+                case "CLOSED - REACHED":
+                case "CLOSED - NOT RECEIVED":
+                case "CLOSED - NOT CONNECTED":
+                case "CLOSED - SWITCHED OFF":
+                case "CLOSED - NOT COOPERATED":
+                    this.filteredStatusList = this.ticketInfos.statuses.filter(
+                        (status) => status.value.toUpperCase() === "REOPEN"
+                    );
+                    break;
+                default:
+                    this.filteredStatusList = this.ticketInfos.statuses;
+            }
+            return this.filteredStatusList;
+        },
         checkFirstLoad() {
             const pageKey = "ticket_page_first_load";
             if (!localStorage.getItem(pageKey)) {
@@ -614,6 +643,10 @@ export default {
                                 type: "success",
                             }
                         );
+
+                        this.ticketInfos.ticket_status = "OPENED";
+
+                        this.updateFilteredStatuses();
                     }
                 })
                 .catch((error) => {
