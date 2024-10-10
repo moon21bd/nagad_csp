@@ -7,7 +7,7 @@
                 ><i class="icon-left"></i>
             </router-link>
             <h1 class="title m-0">Ticket Id : {{ this.ticket.uuid }}</h1>
-            <div class="btn btn-site btn-sm ml-auto">
+            <div class="btn btn-sm ml-auto" :class="buttonClass">
                 <i class="icon-check-circle"></i>
                 {{ ticket.ticket_status }}
             </div>
@@ -196,6 +196,31 @@ export default {
     created() {
         this.ticketId = this.$route.params.id;
         this.fetchTicketTimeline();
+    },
+    computed: {
+        buttonClass() {
+            const { ticket_status } = this.ticket; // Assuming ticket is part of the component's data
+            switch (ticket_status) {
+                case "CREATED":
+                    return "btn-primary";
+                case "OPENED":
+                    return "btn-warning";
+                case "RESOLVED":
+                    return "btn-success";
+                case "REOPEN":
+                    return "btn-info";
+                default:
+                    return [
+                        "CLOSED - REACHED",
+                        "CLOSED - NOT RECEIVED",
+                        "CLOSED - NOT CONNECTED",
+                        "CLOSED - SWITCHED OFF",
+                        "CLOSED - NOT COOPERATED",
+                    ].includes(ticket_status)
+                        ? "btn-danger"
+                        : "";
+            }
+        },
     },
     methods: {
         fetchTicketTimeline() {
