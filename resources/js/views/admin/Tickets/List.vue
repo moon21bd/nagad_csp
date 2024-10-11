@@ -9,6 +9,13 @@
             >
                 <i class="icon-plus"></i> New
             </router-link>
+            <router-link
+                v-if="canCreateTicket"
+                class="btn btn-outline-dark ml-2"
+                :to="{ name: 'ticket-create' }"
+            >
+                <i class="icon-download"></i> Export
+            </router-link>
         </div>
 
         <div class="card mb-4">

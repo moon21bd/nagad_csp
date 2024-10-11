@@ -1,8 +1,14 @@
 <template>
     <div>
-        <div class="common-heading d-flex align-items-center mb-3">
+        <div
+            class="common-heading d-flex align-items-center mb-3 flex-wrap flex-md-nowrap"
+        >
             <h1 class="title m-0 mr-2">Dashboard</h1>
-            <el-select v-model="filterGroup" placeholder="Select Group">
+            <el-select
+                class="mr-2 mb-3 mb-md-0"
+                v-model="filterGroup"
+                placeholder="Select Group"
+            >
                 <el-option
                     v-for="group in groups"
                     :key="group.id"
@@ -11,6 +17,14 @@
                 >
                 </el-option>
             </el-select>
+            <el-date-picker
+                v-model="dateFilter"
+                type="daterange"
+                range-separator="To"
+                start-placeholder="Start date"
+                end-placeholder="End date"
+            >
+            </el-date-picker>
         </div>
         <div class="dashboard-card">
             <ul>
@@ -70,7 +84,46 @@
                 </li>
             </ul>
         </div>
-
+        <div class="dashboard-card dashboard-card-admin">
+            <ul>
+                <li>
+                    <div class="img">
+                        <i class="icon-user-check"></i>
+                    </div>
+                    <h3>
+                        <span>Total Active User</span>
+                        {{ totalReportCount.openTicket ?? 0 }}
+                    </h3>
+                </li>
+                <li>
+                    <div class="img">
+                        <i class="icon-user-remove"></i>
+                    </div>
+                    <h3>
+                        <span>Idle User</span
+                        >{{ totalReportCount.pendingTicket ?? 0 }}
+                    </h3>
+                </li>
+                <li>
+                    <div class="img">
+                        <i class="icon-user-x"></i>
+                    </div>
+                    <h3>
+                        <span>Inactive User</span
+                        >{{ totalReportCount.inProgressTicket ?? 0 }}
+                    </h3>
+                </li>
+                <li>
+                    <div class="img">
+                        <i class="icon-user"></i>
+                    </div>
+                    <h3>
+                        <span>Total User (lifetime)</span
+                        >{{ totalReportCount.inProgressTicket ?? 0 }}
+                    </h3>
+                </li>
+            </ul>
+        </div>
         <div class="row card-equal">
             <div class="col-md-6">
                 <div class="card mb-4">
@@ -223,6 +276,7 @@ export default {
             monthValue: "",
             monthTickets: "",
             filterGroup: "",
+            dateFilter: "",
             totalReportCount: {},
             dailyReportCount: {},
             monthWiseReportCount: {},

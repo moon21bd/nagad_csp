@@ -133,7 +133,7 @@
                                                     </li>
                                                 </ul>
                                             </div>
-                                            <div class="col-md-6">
+                                            <div class="col-md-8">
                                                 <div class="device-location">
                                                     <i class="icon-map"></i>
                                                 </div>
@@ -148,6 +148,15 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    <div v-else class="col-md-8">
+                        <div class="user-logs no-data py-4">
+                            <img
+                                src="/images/no-data.svg"
+                                alt="No Data Found"
+                            />
+                            <h3>Select user to view Logs Info</h3>
                         </div>
                     </div>
                 </div>
