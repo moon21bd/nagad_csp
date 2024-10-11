@@ -66,7 +66,7 @@ class CheckSlaStatus extends Command
 
             } else {
                 // Update SLA status as resolved if ticket is closed
-                if ($ticket->ticket_status == 'closed') {
+                if ($ticket->ticket_status == 'CLOSED') {
                     $ticket->sla_status = 'resolved';
                     $ticket->save();
                 }

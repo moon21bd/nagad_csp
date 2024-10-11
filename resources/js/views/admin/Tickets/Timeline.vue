@@ -211,6 +211,7 @@ export default {
                     return "btn-info";
                 default:
                     return [
+                        "CLOSED",
                         "CLOSED - REACHED",
                         "CLOSED - NOT RECEIVED",
                         "CLOSED - NOT CONNECTED",

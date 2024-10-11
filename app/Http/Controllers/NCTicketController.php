@@ -300,6 +300,8 @@ class NCTicketController extends Controller
                 $this->forwardToGroup($ticket, $validated['forward_to'], $comment, $ticketStatus, $now);
             }
 
+            $this->ticketService->updateSlaStatus($ticket);
+
             // Return a success response
             return response()->json([
                 'success' => true,
