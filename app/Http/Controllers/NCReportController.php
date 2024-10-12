@@ -10,75 +10,172 @@ use Illuminate\Support\Facades\DB;
 
 class NCReportController extends Controller
 {
+    /* public function getTotalReportCount(Request $request, $groupId = null)
+    {
+    $dateFilter = $request->input('date');
+
+    $user = auth()->user();
+    $query = NCTicket::select('ticket_status', DB::raw('count(*) as total'));
+
+    if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
+    if ($groupId) {
+    $tickets = $query->where('assign_to_group_id', $groupId);
+    } else {
+    $tickets = $query;
+    }
+    } else {
+    $tickets = $query->where('assign_to_group_id', $user->group_id);
+    }
+
+    if ($dateFilter) {
+    $dates = explode(',', $dateFilter);
+    $startDate = $dates[0];
+    $endDate = $dates[1] ?? $dates[0];
+    $tickets->whereDate('ticket_created_at', '>=', $startDate)
+    ->whereDate('ticket_created_at', '<=', $endDate);
+    }
+
+    $totalCount = $tickets->groupBy('ticket_status')->get();
+    $pendingTicket = $createdTicket = $resolvedTicket = $openTicket = $closedTicket = $reopenTicket = $inProgressTicket = 0;
+
+    if ($totalCount->isNotEmpty()) {
+    foreach ($totalCount as $count) {
+    switch (strtoupper($count->ticket_status)) {
+    case "PENDING":
+    $pendingTicket = $count->total;
+    break;
+    case "CREATED":
+    $createdTicket = $count->total;
+    break;
+    case "OPENED":
+    $openTicket = $count->total;
+    break;
+    case "CLOSED":
+    case "CLOSED - REACHED":
+    case "CLOSED - NOT RECEIVED":
+    case "CLOSED - NOT CONNECTED":
+    case "CLOSED - SWITCHED OFF":
+    case "CLOSED - NOT COOPERATED":
+    $closedTicket += $count->total;
+    break;
+    case "REOPEN":
+    $reopenTicket = $count->total;
+    break;
+    case "RESOLVED":
+    $resolvedTicket = $count->total;
+    break;
+    case "INPROGRESS":
+    $inProgressTicket = $count->total;
+    break;
+    }
+    }
+
+    return response()->json([
+    'openTicket' => $openTicket,
+    'inProgressTicket' => $inProgressTicket,
+    'createdTicket' => $createdTicket,
+    'resolvedTicket' => $resolvedTicket,
+    'pendingTicket' => $pendingTicket,
+    'closedTicket' => $closedTicket,
+    'reopenTicket' => $reopenTicket,
+    ], 201);
+    } else {
+    // If no reports are found, return a message
+    return response()->json([
+    'msg' => 'No Report Found',
+    ], 201);
+    }
+    } */
+
     public function getTotalReportCount(Request $request, $groupId = null)
     {
         $dateFilter = $request->input('date');
-        $user = auth()->user();
-        $query = NCTicket::select('ticket_status', DB::raw('count(*) as total'));
 
-        // Determine the tickets based on user role
+        $user = auth()->user();
+        $query = NCTicket::select('ticket_status', 'sla_status', DB::raw('count(*) as total'));
+
+        // Check user roles to set the group ID
         if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
-            // Super admins and admins can see tickets for all groups
             if ($groupId) {
                 $tickets = $query->where('assign_to_group_id', $groupId);
             } else {
-                $tickets = $query; // No group filtering for super admins and admins
+                $tickets = $query;
             }
         } else {
-            // Non-admin users can only see tickets for their assigned group
             $tickets = $query->where('assign_to_group_id', $user->group_id);
         }
 
-        // Handle date filtering if provided
+        // Apply date filter if provided
         if ($dateFilter) {
             $dates = explode(',', $dateFilter);
             $startDate = $dates[0];
-            $endDate = $dates[1] ?? $dates[0]; // Use the same date if no end date is provided
+            $endDate = $dates[1] ?? $dates[0];
             $tickets->whereDate('ticket_created_at', '>=', $startDate)
                 ->whereDate('ticket_created_at', '<=', $endDate);
         }
 
-        // Continue with counting ticket statuses
-        $totalCount = $tickets->groupBy('ticket_status')->get();
+        // Group by ticket status and SLA status
+        $totalCount = $tickets->groupBy('ticket_status', 'sla_status')->get();
 
-        // Initialize the ticket status counts
-        $pendingTicket = $openTicket = $closedTicket = $reopenTicket = $inProgressTicket = 0;
+        // Initialize ticket status counts
+        $pendingTicket = $createdTicket = $resolvedTicket = $openTicket = $closedTicket = $reopenTicket = $inProgressTicket = 0;
+        $slaSuccess = $slaFailed = 0;
 
-        // Count the tickets based on their status
         if ($totalCount->isNotEmpty()) {
             foreach ($totalCount as $count) {
+                // Count ticket statuses
                 switch (strtoupper($count->ticket_status)) {
                     case "PENDING":
                         $pendingTicket = $count->total;
                         break;
                     case "CREATED":
-                        $pendingTicket = $count->total;
+                        $createdTicket = $count->total;
                         break;
                     case "OPENED":
                         $openTicket = $count->total;
                         break;
                     case "CLOSED":
-                        $closedTicket = $count->total;
+                    case "CLOSED - REACHED":
+                    case "CLOSED - NOT RECEIVED":
+                    case "CLOSED - NOT CONNECTED":
+                    case "CLOSED - SWITCHED OFF":
+                    case "CLOSED - NOT COOPERATED":
+                        $closedTicket += $count->total;
                         break;
                     case "REOPEN":
                         $reopenTicket = $count->total;
                         break;
                     case "RESOLVED":
-                        $reopenTicket = $count->total;
+                        $resolvedTicket = $count->total;
                         break;
                     case "INPROGRESS":
                         $inProgressTicket = $count->total;
                         break;
                 }
+
+                // Count SLA statuses
+                switch (strtolower($count->sla_status)) {
+                    case "met":
+                        $slaSuccess += $count->total;
+                        break;
+                    case "breached":
+                    case "review_needed":
+                    case "in_progress":
+                        $slaFailed += $count->total;
+                        break;
+                }
             }
 
-            // Return the ticket status counts in a JSON response
             return response()->json([
-                'openTicket' => $openTicket ?? 0,
-                'inProgressTicket' => $inProgressTicket ?? 0,
-                'pendingTicket' => $pendingTicket ?? 0,
-                'closedTicket' => $closedTicket ?? 0,
-                'reopenTicket' => $reopenTicket ?? 0,
+                'openTicket' => $openTicket,
+                'inProgressTicket' => $inProgressTicket,
+                'createdTicket' => $createdTicket,
+                'resolvedTicket' => $resolvedTicket,
+                'pendingTicket' => $pendingTicket,
+                'closedTicket' => $closedTicket,
+                'reopenTicket' => $reopenTicket,
+                'slaSuccess' => $slaSuccess,
+                'slaFailed' => $slaFailed,
             ], 201);
         } else {
             // If no reports are found, return a message
@@ -386,4 +483,32 @@ class NCReportController extends Controller
         ];
         return $monthList[$month];
     }
+
+    public function getUserStatistics(Request $request)
+    {
+        $totalActiveUsers = DB::table('user_login_activities')
+            ->whereNotNull('last_login')
+            ->distinct('user_id')
+            ->count('user_id');
+
+        $idleUsers = DB::table('user_login_activities')
+            ->whereNotNull('last_logout')
+            ->distinct('user_id')
+            ->count('user_id');
+
+        $inactiveUsers = DB::table('users')
+            ->whereIn('status', ['Inactive', 'Pending'])
+            ->distinct('id')
+            ->count('id');
+
+        $totalUsers = DB::table('users')->distinct('id')->count('id');
+
+        return response()->json([
+            'totalActiveUser' => $totalActiveUsers,
+            'totalIdleUser' => $idleUsers,
+            'totalInactiveUser' => $inactiveUsers,
+            'totalUsers' => $totalUsers,
+        ]);
+    }
+
 }

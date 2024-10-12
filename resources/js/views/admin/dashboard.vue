@@ -5,6 +5,7 @@
         >
             <h1 class="title m-0 mr-2">Dashboard</h1>
             <el-select
+                v-if="hasRole('admin|superadmin')"
                 class="mr-2 mb-3 mb-md-0"
                 v-model="filterGroup"
                 placeholder="Select Group"
@@ -19,6 +20,7 @@
                 </el-option>
             </el-select>
             <el-date-picker
+                v-if="hasRole('admin|superadmin')"
                 v-model="dateFilter"
                 type="daterange"
                 range-separator="To"
@@ -29,102 +31,39 @@
         </div>
         <div class="dashboard-card">
             <ul>
-                <li>
+                <li
+                    v-for="(ticket, index) in ticketStats"
+                    :key="index"
+                    :class="ticket.className"
+                >
                     <div class="img">
-                        <img src="/images/tickets.svg" alt="" />
+                        <img :src="ticket.image" alt="" />
                     </div>
                     <h3>
-                        <span>Open Ticket</span>
-                        {{ totalReportCount.openTicket ?? 0 }}
-                    </h3>
-                </li>
-                <li>
-                    <div class="img">
-                        <img src="/images/tickets-pending.svg" alt="" />
-                    </div>
-                    <h3>
-                        <span>Pending Tickets </span
-                        >{{ totalReportCount.pendingTicket ?? 0 }}
-                    </h3>
-                </li>
-                <li class="progress-sla">
-                    <div class="img">
-                        <img src="/images/tickets-progress.svg" alt="" />
-                    </div>
-                    <h3>
-                        <span>In progress With SLA</span
-                        >{{ totalReportCount.inProgressTicket ?? 0 }}
-                    </h3>
-                </li>
-                <li class="failed-sla">
-                    <div class="img">
-                        <img src="/images/tickets-progress.svg" alt="" />
-                    </div>
-                    <h3>
-                        <span>In progress Failed SLA</span
-                        >{{ totalReportCount.inProgressTicket ?? 0 }}
-                    </h3>
-                </li>
-                <li>
-                    <div class="img">
-                        <img src="/images/tickets-closed.svg" alt="" />
-                    </div>
-                    <h3>
-                        <span>Closed Tickets</span
-                        >{{ totalReportCount.closedTicket ?? 0 }}
-                    </h3>
-                </li>
-                <li>
-                    <div class="img">
-                        <img src="/images/tickets-reopen.svg" alt="" />
-                    </div>
-                    <h3>
-                        <span>Reopen Tickets</span
-                        >{{ totalReportCount.reopenTicket ?? 0 }}
+                        <span>{{ ticket.label }}</span>
+                        {{ ticket.count }}
                     </h3>
                 </li>
             </ul>
         </div>
-        <div class="dashboard-card dashboard-card-admin">
+
+        <div
+            class="dashboard-card dashboard-card-admin"
+            v-if="hasRole('admin|superadmin')"
+        >
             <ul>
-                <li>
+                <li v-for="(value, label) in userStatistics" :key="label">
                     <div class="img">
-                        <i class="icon-user-check"></i>
+                        <i :class="getUserStatsIconClass(label)"></i>
                     </div>
                     <h3>
-                        <span>Total Active User</span>
-                        {{ totalReportCount.openTicket ?? 0 }}
-                    </h3>
-                </li>
-                <li>
-                    <div class="img">
-                        <i class="icon-user-remove"></i>
-                    </div>
-                    <h3>
-                        <span>Idle User</span
-                        >{{ totalReportCount.pendingTicket ?? 0 }}
-                    </h3>
-                </li>
-                <li>
-                    <div class="img">
-                        <i class="icon-user-x"></i>
-                    </div>
-                    <h3>
-                        <span>Inactive User</span
-                        >{{ totalReportCount.inProgressTicket ?? 0 }}
-                    </h3>
-                </li>
-                <li>
-                    <div class="img">
-                        <i class="icon-user"></i>
-                    </div>
-                    <h3>
-                        <span>Total User (lifetime)</span
-                        >{{ totalReportCount.inProgressTicket ?? 0 }}
+                        <span>{{ label }}</span>
+                        {{ value }}
                     </h3>
                 </li>
             </ul>
         </div>
+
         <div class="row card-equal">
             <div class="col-md-6">
                 <div class="card mb-4">
@@ -263,6 +202,7 @@
 
 <script>
 import VueHighcharts from "vue2-highcharts";
+import { mapActions, mapGetters } from "vuex";
 
 export default {
     name: "Dashboard",
@@ -272,11 +212,28 @@ export default {
     data() {
         return {
             groups: [],
+            totalReportCount: {
+                openTicket: 0,
+                createdTicket: 0,
+                inProgressTicket: 0,
+                closedTicket: 0,
+                reopenTicket: 0,
+                resolvedTicket: 0,
+                pendingTicket: 0,
+            },
+            userStats: {
+                totalActiveUser: 0,
+                totalIdleUser: 0,
+                totalInactiveUser: 0,
+                totalUsers: 0,
+            },
             filterGroup: this.$store.state.auth.user.group_id,
+            // filterGroup: null,
             dateFilter: [new Date(), new Date()],
+            dateFilter: [],
             monthValue: new Date().toLocaleString("default", { month: "long" }),
+            // monthValue: null,
             monthTickets: null,
-            totalReportCount: {},
             dailyReportCount: {},
             monthWiseReportCount: {},
             chartInstance: null,
@@ -428,99 +385,6 @@ export default {
                 ],
             },
             totalQueries: [
-                {
-                    chart: {
-                        type: "column",
-                    },
-                    title: {
-                        text: "Total Queries",
-                        align: "left",
-                        style: {
-                            color: "#242526",
-                            fontSize: "16px",
-                            fontWeight: "500",
-                            fontFamily: "Inter, sans-serif",
-                        },
-                    },
-                    credits: {
-                        enabled: false,
-                    },
-                    xAxis: {
-                        categories: [
-                            "01",
-                            "02",
-                            "03",
-                            "04",
-                            "05",
-                            "06",
-                            "07",
-                            "08",
-                            "09",
-                            "10",
-                            "11",
-                            "12",
-                            "13",
-                            "14",
-                            "15",
-                            "16",
-                            "17",
-                            "18",
-                            "19",
-                            "20",
-                            "21",
-                            "22",
-                            "23",
-                            "24",
-                            "25",
-                            "26",
-                            "27",
-                            "28",
-                            "29",
-                            "30",
-                            "31",
-                        ],
-                        crosshair: true,
-                        labels: {
-                            style: {
-                                color: "#345b5b",
-                                fontSize: "15px",
-                                fontFamily: "Inter, sans-serif",
-                            },
-                        },
-                        accessibility: {
-                            description: "Days",
-                        },
-                    },
-                    yAxis: {
-                        title: {
-                            text: "Query Count",
-                            style: {
-                                color: "#345b5b",
-                                fontSize: "14px",
-                                fontFamily: "Inter, sans-serif",
-                            },
-                        },
-                    },
-                    legend: {
-                        enabled: false,
-                        itemStyle: {
-                            fontSize: "16px",
-                            fontFamily: "Inter, sans-serif",
-                        },
-                    },
-                    colors: ["#FF4E4E"],
-                    series: [
-                        {
-                            name: "Monthly Queries (in thousand)",
-                            data: [
-                                20, 40, 50, 20, 40, 50, 60, 80, 100, 60, 40, 50,
-                                30, 80, 100, 20, 40, 50, 60, 80, 40, 50, 20, 40,
-                                50, 60, 80, 100, 60, 40, 50,
-                            ],
-                        },
-                    ],
-                },
-
                 {
                     chart: {
                         type: "column",
@@ -708,7 +572,67 @@ export default {
             ],
         };
     },
-
+    computed: {
+        ...mapGetters("permissions", ["hasPermission", "hasRole"]),
+        ticketStats() {
+            return [
+                {
+                    label: "Opened Ticket",
+                    count: this.totalReportCount.openTicket,
+                    image: "/images/tickets.svg",
+                    className: "",
+                },
+                {
+                    label: "Pending Tickets",
+                    count: this.totalReportCount.createdTicket,
+                    image: "/images/tickets-pending.svg",
+                    className: "",
+                },
+                {
+                    label: "With SLA",
+                    count: this.totalReportCount.slaSuccess,
+                    image: "/images/tickets-progress.svg",
+                    className: "progress-sla",
+                },
+                {
+                    label: "Without SLA",
+                    count: this.totalReportCount.slaFailed,
+                    image: "/images/tickets-progress.svg",
+                    className: "failed-sla",
+                },
+                {
+                    label: "Closed Tickets",
+                    count: this.totalReportCount.closedTicket,
+                    image: "/images/tickets-closed.svg",
+                    className: "",
+                },
+                {
+                    label: "Reopen Tickets",
+                    count: this.totalReportCount.reopenTicket,
+                    image: "/images/tickets-reopen.svg",
+                    className: "",
+                },
+                {
+                    label: "Resolved Tickets",
+                    count: this.totalReportCount.resolvedTicket,
+                    image: "/images/tickets-closed.svg",
+                    className: "",
+                },
+            ];
+        },
+        userStatistics() {
+            return {
+                "Active User": this.userStats.totalActiveUser,
+                "Idle User": this.userStats.totalIdleUser,
+                "Inactive User": this.userStats.totalInactiveUser,
+                "User (Lifetime)": this.userStats.totalUsers,
+            };
+        },
+        isSuperAdmin() {
+            // Check if the user has super admin role
+            return this.hasRole("admin|superadmin");
+        },
+    },
     mounted() {
         this.init();
         this.initializeChart();
@@ -716,8 +640,7 @@ export default {
     },
     watch: {
         monthValue(newMonth) {
-            console.log("Month changed to:", newMonth); // Debug log
-            this.updateDashboardData(); // Call the method whenever monthValue changes
+            this.updateDashboardData();
         },
         monthTickets(newMonth) {
             if (newMonth) {
@@ -732,19 +655,40 @@ export default {
         },
     },
     methods: {
-        formatDate(date) {
-            return `${date.getFullYear()}-${String(
-                date.getMonth() + 1
-            ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+        ...mapActions("permissions", ["fetchPermissions"]),
+        getUserStatsIconClass(label) {
+            const icons = {
+                "Active User": "icon-user-check",
+                "Idle User": "icon-user-remove",
+                "Inactive User": "icon-user-x",
+                "User (Lifetime)": "icon-user",
+            };
+            return icons[label];
         },
-
+        formatDate(date) {
+            if (date && date instanceof Date) {
+                return `${date.getFullYear()}-${String(
+                    date.getMonth() + 1
+                ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+            }
+            return "";
+        },
         updateDashboardData() {
             const groupId = this.filterGroup || this.userGroupId;
-            // const month = this.monthValue;
             const month = this.monthTickets || this.monthValue;
-            // const dateFilter = this.dateFilter;
-            const startDate = this.formatDate(this.dateFilter[0]);
-            const endDate = this.formatDate(this.dateFilter[1]);
+
+            let startDate, endDate;
+            if (this.dateFilter.length === 2) {
+                startDate = this.formatDate(this.dateFilter[0]);
+                endDate = this.formatDate(this.dateFilter[1]);
+            } else {
+                startDate = this.formatDate(new Date());
+                endDate = this.formatDate(new Date());
+                console.warn(
+                    "Date filter not provided. Defaulting to today's date."
+                );
+            }
+
             const dateFilter = [startDate, endDate];
 
             this.fetchTotalReportCount(groupId, dateFilter);
@@ -752,21 +696,25 @@ export default {
             this.fetchMonthWiseTicketStatus(groupId, month);
             this.fetchColumnChartData(groupId, month, dateFilter);
         },
-
         async init() {
             this.userGroupId = this.$store.state.auth.user.group_id;
-            const groupId = this.userGroupId;
+            // const groupId = this.userGroupId;
+            const groupId = this.filterGroup || this.userGroupId;
             const month = this.monthTickets || this.monthValue;
-            const startDate = this.formatDate(this.dateFilter[0]);
-            const endDate = this.formatDate(this.dateFilter[1]);
-            const dateFilter = [startDate, endDate];
+
+            this.complaintColumnChartData = [];
+            this.serviceRequestColumnChartData = [];
 
             await Promise.all([
-                this.fetchTotalReportCount(groupId, dateFilter),
+                this.fetchTotalReportCount(groupId, this.dateFilter),
                 this.fetchDailyReportCount(groupId),
                 this.fetchMonthWiseTicketStatus(groupId, month),
-                this.fetchColumnChartData(groupId, month, dateFilter),
+                this.fetchColumnChartData(groupId, month, this.dateFilter),
             ]);
+
+            if (this.isSuperAdmin) {
+                await this.fetchUserStatistics();
+            }
         },
 
         async fetchGroups() {
@@ -779,9 +727,7 @@ export default {
         },
         async initializeChart() {
             await this.$nextTick();
-            // Attempt to access the chart instance
             this.chartInstance = this.$refs.pieChart?.chart;
-            // this.columnChartInstance = this.$refs.columnChart2?.chart;
             if (this.chartInstance) {
                 // console.log("Chart instance is ready");
             } else {
@@ -799,7 +745,6 @@ export default {
             });
         },
         async fetchTotalReportCount(groupId, dateFilter) {
-            console.log("groupId", groupId);
             try {
                 const response = await axios.get(
                     `/get-total-report-count/${groupId}?date=${dateFilter}`
@@ -809,6 +754,15 @@ export default {
                 await this.setTicketStatusValue(this.monthWiseReportCount);
             } catch (error) {
                 console.error("Error fetching Total Report Count:", error);
+            }
+        },
+        async fetchUserStatistics() {
+            try {
+                const response = await axios.get(`user-stats`);
+                this.userStats = response.data;
+                console.log("this.userStats", this.userStats);
+            } catch (error) {
+                console.error("Error fetching User Statistics Count:", error);
             }
         },
         async fetchDailyReportCount(groupId) {
@@ -842,9 +796,6 @@ export default {
                 );
 
                 this.columnChartData = response.data;
-                this.queryColumnChartData = Object.values(
-                    this.columnChartData.totalQueryData
-                );
                 this.complaintColumnChartData = Object.values(
                     this.columnChartData.totalComplaintData
                 );
@@ -852,17 +803,18 @@ export default {
                     this.columnChartData.totalServiceRequestData
                 );
 
-                this.totalQueries[0].series[0].data = this.queryColumnChartData;
-                this.totalQueries[1].series[0].data =
-                    this.complaintColumnChartData;
-                this.totalQueries[2].series[0].data =
-                    this.serviceRequestColumnChartData;
-                this.updateCharts(this.totalQueries);
+                this.updateCharts([
+                    {
+                        series: [{ data: this.complaintColumnChartData }],
+                    },
+                    {
+                        series: [{ data: this.serviceRequestColumnChartData }],
+                    },
+                ]);
             } catch (error) {
                 console.error("Error fetching column chart data:", error);
             }
         },
-
         async setTicketStatusValue(data) {
             if (this.chartInstance) {
                 this.chartInstance.series[0].setData([

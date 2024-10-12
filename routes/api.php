@@ -168,6 +168,8 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('get-month-wise-ticket-status-count/{id?}/{month?}', [NCReportController::class, 'getMonthWiseTicketStatusCount']);
     Route::get('get-date-wise-column-chart-data-count/{id?}/{month?}', [NCReportController::class, 'getDateWiseColumnChartDataCount']);
 
+    Route::get('user-stats', [NCReportController::class, 'getUserStatistics']);
+
     // Get email configurations
     // email-configs
     Route::get('email-configs', [EmailConfigController::class, 'allActiveEmailConfigs']);
