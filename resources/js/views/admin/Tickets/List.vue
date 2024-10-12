@@ -9,13 +9,13 @@
             >
                 <i class="icon-plus"></i> New
             </router-link>
-            <router-link
+            <button
                 v-if="canCreateTicket"
                 class="btn btn-outline-dark ml-2"
-                :to="{ name: 'ticket-create' }"
+                @click="showExportModal"
             >
                 <i class="icon-download"></i> Export
-            </router-link>
+            </button>
         </div>
 
         <div class="card mb-4">
@@ -253,6 +253,66 @@
                 <no-data v-else />
             </div>
         </div>
+
+        <!-- Export Modal -->
+        <div
+            class="modal fade"
+            id="exportModal"
+            tabindex="-1"
+            role="dialog"
+            data-backdrop="static"
+            aria-labelledby="exportModalLabel"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title" id="exportModalLabel">
+                            Export Tickets
+                        </h5>
+
+                        <button
+                            type="button"
+                            class="close text-danger"
+                            data-dismiss="modal"
+                            aria-label="Close"
+                        >
+                            <i class="icon-close-circle"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Choose export option:</p>
+                        <div>
+                            <input
+                                type="radio"
+                                id="currentPage"
+                                value="currentPage"
+                                v-model="exportOption"
+                            />
+                            <label for="currentPage">Current Page</label>
+                        </div>
+                        <div>
+                            <input
+                                type="radio"
+                                id="allRows"
+                                value="allRows"
+                                v-model="exportOption"
+                            />
+                            <label for="allRows">All Rows</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-danger"
+                            @click="exportTickets"
+                        >
+                            Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -262,6 +322,7 @@ import "datatables.net-dt/js/dataTables.dataTables";
 import PermissionsComponent from "../../../components/PermissionsComponent.vue";
 import { formatDateTime } from "../../../utils/common";
 import noData from "../components/noData.vue";
+import * as XLSX from "xlsx";
 
 export default {
     components: {
@@ -285,18 +346,65 @@ export default {
             },
             users: [],
             ticketSource: [],
+            exportOption: "currentPage",
         };
     },
     computed: {
-        // Check if the user has permission to create tickets
         canCreateTicket() {
             return this.hasRole("admin|superadmin");
-            // || this.hasPermission("ticket-create")
         },
     },
 
     methods: {
         formatDateTime,
+        /* showExportModal() {
+            $("#exportModal").modal("show"); // Show the export modal
+        }, */
+        showExportModal() {
+            this.$nextTick(() => {
+                $("#exportModal").modal("show"); // Show the export modal
+            });
+        },
+        exportTickets() {
+            let ticketsToExport;
+
+            if (this.exportOption === "currentPage") {
+                const pageInfo = $("#dataTable").DataTable().page.info();
+                ticketsToExport = this.tickets.slice(
+                    pageInfo.start,
+                    pageInfo.end
+                );
+            } else {
+                ticketsToExport = this.tickets;
+            }
+
+            const filteredTickets = ticketsToExport.map((ticket) => ({
+                id: ticket.id,
+                created_at: this.formatDateTime(ticket.created_at),
+                uuid: ticket.uuid,
+                creator: ticket.creator?.name || "N/A",
+                ticket_status: ticket.ticket_status,
+                responsible_groups: ticket.responsible_group_names || "N/A",
+                caller_mobile_no: ticket.caller_mobile_no,
+                call_type: ticket.call_type?.call_type_name || "",
+                call_category: ticket.call_category?.call_category_name || "",
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(filteredTickets);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Tickets");
+
+            const now = new Date();
+            const timestamp = now
+                .toISOString()
+                .replace(/[-:.]/g, "")
+                .slice(0, 15);
+            const fileName = `TicketsData_${timestamp}.xlsx`;
+
+            XLSX.writeFile(workbook, fileName);
+            $("#exportModal").modal("hide");
+        },
+
         async fetchUsers() {
             try {
                 const response = await axios.get("/users");

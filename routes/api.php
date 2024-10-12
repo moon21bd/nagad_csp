@@ -190,6 +190,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/ticket/search', [NCTicketController::class, 'searchTickets']);
     Route::get('/ticket/statuses', [NCTicketController::class, 'ticketStatuses']);
     Route::get('/ticket/sources', [NCTicketController::class, 'ticketSources']);
+    Route::post('/tickets/export', [NCTicketController::class, 'export'])->name('tickets.export');
 
     Route::get('users-index', [UsersController::class, 'userIndex']);
 
