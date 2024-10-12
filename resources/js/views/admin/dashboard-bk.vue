@@ -9,7 +9,6 @@
                 v-model="filterGroup"
                 placeholder="Select Group"
             >
-                <el-option value="">All</el-option>
                 <el-option
                     v-for="group in groups"
                     :key="group.id"
@@ -137,6 +136,7 @@
                                 class="ml-auto"
                                 v-model="monthTickets"
                                 placeholder="Select Month"
+                                @change="fetchMonthWiseTicketStatus"
                             >
                                 <el-option
                                     v-for="month in months"
@@ -232,6 +232,7 @@
                         class="ml-auto"
                         v-model="monthValue"
                         placeholder="Select Month"
+                        @change="fetchColumnChartData"
                     >
                         <el-option
                             v-for="month in months"
@@ -272,14 +273,15 @@ export default {
     data() {
         return {
             groups: [],
-            filterGroup: this.$store.state.auth.user.group_id,
-            dateFilter: [new Date(), new Date()],
-            monthValue: new Date().toLocaleString("default", { month: "long" }),
-            monthTickets: null,
+            monthValue: "",
+            monthTickets: "",
+            filterGroup: "",
+            dateFilter: "",
             totalReportCount: {},
             dailyReportCount: {},
             monthWiseReportCount: {},
             chartInstance: null,
+            userGroupId: 1,
             columnChartData: {
                 totalComplaintData: "",
                 totalQueryData: "",
@@ -714,61 +716,7 @@ export default {
         this.initializeChart();
         this.fetchGroups();
     },
-    watch: {
-        monthValue(newMonth) {
-            console.log("Month changed to:", newMonth); // Debug log
-            this.updateDashboardData(); // Call the method whenever monthValue changes
-        },
-        monthTickets(newMonth) {
-            if (newMonth) {
-                this.updateDashboardData();
-            }
-        },
-        filterGroup() {
-            this.updateDashboardData();
-        },
-        dateFilter() {
-            this.updateDashboardData();
-        },
-    },
     methods: {
-        formatDate(date) {
-            return `${date.getFullYear()}-${String(
-                date.getMonth() + 1
-            ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-        },
-
-        updateDashboardData() {
-            const groupId = this.filterGroup || this.userGroupId;
-            // const month = this.monthValue;
-            const month = this.monthTickets || this.monthValue;
-            // const dateFilter = this.dateFilter;
-            const startDate = this.formatDate(this.dateFilter[0]);
-            const endDate = this.formatDate(this.dateFilter[1]);
-            const dateFilter = [startDate, endDate];
-
-            this.fetchTotalReportCount(groupId, dateFilter);
-            this.fetchDailyReportCount(groupId);
-            this.fetchMonthWiseTicketStatus(groupId, month);
-            this.fetchColumnChartData(groupId, month, dateFilter);
-        },
-
-        async init() {
-            this.userGroupId = this.$store.state.auth.user.group_id;
-            const groupId = this.userGroupId;
-            const month = this.monthTickets || this.monthValue;
-            const startDate = this.formatDate(this.dateFilter[0]);
-            const endDate = this.formatDate(this.dateFilter[1]);
-            const dateFilter = [startDate, endDate];
-
-            await Promise.all([
-                this.fetchTotalReportCount(groupId, dateFilter),
-                this.fetchDailyReportCount(groupId),
-                this.fetchMonthWiseTicketStatus(groupId, month),
-                this.fetchColumnChartData(groupId, month, dateFilter),
-            ]);
-        },
-
         async fetchGroups() {
             try {
                 const response = await axios.get("/groups");
@@ -776,6 +724,12 @@ export default {
             } catch (error) {
                 console.error("Error fetching groups:", error);
             }
+        },
+        async init() {
+            this.userGroupId = this.$store.state.auth.user.group_id;
+            await this.fetchTotalReportCount();
+            await this.fetchDailyReportCount();
+            await this.fetchColumnChartData();
         },
         async initializeChart() {
             await this.$nextTick();
@@ -798,11 +752,10 @@ export default {
                 });
             });
         },
-        async fetchTotalReportCount(groupId, dateFilter) {
-            console.log("groupId", groupId);
+        async fetchTotalReportCount() {
             try {
                 const response = await axios.get(
-                    `/get-total-report-count/${groupId}?date=${dateFilter}`
+                    `/get-total-report-count/${this.userGroupId}`
                 );
                 this.totalReportCount = response.data;
                 this.monthWiseReportCount = response.data;
@@ -811,10 +764,10 @@ export default {
                 console.error("Error fetching Total Report Count:", error);
             }
         },
-        async fetchDailyReportCount(groupId) {
+        async fetchDailyReportCount() {
             try {
                 const response = await axios.get(
-                    `/get-daily-report-count/${groupId}`
+                    `/get-daily-report-count/${this.userGroupId}`
                 );
                 this.dailyReportCount = response.data;
                 // console.log("daily Report", this.dailyReportCount);
@@ -822,11 +775,10 @@ export default {
                 // console.error("Error fetching daily report count:", error);
             }
         },
-        async fetchMonthWiseTicketStatus(groupId, month) {
+        async fetchMonthWiseTicketStatus() {
             try {
-                console.log("month", month);
                 const response = await axios.get(
-                    `/get-month-wise-ticket-status-count/${groupId}/${month}`
+                    `/get-month-wise-ticket-status-count/${this.userGroupId}/${this.monthTickets}`
                 );
                 this.monthWiseReportCount = response.data;
                 await this.setTicketStatusValue(this.monthWiseReportCount);
@@ -834,13 +786,11 @@ export default {
                 console.error("Error fetching service sub categories:", error);
             }
         },
-
-        async fetchColumnChartData(groupId, month, dateFilter) {
+        async fetchColumnChartData() {
             try {
                 const response = await axios.get(
-                    `/get-date-wise-column-chart-data-count/${groupId}/${month}?date=${dateFilter}`
+                    `/get-date-wise-column-chart-data-count/${this.userGroupId}/${this.monthValue}`
                 );
-
                 this.columnChartData = response.data;
                 this.queryColumnChartData = Object.values(
                     this.columnChartData.totalQueryData
@@ -859,7 +809,7 @@ export default {
                     this.serviceRequestColumnChartData;
                 this.updateCharts(this.totalQueries);
             } catch (error) {
-                console.error("Error fetching column chart data:", error);
+                console.error("Error fetching service sub categories:", error);
             }
         },
 

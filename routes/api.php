@@ -163,7 +163,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('get-service-type-configs/{cti}/{cci}/{csci}', [NCServiceTypeConfigController::class, 'getServiceTypeConfigs']);
 
     // Dashboard related apis
-    Route::get('get-total-report-count/{id?}', [NCReportController::class, 'getTotalReportCount']);
+    Route::get('get-total-report-count/{id?}/{date?}', [NCReportController::class, 'getTotalReportCount']);
     Route::get('get-daily-report-count/{id?}', [NCReportController::class, 'getDailyReportCount']);
     Route::get('get-month-wise-ticket-status-count/{id?}/{month?}', [NCReportController::class, 'getMonthWiseTicketStatusCount']);
     Route::get('get-date-wise-column-chart-data-count/{id?}/{month?}', [NCReportController::class, 'getDateWiseColumnChartDataCount']);

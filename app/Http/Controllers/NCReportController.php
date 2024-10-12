@@ -4,67 +4,38 @@ namespace App\Http\Controllers;
 
 use App\Models\NCCallType;
 use App\Models\NCTicket;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class NCReportController extends Controller
 {
-    /* public function getTotalReportCount($id = null)
+    public function getTotalReportCount(Request $request, $groupId = null)
     {
-
-    $assignedId = $id ?? '1';
-    $totalCount = NCTicket::select('ticket_status', DB::raw('count(*) as total'))
-    ->where('assign_to_group_id', $assignedId)
-    ->groupBy('ticket_status')
-    ->get();
-    if ($totalCount) {
-    foreach ($totalCount as $count) {
-    if (strtoupper($count->ticket_status) == "PENDING") {
-    $pendingTicket = $count->total;
-    } elseif (strtoupper($count->ticket_status) == "OPEN") {
-    $openTicket = $count->total;
-    } elseif (strtoupper($count->ticket_status) == "CLOSED") {
-    $closedTicket = $count->total;
-    } elseif (strtoupper($count->ticket_status) == "REOPEN") {
-    $reopenTicket = $count->total;
-    } elseif (strtoupper($count->ticket_status) == "INPROGRESS") {
-    $inProgressTicket = $count->total;
-    }
-    }
-    return response()->json([
-    'openTicket' => $openTicket ?? 0,
-    'inProgressTicket' => $inProgressTicket ?? 0,
-    'pendingTicket' => $pendingTicket ?? 0,
-    'closedTicket' => $closedTicket ?? 0,
-    'reopenTicket' => $reopenTicket ?? 0,
-    ], 201);
-    } else {
-    return response()->json([
-    'msg' => 'No Report Found',
-    ], 201);
-    }
-    } */
-
-    public function getTotalReportCount($id = null)
-    {
-        // Get the logged-in user
+        $dateFilter = $request->input('date');
         $user = auth()->user();
-
-        // Initialize the base query
         $query = NCTicket::select('ticket_status', DB::raw('count(*) as total'));
 
-        // Apply role-based filtering
+        // Determine the tickets based on user role
         if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
-            // Admin or Super Admin can view all tickets, no filtering by assign_to_group_id
-            $tickets = $query; // No assign_to_group_id filtering needed here
-        } elseif ($user->hasRole('owner') && $user->group->hasOwner()) {
-            // Group Owner can view tickets assigned to their group
-            $tickets = $query->where('assign_to_group_id', $user->group_id);
+            // Super admins and admins can see tickets for all groups
+            if ($groupId) {
+                $tickets = $query->where('assign_to_group_id', $groupId);
+            } else {
+                $tickets = $query; // No group filtering for super admins and admins
+            }
         } else {
-            // Handle unauthorized users
-            return response()->json([
-                'msg' => 'Unauthorized or no tickets available for your role.',
-            ], 403);
+            // Non-admin users can only see tickets for their assigned group
+            $tickets = $query->where('assign_to_group_id', $user->group_id);
+        }
+
+        // Handle date filtering if provided
+        if ($dateFilter) {
+            $dates = explode(',', $dateFilter);
+            $startDate = $dates[0];
+            $endDate = $dates[1] ?? $dates[0]; // Use the same date if no end date is provided
+            $tickets->whereDate('ticket_created_at', '>=', $startDate)
+                ->whereDate('ticket_created_at', '<=', $endDate);
         }
 
         // Continue with counting ticket statuses
@@ -78,6 +49,9 @@ class NCReportController extends Controller
             foreach ($totalCount as $count) {
                 switch (strtoupper($count->ticket_status)) {
                     case "PENDING":
+                        $pendingTicket = $count->total;
+                        break;
+                    case "CREATED":
                         $pendingTicket = $count->total;
                         break;
                     case "OPENED":
@@ -114,28 +88,35 @@ class NCReportController extends Controller
         }
     }
 
-    public function getDailyReportCount($id = null)
+    public function getDailyReportCount(Request $request, $id = null)
     {
-        // Get the logged-in user
         $user = auth()->user();
+        // $dateFilter = $request->input('date');
 
-        // Initialize the base query
         $query = NCTicket::select('call_type_id', 'call_type_name', DB::raw('count(*) as total'))
             ->join('nc_call_types', 'nc_call_types.id', 'nc_tickets.call_type_id')
             ->whereDate('ticket_created_at', '=', Carbon::today()->toDateString());
 
-        // Apply role-based filtering
-        if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
-            // Admin or Super Admin can view all tickets, no filtering by assign_to_group_id
-            $tickets = $query; // No assign_to_group_id filtering needed
-        } elseif ($user->hasRole('owner') && $user->group->hasOwner()) {
-            // Group Owner can view tickets assigned to their group
-            $tickets = $query->where('assign_to_group_id', $user->group_id);
+        /* if ($dateFilter) {
+        $dates = explode(',', $dateFilter);
+        $startDate = $dates[0];
+        $endDate = $dates[1] ?? $dates[0];
+        $query->whereDate('ticket_created_at', '>=', $startDate)
+        ->whereDate('ticket_created_at', '<=', $endDate);
         } else {
-            // Handle unauthorized users
-            return response()->json([
-                'msg' => 'Unauthorized or no tickets available for your role.',
-            ], 403);
+        $query->whereDate('ticket_created_at', '=', Carbon::today()->toDateString());
+        } */
+
+        $query->whereDate('ticket_created_at', '=', Carbon::today()->toDateString());
+
+        if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
+            if ($id) {
+                $tickets = $query->where('assign_to_group_id', $id);
+            } else {
+                $tickets = $query;
+            }
+        } else {
+            $tickets = $query->where('assign_to_group_id', $user->group_id);
         }
 
         // Call type-wise counts
@@ -197,83 +178,64 @@ class NCReportController extends Controller
             'totalClosedTicket' => $closedTicket ?? 0,
         ], 201);
     }
-    /* public function getDailyReportCount($id = null)
-    {
-    $assignedId = $id ?? '1';
 
-    $callTypeWiseCounts = NCTicket::select('call_type_id', 'call_type_name', DB::raw('count(*) as total'))
-    ->where('assign_to_group_id', $assignedId)
-    ->whereDate('ticket_created_at', '=', Carbon::today()
-    ->toDateString())
-    ->join('nc_call_types', 'nc_call_types.id', 'nc_tickets.call_type_id')
-    ->groupBy('nc_tickets.call_type_id')
-    ->get();
-
-    if ($callTypeWiseCounts) {
-    foreach ($callTypeWiseCounts as $callTypeWiseCount) {
-    if (strtoupper($callTypeWiseCount->call_type_name) == "COMPLAINT") {
-    $totalComplaint = $callTypeWiseCount->total;
-    } elseif (strtoupper($callTypeWiseCount->call_type_name) == "QUERY") {
-    $totalQuery = $callTypeWiseCount->total;
-    } elseif (strtoupper($callTypeWiseCount->call_type_name) == "SERVICE REQUEST") {
-    $totalServiceRequest = $callTypeWiseCount->total;
-    }
-    }
-    }
-
-    $totalCount = NCTicket::where('assign_to_group_id', $assignedId)
-    ->whereDate('ticket_created_at', '=', Carbon::today()
-    ->toDateString())
-    ->count();
-    $groupWiseCounts = NCTicket::select('ticket_status', DB::raw('count(*) as total'))
-    ->where('assign_to_group_id', $assignedId)
-    ->whereDate('ticket_created_at', '=', Carbon::today()
-    ->toDateString())
-    ->groupBy('ticket_status')
-    ->get();
-    if ($groupWiseCounts) {
-    foreach ($groupWiseCounts as $count) {
-    if (strtoupper($count->ticket_status) == "CLOSED") {
-    $closedTicket = $count->total;
-    } elseif (strtoupper($count->ticket_status) == "INPROGRESS") {
-    $inProgressTicket = $count->total;
-    }
-    }
-    }
-    return response()->json([
-    'totalCount' => $totalCount ?? 0,
-    'totalServiceRequest' => $totalServiceRequest ?? 0,
-    'totalQuery' => $totalQuery ?? 0,
-    'totalComplaint' => $totalComplaint ?? 0,
-    'totalInProgressTicket' => $inProgressTicket ?? 0,
-    'totalClosedTicket' => $closedTicket ?? 0,
-    ], 201);
-    } */
-
-    public function getMonthWiseTicketStatusCount($id = null, $month = null)
+    public function getMonthWiseTicketStatusCount(Request $request, $id = null, $month = null)
     {
 
-        $assignedId = $id ?? 1;
+        $user = auth()->user();
+        $dateFilter = $request->input('date');
+
+        if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
+            $assignedId = $id;
+        } else {
+            $assignedId = $user->group_id;
+        }
+
         $monthNumber = $this->getMonthNumber(strtoupper($month));
-        $totalCount = NCTicket::select('ticket_status', DB::raw('count(*) as total'))
-            ->where('assign_to_group_id', $assignedId)
-            ->whereMonth('ticket_created_at', $monthNumber)
-            ->groupBy('ticket_status')
-            ->get();
-        if ($totalCount) {
+
+        $query = NCTicket::select('ticket_status', DB::raw('count(*) as total'))
+            ->whereMonth('ticket_created_at', $monthNumber);
+
+        if ($assignedId) {
+            $query->where('assign_to_group_id', $assignedId);
+        }
+
+        // Check if a date filter is present
+        if ($dateFilter) {
+            $dates = explode(',', $dateFilter);
+            $startDate = $dates[0];
+            $endDate = $dates[1] ?? $dates[0]; // Use the same date if no end date is provided
+            $query->whereDate('ticket_created_at', '>=', $startDate)
+                ->whereDate('ticket_created_at', '<=', $endDate);
+        }
+
+        // Group by ticket status and execute the query
+        $totalCount = $query->groupBy('ticket_status')->get();
+
+        // Initialize ticket status counts
+        $pendingTicket = $openTicket = $closedTicket = $reopenTicket = $inProgressTicket = 0;
+
+        if ($totalCount->isNotEmpty()) {
             foreach ($totalCount as $count) {
-                if (strtoupper($count->ticket_status) == "PENDING") {
-                    $pendingTicket = $count->total;
-                } elseif (strtoupper($count->ticket_status) == "OPENED") {
-                    $openTicket = $count->total;
-                } elseif (strtoupper($count->ticket_status) == "CLOSED") {
-                    $closedTicket = $count->total;
-                } elseif (strtoupper($count->ticket_status) == "REOPEN") {
-                    $reopenTicket = $count->total;
-                } elseif (strtoupper($count->ticket_status) == "INPROGRESS") {
-                    $inProgressTicket = $count->total;
+                switch (strtoupper($count->ticket_status)) {
+                    case "PENDING":
+                        $pendingTicket = $count->total;
+                        break;
+                    case "OPENED":
+                        $openTicket = $count->total;
+                        break;
+                    case "CLOSED":
+                        $closedTicket = $count->total;
+                        break;
+                    case "REOPEN":
+                        $reopenTicket = $count->total;
+                        break;
+                    case "INPROGRESS":
+                        $inProgressTicket = $count->total;
+                        break;
                 }
             }
+
             return response()->json([
                 'openTicket' => $openTicket ?? 0,
                 'inProgressTicket' => $inProgressTicket ?? 0,
@@ -288,7 +250,7 @@ class NCReportController extends Controller
         }
     }
 
-    public function getDateWiseColumnChartDataCount($id = null, $month = null)
+    public function getDateWiseColumnChartDataCount($id = null, $month = null, $dateFilter = null)
     {
         // Get the logged-in user
         $user = auth()->user();
@@ -298,8 +260,13 @@ class NCReportController extends Controller
 
         // Apply role-based filtering
         if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
-            // Admin or Super Admin can view all tickets, no filtering by assign_to_group_id
+            // Admin or Super Admin can view all tickets
             $query = NCTicket::query();
+
+            // If group ID is provided, filter by that group
+            if ($id) {
+                $query->where('assign_to_group_id', $assignedId);
+            }
         } elseif ($user->hasRole('owner') && $user->group->hasOwner()) {
             // Group Owner can view tickets assigned to their group
             $query = NCTicket::where('assign_to_group_id', $user->group_id);
@@ -322,6 +289,9 @@ class NCReportController extends Controller
             ->where('status', 'active')
             ->get()
             ->toArray();
+
+        // Initialize call type IDs
+        $complaintId = $queryId = $serviceRequestId = null;
 
         foreach ($callTypes as $callType) {
             switch (strtoupper($callType['call_type_name'])) {
@@ -397,105 +367,6 @@ class NCReportController extends Controller
             'totalServiceRequestData' => $serviceRequestTotalDataArray ?? [],
         ], 201);
     }
-
-    /* public function getDateWiseColumnChartDataCount($id = null, $month = null)
-    {
-    $assignedId = $id ?? 1;
-
-    if ($month != null) {
-    $monthNumber = $this->getMonthNumber(strtoupper($month));
-    } else {
-    $monthNumber = now()->format('m');
-    }
-    $year = now()->format('Y');
-
-    $nextMonthNumber = (int) $monthNumber + 1;
-    $from = "$year-$monthNumber-01";
-    $to = "$year-$nextMonthNumber-01";
-
-    $callTypes = NCCallType::select('id', 'call_type_name')
-    ->where('status', 'active')
-    ->get()
-    ->toArray();
-    if ($callTypes) {
-    foreach ($callTypes as $callType) {
-    if (strtoupper($callType['call_type_name']) == 'COMPLAINT') {
-    $complaintId = $callType['id'];
-    } elseif (strtoupper($callType['call_type_name']) == 'QUERY') {
-    $queryId = $callType['id'];
-    } elseif (strtoupper($callType['call_type_name']) == 'SERVICE REQUEST') {
-    $serviceRequestId = $callType['id'];
-    }
-    }
-    } else {
-    return response()->json([
-    'msg' => 'Call_Types_Found',
-    ], 201);
-    }
-
-    $dbData = [];
-    $period = new \DatePeriod(new \DateTime($from), new \DateInterval('P1D'), new \DateTime($to));
-    $complaintData = [];
-    $queryData = [];
-    $serviceRequestData = [];
-
-    foreach ($period as $date) {
-    $range[$date->format("Y-m-d")] = 0;
-    }
-
-    $complaintTotalData = NCTicket::select(DB::raw('DATE(created_at) as time'), DB::raw('count(*) as count'))
-    ->where('assign_to_group_id', $assignedId)
-    ->where('call_type_id', $complaintId)
-    ->whereDate('created_at', '>=', $from . ' 00:00:00')
-    ->whereDate('created_at', '<=', $to . ' 23:59:59')
-    ->groupBy('time')
-    ->get();
-
-    foreach ($complaintTotalData as $val) {
-    $complaintData[$val->time] = $val->count;
-    }
-
-    $complaintTotalDataArray = array_replace($range, $complaintData);
-
-    foreach ($period as $date) {
-    $range[$date->format("Y-m-d")] = 0;
-    }
-    $queryTotalData = NCTicket::select(DB::raw('DATE(created_at) as time'), DB::raw('count(*) as count'))
-    ->where('assign_to_group_id', $assignedId)
-    ->where('call_type_id', $queryId)
-    ->whereDate('created_at', '>=', $from . ' 00:00:00')
-    ->whereDate('created_at', '<=', $to . ' 23:59:59')
-    ->groupBy('time')
-    ->get();
-
-    foreach ($queryTotalData as $val) {
-    $queryData[$val->time] = $val->count;
-    }
-    $queryTotalDataArray = array_replace($range, $queryData);
-
-    foreach ($period as $date) {
-    $range[$date->format("Y-m-d")] = 0;
-    }
-    $serviceRequestTotalData = NCTicket::select(DB::raw('DATE(created_at) as time'), DB::raw('count(*) as count'))
-    ->where('assign_to_group_id', $assignedId)
-    ->where('call_type_id', $serviceRequestId)
-    ->whereDate('created_at', '>=', $from . ' 00:00:00')
-    ->whereDate('created_at', '<=', $to . ' 23:59:59')
-    ->groupBy('time')
-    ->get();
-
-    foreach ($serviceRequestTotalData as $val) {
-    $serviceRequestData[$val->time] = $val->count;
-    }
-    $serviceRequestTotalDataArray = array_replace($range, $serviceRequestData);
-
-    return response()->json([
-    'totalComplaintData' => $complaintTotalDataArray ?? [],
-    'totalQueryData' => $queryTotalDataArray ?? [],
-    'totalServiceRequestData' => $serviceRequestTotalDataArray ?? [],
-    ], 201);
-
-    } */
 
     public function getMonthNumber($month)
     {
