@@ -348,6 +348,10 @@ class TicketService
             $ticket->update($ticketArr);
             $ticketId = $ticket->id;
             $ticketStatus = $ticket->ticket_status;
+
+            // Update SLA status based on the ticket's updated status
+            $this->updateSlaStatus($ticket);
+
             $data = [
                 'ticket_id' => $ticketId,
                 'responsible_group_ids' => $ticket->responsible_group_ids,
@@ -387,6 +391,45 @@ class TicketService
                 'data' => [],
             ];
         }
+    }
+
+    public function updateSlaStatus($ticket)
+    {
+        $ticketStatus = $ticket->ticket_status;
+        $currentTime = Carbon::now();
+
+        switch ($ticketStatus) {
+            case 'CLOSED':
+            case 'CLOSED - REACHED':
+            case 'CLOSED - NOT RECEIVED':
+            case 'CLOSED - NOT CONNECTED':
+            case 'CLOSED - SWITCHED OFF':
+            case 'CLOSED - NOT COOPERATED':
+                $group = NCServiceResponsibleGroup::where('group_id', $ticket->assign_to_group_id)->first();
+
+                if ($group) {
+                    $slaDeadline = Carbon::parse($ticket->sla_updated_at ?? $ticket->ticket_created_at)
+                        ->addHours($group->tat_hours);
+                    $ticket->sla_status = $currentTime->lessThanOrEqualTo($slaDeadline) ? 'met' : 'breached';
+                }
+                break;
+
+            case 'REOPEN':
+            case 'CREATED':
+            case 'OPENED':
+                $ticket->sla_status = 'in_progress';
+                break;
+
+            default:
+                $ticket->sla_status = 'unknown';
+                break;
+        }
+
+        if (in_array($ticketStatus, ['CLOSED', 'REOPEN', 'CREATED', 'OPENED'])) {
+            $ticket->sla_updated_at = $currentTime;
+        }
+
+        $ticket->save();
     }
 
     protected function handleQueryException(QueryException $e)
