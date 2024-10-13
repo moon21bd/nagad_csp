@@ -33,6 +33,7 @@ class TicketService
         ['value' => 'CREATED', 'label' => 'CREATED'],
         ['value' => 'OPENED', 'label' => 'OPENED'],
         ['value' => 'RESOLVED', 'label' => 'RESOLVED'],
+        ['value' => 'ASSIGNED', 'label' => 'ASSIGNED'],
         // ['value' => 'PENDING', 'label' => 'PENDING'],
         ['value' => 'CLOSED', 'label' => 'CLOSED'],
         ['value' => 'CLOSED - REACHED', 'label' => 'CLOSED - REACHED'],

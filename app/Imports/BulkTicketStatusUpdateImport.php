@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\NCTicket; // Make sure to include the NCTicket model
 use App\Models\NCTicketTimeline;
+use App\Models\TicketComment;
 use Carbon\Carbon;
 use Shuchkin\SimpleXLSX;
 
@@ -38,27 +39,30 @@ class BulkTicketStatusUpdateImport
 
     protected function processData(array $data)
     {
-        $ticket = NCTicket::find($data['ticket_id']);
+        $ticket = NCTicket::where('uuid', $data['ticket_id'])->first();
         $now = Carbon::now();
         $authUserId = auth()->id();
         $ticketStatus = $data['ticket_status'];
         if ($ticket) {
+            $ticketId = $ticket->id;
 
-            // Update the ticket
             $ticket->update([
                 'ticket_status' => $ticketStatus,
-                // 'ticket_comment' => $data['comment'],
                 'ticket_updated_by' => $authUserId,
                 'updated_at' => $now,
             ]);
 
+            TicketComment::create([
+                'ticket_id' => $ticketId,
+                'comment' => $data['comments'],
+                'created_by' => $authUserId,
+            ]);
+
             // Add ticket timeline data
             NCTicketTimeline::create([
-                'ticket_id' => $ticket->id,
+                'ticket_id' => $ticketId,
                 'responsible_group_ids' => $ticket->responsible_group_ids,
                 'ticket_status' => $ticketStatus,
-                // 'ticket_comments' => $ticket->comments,
-                // 'ticket_attachments' => $ticket->ticket_attachments,
                 'ticket_opened_by' => $authUserId,
                 'ticket_status_updated_by' => $authUserId,
                 'ticket_updated_channel' => 'BULK_UPDATE',
@@ -66,7 +70,6 @@ class BulkTicketStatusUpdateImport
                 'last_time_opened_at' => $now,
             ]);
 
-            // Store the updated ticket data
             $this->updatedTickets[] = $data;
         } else {
             // Store the non-matching ticket data

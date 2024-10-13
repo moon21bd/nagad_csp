@@ -134,7 +134,7 @@
                                     <th>TicketID</th>
                                     <th>Creator</th>
                                     <th>Status</th>
-                                    <th>Responsible Groups</th>
+                                    <th>Groups</th>
                                     <th>Call No</th>
                                     <th>Service Type</th>
                                     <th>Service Category</th>

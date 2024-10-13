@@ -28,6 +28,14 @@
                 end-placeholder="End date"
             >
             </el-date-picker>
+            <el-button
+                v-if="hasRole('admin|superadmin')"
+                type="primary"
+                @click="resetFilters"
+                class="btn btn-site bg-dark ml-auto text-nowrap"
+            >
+                Reset Filters
+            </el-button>
         </div>
         <div class="dashboard-card">
             <ul>
@@ -74,7 +82,8 @@
                             </h2>
                             <el-select
                                 class="ml-auto"
-                                v-model="monthTickets"
+                                v-model="ticketStatusMonth"
+                                @change="updateDashboardData"
                                 placeholder="Select Month"
                             >
                                 <el-option
@@ -165,11 +174,12 @@
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <h2 class="sub-title text-danger m-0">
-                        Monthly Tickets Count and Total Queries
+                        Monthly Tickets Count
                     </h2>
                     <el-select
                         class="ml-auto"
-                        v-model="monthValue"
+                        v-model="ticketsCountsMonth"
+                        @change="updateDashboardData"
                         placeholder="Select Month"
                     >
                         <el-option
@@ -191,6 +201,16 @@
                             <vue-highcharts
                                 ref="columnChart2"
                                 :options="chartOptions"
+                            ></vue-highcharts>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="dashboard-charts">
+                            <vue-highcharts
+                                ref="columnChart3"
+                                :options="topCategoriesChart"
                             ></vue-highcharts>
                         </div>
                     </div>
@@ -228,21 +248,16 @@ export default {
                 totalUsers: 0,
             },
             filterGroup: this.$store.state.auth.user.group_id,
-            // filterGroup: null,
-            dateFilter: [new Date(), new Date()],
             dateFilter: [],
-            monthValue: new Date().toLocaleString("default", { month: "long" }),
-            // monthValue: null,
-            monthTickets: null,
+            ticketsCountsMonth: null,
+            ticketStatusMonth: null,
             dailyReportCount: {},
             monthWiseReportCount: {},
             chartInstance: null,
             columnChartData: {
-                totalComplaintData: "",
-                totalQueryData: "",
-                totalServiceRequestData: "",
+                totalComplaintData: [],
+                totalServiceRequestData: [],
             },
-            queryColumnChartData: "",
             complaintColumnChartData: "",
             serviceRequestColumnChartData: "",
             months: [
@@ -570,6 +585,33 @@ export default {
                     ],
                 },
             ],
+            topCategoriesChart: {
+                chart: {
+                    type: "column",
+                },
+                title: {
+                    text: "Top 30 Ticket Categories",
+                },
+                xAxis: {
+                    categories: [],
+                    title: {
+                        text: "Categories",
+                    },
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: "Count",
+                    },
+                },
+                series: [
+                    {
+                        name: "Count",
+                        data: [],
+                    },
+                ],
+            },
+            topCategoriesChartInstance: null,
         };
     },
     computed: {
@@ -637,25 +679,77 @@ export default {
         this.init();
         this.initializeChart();
         this.fetchGroups();
+
+        const selectedMonthNumber =
+            this.ticketsCountsMonth || new Date().getMonth() + 1;
+        const selectedMonthName = this.getFullMonthName(selectedMonthNumber);
+
+        this.fetchTopCategoriesData(
+            this.filterGroup || this.userGroupId,
+            selectedMonthName
+        );
     },
     watch: {
-        monthValue(newMonth) {
-            this.updateDashboardData();
-        },
-        monthTickets(newMonth) {
-            if (newMonth) {
-                this.updateDashboardData();
-            }
-        },
-        filterGroup() {
-            this.updateDashboardData();
-        },
-        dateFilter() {
-            this.updateDashboardData();
-        },
+        // ticketsCountsMonth: "updateDashboardData",
+        // ticketStatusMonth: "updateDashboardData",
+        filterGroup: "updateDashboardData",
+        dateFilter: "updateDashboardData",
     },
     methods: {
+        async init() {
+            this.userGroupId = this.$store.state.auth.user.group_id;
+
+            this.complaintColumnChartData = [];
+            this.serviceRequestColumnChartData = [];
+
+            const groupId = this.filterGroup || this.userGroupId;
+            const statusMonth =
+                this.ticketStatusMonth || new Date().getMonth() + 1;
+            const countsMonth =
+                this.ticketsCountsMonth || new Date().getMonth() + 1;
+
+            const statusMonthName = this.getFullMonthName(statusMonth);
+            const countsMonthName = this.getFullMonthName(countsMonth);
+            console.log("Counts Month Name 1:", countsMonthName, countsMonth);
+            console.log("Status Month Name 1:", statusMonthName, statusMonth);
+
+            await Promise.all([
+                this.fetchTotalReportCount(groupId, this.dateFilter),
+                this.fetchDailyReportCount(groupId),
+                this.fetchMonthWiseTicketStatus(groupId, statusMonthName),
+                this.fetchColumnChartData(groupId, countsMonthName),
+            ]);
+
+            if (this.isSuperAdmin) {
+                await this.fetchUserStatistics();
+            }
+        },
+
         ...mapActions("permissions", ["fetchPermissions"]),
+        resetFilters() {
+            this.filterGroup = "";
+            this.dateFilter = [];
+        },
+        async fetchTopCategoriesData(groupId, month) {
+            try {
+                const response = await axios.get(
+                    `/get-top-categories-data/${groupId}/${month}`,
+                    { params: { date: this.dateFilter } }
+                );
+                const categories = response.data.map((item) => item.category);
+                const counts = response.data.map((item) => item.count);
+
+                this.updateTopCategoriesChart(categories, counts);
+            } catch (error) {
+                console.error("Error fetching top categories data:", error);
+            }
+        },
+        updateTopCategoriesChart(categories, counts) {
+            this.topCategoriesChart.xAxis.categories = categories;
+            this.topCategoriesChart.series[0].data = counts;
+            this.updateTopCategoriesCharts(this.topCategoriesChart);
+        },
+
         getUserStatsIconClass(label) {
             const icons = {
                 "Active User": "icon-user-check",
@@ -673,50 +767,49 @@ export default {
             }
             return "";
         },
-        updateDashboardData() {
+        async updateDashboardData() {
             const groupId = this.filterGroup || this.userGroupId;
-            const month = this.monthTickets || this.monthValue;
+            const [startDate, endDate] = this.getDateRange();
 
-            let startDate, endDate;
-            if (this.dateFilter.length === 2) {
-                startDate = this.formatDate(this.dateFilter[0]);
-                endDate = this.formatDate(this.dateFilter[1]);
-            } else {
-                startDate = this.formatDate(new Date());
-                endDate = this.formatDate(new Date());
-                console.warn(
-                    "Date filter not provided. Defaulting to today's date."
-                );
-            }
+            const currentMonth = this.getFullMonthName(
+                new Date().getMonth() + 1
+            );
+            const statusMonth =
+                this.ticketStatusMonth !== undefined
+                    ? this.ticketStatusMonth
+                    : currentMonth;
+            const countsMonth =
+                this.ticketsCountsMonth !== undefined
+                    ? this.ticketsCountsMonth
+                    : currentMonth;
 
-            const dateFilter = [startDate, endDate];
+            const statusMonthName = statusMonth;
+            const countsMonthName = countsMonth;
 
-            this.fetchTotalReportCount(groupId, dateFilter);
-            this.fetchDailyReportCount(groupId);
-            this.fetchMonthWiseTicketStatus(groupId, month);
-            this.fetchColumnChartData(groupId, month, dateFilter);
-        },
-        async init() {
-            this.userGroupId = this.$store.state.auth.user.group_id;
-            // const groupId = this.userGroupId;
-            const groupId = this.filterGroup || this.userGroupId;
-            const month = this.monthTickets || this.monthValue;
-
-            this.complaintColumnChartData = [];
-            this.serviceRequestColumnChartData = [];
+            console.log("Counts Month Name:", countsMonthName, countsMonth);
+            console.log(
+                "Status Month Name:",
+                statusMonthName,
+                this.ticketStatusMonth
+            );
 
             await Promise.all([
-                this.fetchTotalReportCount(groupId, this.dateFilter),
+                this.fetchTotalReportCount(groupId, [startDate, endDate]),
                 this.fetchDailyReportCount(groupId),
-                this.fetchMonthWiseTicketStatus(groupId, month),
-                this.fetchColumnChartData(groupId, month, this.dateFilter),
+                this.fetchMonthWiseTicketStatus(groupId, statusMonthName),
+                this.fetchColumnChartData(groupId, countsMonthName),
             ]);
-
-            if (this.isSuperAdmin) {
-                await this.fetchUserStatistics();
-            }
         },
-
+        getDateRange() {
+            if (this.dateFilter.length === 2) {
+                return [
+                    this.formatDate(this.dateFilter[0]),
+                    this.formatDate(this.dateFilter[1]),
+                ];
+            }
+            const today = this.formatDate(new Date());
+            return [today, today];
+        },
         async fetchGroups() {
             try {
                 const response = await axios.get("/groups");
@@ -728,10 +821,16 @@ export default {
         async initializeChart() {
             await this.$nextTick();
             this.chartInstance = this.$refs.pieChart?.chart;
-            if (this.chartInstance) {
-                // console.log("Chart instance is ready");
+        },
+        async initializeTopCategoriesChart() {
+            await this.$nextTick();
+            this.topCategoriesChartInstance = this.$refs.columnChart3?.chart;
+            if (this.topCategoriesChartInstance) {
+                //console.log("topCategoriesChartInstance is ready");
             } else {
-                // console.error("Chart instance could not be initialized");
+                console.error(
+                    "topCategoriesChartInstance could not be initialized"
+                );
             }
         },
         updateCharts(newData) {
@@ -742,6 +841,18 @@ export default {
                         chartRef.chart.update(chartOptions, true, true);
                     }
                 });
+            });
+        },
+        updateTopCategoriesCharts(chartOptions) {
+            this.$nextTick(() => {
+                const chartRef = this.$refs.columnChart3; // Your chart reference
+                if (chartRef && chartRef.chart) {
+                    chartRef.chart.update(chartOptions, true, true);
+                    this.initializeTopCategoriesChart();
+                    // console.log("Chart updated with new options");
+                } else {
+                    console.error("Chart reference is not available");
+                }
             });
         },
         async fetchTotalReportCount(groupId, dateFilter) {
@@ -760,7 +871,7 @@ export default {
             try {
                 const response = await axios.get(`user-stats`);
                 this.userStats = response.data;
-                console.log("this.userStats", this.userStats);
+                // console.log("this.userStats", this.userStats);
             } catch (error) {
                 console.error("Error fetching User Statistics Count:", error);
             }
@@ -778,7 +889,7 @@ export default {
         },
         async fetchMonthWiseTicketStatus(groupId, month) {
             try {
-                console.log("month", month);
+                console.log("fetchMonthWiseTicketStatus", month);
                 const response = await axios.get(
                     `/get-month-wise-ticket-status-count/${groupId}/${month}`
                 );
@@ -789,10 +900,11 @@ export default {
             }
         },
 
-        async fetchColumnChartData(groupId, month, dateFilter) {
+        async fetchColumnChartData(groupId, month) {
+            console.log("fetchColumnChartData", groupId, month);
             try {
                 const response = await axios.get(
-                    `/get-date-wise-column-chart-data-count/${groupId}/${month}?date=${dateFilter}`
+                    `/get-date-wise-column-chart-data-count/${groupId}/${month}`
                 );
 
                 this.columnChartData = response.data;
@@ -819,32 +931,49 @@ export default {
             if (this.chartInstance) {
                 this.chartInstance.series[0].setData([
                     {
-                        name: "Open Ticket",
-                        y: data.openTicket ?? 0,
+                        name: "Opened Ticket",
+                        y: data.totalOpened ?? 0,
                         color: "#003049",
                     },
                     {
-                        name: "In Progress Ticket",
-                        y: data.inProgressTicket ?? 0,
+                        name: "Created Ticket",
+                        y: data.totalCreated ?? 0,
                         color: "#D62828",
                     },
                     {
-                        name: "Pending Ticket",
-                        y: data.pendingTicket ?? 0,
+                        name: "Resolved Ticket",
+                        y: data.totalResolved ?? 0,
                         color: "#F77F00",
                     },
                     {
-                        name: "Close Ticket",
-                        y: data.closedTicket ?? 0,
+                        name: "Closed Ticket",
+                        y: data.totalClosed ?? 0,
                         color: "#EC4176",
                     },
                     {
                         name: "Reopen Ticket",
-                        y: data.reopenTicket ?? 0,
+                        y: data.totalReopen ?? 0,
                         color: "#543884",
                     },
                 ]);
             }
+        },
+        getFullMonthName(monthNumber) {
+            const monthNames = [
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December",
+            ];
+            return monthNames[monthNumber - 1];
         },
     },
 };

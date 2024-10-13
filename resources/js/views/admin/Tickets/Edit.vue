@@ -478,6 +478,7 @@ export default {
                     break;
                 case "REOPEN":
                 case "OPENED":
+                case "ASSIGNED":
                     this.filteredStatusList = this.ticketInfos.statuses.filter(
                         (status) => status.value.toUpperCase() === "RESOLVED"
                     );

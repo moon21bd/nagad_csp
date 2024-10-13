@@ -203,8 +203,6 @@ class NCTicketController extends Controller
         $now = Carbon::now();
         $authUserGroupId = Auth::user()->group_id;
 
-        // dd();
-
         // if group owner is visiting the ticket
         /* if (Auth::user()->group->hasOwner() || Auth::user()->hasRole('admin') || Auth::user()->hasRole('superadmin')) {
         return response()->json([
@@ -286,7 +284,7 @@ class NCTicketController extends Controller
         $ticketId = $id;
         $comment = $validated['comments'];
         $now = Carbon::now();
-        $ticketStatus = 'REOPEN';
+        $ticketStatus = 'ASSIGNED';
 
         try {
             // Fetch the ticket by ID
@@ -479,116 +477,6 @@ class NCTicketController extends Controller
         );
 
         $this->notificationService->sendTicketNotificationToUser($ticket, $fetchServiceTypeConfigs, $userId);
-    }
-
-    // xlsx format
-    /* public function export(Request $request)
-    {
-    // Validate that 'tickets' is provided and is an array
-    $request->validate([
-    'tickets' => 'required|array',
-    ]);
-
-    $tickets = $request->input('tickets');
-    $data = [];
-
-    // Map and sanitize the data for export
-    foreach ($tickets as $ticket) {
-    // Ensure each ticket is an array and has the expected fields
-    if (is_array($ticket)) {
-    $data[] = [
-    'SN' => $ticket['id'] ?? 'N/A',
-    'Creation Time' => strip_tags($ticket['created_at'] ?? ''),
-    'TicketID' => strip_tags($ticket['uuid'] ?? ''),
-    'Creator' => strip_tags($ticket['creator']['name'] ?? 'N/A'),
-    'Status' => strip_tags($ticket['ticket_status'] ?? ''),
-    'Responsible Groups' => strip_tags(implode(',', $ticket['responsible_group_names'] ?? [])),
-    'Call No' => strip_tags($ticket['caller_mobile_no'] ?? ''),
-    'Service Type' => strip_tags($ticket['call_type']['call_type_name'] ?? ''),
-    'Service Category' => strip_tags($ticket['call_category']['call_category_name'] ?? ''),
-    ];
-    }
-    }
-
-    // Check if there is any data to export
-    if (empty($data)) {
-    return response()->json([
-    'success' => false,
-    'message' => 'No valid ticket data to export.',
-    ], 400);
-    }
-
-    try {
-    // Generate XLSX
-    $xlsx = SimpleXLSXGen::fromArray($data);
-    } catch (\Exception $e) {
-    return response()->json([
-    'success' => false,
-    'message' => 'Error generating the XLSX file: ' . $e->getMessage(),
-    ], 500);
-    }
-
-    return response()->streamDownload(function () use ($xlsx) {
-    $xlsx->downloadAs('tickets.xlsx');
-    }, 'tickets.xlsx', [
-    'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    ]);
-    } */
-
-    // csv
-    public function export(Request $request)
-    {
-        $tickets = $request->input('tickets');
-
-        // Create a file pointer connected to the output stream
-        $handle = fopen('php://output', 'w');
-
-        // Set the headers for the CSV file
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="tickets.csv"');
-
-        // Set CSV column headers
-        fputcsv($handle, [
-            'SN',
-            'Creation Time',
-            'TicketID',
-            'Creator',
-            'Status',
-            'Responsible Groups',
-            'Call No',
-            'Service Type',
-            'Service Category',
-        ]);
-
-        // Populate data
-        foreach ($tickets as $ticket) {
-            // Safely access keys with a default value
-            $id = $ticket['id'] ?? 'N/A';
-            $createdAt = $ticket['created_at'] ?? 'N/A';
-            $uuid = $ticket['uuid'] ?? 'N/A';
-            $creator = $ticket['creator']['name'] ?? 'N/A';
-            $status = $ticket['ticket_status'] ?? 'N/A';
-            $responsibleGroups = implode(',', $ticket['responsible_group_names'] ?? []);
-            $callerMobileNo = $ticket['caller_mobile_no'] ?? 'N/A';
-            $serviceType = $ticket['call_type']['call_type_name'] ?? 'N/A';
-            $serviceCategory = $ticket['call_category']['call_category_name'] ?? 'N/A';
-
-            // Write the ticket data to CSV
-            fputcsv($handle, [
-                $id,
-                strip_tags($createdAt),
-                strip_tags($uuid),
-                strip_tags($creator),
-                strip_tags($status),
-                strip_tags($responsibleGroups),
-                strip_tags($callerMobileNo),
-                strip_tags($serviceType),
-                strip_tags($serviceCategory),
-            ]);
-        }
-
-        fclose($handle);
-        exit();
     }
 
 }

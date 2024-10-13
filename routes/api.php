@@ -167,6 +167,7 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('get-daily-report-count/{id?}', [NCReportController::class, 'getDailyReportCount']);
     Route::get('get-month-wise-ticket-status-count/{id?}/{month?}', [NCReportController::class, 'getMonthWiseTicketStatusCount']);
     Route::get('get-date-wise-column-chart-data-count/{id?}/{month?}', [NCReportController::class, 'getDateWiseColumnChartDataCount']);
+    Route::get('get-top-categories-data/{id?}/{month?}', [NCReportController::class, 'getTopCategoriesData']);
 
     Route::get('user-stats', [NCReportController::class, 'getUserStatistics']);
 
@@ -190,7 +191,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/ticket/search', [NCTicketController::class, 'searchTickets']);
     Route::get('/ticket/statuses', [NCTicketController::class, 'ticketStatuses']);
     Route::get('/ticket/sources', [NCTicketController::class, 'ticketSources']);
-    Route::post('/tickets/export', [NCTicketController::class, 'export'])->name('tickets.export');
 
     Route::get('users-index', [UsersController::class, 'userIndex']);
 
