@@ -46,7 +46,7 @@ class BulkTicketCreateController extends Controller
         $file = $request->file('excel_file');
         $fileName = 'bulk_ticket_creates_' . time() . '.' . $file->getClientOriginalExtension();
 
-        $file->storeAs('', $fileName, 'public_uploads');
+        $file->storeAs('', $fileName, 'bulk_tickets_create');
         $fullFilePath = public_path('uploads/bulk-tickets/' . $fileName);
 
         // Import data
