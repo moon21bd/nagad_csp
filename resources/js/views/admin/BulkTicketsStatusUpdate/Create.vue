@@ -40,13 +40,13 @@
 
                             <div class="">
                                 <a
-                                    class="btn btn-sm btn-success"
+                                    class="btn btn-outline-secondary"
                                     href="/templates/bulk_ticket_status_update_sample.xlsx"
                                     download
                                     target="_blank"
                                 >
                                     <i class="icon-download"></i>
-                                    &nbsp;&nbsp;Sample Template
+                                    Sample Template
                                 </a>
                             </div>
                             <br />

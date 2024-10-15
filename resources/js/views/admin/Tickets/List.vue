@@ -3,30 +3,138 @@
         <div class="common-heading d-flex align-items-center mb-3">
             <h1 class="title">Tickets</h1>
             <router-link
-                v-if="
-                    hasRole('admin|superadmin|owner') ||
-                    hasPermission('ticket-create')
-                "
+                v-if="canCreateTicket"
                 class="btn btn-site ml-auto"
                 :to="{ name: 'ticket-create' }"
-                ><i class="icon-plus"></i> New
+            >
+                <i class="icon-plus"></i> New
             </router-link>
+            <button
+                v-if="canCreateTicket"
+                class="btn btn-outline-dark ml-2"
+                @click="showExportModal"
+            >
+                <i class="icon-download"></i> Export
+            </button>
         </div>
+
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
                 <img src="/images/loader.gif" alt="" />
             </div>
             <div class="card-body">
+                <div
+                    class="filter-tickets d-flex flex-wrap flex-md-nowrap mb-3"
+                >
+                    <el-select
+                        v-model="filters.status"
+                        @change="fetchTickets"
+                        filterable
+                        id="statusFilter"
+                        placeholder="Status"
+                    >
+                        <el-option value="">All</el-option>
+                        <el-option
+                            v-for="status in statuses"
+                            :key="status.value"
+                            :label="status.label"
+                            :value="status.value"
+                        >
+                        </el-option>
+                    </el-select>
+                    <el-select
+                        v-model="filters.groups"
+                        placeholder="Groups"
+                        multiple
+                        collapse-tags
+                        @change="fetchTickets"
+                    >
+                        <el-option value="">All</el-option>
+                        <el-option
+                            v-for="group in groupOptions"
+                            :key="group.id"
+                            :label="group.name"
+                            :value="group.id"
+                        >
+                        </el-option>
+                    </el-select>
+                    <el-select
+                        v-model="filters.service_category"
+                        @change="fetchTickets"
+                        filterable
+                        placeholder="Sub Category"
+                    >
+                        <el-option value="">All</el-option>
+                        <el-option
+                            v-for="category in serviceCategories"
+                            :key="category.id"
+                            :label="category.name"
+                            :value="category.id"
+                        >
+                        </el-option>
+                    </el-select>
+
+                    <el-select
+                        v-model="filters.created_by"
+                        @change="fetchTickets"
+                        name="created_by"
+                        placeholder="Creator"
+                    >
+                        <el-option value="">All</el-option>
+                        <el-option
+                            v-for="user in users"
+                            :key="user.id"
+                            :label="user.name"
+                            :value="user.id"
+                        >
+                        </el-option>
+                    </el-select>
+
+                    <el-select
+                        v-model="filters.ticket_source"
+                        @change="fetchTickets"
+                        name="ticket_source"
+                        placeholder="Source"
+                    >
+                        <el-option value="">All</el-option>
+                        <el-option
+                            v-for="source in ticketSource"
+                            :key="source.value"
+                            :label="source.label"
+                            :value="source.value"
+                        >
+                        </el-option>
+                    </el-select>
+
+                    <label class="checkbox text-nowrap"
+                        ><input
+                            type="checkbox"
+                            name="my-tickets"
+                            id="my-tickets"
+                            v-model="filters.my_tickets"
+                            @change="fetchTickets"
+                        />
+                        <span class="checkmark"></span>
+                        My Tickets
+                    </label>
+                    <button
+                        class="btn btn-site bg-dark ml-auto text-nowrap"
+                        @click="resetFilters"
+                    >
+                        Reset Filter
+                    </button>
+                </div>
                 <div v-if="tickets.length && !isLoading">
                     <div class="table-responsive">
                         <table id="dataTable" class="table border rounded">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th>SN</th>
                                     <th>Creation Time</th>
-                                    <th>Tracking</th>
+                                    <th>TicketID</th>
+                                    <th>Creator</th>
                                     <th>Status</th>
-                                    <th>Responsible Groups</th>
+                                    <th>Groups</th>
                                     <th>Call No</th>
                                     <th>Service Type</th>
                                     <th>Service Category</th>
@@ -36,24 +144,56 @@
                             <tbody>
                                 <tr v-for="(item, key) in tickets" :key="key">
                                     <td>{{ item.id }}</td>
-
                                     <td>
                                         {{ formatDateTime(item.created_at) }}
                                     </td>
-                                    <td>{{ item.id }}</td>
                                     <td>
-                                        <span
-                                            :class="
-                                                item.ticket_status === 'OPEN'
-                                                    ? 'active'
-                                                    : 'inactive'
-                                            "
-                                            class="badge"
-                                            >{{ item.ticket_status }}</span
+                                        <router-link
+                                            :to="{
+                                                name: 'ticket-timeline',
+                                                params: { id: item.id },
+                                            }"
+                                            class="text-nowrap btn btn btn-sm btn-outline-danger"
+                                            title="Ticket Timeline"
                                         >
+                                            <i class="icon-clock"></i>
+                                            {{ item.uuid }}
+                                        </router-link>
                                     </td>
+
+                                    <td class="text-nowrap">
+                                        {{ item.creator?.name || "N/A" }}
+                                    </td>
+                                    <td
+                                        v-html="
+                                            renderTicketStatus(
+                                                item.ticket_status
+                                            )
+                                        "
+                                    ></td>
+
                                     <td>
-                                        {{ item.responsible_group_ids }}
+                                        <div class="btn-group">
+                                            <button
+                                                type="button"
+                                                class="btn btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                data-toggle="dropdown"
+                                                aria-haspopup="true"
+                                                aria-expanded="false"
+                                            >
+                                                Groups
+                                                <i class="icon-more"></i>
+                                            </button>
+                                            <div
+                                                class="dropdown-menu p-3 text-wrap dropdown-menu-right"
+                                            >
+                                                {{
+                                                    item.responsible_group_names
+                                                        ? item.responsible_group_names
+                                                        : "N/A"
+                                                }}
+                                            </div>
+                                        </div>
                                     </td>
                                     <td>
                                         {{ item.caller_mobile_no }}
@@ -72,9 +212,7 @@
                                     <td class="text-right">
                                         <router-link
                                             v-if="
-                                                hasRole(
-                                                    'admin|superadmin|owner'
-                                                ) ||
+                                                hasRole('admin|superadmin') ||
                                                 hasPermission('ticket-edit')
                                             "
                                             class="btn-action btn-edit"
@@ -86,19 +224,13 @@
                                         ></router-link>
 
                                         <router-link
-                                            v-if="
-                                                hasRole(
-                                                    'admin|superadmin|owner'
-                                                ) ||
-                                                hasPermission('ticket-timeline')
-                                            "
                                             class="btn-action btn-edit"
                                             title="Ticket Timeline"
                                             :to="{
                                                 name: 'ticket-timeline',
                                                 params: { id: item.id },
                                             }"
-                                            ><i class="icon-ticket-fill"></i
+                                            ><i class="icon-tickets"></i
                                         ></router-link>
                                         <a
                                             v-if="
@@ -106,7 +238,9 @@
                                                 hasPermission('ticket-delete')
                                             "
                                             class="btn-action btn-trash"
-                                            @click.prevent="delete item.id"
+                                            @click.prevent="
+                                                deleteTicket(item.id)
+                                            "
                                         >
                                             <i class="icon-trash"></i>
                                         </a>
@@ -119,15 +253,76 @@
                 <no-data v-else />
             </div>
         </div>
+
+        <!-- Export Modal -->
+        <div
+            class="modal fade"
+            id="exportModal"
+            tabindex="-1"
+            role="dialog"
+            data-backdrop="static"
+            aria-labelledby="exportModalLabel"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header border-0">
+                        <h5 class="modal-title" id="exportModalLabel">
+                            Export Tickets
+                        </h5>
+
+                        <button
+                            type="button"
+                            class="close text-danger"
+                            data-dismiss="modal"
+                            aria-label="Close"
+                        >
+                            <i class="icon-close-circle"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Choose export option:</p>
+                        <div>
+                            <input
+                                type="radio"
+                                id="currentPage"
+                                value="currentPage"
+                                v-model="exportOption"
+                            />
+                            <label for="currentPage">Current Page</label>
+                        </div>
+                        <div>
+                            <input
+                                type="radio"
+                                id="allRows"
+                                value="allRows"
+                                v-model="exportOption"
+                            />
+                            <label for="allRows">All Rows</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-danger"
+                            @click="exportTickets"
+                        >
+                            Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
 import "datatables.net-dt/css/jquery.dataTables.min.css";
 import "datatables.net-dt/js/dataTables.dataTables";
-import noData from "../components/noData.vue";
-import { formatDateTime } from "../../../utils/common";
 import PermissionsComponent from "../../../components/PermissionsComponent.vue";
+import { formatDateTime } from "../../../utils/common";
+import noData from "../components/noData.vue";
+import * as XLSX from "xlsx";
 
 export default {
     components: {
@@ -138,26 +333,170 @@ export default {
         return {
             isLoading: false,
             tickets: [],
+            groupOptions: [],
+            serviceCategories: [],
+            statuses: [],
+            filters: {
+                status: "",
+                groups: [],
+                service_category: "",
+                my_tickets: null,
+                created_by: null,
+                ticket_source: null,
+            },
+            users: [],
+            ticketSource: [],
+            exportOption: "currentPage",
         };
+    },
+    computed: {
+        canCreateTicket() {
+            return this.hasRole("admin|superadmin");
+        },
     },
 
     methods: {
         formatDateTime,
-        async delete(id) {
+        /* showExportModal() {
+            $("#exportModal").modal("show"); // Show the export modal
+        }, */
+        showExportModal() {
+            this.$nextTick(() => {
+                $("#exportModal").modal("show"); // Show the export modal
+            });
+        },
+        exportTickets() {
+            let ticketsToExport;
+
+            if (this.exportOption === "currentPage") {
+                const pageInfo = $("#dataTable").DataTable().page.info();
+                ticketsToExport = this.tickets.slice(
+                    pageInfo.start,
+                    pageInfo.end
+                );
+            } else {
+                ticketsToExport = this.tickets;
+            }
+
+            const filteredTickets = ticketsToExport.map((ticket) => ({
+                id: ticket.id,
+                created_at: this.formatDateTime(ticket.created_at),
+                uuid: ticket.uuid,
+                creator: ticket.creator?.name || "N/A",
+                ticket_status: ticket.ticket_status,
+                responsible_groups: ticket.responsible_group_names || "N/A",
+                caller_mobile_no: ticket.caller_mobile_no,
+                call_type: ticket.call_type?.call_type_name || "",
+                call_category: ticket.call_category?.call_category_name || "",
+            }));
+
+            const worksheet = XLSX.utils.json_to_sheet(filteredTickets);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Tickets");
+
+            const now = new Date();
+            const timestamp = now
+                .toISOString()
+                .replace(/[-:.]/g, "")
+                .slice(0, 15);
+            const fileName = `TicketsData_${timestamp}.xlsx`;
+
+            XLSX.writeFile(workbook, fileName);
+            $("#exportModal").modal("hide");
+        },
+
+        async fetchUsers() {
+            try {
+                const response = await axios.get("/users");
+                this.users = response.data.data;
+            } catch (error) {
+                console.error("Error fetching users:", error);
+                this.users = [];
+            }
+        },
+        fetchTicketStatuses() {
+            axios
+                .get("/ticket/statuses")
+                .then((response) => {
+                    this.statuses = response.data.statuses;
+                })
+                .catch((error) => {
+                    console.error("Error fetching ticket statuses:", error);
+                });
+        },
+        fetchTicketSources() {
+            axios
+                .get("/ticket/sources")
+                .then((response) => {
+                    // console.log("response.data", response.data.sources);
+                    this.ticketSource = response.data.sources;
+                })
+                .catch((error) => {
+                    console.error("Error fetching ticket sources:", error);
+                });
+        },
+        async deleteTicket(id) {
             try {
                 if (confirm("Are you sure you want to delete this Ticket?")) {
-                    await axios.delete(`/tickets/${id}`);
-                    this.fetchTickets();
+                    const response = await axios.delete(`/tickets/${id}`);
+
+                    if (response.status === 200) {
+                        this.fetchTickets();
+                        this.$showToast("Ticket deleted successfully!", {
+                            type: "success",
+                        });
+                    } else {
+                        this.$showToast(
+                            "Failed to delete the ticket. Please try again.",
+                            {
+                                type: "error",
+                            }
+                        );
+                    }
                 }
             } catch (error) {
-                console.error("Error deleting user:", error);
+                console.error("Error deleting ticket:", error);
+
+                this.$showToast(
+                    "An error occurred while deleting the ticket.",
+                    {
+                        type: "error",
+                    }
+                );
+            }
+        },
+        async resetFilters() {
+            this.startDate = "";
+            this.endDate = "";
+            this.filters = {
+                status: "",
+                groups: [],
+                service_category: "",
+                my_tickets: null,
+                created_by: null,
+                ticket_source: null,
+            };
+            this.isLoading = true;
+            try {
+                const response = await axios.get("/tickets");
+                this.tickets = response.data;
+            } catch (error) {
+                console.error("Error resetting filter:", error);
+            } finally {
+                this.isLoading = false;
             }
         },
         async fetchTickets() {
             try {
                 this.isLoading = true;
-                const response = await axios.get("/tickets");
-                console.log("response", response);
+                const response = await axios.get("/tickets", {
+                    params: {
+                        ...this.filters,
+                        my_tickets: this.filters.my_tickets
+                            ? this.$store.state.auth.user.id
+                            : null,
+                    },
+                });
                 this.tickets = response.data;
             } catch (error) {
                 console.error("Error fetching tickets:", error);
@@ -165,6 +504,59 @@ export default {
                 this.isLoading = false;
             }
         },
+        async fetchFilterOptions() {
+            try {
+                const [groupsResponse, categoriesResponse] = await Promise.all([
+                    axios.get("/groups"),
+                    axios.get("/call-categories"),
+                ]);
+
+                this.groupOptions = groupsResponse.data.map((group) => ({
+                    id: group.id,
+                    name: group.name,
+                }));
+
+                this.serviceCategories = categoriesResponse.data.map(
+                    (category) => ({
+                        id: category.id,
+                        name: `${category.call_type.call_type_name} > ${category.call_category_name}`,
+                        type: category.call_type.call_type_name,
+                        category: category.call_category_name,
+                    })
+                );
+            } catch (error) {
+                console.error("Error fetching filter options:", error);
+            }
+        },
+        renderTicketStatus(status) {
+            const statusMap = {
+                CREATED: { class: "badge-primary", label: "CREATED" }, // Blue
+                OPENED: { class: "badge-warning", label: "OPENED" }, // Yellow
+                RESOLVED: { class: "badge-success", label: "RESOLVED" }, // Green
+                CLOSED: {
+                    class: "badge-danger",
+                    label: "CLOSED", // General label for all closed statuses
+                },
+                REOPEN: { class: "badge-info", label: "REOPEN" }, // Lavender
+            };
+
+            const closedStatuses = [
+                "CLOSED - REACHED",
+                "CLOSED - NOT RECEIVED",
+                "CLOSED - NOT CONNECTED",
+                "CLOSED - SWITCHED OFF",
+                "CLOSED - NOT COOPERATED",
+            ];
+
+            if (closedStatuses.includes(status)) {
+                return `<span class="badge ${statusMap.CLOSED.class}">${status}</span>`;
+            }
+
+            return statusMap[status]
+                ? `<span class="badge ${statusMap[status].class}">${statusMap[status].label}</span>`
+                : `<span class="badge badge-dark">${status}</span>`;
+        },
+
         initializeDataTable() {
             this.$nextTick(() => {
                 $("#dataTable").DataTable({
@@ -174,7 +566,11 @@ export default {
         },
     },
     mounted() {
+        this.fetchFilterOptions();
         this.fetchTickets();
+        this.fetchTicketStatuses();
+        this.fetchUsers();
+        this.fetchTicketSources();
     },
     watch: {
         tickets(newValue) {
@@ -185,18 +581,56 @@ export default {
     },
 };
 </script>
-<style>
-.table.dataTable > thead > tr > th {
+
+<style scoped>
+.table > tbody > tr > td .badge {
+    font-size: 11px !important;
+    min-width: 70px;
+    padding: 5px 5px 4px;
+    line-height: normal;
+}
+.table.dataTable > thead > tr > th,
+.table.dataTable > tbody > tr > td {
     white-space: nowrap;
 }
 .table > thead > tr > th:last-child,
 .table > tbody > tr > td:last-child {
     white-space: nowrap;
-    position: sticky;
-    right: 0;
-    background: #fff;
+    position: relative;
+    overflow: visible;
 }
 .table > thead > tr > th:last-child {
     background: #fff9f9;
+}
+.dropdown-menu {
+    color: #b1b5b9;
+    font-size: 14px;
+    box-shadow: 0 0 18px -10px rgba(0, 0, 0, 0.15) !important;
+}
+.dropdown-menu::before {
+    content: "";
+    height: 10px;
+    width: 10px;
+    background: white;
+    position: absolute;
+    right: 10px;
+    top: -5px;
+    border-radius: 3px 0px 0px 0px;
+    transform: rotate(45deg);
+}
+.dropdown-toggle::after {
+    display: none;
+}
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    line-height: 1;
+    gap: 3px;
+}
+.dropdown-item i {
+    font-size: 16px;
 }
 </style>

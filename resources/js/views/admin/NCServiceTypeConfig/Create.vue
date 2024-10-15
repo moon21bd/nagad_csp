@@ -360,10 +360,8 @@
                             <div class="form-row">
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >Notification Channels<sup
-                                            >*</sup
-                                        ></label
-                                    >
+                                        >Notification channels
+                                    </label>
                                     <div class="d-flex">
                                         <!-- <label class="checkbox mr-3">
                                             <input
@@ -633,7 +631,7 @@
 
                                 <div class="col-md-4 form-group">
                                     <label class="control-label m-0 mr-3"
-                                        >Is User Notified By SMS</label
+                                        >Is Customer Notified By SMS</label
                                     >
                                     <div class="d-flex">
                                         <label class="radio mr-2">
@@ -663,7 +661,7 @@
                             </div>
 
                             <div
-                                v-if="errors.length > 0"
+                                v-if="errors && errors.length > 0"
                                 class="error-messages"
                                 role="alert"
                             >
@@ -709,12 +707,12 @@ export default {
         callCategories: [],
         callSubCategories: [],
         selectedGroups: [],
-        smsConfigs: [], // Array of SMS config options
-        emailConfigs: [], // Array of Email config options
-        selectedNotificationChannels: [], // Array to manage selected notification channels
-        showMessageBox: false, // Controls the visibility of the message box
-        newPopupMessage: "", // Holds the new popup message input
-        maxMessages: 3, // Maximum number of popup messages allowed
+        smsConfigs: [],
+        emailConfigs: [],
+        selectedNotificationChannels: [],
+        showMessageBox: false,
+        newPopupMessage: "",
+        maxMessages: 3,
         configurationInfos: {
             callTypeId: null,
             callCategoryId: null,
@@ -724,7 +722,7 @@ export default {
             email_config_id: null,
             selectedNotificationChannels: [],
             is_show_popup_msg: "no",
-            popupMessages: [], // Array to hold additional messages
+            popupMessages: [],
             is_escalation: "no",
             is_show_attachment: "no",
             is_verification_check: "no",
@@ -735,13 +733,34 @@ export default {
         },
         fieldIndexToRemove: null,
         // errors: {}, // Object to store validation errors
-        errors: {
+        /* errors: {
             callTypeId: null,
             callCategoryId: null,
             callSubCategoryId: null,
             selectedGroups: null,
-        },
+        }, */
     }),
+    computed: {
+        errors() {
+            const errors = {};
+
+            if (!this.configurationInfos.callTypeId) {
+                errors.callTypeId = "Call Type is required";
+            }
+            if (!this.configurationInfos.callCategoryId) {
+                errors.callCategoryId = "Call Category is required";
+            }
+            if (!this.configurationInfos.callSubCategoryId) {
+                errors.callSubCategoryId = "Call Subcategory is required";
+            }
+            if (!this.configurationInfos.selectedGroups.length) {
+                errors.selectedGroups = "At least one group must be selected";
+            }
+
+            return errors;
+        },
+    },
+
     mounted() {
         this.fetchGroups();
         this.fetchCallTypes();
@@ -1049,7 +1068,7 @@ export default {
                 return false;
             }
 
-            if (
+            /* if (
                 this.configurationInfos.selectedNotificationChannels.length ===
                 0
             ) {
@@ -1058,17 +1077,17 @@ export default {
                     { type: "error" }
                 );
                 return false;
-            }
+            } */
 
             /* if (this.configurationInfos.sms_config_id === null) {
                 this.$showToast("SMS Config is required.", { type: "error" });
                 return false;
             } */
 
-            if (this.configurationInfos.email_config_id === null) {
+            /* if (this.configurationInfos.email_config_id === null) {
                 this.$showToast("Email Config is required.", { type: "error" });
                 return false;
-            }
+            } */
 
             if (
                 this.selectedGroups.some(

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Helpers\AgentHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
-use App\Models\Group;
+use App\Models\PasswordHistory;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\UserActivity;
@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -102,7 +103,17 @@ class AuthController extends Controller
         try {
             $validatedData = $request->validate([
                 'old_password' => 'required|string',
-                'password' => 'required|string|min:8|max:25|confirmed',
+                // 'password' => 'required|string|min:8|max:25|confirmed',
+                'password' => [
+                    'required',
+                    'string',
+                    'min:8', // Minimum length
+                    'regex:/[a-z]/', // At least one lowercase letter
+                    'regex:/[A-Z]/', // At least one uppercase letter
+                    'regex:/[0-9]/', // At least one digit
+                    'regex:/[@$!%*?&#]/', // At least one special character
+                    'confirmed', // Match with password_confirmation
+                ],
                 'password_confirmation' => 'required|string|min:8|max:25',
             ]);
 
@@ -116,8 +127,28 @@ class AuthController extends Controller
                 ], Response::HTTP_NOT_FOUND);
             }
 
+            // Check for password reuse
+            $oldPasswords = PasswordHistory::where('user_id', $user->id)->get();
+            $newHashedPassword = Hash::make($request->input('password'));
+
+            foreach ($oldPasswords as $oldPassword) {
+                // Check if the new hashed password matches any old hashed passwords
+                if (Hash::check($request->input('password'), $oldPassword->password)) {
+                    return response()->json([
+                        'message' => 'You cannot reuse your old password.',
+                    ], Response::HTTP_PRECONDITION_FAILED);
+                }
+            }
+
+            // Save the old password to the password history table
+            PasswordHistory::create([
+                'user_id' => $user->id,
+                'password' => $newHashedPassword, // Store current password (hashed)
+            ]);
+
             // Update the user's password
-            $user->password = Hash::make($request->input('password'));
+            $user->password = $newHashedPassword;
+            $user->password_changed_at = Carbon::now();
             $user->save();
 
             // Update the user's activity log
@@ -146,6 +177,74 @@ class AuthController extends Controller
         }
     }
 
+    public function changePasswordForFirstTime(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'token' => 'required',
+                'new_password' => [
+                    'required',
+                    'string',
+                    'min:8', // Minimum length
+                    'regex:/[a-z]/', // At least one lowercase letter
+                    'regex:/[A-Z]/', // At least one uppercase letter
+                    'regex:/[0-9]/', // At least one digit
+                    'regex:/[@$!%*?&#]/', // At least one special character
+                    'confirmed', // Match with password_confirmation
+                ],
+            ]);
+
+            $sessionToken = $request->session()->get('password_change_token');
+
+            if ($request->token !== $sessionToken) {
+                return response()->json(['message' => 'Unauthorized action.'], Response::HTTP_BAD_REQUEST);
+            }
+
+            // Get the authenticated user
+            $user = auth()->user();
+            $newHashedPassword = Hash::make($request->input('new_password'));
+
+            // Save the old password to the password history table
+            PasswordHistory::create([
+                'user_id' => $user->id,
+                'password' => $newHashedPassword, // Store current password (hashed)
+            ]);
+
+            // Update the user's password
+            $user->password = $newHashedPassword;
+            $user->password_changed_at = Carbon::now();
+            $user->first_password_change = Carbon::now();
+            $user->save();
+
+            // Update the user's activity log
+            UserActivity::where('user_id', $user->id)->update([
+                'last_password_change_time' => Carbon::now(),
+                'last_update_date' => Carbon::now(),
+            ]);
+
+            // Clear the session token
+            $request->session()->forget('password_change_token');
+
+            // Return a success response
+            return response()->json([
+                'message' => 'Password updated successfully! You need to login again.',
+            ], Response::HTTP_OK);
+
+        } catch (ValidationException $e) {
+            // Return a detailed validation error response
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $e->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        } catch (\Exception $e) {
+            // Return a general error response
+            return response()->json([
+                'message' => 'An error occurred.',
+                'error' => $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
     protected function registrationRules()
     {
         return [
@@ -154,16 +253,29 @@ class AuthController extends Controller
             'parent_id' => 'nullable',
             'employee_name' => 'required',
             'employee_id' => 'required',
-            'employee_user_id' => 'required',
-            'nid_card_no' => 'required',
+            'employee_user_id' => 'required|unique:users',
+            'nid_card_no' => 'nullable',
             'birth_date' => 'required|date',
             'mobile_no' => $this->phoneValidationRules() . "|unique:users",
             'address' => 'required',
             'gender' => 'required',
             'status' => 'nullable',
-            'avatar' => 'required|string',
+            'avatar' => 'nullable|string',
             'email' => 'required|string|email|unique:users',
-            'password' => 'required|min:8|max:25',
+            // 'password' => 'required|min:8|max:25',
+            'password' => [
+                'required',
+                'string',
+                'min:8', // Minimum length
+                'max:25',
+                'regex:/[a-z]/', // At least one lowercase letter
+                'regex:/[A-Z]/', // At least one uppercase letter
+                'regex:/[0-9]/', // At least one digit
+                'regex:/[@$!%*?&#]/', // At least one special character
+                'confirmed', // Match with password_confirmation
+            ],
+            'password_confirmation' => 'required|string|min:8|max:25',
+            'selectedType' => 'required|string',
         ];
     }
 
@@ -190,10 +302,12 @@ class AuthController extends Controller
             'parent_id' => $data['parent_id'] ?? 0,
             'level' => $data['level'],
             'group_id' => $data['group_id'],
+            'user_type' => $data['selectedType'],
+            'employee_user_id' => $data['employee_user_id'],
             'mobile_no' => $data['mobile_no'],
             'email' => $data['email'],
             'status' => in_array($data['level'], [1, 2, 3]) ? 'Active' : 'Pending',
-            'avatar' => uploadMediaGetPath($data['avatar']),
+            'avatar' => !empty($data['avatar']) ? uploadMediaGetPath($data['avatar']) : null,
             'password' => Hash::make($data['password']),
             'created_by' => $authUserId,
             'updated_by' => $authUserId,
@@ -207,30 +321,30 @@ class AuthController extends Controller
             default => 'user',
         };
 
-        // Attach the role to the user
+        /* // Attach the role to the user
         $role = Role::where('name', $roleName)->first();
         if ($role) {
-            $user->attachRole($role);
+        $user->attachRole($role);
 
-            // Attach default role permissions
-            $user->attachPermissions($role->permissions);
-            Log::info('USER-ROLE-PERMISSIONS|' . json_encode($user->toArray()));
+        // Attach default role permissions
+        $user->attachPermissions($role->permissions);
+        Log::info('USER-ROLE-PERMISSIONS|' . json_encode($user->toArray()));
         } else {
-            // Handle case where role is not found
-            throw new \Exception("Role {$roleName} not found.");
+        // Handle case where role is not found
+        throw new \Exception("Role {$roleName} not found.");
         }
 
         // Attach group permissions
         $group = Group::find($data['group_id']);
         if ($group) {
-            $groupPermissions = $group->permissions->pluck('id')->toArray();
-            $user->permissions()->sync($groupPermissions);
-            Log::info('USER-GROUP-ROLE-PERMISSIONS|' . json_encode($user->toArray()));
+        $groupPermissions = $group->permissions->pluck('id')->toArray();
+        $user->permissions()->sync($groupPermissions);
+        Log::info('USER-GROUP-ROLE-PERMISSIONS|' . json_encode($user->toArray()));
 
         } else {
-            // Handle case where group is not found
-            throw new \Exception("Group with ID {$data['group_id']} not found.");
-        }
+        // Handle case where group is not found
+        throw new \Exception("Group with ID {$data['group_id']} not found.");
+        } */
 
         return $user;
     }
@@ -274,7 +388,7 @@ class AuthController extends Controller
             'employee_id' => $data['employee_id'],
             'employee_name' => $data['employee_name'],
             'employee_user_id' => $data['employee_user_id'],
-            'nid_card_no' => $data['nid_card_no'],
+            'nid_card_no' => $data['nid_card_no'] ?? null,
             'registered_channel' => $this->registrationChannel,
             'gender' => $data['gender'],
             'birth_date' => date('Y-m-d', strtotime($data['birth_date'])),
@@ -361,7 +475,9 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         try {
-            if (Auth::attempt($request->only('email', 'password'))) {
+            $credentials = $this->credentials($request);
+
+            if (Auth::attempt($credentials)) {
                 /** @var User $user */
                 $user = Auth::user();
 
@@ -372,8 +488,28 @@ class AuthController extends Controller
                     return response(['message' => 'Your account status is Pending. Please contact your system administrator.'], Response::HTTP_UNAUTHORIZED);
                 }
 
+                // Check if the user needs to change their password after first login
+                if (is_null($user->first_password_change)) {
+                    $userData = $user->only(['id', 'email', 'status']);
+                    $passwordChangeToken = Str::random(60);
+                    $request->session()->put('password_change_token', $passwordChangeToken);
+
+                    return response([
+                        'message' => 'You need to change your password after your first login',
+                        'redirect' => 'change-password',
+                        'requiresFirstPasswordChange' => true,
+                        'user' => $userData,
+                        'token' => $passwordChangeToken,
+                    ]);
+                }
+
+                // Check password expiration (e.g., 90 days)
+                if (now()->diffInDays($user->password_changed_at) > 90) {
+                    return response(['message' => 'Your password has expired. Please reset it.'], Response::HTTP_UNAUTHORIZED);
+                }
+
                 // Check if the user belongs to a group that requires location prompting
-                if (in_array($user->group_id, $this->requiresLocationGroups)) {
+                if (config('nagad.is_requires_location') && in_array($user->group_id, $this->requiresLocationGroups)) {
                     return response(['message' => 'Location is required.', 'requiresLocation' => true, 'user' => $user]);
                 }
 
@@ -467,6 +603,19 @@ class AuthController extends Controller
         return $user->roles->map(function ($role) {
             return $role->name;
         });
+    }
+
+    protected function credentials(Request $request)
+    {
+        $login = $request->input('email');
+
+        // Determine if the login input is an email or employee ID
+        $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'employee_user_id';
+
+        return [
+            $field => $login,
+            'password' => $request->input('password'),
+        ];
     }
 
     /*

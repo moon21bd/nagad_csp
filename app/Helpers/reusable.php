@@ -8,6 +8,7 @@
  */
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -138,40 +139,150 @@ if (!function_exists('isJson')) {
     }
 }
 
-if (!function_exists('uploadMediaGetPath')) {
+/* if (!function_exists('uploadMediaGetPath')) {
 
+function uploadMediaGetPath($media, $path = 'images/profile')
+{
+if (empty($media)) {
+return null;
+}
+
+// Extract the base64 part of the image
+$imageParts = explode(";base64,", $media);
+if (count($imageParts) !== 2) {
+return null; // Invalid base64 image
+}
+
+// Extract image type and decode the base64 image
+$imageType = explode("image/", $imageParts[0])[1] ?? null;
+if (!$imageType) {
+return null; // Invalid image type
+}
+
+$imageBase64 = base64_decode($imageParts[1]);
+if ($imageBase64 === false) {
+return null; // Failed to decode base64
+}
+
+// Generate a unique filename and save the image
+$fileNameToStore = uniqid() . '.' . $imageType;
+dd($fileNameToStore);
+$filePath = public_path("uploads/" . $path . "/" . $fileNameToStore);
+
+if (file_put_contents($filePath, $imageBase64) === false) {
+return null; // Failed to save file
+}
+
+return $path . "/" . $fileNameToStore;
+}
+} */
+
+if (!function_exists('uploadMediaGetPath')) {
     function uploadMediaGetPath($media, $path = 'images/profile')
     {
         if (empty($media)) {
             return null;
         }
 
-        // Extract the base64 part of the image
-        $imageParts = explode(";base64,", $media);
-        if (count($imageParts) !== 2) {
-            return null; // Invalid base64 image
+        // Check if the media is a file object or base64 string
+        if (is_file($media)) {
+            // Handle file upload (non-base64, typical file object)
+            $extension = $media->getClientOriginalExtension(); // Get file extension
+            $fileNameToStore = uniqid() . '.' . $extension;
+            $filePath = public_path("uploads/" . $path . "/" . $fileNameToStore);
+
+            if ($media->move(public_path("uploads/" . $path), $fileNameToStore)) {
+                return $path . "/" . $fileNameToStore;
+            } else {
+                return null; // Failed to move file
+            }
+        } else {
+            // Assume it's a base64 string (handle base64 image upload)
+            $imageParts = explode(";base64,", $media);
+            if (count($imageParts) !== 2) {
+                return null; // Invalid base64 format
+            }
+
+            // Extract image type
+            $imageType = explode("image/", $imageParts[0])[1] ?? null;
+            if (!$imageType) {
+                return null; // Invalid image type
+            }
+
+            $imageBase64 = base64_decode($imageParts[1]);
+            if ($imageBase64 === false) {
+                return null; // Failed to decode base64
+            }
+
+            // Generate unique filename and save the image
+            $fileNameToStore = uniqid() . '.' . $imageType;
+            $filePath = public_path("uploads/" . $path . "/" . $fileNameToStore);
+
+            if (file_put_contents($filePath, $imageBase64) === false) {
+                return null; // Failed to save base64 image
+            }
+
+            return $path . "/" . $fileNameToStore;
+        }
+    }
+}
+
+if (!function_exists("uploadAttachment")) {
+    function uploadAttachment($base64File, $mimeType, $path = "attachments"): ?string
+    {
+        $fileData = decodeBase64File($base64File);
+        if (!$fileData) {
+            return null;
         }
 
-        // Extract image type and decode the base64 image
-        $imageType = explode("image/", $imageParts[0])[1] ?? null;
-        if (!$imageType) {
-            return null; // Invalid image type
+        $extension = getExtensionFromMimeType($mimeType);
+        if (!$extension) {
+            return null;
         }
 
-        $imageBase64 = base64_decode($imageParts[1]);
-        if ($imageBase64 === false) {
-            return null; // Failed to decode base64
+        $fileName = uniqid() . '.' . $extension;
+
+        $filePath = public_path('uploads/' . $path . '/' . $fileName);
+
+        if (!file_put_contents($filePath, $fileData)) {
+            return null;
         }
 
-        // Generate a unique filename and save the image
-        $fileNameToStore = uniqid() . '.' . $imageType;
-        $filePath = public_path("uploads/" . $path . "/" . $fileNameToStore);
-
-        if (file_put_contents($filePath, $imageBase64) === false) {
-            return null; // Failed to save file
+        return 'uploads/' . $path . '/' . $fileName;
+    }
+}
+/**
+ * Helper function to decode Base64-encoded file
+ */
+if (!function_exists("decodeBase64File")) {
+    function decodeBase64File($base64File): ?string
+    {
+        try {
+            list(, $fileData) = explode(',', $base64File);
+            return base64_decode($fileData) ?: null;
+        } catch (\Exception $e) {
+            return null;
         }
+    }
+}
+/**
+ * Helper function to map MIME types to file extensions
+ */
+if (!function_exists("getExtensionFromMimeType")) {
 
-        return $path . "/" . $fileNameToStore;
+    function getExtensionFromMimeType($mimeType): ?string
+    {
+        $mimeMap = [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'application/pdf' => 'pdf',
+            'application/msword' => 'doc',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+            'application/vnd.ms-excel' => 'xls',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
+        ];
+
+        return $mimeMap[$mimeType] ?? null;
     }
 }
 
@@ -225,51 +336,81 @@ if (!function_exists("formatTime")) {
 }
 
 if (!function_exists("getLocationName")) {
-
     function getLocationName($lat, $lon)
     {
-        $url = "https://nominatim.openstreetmap.org/reverse?format=json&lat={$lat}&lon={$lon}&addressdetails=1";
 
-        try {
-            $response = Http::withHeaders([
-                'Accept-Language' => 'en',
-                'User-Agent' => 'NagadWeb/1.0 (contact@nagad.com.bd)',
-            ])->get($url);
-
-            $logMessage = sprintf(
-                "GET-LOCATION-NAME|Response Status: %d | Response Headers: %s | Response Body: %s | %s",
-                $response->status(),
-                json_encode($response->headers()),
-                $response->body(),
-                'Response Data: ' . json_encode($response->json())
-            );
-
-            Log::info($logMessage);
-
-            $data = $response->json();
-
-            if (isset($data['address'])) {
-                $city = $data['address']['city'] ?? '';
-                $country = $data['address']['country'] ?? '';
-                $quarter = $data['address']['quarter'] ?? '';
-                $suburb = $data['address']['suburb'] ?? '';
-                return [
-                    'location' => $quarter . ', ' . $suburb,
-                    'city_country' => $city . ', ' . $country,
-                ];
-            } else {
-                return [
-                    'location' => 'Unknown',
-                    'city_country' => "Unknown",
-                ];
-            }
-        } catch (\Exception $e) {
-            Log::error('Error fetching location name: ' . $e->getMessage());
+        ini_set('max_execution_time', 60);
+        // Validate latitude and longitude
+        if (!is_numeric($lat) || !is_numeric($lon)) {
+            Log::error('Invalid latitude or longitude value.');
             return [
                 'location' => 'Unknown',
-                'city_country' => "Unknown",
+                'city_country' => 'Unknown',
             ];
-            // return 'Error fetching location';
+        }
+
+        $cacheKey = "location-{$lat}-{$lon}";
+
+        // Retrieve from cache if available
+        $cachedData = Cache::get($cacheKey);
+        if ($cachedData) {
+            return $cachedData;
+        }
+
+        $url = "https://nominatim.openstreetmap.org/reverse?format=json&lat={$lat}&lon={$lon}&addressdetails=1";
+        $attempts = 3;
+
+        while ($attempts > 0) {
+            try {
+                $response = Http::withHeaders([
+                    'Accept-Language' => 'en',
+                    'User-Agent' => 'NagadWeb/1.0 (contact@nagad.com.bd)',
+                ])->get($url);
+
+                $logMessage = sprintf(
+                    "GET-LOCATION-NAME|Response Status: %d | Response Headers: %s | Response Body: %s | %s",
+                    $response->status(),
+                    json_encode($response->headers()),
+                    $response->body(),
+                    'Response Data: ' . json_encode($response->json())
+                );
+
+                Log::info($logMessage);
+
+                $data = $response->json();
+
+                if (isset($data['address'])) {
+                    $city = $data['address']['city'] ?? '';
+                    $country = $data['address']['country'] ?? '';
+                    $quarter = $data['address']['quarter'] ?? '';
+                    $suburb = $data['address']['suburb'] ?? '';
+                    $result = [
+                        'location' => $quarter . ', ' . $suburb,
+                        'city_country' => $city . ', ' . $country,
+                    ];
+                } else {
+                    $result = [
+                        'location' => 'Unknown',
+                        'city_country' => 'Unknown',
+                    ];
+                }
+
+                // Store result in cache
+                Cache::put($cacheKey, $result, now()->addMinutes(120));
+
+                return $result;
+
+            } catch (\Exception $e) {
+                Log::error('Error fetching location name: ' . $e->getMessage());
+                $attempts--;
+                if ($attempts === 0) {
+                    return [
+                        'location' => 'Unknown',
+                        'city_country' => 'Unknown',
+                    ];
+                }
+                sleep(1); // Wait before retrying
+            }
         }
     }
 }
@@ -289,6 +430,24 @@ if (!function_exists("getDeviceIcon")) {
             return 'icon-tablet';
         } else {
             return 'icon-laptop';
+        }
+    }
+
+}
+
+/**
+ * Check if a given string is a valid date-time string.
+ *
+ * @param string $value
+ * @return bool
+ */
+if (!function_exists("isDateTime")) {
+    function isDateTime($value)
+    {
+        try {
+            return (bool) Carbon::parse($value);
+        } catch (\Exception $e) {
+            return false;
         }
     }
 

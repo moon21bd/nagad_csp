@@ -9,13 +9,13 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                         <form
                             class="user"
                             ref="changePasswordForm"
                             @submit.prevent="changePassword"
                         >
-                            <div class="col-md-4 form-group">
+                            <div class="form-group">
                                 <label class="control-label"
                                     >Old Password</label
                                 >
@@ -32,8 +32,9 @@
                                                 ? 'text'
                                                 : 'password'
                                         "
-                                        v-validate="'required|alpha_num'"
+                                        v-validate="'required'"
                                     />
+
                                     <span
                                         class="password-toggle"
                                         @click="toggleOldPassword"
@@ -45,32 +46,36 @@
                                             }"
                                         ></i>
                                     </span>
-                                    <small
-                                        class="text-danger"
-                                        v-show="errors.has('old_password')"
-                                    >
-                                        {{ errors.first("old_password") }}
-                                    </small>
                                 </div>
+                                <small
+                                    class="text-danger"
+                                    v-show="errors.has('old_password')"
+                                >
+                                    {{ errors.first("old_password") }}
+                                </small>
                             </div>
-                            <div class="col-md-4 form-group">
-                                <label class="control-label">Password</label>
+                            <div class="form-group">
+                                <label class="control-label"
+                                    >New Password</label
+                                >
                                 <div class="password">
                                     <input
                                         id="password"
                                         name="password"
                                         v-model="password"
                                         class="form-control"
-                                        placeholder="Password"
+                                        placeholder="Ex: Ab@!M345"
                                         ref="password"
                                         :type="
                                             showPassword ? 'text' : 'password'
                                         "
                                         v-validate="
-                                            'required|min:8|max:25|alpha_num'
+                                            'required|min:8|max:25|password_format|strong_password'
                                         "
+                                        @input="checkPasswordStrength"
                                     />
-                                    <span
+
+                                    <!-- <span
                                         class="password-toggle"
                                         @click="togglePassword"
                                     >
@@ -80,16 +85,32 @@
                                                 'icon-eye': !showPassword,
                                             }"
                                         ></i>
-                                    </span>
-                                    <small
-                                        class="text-danger"
-                                        v-show="errors.has('password')"
+                                    </span> -->
+                                    <span
+                                        class="password-toggle"
+                                        @click="togglePassword"
                                     >
-                                        {{ errors.first("password") }}
-                                    </small>
+                                        <i :class="passwordIcon"></i>
+                                    </span>
                                 </div>
+                                <small
+                                    class="d-block mt-1"
+                                    v-if="this.password"
+                                >
+                                    Strength:
+                                    <span :class="passwordStrengthClass">{{
+                                        passwordStrengthText
+                                    }}</span>
+                                </small>
+
+                                <small
+                                    class="text-danger"
+                                    v-show="errors.has('password')"
+                                >
+                                    {{ errors.first("password") }}
+                                </small>
                             </div>
-                            <div class="col-md-4 form-group">
+                            <div class="form-group">
                                 <label class="control-label"
                                     >Confirm Password</label
                                 >
@@ -131,18 +152,27 @@
                             </div>
 
                             <!-- Error Messages -->
-                            <div
-                                v-if="apiErrors.length"
-                                class="alert alert-danger mt-3"
-                            >
-                                <ul>
-                                    <li v-for="error in apiErrors" :key="error">
-                                        {{ error }}
-                                    </li>
-                                </ul>
+                            <div class="col-md-4 form-group">
+                                <div
+                                    v-if="apiErrors.length"
+                                    class="alert alert-danger mt-3"
+                                >
+                                    <ul>
+                                        <li
+                                            v-for="error in apiErrors"
+                                            :key="error"
+                                        >
+                                            {{ error }}
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
+
                             <div>
-                                <button type="submit" class="btn btn-site">
+                                <button
+                                    type="submit"
+                                    class="btn btn-site btn-sm"
+                                >
                                     Change Password
                                 </button>
                             </div>
@@ -156,13 +186,34 @@
 
 <script>
 import axios from "../../../axios.js";
-import * as notify from "../../../utils/notify.js";
+import zxcvbn from "zxcvbn";
+import { Validator } from "vee-validate";
+
+Validator.extend("password_format", {
+    getMessage: (field) =>
+        `${field} must include at least one uppercase letter, one lowercase letter, one number, and one special character.`,
+    validate: (value) => {
+        const regex =
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,25}$/;
+        console.log("Regex validation result:", regex.test(value)); // Add logging
+        return regex.test(value);
+    },
+});
+
+Validator.extend("strong_password", {
+    getMessage: (field) => `${field} must be strong enough.`,
+    validate: (value) => {
+        const result = zxcvbn(value);
+        return result.score >= 2; // Require at least "Fair" password strength (score 2 or higher)
+    },
+});
 
 export default {
     name: "Reset",
 
     data() {
         return {
+            passwordStrength: 0,
             showOldPassword: false,
             showPassword: false,
             confirmPassword: false,
@@ -174,7 +225,46 @@ export default {
             apiErrors: [],
         };
     },
+    computed: {
+        passwordIcon() {
+            return this.showPassword ? "icon-eye-off" : "icon-eye";
+        },
+        passwordStrengthText() {
+            const strengthLevels = [
+                "Very Weak",
+                "Weak",
+                "Fair",
+                "Strong",
+                "Very Strong",
+            ];
+            return strengthLevels[this.passwordStrength];
+        },
+        passwordStrengthClass() {
+            switch (this.passwordStrengthText) {
+                case "Very Weak":
+                case "Weak":
+                    return "text-danger";
+                case "Fair":
+                    return "text-info";
+                case "Strong":
+                case "Very Strong":
+                    return "text-success";
+                default:
+                    return "text-dark";
+            }
+        },
+    },
     methods: {
+        checkPasswordStrength() {
+            if (!this.password || this.password.length === 0) {
+                return;
+            }
+            const result = zxcvbn(this.password);
+            this.passwordStrength = result.score;
+
+            // Trigger validation
+            this.$validator.validate("password");
+        },
         toggleOldPassword() {
             this.showOldPassword = !this.showOldPassword;
         },
@@ -188,7 +278,7 @@ export default {
             this.apiErrors = []; // Clear previous errors
             const validated = await this.$validator.validateAll();
 
-            if (validated) {
+            if (validated && this.passwordStrength >= 2) {
                 this.isLoading = true;
                 try {
                     const response = await axios.post("/change-password", {
@@ -208,7 +298,7 @@ export default {
                         this.apiErrors = [];
 
                         this.$refs.changePasswordForm.reset();
-                        this.$router.push({ name: "home" });
+                        this.$router.push({ name: "user-profile" });
 
                         this.$showToast("Password updated successfully", {
                             type: "success",
@@ -236,8 +326,19 @@ export default {
                 } finally {
                     this.isLoading = false;
                 }
+            } else if (this.passwordStrength < 2) {
+                // Show error if password is too weak
+                this.formErrors.push(
+                    "Password strength is too weak. Please choose a stronger password."
+                );
             }
         },
     },
 };
 </script>
+<style>
+form.user .btn {
+    padding: 0.85rem 1rem;
+    min-width: 170px;
+}
+</style>

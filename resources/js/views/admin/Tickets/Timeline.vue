@@ -6,8 +6,8 @@
                 :to="{ name: 'ticket-index' }"
                 ><i class="icon-left"></i>
             </router-link>
-            <h1 class="title m-0">Ticket I’d : {{ ticketId }}</h1>
-            <div class="btn btn-site btn-sm ml-auto">
+            <h1 class="title m-0">Ticket Id : {{ this.ticket.uuid }}</h1>
+            <div class="btn btn-sm ml-auto" :class="buttonClass">
                 <i class="icon-check-circle"></i>
                 {{ ticket.ticket_status }}
             </div>
@@ -75,9 +75,9 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>Device Name</td>
+                                        <td>Group Name</td>
                                         <td>
-                                            {{ agentUser.device_name }}
+                                            {{ agentUser.group_name }}
                                         </td>
                                     </tr>
 
@@ -145,7 +145,7 @@
                             class="alert alert-danger text-center"
                             role="alert"
                         >
-                            Tansferred to {{ this.groupNames }}
+                            Transferred to {{ this.ticket.assign_group_name }}
                         </div>
                         <h2 class="sub-title text-danger">Comments</h2>
                         <div class="comments">
@@ -157,46 +157,21 @@
                                 >
                                     <img
                                         class="mr-3"
-                                        :src="
-                                            comment.avatar_url ||
-                                            '/images/user-avatar.png'
-                                        "
-                                        alt="User avatar"
+                                        :src="comment.avatar_url"
+                                        alt="Avatar"
                                     />
                                     <div class="media-body">
                                         <h5 class="mt-0 mb-1">
                                             {{ comment.username }}
                                             <span>{{ comment.date_time }}</span>
+                                            <strong
+                                                >{{ comment.group_name }}
+                                            </strong>
                                         </h5>
                                         <p>{{ comment.comment }}</p>
                                     </div>
                                 </li>
                             </ul>
-
-                            <!-- <div class="comments-form">
-                                <form action="">
-                                    <div class="d-flex align-items-center">
-                                        <img
-                                            class="mr-3"
-                                            src="/images/user-avatar.png"
-                                            alt="Generic placeholder image"
-                                        />
-                                        <Textarea
-                                            class="form-control"
-                                            placeholder="Add a comment…"
-                                            col="2"
-                                        ></Textarea>
-                                    </div>
-                                    <div class="text-right">
-                                        <button
-                                            class="btn btn-send mt-3"
-                                            type="button"
-                                        >
-                                            Send
-                                        </button>
-                                    </div>
-                                </form>
-                            </div> -->
                         </div>
                     </div>
                 </div>
@@ -211,7 +186,7 @@ export default {
             isLoading: false,
             ticket: {},
             ticketId: null,
-            groupNames: "",
+            // groupNames: "",
             agentUser: {},
             requiredFields: [],
             comments: [],
@@ -221,6 +196,32 @@ export default {
     created() {
         this.ticketId = this.$route.params.id;
         this.fetchTicketTimeline();
+    },
+    computed: {
+        buttonClass() {
+            const { ticket_status } = this.ticket; // Assuming ticket is part of the component's data
+            switch (ticket_status) {
+                case "CREATED":
+                    return "btn-primary";
+                case "OPENED":
+                    return "btn-warning";
+                case "RESOLVED":
+                    return "btn-success";
+                case "REOPEN":
+                    return "btn-info";
+                default:
+                    return [
+                        "CLOSED",
+                        "CLOSED - REACHED",
+                        "CLOSED - NOT RECEIVED",
+                        "CLOSED - NOT CONNECTED",
+                        "CLOSED - SWITCHED OFF",
+                        "CLOSED - NOT COOPERATED",
+                    ].includes(ticket_status)
+                        ? "btn-danger"
+                        : "";
+            }
+        },
     },
     methods: {
         fetchTicketTimeline() {
@@ -232,7 +233,7 @@ export default {
                 .then((response) => {
                     const data = response.data.data;
                     this.ticket = data.ticket;
-                    this.groupNames = data.group_names;
+                    // this.groupNames = data.group_names;
                     this.agentUser = data.agent_user_info;
                     this.requiredFields = data.required_fields;
                     this.comments = data.ticket.comments;
@@ -242,13 +243,16 @@ export default {
                         let color = "#FF4E4E";
 
                         switch (timeline.ticket_status) {
-                            case "OPEN":
+                            case "OPENED":
                                 icon = "el-icon-folder-opened";
                                 break;
                             case "CLOSED":
                                 icon = "el-icon-check";
                                 break;
                             case "PENDING":
+                                icon = "el-icon-loading";
+                                break;
+                            case "RESOLVED":
                                 icon = "el-icon-loading";
                                 break;
 

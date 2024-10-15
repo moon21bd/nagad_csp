@@ -2,7 +2,7 @@ export default [
     {
         path: "/admin",
         name: "admin",
-        component: () => import("../views/admin/dashboard.vue"),
+        component: () => import("../views/admin/admin-blank.vue"),
         meta: {
             requiresAuth: true,
         },
@@ -10,8 +10,26 @@ export default [
     {
         path: "/",
         name: "home",
+        component: () => import("../views/admin/admin-blank.vue"),
+        meta: {
+            requiresAuth: true,
+        },
+    },
+    {
+        path: "/dash",
+        name: "dash",
         component: () => import("../views/admin/dashboard.vue"),
         meta: {
+            requiresPermission: "dashboard",
+            requiresAuth: true,
+        },
+    },
+    {
+        path: "/",
+        name: "dashboard",
+        component: () => import("../views/admin/dashboard.vue"),
+        meta: {
+            requiresPermission: "dashboard",
             requiresAuth: true,
         },
     },
@@ -48,5 +66,10 @@ export default [
         path: "/reset/:token",
         name: "reset",
         component: () => import("../views/reset/index.vue"),
+    },
+    {
+        path: "/change-password/:token",
+        name: "change-password",
+        component: () => import("../views/login/changePassword.vue"),
     },
 ];

@@ -77,7 +77,7 @@
                                     v-if="user.level !== 1"
                                 >
                                     <label class="control-label"
-                                        >Parent User</label
+                                        >Group Admin</label
                                     >
                                     <el-select
                                         class="d-block w-100"
@@ -152,9 +152,9 @@
                                         disabled
                                     />
                                     <span
-                                        v-if="errors.employee_name"
+                                        v-if="errors.name"
                                         class="text-danger"
-                                        >{{ errors.employee_name[0] }}</span
+                                        >{{ errors.name[0] }}</span
                                     >
 
                                     <div
@@ -304,7 +304,38 @@
                                 </div>
 
                                 <div class="col-md-6 form-group">
-                                    <label class="control-label">Gender</label>
+                                    <label class="control-label"
+                                        >Employee Type<sup>*</sup></label
+                                    >
+
+                                    <el-select
+                                        v-model="user.user_type"
+                                        placeholder="Select Type"
+                                        name="userType"
+                                        filterable
+                                        v-validate="'required'"
+                                    >
+                                        <el-option
+                                            v-for="option in typeOptions"
+                                            :key="option.value"
+                                            :label="option.label"
+                                            :value="option.value"
+                                        >
+                                        </el-option>
+                                    </el-select>
+
+                                    <div
+                                        class="text-danger"
+                                        v-show="errors.has('userType')"
+                                    >
+                                        {{ errors.first("userType") }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6 form-group">
+                                    <label class="control-label"
+                                        >Gender<sup>*</sup></label
+                                    >
                                     <div class="d-flex">
                                         <label class="radio mr-2"
                                             ><input
@@ -315,7 +346,6 @@
                                                     user.user_details.gender
                                                 "
                                                 v-validate="'required'"
-                                                disabled
                                             /><span class="radio-mark"></span
                                             >Male
                                         </label>
@@ -328,7 +358,6 @@
                                                     user.user_details.gender
                                                 "
                                                 v-validate="'required'"
-                                                disabled
                                             /><span class="radio-mark"></span
                                             >Female
                                         </label>
@@ -342,7 +371,9 @@
                                 </div>
                                 <div></div>
                                 <div class="col-md-6 form-group">
-                                    <label class="control-label">Status</label>
+                                    <label class="control-label"
+                                        >Status<sup>*</sup></label
+                                    >
                                     <div class="d-flex">
                                         <label class="radio mr-2"
                                             ><input
@@ -399,12 +430,15 @@ export default {
     data() {
         return {
             isLoading: false,
-            showPassword: false,
-            confirmPassword: false,
             groups: [],
             formErrors: [],
             temp_avatar: null,
             userLevels: [],
+            selectedType: "",
+            typeOptions: [
+                { value: "Contractual", label: "Contractual" },
+                { value: "Permanent", label: "Permanent" },
+            ],
             user: {
                 group_id: null,
                 status: "Pending",
@@ -428,15 +462,9 @@ export default {
         this.id = this.$route.params.id;
         this.fetchGroups();
         this.fetchUser();
-        this.fetchAllUsers();
+        this.fetchGroupAdmins();
     },
     methods: {
-        togglePassword() {
-            this.showPassword = !this.showPassword;
-        },
-        toggleConfirmPassword() {
-            this.confirmPassword = !this.confirmPassword;
-        },
         handleFileUpload(event) {
             // `files` is always an array because the file input may be in multiple mode
             let reader = new FileReader();
@@ -458,9 +486,9 @@ export default {
         setUserAvatar(user) {
             this.temp_avatar = user.avatar_url;
         },
-        async fetchAllUsers() {
+        async fetchGroupAdmins() {
             try {
-                const response = await axios.get("/users");
+                const response = await axios.get("/parents");
                 this.users = response.data.data;
             } catch (error) {
                 console.error("Error fetching users:", error);
@@ -481,6 +509,7 @@ export default {
         },
         async handleSubmit() {
             const _this = this;
+
             _this.$validator.validateAll().then(async (result) => {
                 if (result) {
                     axios({

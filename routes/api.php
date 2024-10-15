@@ -67,13 +67,19 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // CHANGE PASSWORD
     Route::post('change-password', [Api\AuthController::class, 'changePassword']);
 
+    Route::post('change-password-first-time', [Api\AuthController::class, 'changePasswordForFirstTime']);
+
     // GET CURRENTLY LOGGED IN USER ID
+    Route::post('/check-permission', [PermissionsController::class, 'checkPermission']);
+
     Route::get('/userPermissions', [PermissionsController::class, 'getCurrentUserPermissions']);
 
     Route::get('/user-permissions/{id}', [PermissionsController::class, 'getUserPermissionsById']);
 
     // GET LOCATION OF REQUIRES GROUPS
     Route::get('/userLocations', [UsersController::class, 'getUserLocation']);
+    Route::get('/userList', [UsersController::class, 'getUserList']);
+    Route::get('/userLocationLogs/{id}', [UsersController::class, 'getUserLocationLogs']);
 
     // GET ACTIVE USERS FOR FORWARD THE TICKET
     Route::get('/getActiveUsers', [UsersController::class, 'getActiveUsers']);
@@ -137,10 +143,14 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     // USERS ROUTES
     Route::get('users', [UsersController::class, 'index']);
+    Route::get('parents', [UsersController::class, 'getParentUsers']);
     Route::get('user/{id}', [UsersController::class, 'getUserById']);
     Route::put('user/{id}', [UsersController::class, 'edit']);
+    Route::put('user/{id}/reset-password', [UsersController::class, 'resetPassword']);
     Route::post('usersdata/save', [UsersController::class, 'store']);
-    Route::delete('users/delete/{id}', [UsersController::class, 'destroy']);
+    Route::delete('user/{id}/delete', [UsersController::class, 'destroy']);
+    Route::post('user/{id}/permissions', [UsersController::class, 'assignPermission']);
+    Route::get('/user/{id}/permissions', [UsersController::class, 'getUserPermissions']);
 
     // APPLICATION RELATED ROUTES
     Route::get('get-category/{id}', [NCCallCategoryController::class, 'getActiveCategoryByCallTypeId']);
@@ -153,10 +163,13 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('get-service-type-configs/{cti}/{cci}/{csci}', [NCServiceTypeConfigController::class, 'getServiceTypeConfigs']);
 
     // Dashboard related apis
-    Route::get('get-total-report-count/{id?}', [NCReportController::class, 'getTotalReportCount']);
+    Route::get('get-total-report-count/{id?}/{date?}', [NCReportController::class, 'getTotalReportCount']);
     Route::get('get-daily-report-count/{id?}', [NCReportController::class, 'getDailyReportCount']);
     Route::get('get-month-wise-ticket-status-count/{id?}/{month?}', [NCReportController::class, 'getMonthWiseTicketStatusCount']);
     Route::get('get-date-wise-column-chart-data-count/{id?}/{month?}', [NCReportController::class, 'getDateWiseColumnChartDataCount']);
+    Route::get('get-top-categories-data/{id?}/{month?}', [NCReportController::class, 'getTopCategoriesData']);
+
+    Route::get('user-stats', [NCReportController::class, 'getUserStatistics']);
 
     // Get email configurations
     // email-configs
@@ -173,10 +186,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     // Ticket assignId
     Route::post('/ticket/assign/{id}', [NCTicketController::class, 'assignTicket']);
     Route::get('/ticket/status/{id}', [NCTicketController::class, 'ticketStatus']);
-
     Route::post('/ticket/forward/{id}', [NCTicketController::class, 'forwardTicket']);
-
     Route::post('/ticket/timeline/{id}', [NCTicketController::class, 'addTimelineForFirstTimePageLoad']);
+    Route::get('/ticket/search', [NCTicketController::class, 'searchTickets']);
+    Route::get('/ticket/statuses', [NCTicketController::class, 'ticketStatuses']);
+    Route::get('/ticket/sources', [NCTicketController::class, 'ticketSources']);
 
     Route::get('users-index', [UsersController::class, 'userIndex']);
 

@@ -24,7 +24,7 @@
                             disabled
                         />
                     </div>
-                    <div class="permissions-assign">
+                    <div class="permissions-assign mb-3">
                         <div
                             class="permissions-assign-box"
                             v-for="(permissions, category) in permissionGroups"

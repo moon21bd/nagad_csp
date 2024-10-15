@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         \App\Console\Commands\CheckSlaStatus::class,
+        \App\Console\Commands\CalculateAndUpdateSLA::class,
     ];
 
     /**
@@ -25,6 +26,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('sla:check')->everyTwoMinutes()->withoutOverlapping();
+        $schedule->command('sla:update')->everyMinute()->withoutOverlapping();
 
         // $schedule->command('inspire')->hourly();
     }

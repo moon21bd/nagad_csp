@@ -30,6 +30,9 @@
     font-weight: 500;
     color: $black;
 }
+.nowrap {
+    white-space: nowrap;
+}
 body {
     font-family: "Inter", sans-serif;
     background: #fff9f9;
@@ -50,7 +53,7 @@ body {
         margin: 0;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-        grid-gap: 1.5rem;
+        grid-gap: 15px;
         li {
             background: #fff;
             padding: 15px 2px;
@@ -64,9 +67,15 @@ body {
                 background: #fff2f0;
                 display: flex;
                 border-radius: 50%;
+                justify-content: center;
+                align-items: center;
                 img {
                     margin: auto;
                     max-width: 40px;
+                }
+                i {
+                    color: $red;
+                    font-size: 21px;
                 }
             }
 
@@ -83,7 +92,26 @@ body {
                     margin-bottom: 5px;
                 }
             }
+            &.progress-sla {
+                h3 {
+                    color: #008937;
+                    span {
+                        color: #008937;
+                    }
+                }
+            }
+            &.failed-sla {
+                h3 {
+                    color: $red;
+                    span {
+                        color: $red;
+                    }
+                }
+            }
         }
+    }
+    &-admin {
+        margin-top: -10px;
     }
 }
 .today-status {
@@ -178,28 +206,31 @@ body {
         }
     }
 }
-.btn-prev-tickets {
+.tickets-tabs {
     cursor: pointer;
-    padding: 10px 15px;
-    color: $white;
-    background: $red;
+    padding: 8px 15px;
+    color: $gray-800;
     border-radius: 40px;
     transition: all 0.3s linear;
     display: flex;
     align-items: center;
     line-height: 21px;
+    border: 1px solid $gray-800;
     i {
         transition: all 0.3s linear;
         display: inline-flex;
         margin-left: 5px;
     }
     &:hover {
-        background: $black;
+        background: $red;
         text-decoration: none;
         color: $white;
+        border-color: $red;
     }
-    &.show {
-        background: $black;
+    &.active {
+        background: $red;
+        color: $white;
+        border-color: $red;
         i {
             transform: rotate(180deg);
         }
@@ -560,6 +591,13 @@ body {
                         font-size: 13px;
                         margin-left: 10px;
                     }
+                    strong {
+                        display: block;
+                        font-size: 13px;
+                        font-weight: 500;
+                        color: #545454;
+                        margin-top: 2px;
+                    }
                 }
                 p {
                     font-size: 14px;
@@ -581,7 +619,14 @@ body {
         }
     }
 }
-.ticket-item {
+.el-timeline-item__icon {
+    font-size: 10px !important;
+}
+.el-date-editor .el-range-separator {
+    width: 10% !important;
+}
+.ticket-item,
+.required-fields-item {
     background: #fffbfb;
     padding: 0 15px 15px;
     margin-bottom: 15px;
@@ -613,6 +658,46 @@ body {
     input[type="file"]::file-selector-button:active {
         background-color: #e5e7eb;
     }
+}
+.date-filters {
+    align-items: center;
+    gap: 15px;
+    position: sticky;
+    top: -15px;
+    background: #fff;
+    z-index: 99;
+    padding: 15px;
+    margin: -15px -15px 0 !important;
+}
+.filter-tickets {
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    margin: -20px -20px 0;
+    border-bottom: 1px solid #e9f0f9;
+}
+.ticket-success {
+    font-size: 14px;
+    text-align: center;
+    color: #5c5c5c;
+    line-height: 1.5;
+
+    &-icon {
+        width: 64px;
+        height: 64px;
+        background: #16a085;
+        color: #fff;
+        font-size: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin: -15px auto 15px;
+    }
+}
+.modal-header .close {
+    opacity: 1;
+    font-size: 28px !important;
 }
 @media all and (min-width: 992px) {
     ::-webkit-scrollbar,

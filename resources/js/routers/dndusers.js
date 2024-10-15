@@ -4,36 +4,36 @@ const List = () => import("../views/admin/DnDUsers/List.vue");
 
 export default [
     {
-        name: "dnd-user-create",
-        path: "/admin/dnd-user/create",
+        name: "customer-profile-create",
+        path: "/admin/customer-profile/create",
         component: Create,
         meta: {
-            title: "DnD User Create",
+            title: "Customer Profile Create",
             middleware: "auth",
             requiresAuth: true,
-            requiresPermission: "dnd-user-create",
+            requiresPermission: "customer-profile-create",
         },
     },
     {
-        name: "dnd-user-edit",
-        path: "/admin/dnd-user/:id/edit",
+        name: "customer-profile-edit",
+        path: "/admin/customer-profile/:id/edit",
         component: Edit,
         meta: {
-            title: "DnD User Edit",
+            title: "Customer Profile Edit",
             middleware: "auth",
             requiresAuth: true,
-            requiresPermission: "dnd-user-edit",
+            requiresPermission: "customer-profile-edit",
         },
     },
     {
-        name: "dnd-user-index",
-        path: "/admin/dnd-users",
+        name: "customer-profile-index",
+        path: "/admin/customer-profiles",
         component: List,
         meta: {
-            title: "DnD User List",
+            title: "Customer Profile List",
             middleware: "auth",
             requiresAuth: true,
-            requiresPermission: "dnd-user-list",
+            requiresPermission: "customer-profile-list",
         },
     },
 ];

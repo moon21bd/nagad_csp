@@ -47,7 +47,7 @@
                                             style="white-space: nowrap"
                                             v-if="notify.link"
                                             :href="notify.link"
-                                            class="btn btn-site"
+                                            class="btn btn-site btn-sm"
                                             target="_blank"
                                             rel="noopener noreferrer"
                                         >

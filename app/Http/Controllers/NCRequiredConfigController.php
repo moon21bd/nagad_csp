@@ -36,22 +36,39 @@ class NCRequiredConfigController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
+
     public function store(Request $request)
     {
-        $input = $request->all();
-        NCRequiredFieldConfig::create([
-            'call_type_id' => $input['callTypeId'] ?? '',
-            'call_category_id' => $input['callCategoryId'] ?? '',
-            'call_sub_category_id' => $input['callSubCategoryId'],
-            'input_field_name' => $input['inputFiledName'],
-            'input_type' => $input['inputType'],
-            'input_value' => $input['inputValue'] ?? '',
-            'input_validation' => $input['inputValidation'],
-            'status' => $input['statusValue'],
-            'created_by' => Auth::id(),
-            'updated_by' => Auth::id(),
-            'last_updated_by' => Auth::id(),
+        // Validate the incoming request data
+        $validatedData = $request->validate([
+            'formFields.*.callTypeId' => 'required|exists:nc_call_types,id',
+            'formFields.*.callCategoryId' => 'required|exists:nc_call_categories,id',
+            'formFields.*.callSubCategoryId' => 'required|exists:nc_call_sub_categories,id',
+            'formFields.*.inputFiledName' => 'required|string|max:128',
+            'formFields.*.inputType' => 'required|string|max:128',
+            'formFields.*.inputValue' => 'nullable|string',
+            'formFields.*.inputValidation' => 'required|string',
+            'formFields.*.statusValue' => 'required|in:active,inactive',
         ]);
+
+        // Loop through each form field set and create records
+        foreach ($validatedData['formFields'] as $field) {
+            NCRequiredFieldConfig::create([
+                'call_type_id' => $field['callTypeId'],
+                'call_category_id' => $field['callCategoryId'],
+                'call_sub_category_id' => $field['callSubCategoryId'],
+                'input_field_name' => $field['inputFiledName'],
+                'input_type' => $field['inputType'],
+                'input_value' => $field['inputValue'] ?? '',
+                'input_validation' => $field['inputValidation'],
+                'status' => $field['statusValue'],
+                'created_by' => Auth::id(),
+                'updated_by' => Auth::id(),
+                'last_updated_by' => Auth::id(),
+            ]);
+        }
+
+        return response()->json(['message' => 'Form fields created successfully!'], 201);
     }
 
     /**

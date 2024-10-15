@@ -26,9 +26,11 @@ class User extends Authenticatable
     protected $fillable = [
         'uuid',
         'group_id',
+        'employee_user_id',
         'level', // 1=Super Admin,2=Admin,3=Group Owner,4=User
         'parent_id', // default 0
         'mobile_no',
+        'password_changed_at',
         'name',
         'user_type',
         'api_token',
@@ -107,7 +109,7 @@ class User extends Authenticatable
 
     public function getAvatarUrlAttribute()
     {
-        return $this->avatar ? asset('uploads/' . $this->avatar) : null;
+        return $this->avatar ? asset('uploads/' . $this->avatar) : asset('images/user-avatar.png');
     }
 
     // Relationship to the parent user
@@ -146,6 +148,11 @@ class User extends Authenticatable
     public function latestLoginActivity()
     {
         return $this->hasOne(UserLoginActivity::class)->latest();
+    }
+
+    public function createdByUser()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
 }

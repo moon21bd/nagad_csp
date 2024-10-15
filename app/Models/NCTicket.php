@@ -33,6 +33,7 @@ class NCTicket extends Model
         'assign_to_user_id',
         'ticket_attachment',
         'ticket_status',
+        'ticket_source',
         'ticket_channel',
         'ticket_created_by',
         'sla_updated_at',
@@ -42,7 +43,7 @@ class NCTicket extends Model
         'ticket_updated_at',
     ];
 
-    protected $appends = ['attachment_url'];
+    protected $appends = ['attachment_url', 'responsible_group_names'];
 
     // Accessor for the attachment URL
     public function getAttachmentUrlAttribute()
@@ -68,9 +69,24 @@ class NCTicket extends Model
         return implode(', ', $groupNames);
     }
 
+    public function attachments()
+    {
+        return $this->hasMany(Attachment::class, 'ticket_id');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(TicketComment::class, 'ticket_id', 'id');
+    }
+
+    public function assignToGroup()
+    {
+        return $this->belongsTo(Group::class, 'assign_to_group_id');
+    }
+
     public function creator()
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'ticket_created_by');
     }
 
     public function updater()
@@ -95,11 +111,17 @@ class NCTicket extends Model
 
     public function callSubCategory()
     {
-        return $this->belongsTo(NCCallSubCategory::class, 'call_category_id');
+        return $this->belongsTo(NCCallSubCategory::class, 'call_sub_category_id');
     }
 
     public function ticketsRequiredFields()
     {
         return $this->hasMany(TicketsRequiredField::class, 'ticket_id');
     }
+
+    public function NCTicketTimelines()
+    {
+        return $this->hasMany(NCTicketTimeline::class, 'ticket_id');
+    }
+
 }

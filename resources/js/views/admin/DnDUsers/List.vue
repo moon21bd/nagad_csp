@@ -1,10 +1,10 @@
 <template>
     <div>
         <div class="common-heading d-flex align-items-center mb-3">
-            <h1 class="title">DnD Users</h1>
+            <h1 class="title">Customer Profiles</h1>
             <router-link
                 class="btn btn-site ml-auto"
-                :to="{ name: 'dnd-user-create' }"
+                :to="{ name: 'customer-profile-create' }"
                 ><i class="icon-plus"></i> New
             </router-link>
         </div>
@@ -21,6 +21,7 @@
                                     <th>ID</th>
                                     <th>Name</th>
                                     <th>Mobile No.</th>
+                                    <th>Message</th>
                                     <th>Status</th>
                                     <th class="text-right">Action</th>
                                 </tr>
@@ -30,6 +31,7 @@
                                     <td>{{ item.id }}</td>
                                     <td>{{ item.name }}</td>
                                     <td>{{ item.mobile_no }}</td>
+                                    <td>{{ item.message }}</td>
                                     <td>
                                         <span
                                             :class="
@@ -45,7 +47,7 @@
                                         <router-link
                                             class="btn-action btn-edit"
                                             :to="{
-                                                name: 'dnd-user-edit',
+                                                name: 'customer-profile-edit',
                                                 params: { id: item.id },
                                             }"
                                             ><i class="icon-edit-pen"></i
@@ -94,7 +96,7 @@ export default {
                     this.fetchDnDUsers();
                 }
             } catch (error) {
-                console.error("Error deleting dnd users:", error);
+                console.error("Error deleting customer profile:", error);
             }
         },
         async fetchDnDUsers() {
@@ -103,7 +105,7 @@ export default {
                 const response = await axios.get("/dnd-user");
                 this.dndUsers = response.data;
             } catch (error) {
-                console.error("Error fetching dnd user:", error);
+                console.error("Error fetching customer profile:", error);
             } finally {
                 this.isLoading = false;
             }

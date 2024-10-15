@@ -4,7 +4,9 @@ const ChangePassword = () =>
 const UserCreate = () => import("../views/admin/Users/Create.vue");
 const UserEdit = () => import("../views/admin/Users/Edit.vue");
 const UserList = () => import("../views/admin/Users/List.vue");
-// const UserLocation = () => import("../views/admin/Users/Location-Copy.vue");
+const ResetPassword = () => import("../views/admin/Users/resetPassword.vue");
+const ManageUserPermissions = () =>
+    import("../views/admin/Users/ManagePermissions.vue");
 const UserLocation = () => import("../views/admin/Users/Location.vue");
 const ManageUserRoles = () =>
     import("../views/admin/Users/ManageUserRoles.vue");
@@ -30,6 +32,17 @@ export default [
             middleware: "auth",
             requiresAuth: true,
             // requiresPermission: "user-change-password",
+        },
+    },
+    {
+        name: "user-reset-password",
+        path: "/admin/user/:id/reset-password",
+        component: ResetPassword,
+        meta: {
+            title: "Reset Password",
+            middleware: "auth",
+            requiresAuth: true,
+            requiresPermission: "user-reset-password",
         },
     },
     {
@@ -85,6 +98,18 @@ export default [
             middleware: "auth",
             requiresAuth: true,
             requiresPermission: "user-role-manage",
+        },
+    },
+
+    {
+        name: "user-permissions-manage",
+        path: "/admin/user/:id/permissions/",
+        component: ManageUserPermissions,
+        meta: {
+            title: "User Permissions Manage",
+            middleware: "auth",
+            requiresAuth: true,
+            requiresPermission: "user-permissions-manage",
         },
     },
 ];

@@ -22,7 +22,7 @@
                                         <input
                                             type="file"
                                             name="avatar"
-                                            v-validate="'required|image'"
+                                            v-validate="'image'"
                                             id="avatar"
                                             @change="handleFileUpload"
                                             accept="image/x-png,image/jpg,image/jpeg"
@@ -85,13 +85,13 @@
                                     v-if="formData.level !== 1"
                                 >
                                     <label class="control-label"
-                                        >Parent User</label
+                                        >Group Admin</label
                                     >
                                     <el-select
                                         class="d-block w-100"
                                         v-model="formData.parent_id"
                                         name="parent_id"
-                                        placeholder="Select Parent User"
+                                        placeholder="Select Group Admin"
                                     >
                                         <el-option
                                             :key="0"
@@ -207,23 +207,14 @@
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >NID Card No<sup>*</sup>
+                                        >NID Card No
                                     </label>
                                     <input
                                         class="form-control"
                                         type="text"
                                         name="nid_card_no"
                                         v-model="formData.nid_card_no"
-                                        v-validate="
-                                            'required|numeric|min:10|max:15'
-                                        "
                                     />
-                                    <small
-                                        class="text-danger"
-                                        v-show="errors.has('nid_card_no')"
-                                    >
-                                        {{ errors.first("nid_card_no") }}
-                                    </small>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
@@ -284,18 +275,20 @@
                                         {{ errors.first("email") }}
                                     </small>
                                 </div>
+
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >Password<sup>*</sup></label
-                                    >
+                                        >Password<sup>*</sup>
+                                    </label>
 
                                     <div class="password">
                                         <input
                                             id="password"
                                             name="password"
+                                            @input="checkPasswordStrength"
                                             v-model="formData.password"
                                             class="form-control"
-                                            placeholder="Password"
+                                            placeholder="Ex: Ab@!M345"
                                             ref="password"
                                             :type="
                                                 showPassword
@@ -303,10 +296,10 @@
                                                     : 'password'
                                             "
                                             v-validate="
-                                                'required|min:8|max:25|alpha_num'
+                                                'required|min:8|max:25|password_format|strong_password'
                                             "
                                         />
-                                        <span
+                                        <!-- <span
                                             class="password-toggle"
                                             @click="togglePassword"
                                         >
@@ -317,14 +310,80 @@
                                                     'icon-eye': !showPassword,
                                                 }"
                                             ></i>
-                                        </span>
-                                        <small
-                                            class="text-danger"
-                                            v-show="errors.has('password')"
+                                        </span> -->
+                                        <span
+                                            class="password-toggle"
+                                            @click="togglePassword"
                                         >
-                                            {{ errors.first("password") }}
-                                        </small>
+                                            <i :class="passwordIcon"></i>
+                                        </span>
                                     </div>
+
+                                    <small
+                                        class="d-block mt-1"
+                                        v-if="this.formData.password"
+                                    >
+                                        Strength:
+                                        <span :class="passwordStrengthClass">{{
+                                            passwordStrengthText
+                                        }}</span>
+                                    </small>
+
+                                    <!-- <small
+                                        class="d-block mt-1"
+                                        v-if="passwordStrength"
+                                    >
+                                        Strength:
+                                        <span
+                                            v-if="
+                                                passwordStrengthText ===
+                                                'Very Weak'
+                                            "
+                                            class="text-danger"
+                                            >{{ passwordStrengthText }}</span
+                                        >
+                                        <span
+                                            v-else-if="
+                                                passwordStrengthText === 'Weak'
+                                            "
+                                            class="text-danger"
+                                            >{{ passwordStrengthText }}</span
+                                        >
+                                        <span
+                                            v-else-if="
+                                                passwordStrengthText === 'Fair'
+                                            "
+                                            class="text-info"
+                                            >{{ passwordStrengthText }}</span
+                                        >
+                                        <span
+                                            v-else-if="
+                                                passwordStrengthText ===
+                                                'Strong'
+                                            "
+                                            class="text-success"
+                                            >{{ passwordStrengthText }}</span
+                                        >
+                                        <span
+                                            v-else-if="
+                                                passwordStrengthText ===
+                                                'Very Strong'
+                                            "
+                                            class="text-success"
+                                            ><i class="icon-check mr-1"></i
+                                            >{{ passwordStrengthText }}</span
+                                        >
+                                        <span v-else class="text-dark">{{
+                                            passwordStrengthText
+                                        }}</span>
+                                    </small> -->
+
+                                    <small
+                                        class="text-danger"
+                                        v-show="errors.has('password')"
+                                    >
+                                        {{ errors.first("password") }}
+                                    </small>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
@@ -334,7 +393,9 @@
                                         <input
                                             autocomplete="off"
                                             name="confirmPassword"
-                                            v-model="formData.confirmPassword"
+                                            v-model="
+                                                formData.password_confirmation
+                                            "
                                             class="form-control"
                                             placeholder="Confirm password"
                                             :type="
@@ -368,6 +429,7 @@
                                         {{ errors.first("confirmPassword") }}
                                     </small>
                                 </div>
+
                                 <div class="col-md-12 form-group">
                                     <label class="control-label"
                                         >Address<sup>*</sup></label
@@ -384,6 +446,35 @@
                                     >
                                         {{ errors.first("address") }}
                                     </small>
+                                </div>
+
+                                <div class="col-md-6 form-group">
+                                    <label class="control-label"
+                                        >Employee Type<sup>*</sup></label
+                                    >
+
+                                    <el-select
+                                        v-model="formData.selectedType"
+                                        placeholder="Select Type"
+                                        name="userType"
+                                        filterable
+                                        v-validate="'required'"
+                                    >
+                                        <el-option
+                                            v-for="option in typeOptions"
+                                            :key="option.value"
+                                            :label="option.label"
+                                            :value="option.value"
+                                        >
+                                        </el-option>
+                                    </el-select>
+
+                                    <div
+                                        class="text-danger"
+                                        v-show="errors.has('userType')"
+                                    >
+                                        {{ errors.first("userType") }}
+                                    </div>
                                 </div>
 
                                 <div class="col-md-12 form-group">
@@ -447,7 +538,28 @@
 </template>
 
 <script>
+import { Validator } from "vee-validate";
+import zxcvbn from "zxcvbn";
 import axios from "../../../axios";
+
+Validator.extend("password_format", {
+    getMessage: (field) =>
+        `${field} must include at least one uppercase letter, one lowercase letter, one number, and one special character.`,
+    validate: (value) => {
+        const regex =
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,25}$/;
+        console.log("Regex validation result:", regex.test(value)); // Add logging
+        return regex.test(value);
+    },
+});
+
+Validator.extend("strong_password", {
+    getMessage: (field) => `${field} must be strong enough.`,
+    validate: (value) => {
+        const result = zxcvbn(value);
+        return result.score >= 2;
+    },
+});
 
 export default {
     data() {
@@ -456,8 +568,14 @@ export default {
             showPassword: false,
             confirmPassword: false,
             temp_avatar: "/images/user-avatar.png",
+            passwordStrength: 0,
             groups: [],
             formErrors: [],
+            selectedType: "",
+            typeOptions: [
+                { value: "Contractual", label: "Contractual" },
+                { value: "Permanent", label: "Permanent" },
+            ],
             formData: {
                 group_id: null,
                 status: "Pending",
@@ -470,7 +588,7 @@ export default {
                 address: "",
                 email: "",
                 password: "",
-                confirmPassword: "",
+                password_confirmation: "",
                 gender: "",
                 level: 4, // Default to 'User'
                 parent_id: null,
@@ -480,20 +598,61 @@ export default {
     },
     created() {
         this.fetchGroups();
-        this.fetchUsers();
+        this.fetchGroupAdmins();
     },
     computed: {
         groupValidationRule() {
             return this.formData.level !== 1 ? "required" : "";
         },
+        passwordIcon() {
+            return this.showPassword ? "icon-eye-off" : "icon-eye";
+        },
+        passwordStrengthText() {
+            const strengthLevels = [
+                "Very Weak",
+                "Weak",
+                "Fair",
+                "Strong",
+                "Very Strong",
+            ];
+            return strengthLevels[this.passwordStrength];
+        },
+        passwordStrengthClass() {
+            switch (this.passwordStrengthText) {
+                case "Very Weak":
+                case "Weak":
+                    return "text-danger";
+                case "Fair":
+                    return "text-info";
+                case "Strong":
+                case "Very Strong":
+                    return "text-success";
+                default:
+                    return "text-dark";
+            }
+        },
     },
     methods: {
-        async fetchUsers() {
+        checkPasswordStrength() {
+            if (
+                !this.formData.password ||
+                this.formData.password.length === 0
+            ) {
+                return;
+            }
+
+            const result = zxcvbn(this.formData.password);
+            this.passwordStrength = result.score;
+
+            // Trigger validation
+            this.$validator.validate("password");
+        },
+        async fetchGroupAdmins() {
             try {
-                const response = await axios.get("/users");
+                const response = await axios.get("/parents");
                 this.users = response.data.data;
             } catch (error) {
-                console.error("Error fetching users:", error);
+                console.error("Error fetching parents:", error);
                 this.users = [];
             }
         },
@@ -524,7 +683,11 @@ export default {
         async handleSubmit() {
             const _this = this;
             _this.$validator.validateAll().then(async (validated) => {
-                if (validated) {
+                // if (validated) {
+                if (validated && this.passwordStrength >= 2) {
+                    // Require minimum "Fair" strength
+                    // Proceed with form submission if validated and password strength is sufficient
+
                     // console.log("formData", _this.formData);
                     // return;
                     axios({
@@ -560,6 +723,11 @@ export default {
                         .finally(() => {
                             _this.isLoading = false;
                         });
+                } else if (this.passwordStrength < 2) {
+                    // Show error if password is too weak
+                    _this.formErrors.push(
+                        "Password strength is too weak. Please choose a stronger password."
+                    );
                 }
             });
         },

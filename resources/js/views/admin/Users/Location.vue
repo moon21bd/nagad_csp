@@ -29,7 +29,7 @@
                             <ul>
                                 <li
                                     v-for="user in filteredUsers"
-                                    :key="user.empId"
+                                    :key="user.userId"
                                     @click="selectUser(user)"
                                 >
                                     <div class="user-search-img">
@@ -51,52 +51,112 @@
                         </div>
                     </div>
                     <div class="col-md-8" v-if="selectedUser">
-                        <div class="user-logs">
-                            <h3 class="title text-center text-danger mb-3">
+                        <div class="user-logs mt-3 mt-md-0">
+                            <h3 class="sub-title text-danger mb-3">
                                 {{ selectedUser.name }}’s Logs Info
                             </h3>
+
+                            <!-- Date range filters -->
                             <div
-                                v-for="(log, logIndex) in selectedUser.userLogs"
-                                :key="logIndex"
+                                class="date-filters d-flex flex-wrap flex-md-nowrap mb-3"
                             >
-                                <div class="user-logs-time">
-                                    <span>{{ log.date }}</span>
-                                </div>
-                                <div class="user-logs__item">
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="device-location">
-                                                <i :class="log.device_icon"></i>
+                                <el-date-picker
+                                    v-model="startDate"
+                                    type="date"
+                                    placeholder="Start Date"
+                                >
+                                </el-date-picker>
+                                <el-date-picker
+                                    v-model="endDate"
+                                    type="date"
+                                    placeholder="End Date"
+                                >
+                                </el-date-picker>
+                                <button
+                                    class="btn btn-site ml-auto"
+                                    @click="filterByDate"
+                                >
+                                    Filter
+                                </button>
+                                <button
+                                    class="btn btn-site bg-dark"
+                                    @click="resetFilters"
+                                >
+                                    Reset
+                                </button>
+                            </div>
+
+                            <div
+                                v-if="
+                                    !selectedUser.userLogs ||
+                                    selectedUser.userLogs.length === 0
+                                "
+                            >
+                                <!-- <p class="text-center">
+                                    No data available for the selected date
+                                    range.
+                                </p> -->
+                                <no-data />
+                            </div>
+
+                            <div v-else>
+                                <div
+                                    v-for="(
+                                        log, logIndex
+                                    ) in selectedUser.userLogs"
+                                    :key="logIndex"
+                                >
+                                    <div class="user-logs-time">
+                                        <span>{{ log.date }}</span>
+                                    </div>
+                                    <div class="user-logs__item">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="device-location">
+                                                    <i
+                                                        :class="log.device_icon"
+                                                    ></i>
+                                                </div>
+                                                <ul>
+                                                    <li>
+                                                        Login: {{ log.loginTime
+                                                        }}<sub>{{
+                                                            log.loginSuffix
+                                                        }}</sub>
+                                                    </li>
+                                                    <li>
+                                                        Logout:
+                                                        {{ log.logoutTime
+                                                        }}<sub>{{
+                                                            log.logoutSuffix
+                                                        }}</sub>
+                                                    </li>
+                                                </ul>
                                             </div>
-                                            <ul>
-                                                <li>
-                                                    Login: {{ log.loginTime
-                                                    }}<sub>{{
-                                                        log.loginSuffix
-                                                    }}</sub>
-                                                </li>
-                                                <li>
-                                                    Logout: {{ log.logoutTime
-                                                    }}<sub>{{
-                                                        log.logoutSuffix
-                                                    }}</sub>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="device-location">
-                                                <i class="icon-map"></i>
+                                            <div class="col-md-8">
+                                                <div class="device-location">
+                                                    <i class="icon-map"></i>
+                                                </div>
+                                                <h4>
+                                                    {{ log.location }}
+                                                    <span>{{
+                                                        log.cityCountry
+                                                    }}</span>
+                                                </h4>
                                             </div>
-                                            <h4>
-                                                {{ log.location }}
-                                                <span>{{
-                                                    log.cityCountry
-                                                }}</span>
-                                            </h4>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    <div v-else class="col-md-8">
+                        <div class="user-logs no-data py-4">
+                            <img
+                                src="/images/no-data.svg"
+                                alt="No Data Found"
+                            />
+                            <h3>Select user to view Logs Info</h3>
                         </div>
                     </div>
                 </div>
@@ -107,15 +167,20 @@
 
 <script>
 import axios from "../../../axios";
-
+import noData from "../components/noData.vue";
 export default {
     name: "UserLocation",
+    components: {
+        noData,
+    },
     data() {
         return {
             isLoading: false,
             searchQuery: "",
             allUsers: [],
             selectedUser: null,
+            startDate: "",
+            endDate: "",
         };
     },
     computed: {
@@ -137,7 +202,7 @@ export default {
         async fetchAllUsers() {
             this.isLoading = true;
             try {
-                const response = await axios.get("/userLocations");
+                const response = await axios.get("/userList");
                 this.allUsers = response.data.data;
             } catch (error) {
                 console.error("Error fetching users:", error);
@@ -145,9 +210,54 @@ export default {
                 this.isLoading = false;
             }
         },
-        selectUser(user) {
-            this.selectedUser = user;
-            this.searchQuery = ""; // Clear the search input
+        async selectUser(user) {
+            this.startDate = "";
+            this.endDate = "";
+            this.isLoading = true;
+            try {
+                const response = await axios.get(
+                    `/userLocationLogs/${user.userId}`
+                );
+                this.selectedUser = { ...user, userLogs: response.data.data };
+            } catch (error) {
+                console.error("Error fetching user logs:", error);
+            } finally {
+                this.isLoading = false;
+            }
+        },
+        async filterByDate() {
+            this.isLoading = true;
+            try {
+                const response = await axios.get(
+                    `/userLocationLogs/${this.selectedUser.userId}`,
+                    {
+                        params: {
+                            start_date: this.startDate,
+                            end_date: this.endDate,
+                        },
+                    }
+                );
+                this.selectedUser.userLogs = response.data.data;
+            } catch (error) {
+                console.error("Error fetching user logs:", error);
+            } finally {
+                this.isLoading = false;
+            }
+        },
+        async resetFilters() {
+            this.startDate = "";
+            this.endDate = "";
+            this.isLoading = true;
+            try {
+                const response = await axios.get(
+                    `/userLocationLogs/${this.selectedUser.userId}`
+                );
+                this.selectedUser.userLogs = response.data.data;
+            } catch (error) {
+                console.error("Error fetching user logs:", error);
+            } finally {
+                this.isLoading = false;
+            }
         },
     },
     created() {

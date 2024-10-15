@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Group;
 use App\Models\NCTicket;
+use App\Models\TicketComment;
 use App\Models\TicketsRequiredField;
 use App\Models\User;
 use App\Services\NotificationService;
@@ -34,9 +35,10 @@ class NCTicketController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+
+    public function index(Request $request)
     {
-        $tickets = $this->ticketService->getAllTickets();
+        $tickets = $this->ticketService->getAllTickets($request->all());
         return response()->json($tickets);
     }
 
@@ -66,12 +68,12 @@ class NCTicketController extends Controller
             'requiredField' => 'nullable|array',
             'comments' => 'nullable|string',
             'attachment' => 'nullable|string',
-            // |mimes:jpeg,png,jpg,gif,pdf,doc,docx,xls,xlsx',
+            'attachmentType' => 'nullable|string',
         ]);
 
         $ticket = $this->ticketService->createTicket($validated);
 
-        return response()->json($ticket, 201);
+        return response()->json($ticket, $ticket['code']);
     }
 
     /**
@@ -80,15 +82,15 @@ class NCTicketController extends Controller
      * @param  \App\Models\NCTicket  $nCTicket
      * @return \Illuminate\Http\Response
      */
-
     public function show($id)
     {
-        $ticket = NCTicket::with(['callType', 'callCategory', 'callSubCategory'])
+        $ticket = NCTicket::with(['callType', 'callCategory', 'callSubCategory', 'attachments'])
             ->findOrFail($id);
-        $statuses = $this->ticketService->getStatuses();
 
+        $statuses = $this->ticketService->getStatuses();
         $ticketCollection = collect($ticket);
         $ticketCollection->put('statuses', $statuses);
+
         $requiredFields = TicketsRequiredField::where('ticket_id', $id)
             ->with('requiredFields')
             ->get()
@@ -101,6 +103,27 @@ class NCTicketController extends Controller
             });
 
         $ticketCollection->put('required_fields', $requiredFields);
+
+        $comments = [];
+
+        $getComments = TicketComment::with(['createdByUser.group'])
+            ->where('ticket_id', $id)
+            ->get();
+
+        foreach ($getComments as $comment) {
+            $commentingUser = $comment->createdByUser;
+
+            $comments[] = [
+                'date_time' => Carbon::parse($comment->created_at)->format('M j, Y h:i A'),
+                'avatar_url' => $commentingUser->avatar_url ?? null,
+                'comment' => $comment->comment,
+                'username' => $commentingUser->name ?? 'Unknown',
+                'group_name' => $commentingUser->group->name ?? 'N/A',
+            ];
+        }
+
+        $ticketCollection->put('user_comments', $comments);
+
         return response()->json($ticketCollection, 200);
     }
 
@@ -135,9 +158,22 @@ class NCTicketController extends Controller
      * @param  \App\Models\NCTicket  $nCTicket
      * @return \Illuminate\Http\Response
      */
-    public function destroy(NCTicket $nCTicket)
+
+    public function destroy($id)
     {
-        //
+        $Ticket = NCTicket::findOrFail($id);
+
+        // Delete associated NCTicketTimeline records
+        $Ticket->NCTicketTimelines()->delete();
+
+        // Delete the NCTicket
+        $Ticket->delete();
+
+        return response()->json([
+            'title' => 'Success.',
+            'message' => 'Ticket deleted.',
+            'data' => '',
+        ], 200);
     }
 
     public function getPreviousTicket(Request $request, $mobileNo)
@@ -145,7 +181,7 @@ class NCTicketController extends Controller
         $tickets = NCTicket::with(['callSubCategory'])
             ->where('caller_mobile_no', $mobileNo)
             ->latest()
-            ->take(3)
+        // ->take(5)
             ->get()
             ->map(function ($ticket) {
                 return [
@@ -167,21 +203,20 @@ class NCTicketController extends Controller
         $now = Carbon::now();
         $authUserGroupId = Auth::user()->group_id;
 
-        // dd();
-
         // if group owner is visiting the ticket
-        if (Auth::user()->group->hasOwner() || Auth::user()->hasRole('admin') || Auth::user()->hasRole('superadmin')) {
-            return response()->json([
-                'success' => true,
-                'showAlert' => false,
-                'message' => 'Ticket page visited by admin/owner user.',
-            ]);
+        /* if (Auth::user()->group->hasOwner() || Auth::user()->hasRole('admin') || Auth::user()->hasRole('superadmin')) {
+        return response()->json([
+        'success' => true,
+        'showAlert' => false,
+        'message' => 'Ticket page visited by admin/owner user.',
+        ]);
 
-        }
+        } */
 
         if ($ticket->initial_assign_id === null || $ticket->assign_to_user_id === null) {
             DB::transaction(function () use ($ticket, $authUserId, $authUserGroupId) {
                 $ticket->initial_assign_id = $ticket->assign_to_user_id = $authUserId;
+                $ticket->ticket_status = 'OPENED';
                 $ticket->assign_to_group_id = $authUserGroupId;
                 $ticket->save();
             });
@@ -190,9 +225,9 @@ class NCTicketController extends Controller
             $data = [
                 'ticket_id' => $ticket->id,
                 'responsible_group_ids' => $ticket->responsible_group_ids,
-                'ticket_status' => 'OPEN',
+                'ticket_status' => 'OPENED',
                 'ticket_comments' => $ticket->comments,
-                'ticket_attachments' => $ticket->ticket_attachments,
+                // 'ticket_attachments' => $ticket->ticket_attachments,
                 'ticket_opened_by' => $authUserId,
                 'ticket_status_updated_by' => $authUserId,
                 'opened_at' => $now,
@@ -249,7 +284,7 @@ class NCTicketController extends Controller
         $ticketId = $id;
         $comment = $validated['comments'];
         $now = Carbon::now();
-        $ticketStatus = 'REOPEN';
+        $ticketStatus = 'ASSIGNED';
 
         try {
             // Fetch the ticket by ID
@@ -262,6 +297,8 @@ class NCTicketController extends Controller
             } elseif ($validated['forward_type'] === 'group') {
                 $this->forwardToGroup($ticket, $validated['forward_to'], $comment, $ticketStatus, $now);
             }
+
+            $this->ticketService->updateSlaStatus($ticket);
 
             // Return a success response
             return response()->json([
@@ -299,9 +336,9 @@ class NCTicketController extends Controller
             $data = [
                 'ticket_id' => $ticket->id,
                 'responsible_group_ids' => $ticket->responsible_group_ids,
-                'ticket_status' => 'OPEN',
+                'ticket_status' => 'OPENED',
                 'ticket_comments' => $comment,
-                'ticket_attachments' => $ticket->attachment,
+                // 'ticket_attachments' => $ticket->attachment,
                 'ticket_opened_by' => $userId,
                 'ticket_status_updated_by' => $userId,
                 'opened_at' => $now,
@@ -326,9 +363,47 @@ class NCTicketController extends Controller
         }
     }
 
-/**
- * Handle forwarding the ticket to a specific user.
- */
+    public function ticketStatuses()
+    {
+        $statuses = $this->ticketService->getStatuses();
+        return response()->json(['statuses' => $statuses]);
+    }
+
+    public function ticketSources()
+    {
+        $sources = $this->ticketService->getSources();
+        return response()->json(['sources' => $sources]);
+    }
+
+    public function searchTickets(Request $request)
+    {
+        $mobileNo = $request->input('mobile_no');
+        $status = $request->input('status');
+        $query = NCTicket::with(['callSubCategory'])
+            ->where('caller_mobile_no', $mobileNo);
+
+        if ($status) {
+            $query->where('ticket_status', $status);
+        }
+
+        $tickets = $query->latest() // Order by the latest tickets
+            ->get()
+            ->map(function ($ticket) {
+                return [
+                    'ticket_id' => $ticket->id,
+                    'ticket_created_at' => $ticket->ticket_created_at,
+                    'uuid' => $ticket->uuid,
+                    'ticket_status' => $ticket->ticket_status,
+                    'call_sub_category_name' => $ticket->callSubCategory->call_sub_category_name,
+                ];
+            });
+
+        return response()->json($tickets);
+    }
+
+    /**
+     * Handle forwarding the ticket to a specific user.
+     */
     private function forwardToUser($ticket, $userId, $comment, $ticketStatus, $now)
     {
         $user = User::where('id', $userId)
@@ -346,9 +421,9 @@ class NCTicketController extends Controller
         }
     }
 
-/**
- * Handle forwarding the ticket to a specific group.
- */
+    /**
+     * Handle forwarding the ticket to a specific group.
+     */
     private function forwardToGroup($ticket, $groupId, $comment, $ticketStatus, $now)
     {
         $group = Group::find($groupId);
@@ -370,9 +445,9 @@ class NCTicketController extends Controller
         }
     }
 
-/**
- * Create a ticket timeline and send a notification to the user.
- */
+    /**
+     * Create a ticket timeline and send a notification to the user.
+     */
     private function createTicketTimelineAndNotify($ticket, $userId, $comment, $ticketStatus, $now)
     {
         $data = [
@@ -380,12 +455,18 @@ class NCTicketController extends Controller
             'responsible_group_ids' => $ticket->responsible_group_ids,
             'ticket_status' => $ticketStatus,
             'ticket_comments' => $comment,
-            'ticket_attachments' => $ticket->attachment,
+            //'ticket_attachments' => $ticket->attachment,
             'ticket_opened_by' => $userId,
             'ticket_status_updated_by' => $userId,
             'opened_at' => $now,
             'last_time_opened_at' => $now,
         ];
+
+        $comment = TicketComment::create([
+            'ticket_id' => $ticket->id,
+            'comment' => $ticket->id,
+            'created_by' => $userId,
+        ]);
 
         $this->ticketService->createTicketTimeline($data);
 

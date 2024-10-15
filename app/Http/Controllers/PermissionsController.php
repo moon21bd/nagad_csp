@@ -151,21 +151,21 @@ class PermissionsController extends Controller
     {
 
         $user = auth()->user();
-        $user->load('permissions', 'group.permissions');
+        $user->load('permissions');
 
-        $userPermissions = $user->permissions->pluck('name');
+        // Get user-specific permissions
+        $userPermissions = $user->permissions->pluck('name')->toArray();
 
-        $groupPermissions = collect([]);
-        if ($user->group) {
-            $groupPermissions = $user->group->permissions->pluck('name');
-        }
-
-        $allPermissions = $userPermissions->merge($groupPermissions)->unique();
+        // Get role-based permissions
+        $rolePermissions = $user->roles->flatMap(function ($role) {
+            return $role->permissions->pluck('name');
+        })->toArray();
 
         return response()->json([
             'user' => $user->name,
-            'permissions' => $allPermissions,
             'roles' => $user->roles->pluck('name'),
+            'userPermissions' => $userPermissions,
+            'rolePermissions' => $rolePermissions,
         ]);
 
     }
@@ -180,6 +180,34 @@ class PermissionsController extends Controller
             'permissions' => $permissions->pluck('name'),
             'roles' => $user->roles->pluck('name'),
         ]);
+    }
+
+    /*public function checkPermission(Request $request)
+    {
+    $user = auth()->user();
+    $permission = $request->input('permission');
+
+    if ($user->hasPermission($permission) || $user->hasRolePermission($permission)) {
+    return response()->json(['allowed' => true]);
+    }
+
+    return response()->json(['allowed' => false], 403);
+    }*/
+
+    public function checkPermission(Request $request)
+    {
+        $user = auth()->user();
+        $permission = $request->input('permission');
+
+        // Eager load permissions and roles to avoid multiple queries
+        $user->load('permissions', 'roles.permissions');
+
+        // Check both user-specific and role-based permissions using hasPermission()
+        if ($user->hasPermission($permission)) {
+            return response()->json(['allowed' => true]);
+        }
+
+        return response()->json(['allowed' => false], 403);
     }
 
 }

@@ -34,6 +34,6 @@ class CreateCallTypesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('call_types');
+        Schema::dropIfExists('nc_call_types');
     }
 }

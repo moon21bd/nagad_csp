@@ -3,10 +3,10 @@
         <div class="common-heading d-flex align-items-center mb-3">
             <router-link
                 class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
-                :to="{ name: 'dnd-user-index' }"
+                :to="{ name: 'customer-profile-index' }"
                 ><i class="icon-left"></i>
             </router-link>
-            <h1 class="title m-0">Update DnD User</h1>
+            <h1 class="title m-0">Update Customer Profile</h1>
         </div>
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
@@ -19,7 +19,7 @@
                             <div class="row">
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >User Name</label
+                                        >Customer Name<sup>*</sup></label
                                     >
                                     <input
                                         class="form-control"
@@ -63,6 +63,49 @@
                                 </div>
                             </div>
 
+                            <div class="row">
+                                <div class="col-md-12 form-group">
+                                    <label class="control-label"
+                                        >Message<sup>*</sup></label
+                                    >
+                                    <textarea
+                                        class="form-control"
+                                        name="message"
+                                        v-model="dnduser.message"
+                                        v-validate="'required|min:3|max:60'"
+                                    ></textarea>
+                                    <small
+                                        class="text-danger"
+                                        v-show="errors.has('message')"
+                                    >
+                                        {{ errors.first("message") }}
+                                    </small>
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label class="control-label">Status</label>
+                                    <div class="d-flex">
+                                        <label class="radio mr-2"
+                                            ><input
+                                                type="radio"
+                                                value="active"
+                                                v-model="dnduser.status"
+                                                required
+                                            /><span class="radio-mark"></span
+                                            >Active
+                                        </label>
+                                        <label class="radio mr-2">
+                                            <input
+                                                type="radio"
+                                                value="inactive"
+                                                v-model="dnduser.status"
+                                                required
+                                            /><span class="radio-mark"></span
+                                            >Inactive
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
                             <small
                                 v-if="formErrors.message"
                                 class="text-danger"
@@ -93,6 +136,8 @@ export default {
             dnduser: {
                 name: "",
                 mobile_no: "",
+                message: "",
+                status: null,
             },
         };
     },
@@ -107,9 +152,11 @@ export default {
                 this.dnduser = {
                     name: response.data.name,
                     mobile_no: response.data.mobile_no,
+                    message: response.data.message,
+                    status: response.data.status,
                 };
             } catch (error) {
-                console.error("Error fetching dnd user:", error);
+                console.error("Error fetching customer profile:", error);
                 this.dnduser = {};
             }
         },
@@ -129,7 +176,9 @@ export default {
                             Vue.prototype.$showToast(response.data.message, {
                                 type: "success",
                             });
-                            _this.$router.push({ name: "dnd-user-index" });
+                            _this.$router.push({
+                                name: "customer-profile-index",
+                            });
                         })
                         .catch((errors) => {
                             console.log(

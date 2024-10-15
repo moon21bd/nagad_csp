@@ -14,6 +14,7 @@ class DNDUser extends Model
     protected $fillable = [
         'name',
         'mobile_no',
+        'message',
         'status',
         'created_by',
         'updated_by',

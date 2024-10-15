@@ -84,6 +84,7 @@ class ForgotController extends Controller
         }
 
         $user->password = Hash::make(trim($request->input('password')));
+        $user->password_changed_at = Carbon::now();
         $user->save();
 
         $userActivity = UserActivity::where('user_id', $user->id)->first();

@@ -50,13 +50,32 @@ const excludedRoutes = [
     "/forgot-password",
     "/reset/:token",
     "/verify/user/:id",
+    "/change-password/:token",
 ];
 
+import axios from "./axios";
+async function checkPermission(permission) {
+    const response = await axios.post("/check-permission", { permission });
+    return response.data.allowed;
+}
+
+// Function to check if the route is excluded (handling dynamic parameters)
+function isExcludedRoute(path) {
+    return excludedRoutes.some((route) => {
+        const regex = new RegExp(route.replace(/:[^\s/]+/g, "([^/]+)")); // Replace route params like :token with regex
+        return regex.test(path);
+    });
+}
 router.beforeEach(async (to, from, next) => {
     const isAuthenticated = store.getters["auth/authenticated"];
+    console.log("to.path", to.path);
 
     // Apply default layout if no layout is defined and the route is not excluded
-    if (!to.meta.layout && !excludedRoutes.includes(to.path)) {
+    /* if (!to.meta.layout && !excludedRoutes.includes(to.path)) {
+        to.meta.layout = AdminLayout;
+    } */
+
+    if (!to.meta.layout && !isExcludedRoute(to.path)) {
         to.meta.layout = AdminLayout;
     }
 

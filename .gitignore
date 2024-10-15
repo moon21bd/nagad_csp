@@ -24,3 +24,4 @@ yarn.lock
 .idea/workspace.xml
 package-lock.json
 public/mix-manifest.json
+.DS_Store

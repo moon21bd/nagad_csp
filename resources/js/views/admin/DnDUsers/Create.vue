@@ -3,10 +3,10 @@
         <div class="common-heading d-flex align-items-center mb-3">
             <router-link
                 class="btn btn-site btn-sm mr-2 py-1 px-2 router-link-active"
-                :to="{ name: 'dnd-user-index' }"
+                :to="{ name: 'customer-profile-index' }"
                 ><i class="icon-left"></i>
             </router-link>
-            <h1 class="title m-0">Create DnD User</h1>
+            <h1 class="title m-0">Add Customer Profile</h1>
         </div>
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">
@@ -19,21 +19,16 @@
                             <div class="row">
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >User Name</label
+                                        >Customer Name<sup>*</sup></label
                                     >
                                     <input
                                         class="form-control"
                                         type="text"
                                         name="name"
-                                        placeholder="Name"
+                                        v-validate="'required|max:30'"
+                                        placeholder="Customer Name"
                                         v-model="formData.name"
                                     />
-                                    <span
-                                        v-if="errors.name"
-                                        class="text-danger"
-                                        >{{ errors.name[0] }}</span
-                                    >
-
                                     <small
                                         class="text-danger"
                                         v-show="errors.has('name')"
@@ -41,6 +36,26 @@
                                         {{ errors.first("name") }}
                                     </small>
                                 </div>
+                                <!-- <div class="col-md-6 form-group">
+                                    <label class="control-label"
+                                        >Customer Name<sup>*</sup></label
+                                    >
+                                    <input
+                                        class="form-control"
+                                        type="text"
+                                        name="name"
+                                        v-validate="'required'"
+                                        placeholder="Customer Name"
+                                        v-model="formData.name"
+                                    />
+
+                                    <small
+                                        class="text-danger"
+                                        v-show="errors.has('name')"
+                                    >
+                                        {{ errors.first("name") }}
+                                    </small>
+                                </div> -->
 
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
@@ -61,6 +76,25 @@
                                         v-show="errors.has('mobile_no')"
                                     >
                                         {{ errors.first("mobile_no") }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 form-group">
+                                    <label class="control-label"
+                                        >Message<sup>*</sup></label
+                                    >
+                                    <textarea
+                                        class="form-control"
+                                        name="message"
+                                        v-model="formData.message"
+                                        v-validate="'required'"
+                                    ></textarea>
+                                    <small
+                                        class="text-danger"
+                                        v-show="errors.has('message')"
+                                    >
+                                        {{ errors.first("message") }}
                                     </small>
                                 </div>
                             </div>
@@ -95,8 +129,12 @@ export default {
             formData: {
                 name: "",
                 mobile_no: "",
+                message: "",
             },
         };
+    },
+    mounted() {
+        console.log("errors-items", this.errors.items);
     },
     methods: {
         async handleSubmit() {
@@ -115,7 +153,9 @@ export default {
                             Vue.prototype.$showToast(response.data.message, {
                                 type: "success",
                             });
-                            _this.$router.push({ name: "dnd-user-index" });
+                            _this.$router.push({
+                                name: "customer-profile-index",
+                            });
                         })
                         .catch((errors) => {
                             console.log(
@@ -129,7 +169,7 @@ export default {
                                 _this.formErrors = errors.response.data.errors;
                             } else {
                                 _this.formErrors.push(
-                                    "Failed to create dnd user. Please try again later."
+                                    "Failed to create customer profile. Please try again later."
                                 );
                             }
                         })
