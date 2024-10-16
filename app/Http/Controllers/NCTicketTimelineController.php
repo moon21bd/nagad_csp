@@ -88,6 +88,7 @@ class NCTicketTimelineController extends Controller
 
         $getComments = TicketComment::with(['createdByUser.group'])
             ->where('ticket_id', $id)
+            ->orderByDesc('created_at')
             ->get();
 
         foreach ($getComments as $comment) {
