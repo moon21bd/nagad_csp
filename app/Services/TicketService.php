@@ -270,8 +270,23 @@ class TicketService
         ];
     }
 
+    /* public function createTicketTimeline($data)
+    {
+    return NCTicketTimeline::create($data);
+    } */
+
     public function createTicketTimeline($data)
     {
+        $existingOpenedStatus = NCTicketTimeline::where('ticket_id', $data['ticket_id'])
+            ->where('ticket_status', 'OPENED')
+            ->exists();
+
+        if ($data['ticket_status'] === 'OPENED' && $existingOpenedStatus) {
+            Log::debug('Ticket (ID:' . $data['ticket_id'] . ') is already in "OPENED" status.');
+            return false;
+            // throw new \Exception('Ticket is already in "OPENED" status.');
+        }
+
         return NCTicketTimeline::create($data);
     }
 

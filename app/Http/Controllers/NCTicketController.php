@@ -321,11 +321,13 @@ class NCTicketController extends Controller
         // Validate the incoming request
         $validated = $request->validate([
             'user_id' => 'required',
+            'status' => 'required|string',
             'comments' => 'nullable|string',
         ]);
 
         $ticketId = $id;
         $userId = $validated['user_id'];
+        $status = $validated['status'];
         $comment = 'Ticket page just opened by a user.';
         $now = Carbon::now();
 
@@ -333,10 +335,11 @@ class NCTicketController extends Controller
             // Fetch the ticket by ID
             $ticket = NCTicket::findOrFail($ticketId);
 
+            // if ($ticket->status != 'OPENED') {
             $data = [
                 'ticket_id' => $ticket->id,
                 'responsible_group_ids' => $ticket->responsible_group_ids,
-                'ticket_status' => 'OPENED',
+                'ticket_status' => $status,
                 'ticket_comments' => $comment,
                 // 'ticket_attachments' => $ticket->attachment,
                 'ticket_opened_by' => $userId,
@@ -346,6 +349,7 @@ class NCTicketController extends Controller
             ];
 
             $this->ticketService->createTicketTimeline($data);
+            //}
 
             // Return a success response
             return response()->json([
@@ -414,6 +418,12 @@ class NCTicketController extends Controller
             $ticket->assign_to_user_id = $user->id;
             $ticket->assign_to_group_id = $user->group_id;
 
+            /* $comment = TicketComment::create([
+            'ticket_id' => $ticket->id,
+            'comment' => $comment,
+            'created_by' => Auth::id(),
+            ]); */
+
             $this->createTicketTimelineAndNotify($ticket, $user->id, $comment, $ticketStatus, $now);
             $ticket->save();
         } else {
@@ -437,6 +447,12 @@ class NCTicketController extends Controller
                 $ticket->assign_to_user_id = $user->id;
                 $ticket->assign_to_group_id = $group->id;
 
+                /* $comment = TicketComment::create([
+                'ticket_id' => $ticket->id,
+                'comment' => $comment,
+                'created_by' => Auth::id(),
+                ]); */
+
                 $this->createTicketTimelineAndNotify($ticket, $user->id, $comment, $ticketStatus, $now);
             }
             $ticket->save();
@@ -454,7 +470,7 @@ class NCTicketController extends Controller
             'ticket_id' => $ticket->id,
             'responsible_group_ids' => $ticket->responsible_group_ids,
             'ticket_status' => $ticketStatus,
-            'ticket_comments' => $comment,
+            // 'ticket_comments' => $comment,
             //'ticket_attachments' => $ticket->attachment,
             'ticket_opened_by' => $userId,
             'ticket_status_updated_by' => $userId,
@@ -464,7 +480,7 @@ class NCTicketController extends Controller
 
         $comment = TicketComment::create([
             'ticket_id' => $ticket->id,
-            'comment' => $ticket->id,
+            'comment' => $comment,
             'created_by' => $userId,
         ]);
 

@@ -6,7 +6,7 @@
                 :to="{ name: 'ticket-index' }"
                 ><i class="icon-left"></i>
             </router-link>
-            <h1 class="title m-0">Edit Ticket</h1>
+            <h1 class="title m-0">Edit Ticket : {{ this.ticketInfos.uuid }}</h1>
         </div>
         <div class="card mb-4">
             <div class="card-body">
@@ -131,8 +131,9 @@
                                                         comment.date_time
                                                     }}</span>
                                                     <strong
-                                                        >Nagad - Technology
-                                                        Operation
+                                                        >{{
+                                                            comment.group_name
+                                                        }}
                                                     </strong>
                                                 </h5>
                                                 <p>{{ comment.comment }}</p>
@@ -222,13 +223,24 @@
                                         :for="'comment-' + index"
                                     >
                                         Comment {{ index + 1 }}
-                                    </label>
+                                        <sup>*</sup></label
+                                    >
                                     <textarea
                                         :id="'comment-' + index"
                                         class="form-control"
                                         v-model="comment.text"
+                                        v-validate="'required'"
+                                        data-vv-as="'Comment'"
+                                        :name="'comment-' + index"
                                         placeholder="Enter your comment"
                                     ></textarea>
+                                    <small
+                                        class="text-danger"
+                                        v-show="errors.has('comment-' + index)"
+                                    >
+                                        {{ errors.first("comment-" + index) }}
+                                    </small>
+                                    <br />
                                     <button
                                         type="button"
                                         class="btn btn-sm btn-outline-danger mt-2"
@@ -246,7 +258,10 @@
                                         type="button"
                                         class="btn btn-outline-secondary w-100 d-block py-2"
                                         @click="addComment"
-                                        :disabled="ticketComments.length >= 5"
+                                        :disabled="
+                                            ticketComments.length >=
+                                            maxTicketComments
+                                        "
                                     >
                                         <i class="icon-plus"></i> New
                                     </button>
@@ -359,10 +374,18 @@
                                     <textarea
                                         v-model="forwardComment"
                                         class="form-control"
+                                        v-validate="'required'"
+                                        name="forwardComment"
                                         id="forwardComment"
                                         rows="3"
                                         placeholder="Add a note about this forwarding"
                                     ></textarea>
+                                    <small
+                                        class="text-danger"
+                                        v-show="errors.has('forwardComment')"
+                                    >
+                                        {{ errors.first("forwardComment") }}
+                                    </small>
                                 </div>
                             </div>
 
@@ -371,7 +394,7 @@
                                 v-if="forwardSelected"
                                 type="button"
                                 class="btn btn-site"
-                                @click="forwardTicket"
+                                @click.prevent="forwardTicket"
                                 :disabled="!canForward()"
                             >
                                 Forward
@@ -439,7 +462,6 @@ export default {
             this.updateFilteredStatuses();
         },
     },
-
     computed: {
         ...mapState("auth", ["user"]),
         ...mapGetters("auth", ["user"]),
@@ -449,6 +471,9 @@ export default {
         filteredStatuses() {
             return this.filteredStatusList;
         },
+    },
+    mounted() {
+        this.fetchTicketInfos();
     },
     created() {
         this.authUserId = this.$store.state.auth.user.id;
@@ -516,19 +541,22 @@ export default {
             console.log("checkFirstLoad called! this is not the first time.");
         },
         handleFirstLoad() {
-            console.log(
-                "Ticket Timeline Data Added!!",
-                localStorage.getItem("ticket_page_first_load")
-            );
             this.sendTicketTimelineData();
         },
         clearFirstLoadFlag() {
             localStorage.removeItem("ticket_page_first_load");
         },
         sendTicketTimelineData() {
+            console.log(
+                "this.ticketInfos.ticket_status",
+                this.ticketInfos.ticket_status
+            );
+            if (this.ticketInfos.ticket_status == "OPENED") return false;
+
             axios
                 .post(`/ticket/timeline/${this.ticketId}`, {
                     user_id: this.authUserId,
+                    status: "OPENED",
                 })
                 .then((response) => {
                     console.log("Timeline Data Posted!", response.data);
@@ -553,45 +581,43 @@ export default {
             this.selectedGroup = null;
         },
         canForward() {
-            // Check if the necessary selection is made
             return (
                 (this.activeSelection === "user" && this.selectedUser) ||
                 (this.activeSelection === "group" && this.selectedGroup)
             );
         },
         forwardTicket() {
-            if (this.forwardComment === null) {
-                this.$showToast(
-                    "Commment is mandatory for forwarding the ticket.",
-                    {
-                        type: "error",
+            Promise.all([this.$validator.validate("forwardComment")]).then(
+                async (results) => {
+                    if (results.every((isValid) => isValid)) {
+                        const payload = {
+                            forward_type: this.activeSelection,
+                            forward_to:
+                                this.activeSelection === "user"
+                                    ? this.selectedUser
+                                    : this.selectedGroup,
+                            comments: this.forwardComment,
+                        };
+
+                        axios
+                            .post(`/ticket/forward/${this.ticketId}`, payload)
+                            .then((response) => {
+                                this.$showToast(
+                                    "Ticket forwarded successfully!",
+                                    {
+                                        type: "success",
+                                    }
+                                );
+                                this.$router.push({ name: "ticket-index" });
+                            })
+                            .catch((error) => {
+                                this.$showToast("Error forwarding ticket.", {
+                                    type: "error",
+                                });
+                            });
                     }
-                );
-                return;
-            }
-
-            const payload = {
-                forward_type: this.activeSelection,
-                forward_to:
-                    this.activeSelection === "user"
-                        ? this.selectedUser
-                        : this.selectedGroup,
-                comments: this.forwardComment,
-            };
-
-            axios
-                .post(`/ticket/forward/${this.ticketId}`, payload)
-                .then((response) => {
-                    this.$showToast("Ticket forwarded successfully!", {
-                        type: "success",
-                    });
-                    this.$router.push({ name: "ticket-index" });
-                })
-                .catch((error) => {
-                    this.$showToast("Error forwarding ticket.", {
-                        type: "error",
-                    });
-                });
+                }
+            );
         },
         checkTicketStatus(ticketId) {
             axios
@@ -646,7 +672,6 @@ export default {
                         );
 
                         this.ticketInfos.ticket_status = "OPENED";
-
                         this.updateFilteredStatuses();
                     }
                 })
@@ -702,9 +727,18 @@ export default {
                         // clear first time load flag for adding ticket timeline data
                         this.clearFirstLoadFlag();
                         this.isLoading = false;
+
+                        let toastType = "info";
+                        if (response.data.status === "success") {
+                            toastType = "success";
+                        } else if (response.data.status === "failed") {
+                            toastType = "error";
+                        }
+
                         Vue.prototype.$showToast(response.data.message, {
-                            type: "success",
+                            type: toastType,
                         });
+
                         this.$router.push({ name: "ticket-index" });
                     } catch (errors) {
                         if (errors.response && errors.response.data.errors) {
@@ -756,9 +790,6 @@ export default {
                 attachment: "",
             };
         },
-    },
-    mounted() {
-        this.fetchTicketInfos();
     },
 };
 </script>
