@@ -169,7 +169,7 @@
                     </el-menu-item>
                 </div>
 
-                <div
+                <!-- <div
                     v-if="hasRole('admin|superadmin')"
                     class="sticky-dashboard"
                 >
@@ -199,7 +199,7 @@
                             </el-menu-item>
                         </el-menu-item-group>
                     </el-submenu>
-                </div>
+                </div> -->
             </el-menu>
         </div>
     </aside>

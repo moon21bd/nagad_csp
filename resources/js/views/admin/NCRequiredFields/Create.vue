@@ -16,21 +16,75 @@
                 <div class="row">
                     <div class="col-md-8">
                         <form @submit.prevent="createRequiredFields">
-                            <div
-                                v-if="requiredFieldErrors.length > 0"
-                                class="alert alert-danger"
-                            >
-                                <ul class="pl-3 m-0">
-                                    <li
-                                        v-for="(
-                                            error, index
-                                        ) in requiredFieldErrors"
-                                        :key="index"
+                            <!-- Service Type -->
+                            <div class="row">
+                                <div class="col-md-4 form-group">
+                                    <label class="control-label"
+                                        >Service Type<sup>*</sup></label
                                     >
-                                        {{ error }}
-                                    </li>
-                                </ul>
+                                    <el-select
+                                        class="d-block w-100"
+                                        v-model="callTypeId"
+                                        @change="fetchCategories"
+                                        required
+                                        filterable
+                                        placeholder="Select Service Type"
+                                    >
+                                        <el-option
+                                            v-for="types in callTypes"
+                                            :key="types.id"
+                                            :label="types.call_type_name"
+                                            :value="types.id"
+                                        ></el-option>
+                                    </el-select>
+                                </div>
+
+                                <!-- Service Category -->
+                                <div class="col-md-4 form-group">
+                                    <label class="control-label"
+                                        >Service Category<sup>*</sup></label
+                                    >
+                                    <el-select
+                                        class="d-block w-100"
+                                        v-model="callCategoryId"
+                                        @change="fetchSubCategory"
+                                        required
+                                        filterable
+                                        placeholder="Select Service Category"
+                                    >
+                                        <el-option
+                                            v-for="category in callCategories"
+                                            :key="category.id"
+                                            :label="category.call_category_name"
+                                            :value="category.id"
+                                        ></el-option>
+                                    </el-select>
+                                </div>
+
+                                <!-- Service Sub Category -->
+                                <div class="col-md-4 form-group">
+                                    <label class="control-label"
+                                        >Service Sub Category<sup>*</sup></label
+                                    >
+                                    <el-select
+                                        class="d-block w-100"
+                                        v-model="callSubCategoryId"
+                                        required
+                                        filterable
+                                        placeholder="Select Service Sub Category"
+                                    >
+                                        <el-option
+                                            v-for="subCategory in callSubCategories"
+                                            :key="subCategory.id"
+                                            :label="
+                                                subCategory.call_sub_category_name
+                                            "
+                                            :value="subCategory.id"
+                                        ></el-option>
+                                    </el-select>
+                                </div>
                             </div>
+
                             <div
                                 v-for="(field, index) in formFields"
                                 :key="field.id"
@@ -56,77 +110,6 @@
                                                 Remove
                                             </button>
                                         </h5>
-                                    </div>
-
-                                    <!-- Service Type -->
-                                    <div class="col-md-4 form-group">
-                                        <label class="control-label"
-                                            >Service Type<sup>*</sup></label
-                                        >
-                                        <el-select
-                                            class="d-block w-100"
-                                            v-model="field.callTypeId"
-                                            @change="fetchCategories(index)"
-                                            required
-                                            filterable
-                                            placeholder="Select Service Type"
-                                        >
-                                            <el-option
-                                                v-for="types in callTypes"
-                                                :key="types.id"
-                                                :label="types.call_type_name"
-                                                :value="types.id"
-                                            ></el-option>
-                                        </el-select>
-                                    </div>
-
-                                    <!-- Service Category -->
-                                    <div class="col-md-4 form-group">
-                                        <label class="control-label"
-                                            >Service Category<sup>*</sup></label
-                                        >
-                                        <el-select
-                                            class="d-block w-100"
-                                            v-model="field.callCategoryId"
-                                            @change="fetchSubCategory(index)"
-                                            required
-                                            filterable
-                                            placeholder="Select Service Category"
-                                        >
-                                            <el-option
-                                                v-for="category in field.callCategories"
-                                                :key="category.id"
-                                                :label="
-                                                    category.call_category_name
-                                                "
-                                                :value="category.id"
-                                            ></el-option>
-                                        </el-select>
-                                    </div>
-
-                                    <!-- Service Sub Category -->
-                                    <div class="col-md-4 form-group">
-                                        <label class="control-label"
-                                            >Service Sub Category<sup
-                                                >*</sup
-                                            ></label
-                                        >
-                                        <el-select
-                                            class="d-block w-100"
-                                            v-model="field.callSubCategoryId"
-                                            required
-                                            filterable
-                                            placeholder="Select Service Sub Category"
-                                        >
-                                            <el-option
-                                                v-for="subCategory in field.callSubCategories"
-                                                :key="subCategory.id"
-                                                :label="
-                                                    subCategory.call_sub_category_name
-                                                "
-                                                :value="subCategory.id"
-                                            ></el-option>
-                                        </el-select>
                                     </div>
 
                                     <!-- Input Field Name -->
@@ -239,6 +222,22 @@
                                 </button>
                             </div>
 
+                            <div
+                                v-if="requiredFieldErrors.length > 0"
+                                class="alert alert-danger"
+                            >
+                                <ul class="pl-3 m-0">
+                                    <li
+                                        v-for="(
+                                            error, index
+                                        ) in requiredFieldErrors"
+                                        :key="index"
+                                    >
+                                        {{ error }}
+                                    </li>
+                                </ul>
+                            </div>
+
                             <div class="card-footer bg-white px-0 pb-0">
                                 <button type="submit" class="btn btn-site">
                                     Save
@@ -258,16 +257,16 @@ export default {
     data() {
         return {
             isLoading: false,
-            callTypes: [],
             maxFields: 10,
+            callTypeId: null,
+            callCategoryId: null,
+            callSubCategoryId: null,
+            callTypes: [],
+            callCategories: [],
+            callSubCategories: [],
             formFields: [
                 {
                     id: 1,
-                    callTypeId: null,
-                    callCategoryId: null,
-                    callSubCategoryId: null,
-                    callCategories: [],
-                    callSubCategories: [],
                     inputFiledName: "",
                     inputType: "",
                     inputValue: "",
@@ -278,6 +277,23 @@ export default {
             requiredFieldErrors: [],
         };
     },
+    watch: {
+        callCategoryId: function (newCategory) {
+            if (newCategory) {
+                this.callSubCategoryId = null;
+                this.callSubCategories = [];
+            }
+        },
+        callTypeId: function (newCategory) {
+            if (newCategory) {
+                this.callCategoryId = null;
+                this.callSubCategoryId = null;
+                this.callSubCategories = [];
+                this.callCategories = [];
+                this.fetchSubCategory();
+            }
+        },
+    },
     mounted() {
         this.fetchCallTypes();
     },
@@ -285,37 +301,32 @@ export default {
         async fetchCallTypes() {
             try {
                 const response = await axios.get("/get-service-types");
+                this.callSubCategories = [];
+                this.callCategories = [];
                 this.callTypes = response.data;
             } catch (error) {
                 console.error("Error fetching service types:", error);
             }
         },
 
-        async fetchCategories(index) {
+        async fetchCategories() {
             try {
                 const response = await axios.get(
-                    `/get-category/${this.formFields[index].callTypeId}`
+                    `/get-category/${this.callTypeId}`
                 );
-                this.$set(
-                    this.formFields[index],
-                    "callCategories",
-                    response.data
-                );
+                this.callSubCategories = [];
+                this.callCategories = response.data;
             } catch (error) {
                 console.error("Error fetching categories:", error);
             }
         },
 
-        async fetchSubCategory(index) {
+        async fetchSubCategory() {
             try {
                 const response = await axios.get(
-                    `/call-sub-by-call-cat-id/${this.formFields[index].callTypeId}/${this.formFields[index].callCategoryId}`
+                    `/call-sub-by-call-cat-id/${this.callTypeId}/${this.callCategoryId}`
                 );
-                this.$set(
-                    this.formFields[index],
-                    "callSubCategories",
-                    response.data
-                );
+                this.callSubCategories = response.data;
             } catch (error) {
                 console.error("Error fetching subcategories:", error);
             }
@@ -325,25 +336,23 @@ export default {
             const requiredFieldErrors = [];
             let hasValidationError = false;
 
+            if (!this.callTypeId) {
+                hasValidationError = true;
+                requiredFieldErrors.push("Service Type is required.");
+            }
+
+            if (!this.callCategoryId) {
+                hasValidationError = true;
+                requiredFieldErrors.push("Service Category is required.");
+            }
+
+            if (!this.callSubCategoryId) {
+                hasValidationError = true;
+                requiredFieldErrors.push("Service Sub Category is required.");
+            }
+
             // Validate each form field
             this.formFields.forEach((field, index) => {
-                if (!field.callTypeId) {
-                    hasValidationError = true;
-                    requiredFieldErrors.push("Service Type is required.");
-                }
-
-                if (!field.callCategoryId) {
-                    hasValidationError = true;
-                    requiredFieldErrors.push("Service Category is required.");
-                }
-
-                if (!field.callSubCategoryId) {
-                    hasValidationError = true;
-                    requiredFieldErrors.push(
-                        "Service Sub Category is required."
-                    );
-                }
-
                 if (
                     !field.inputFiledName ||
                     field.inputFiledName.length > 128
@@ -382,11 +391,6 @@ export default {
             if (this.formFields.length < this.maxFields) {
                 this.formFields.push({
                     id: Date.now(),
-                    callTypeId: null,
-                    callCategoryId: null,
-                    callSubCategoryId: null,
-                    callCategories: [],
-                    callSubCategories: [],
                     inputFiledName: "",
                     inputType: "",
                     inputValue: "",
@@ -408,24 +412,27 @@ export default {
                     this.validateRequiredFields();
 
                 if (hasValidationError) {
-                    this.requiredFieldErrors = requiredFieldErrors; // Set validation errors to display
-                    return; // Stop form submission
+                    this.requiredFieldErrors = requiredFieldErrors;
+                    return;
                 }
 
+                const callType = this.callTypeId;
+                const callCategory = this.callCategoryId;
+                const callSubCategory = this.callSubCategoryId;
+
                 const postData = this.formFields.map((field) => ({
-                    callTypeId: field.callTypeId,
-                    callCategoryId: field.callCategoryId,
-                    callSubCategoryId: field.callSubCategoryId,
                     inputFiledName: field.inputFiledName,
                     inputType: field.inputType,
                     inputValue: field.inputValue,
                     inputValidation: "required", // field.inputValidation,
                     statusValue: field.statusValue,
                 }));
-                console.log("postData", postData);
 
                 const response = await axios.post("/required-fields-configs", {
                     formFields: postData,
+                    callType,
+                    callCategory,
+                    callSubCategory,
                 });
                 this.$router.push({ name: "required-fields-config-index" });
 

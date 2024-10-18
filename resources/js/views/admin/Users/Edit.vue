@@ -6,7 +6,7 @@
                 :to="{ name: 'user-index' }"
                 ><i class="icon-left"></i>
             </router-link>
-            <h1 class="title m-0">Update User ({{ user.name }})</h1>
+            <h1 class="title m-0">Update User : {{ user.name }}</h1>
         </div>
         <div class="card mb-4">
             <div class="overlay" v-if="isLoading">

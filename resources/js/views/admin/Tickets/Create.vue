@@ -359,12 +359,11 @@
                                         class="col-md-6 form-group uploads"
                                     >
                                         <label class="control-label"
-                                            >Attachment<sup>*</sup></label
+                                            >Attachment</label
                                         >
                                         <input
                                             type="file"
                                             name="is_show_attachment"
-                                            required
                                             @change="handleAttachmentFileUpload"
                                             accept="image/png, image/jpeg, .pdf, .doc, .docx, .xls, .xlsx"
                                         />

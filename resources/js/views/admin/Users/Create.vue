@@ -15,7 +15,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-8">
-                        <form @submit.prevent="handleSubmit">
+                        <form @submit.prevent="handleSubmit" autocomplete="off">
                             <div class="row">
                                 <div class="col-md-12 form-group">
                                     <label class="avatar">

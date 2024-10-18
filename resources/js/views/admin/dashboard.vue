@@ -146,7 +146,7 @@
                                 </li>
                                 <li class="total-compliance">
                                     <h3>
-                                        <span>Total Compliance</span
+                                        <span>Total Complaint</span
                                         >{{
                                             dailyReportCount.totalComplaint ?? 0
                                         }}
@@ -405,7 +405,7 @@ export default {
                         type: "column",
                     },
                     title: {
-                        text: "Total Compliance",
+                        text: "Total Complaint",
                         align: "left",
                         style: {
                             color: "#242526",
@@ -483,7 +483,7 @@ export default {
                     colors: ["#f39c12"],
                     series: [
                         {
-                            name: "Compliance (in thousand)",
+                            name: "Complaint (in thousand)",
                             data: [
                                 20, 40, 50, 20, 40, 50, 60, 80, 100, 60, 40, 50,
                                 30, 80, 100, 20, 40, 50, 60, 80, 40, 50, 20, 40,

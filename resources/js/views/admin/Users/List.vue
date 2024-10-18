@@ -63,12 +63,21 @@
                                                 .last_online || ""
                                         }}
  -->
+
                                         {{
                                             item?.latest_login_activity
                                                 ?.last_online
                                                 ? new Date(
                                                       item.latest_login_activity.last_online
-                                                  ).toDateString()
+                                                  ).toLocaleDateString(
+                                                      "en-US",
+                                                      {
+                                                          weekday: "short",
+                                                          year: "numeric",
+                                                          month: "short",
+                                                          day: "numeric",
+                                                      }
+                                                  )
                                                 : ""
                                         }}
                                     </td>
@@ -76,7 +85,7 @@
                                     <td>
                                         <span
                                             :class="
-                                                item?.status === 'active'
+                                                item?.status === 'Active'
                                                     ? 'active'
                                                     : 'inactive'
                                             "
