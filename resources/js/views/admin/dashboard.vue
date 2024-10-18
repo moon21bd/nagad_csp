@@ -671,7 +671,6 @@ export default {
             };
         },
         isSuperAdmin() {
-            // Check if the user has super admin role
             return this.hasRole("admin|superadmin");
         },
     },
@@ -710,8 +709,8 @@ export default {
 
             const statusMonthName = this.getFullMonthName(statusMonth);
             const countsMonthName = this.getFullMonthName(countsMonth);
-            console.log("Counts Month Name 1:", countsMonthName, countsMonth);
-            console.log("Status Month Name 1:", statusMonthName, statusMonth);
+            // console.log("Counts Month Name 1:", countsMonthName, countsMonth);
+            // console.log("Status Month Name 1:", statusMonthName, statusMonth);
 
             await Promise.all([
                 this.fetchTotalReportCount(groupId, this.dateFilter),

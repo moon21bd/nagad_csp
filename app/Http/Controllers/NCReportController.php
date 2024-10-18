@@ -219,11 +219,7 @@ class NCReportController extends Controller
                     'category' => $category->call_category_name,
                     'count' => $topCategoriesData->firstWhere('call_category_id', $category->id)->count ?? 0,
                 ];
-            })
-            ->prepend([
-                'category' => 'Moon',
-                'count' => 100,
-            ]); // will delete this later.
+            });
 
         $categoryNamesArray = $categoryNames->values()->toArray();
 

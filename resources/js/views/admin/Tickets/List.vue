@@ -31,6 +31,8 @@
                         @change="fetchTickets"
                         filterable
                         id="statusFilter"
+                        multiple
+                        collapse-tags
                         placeholder="Status"
                     >
                         <el-option value="">All</el-option>
