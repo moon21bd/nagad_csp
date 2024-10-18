@@ -371,28 +371,39 @@ class NCReportController extends Controller
 
     public function getUserStatistics(Request $request)
     {
-        $totalActiveUsers = DB::table('user_login_activities')
-            ->whereNotNull('last_login')
-            ->distinct('user_id')
+        $nagadSebaGroupId = 3;
+
+        $activeUsersCount = DB::table('user_session_status')
+            ->where('status', 'Active')
+            ->whereIn('id', function ($query) {
+                $query->select(DB::raw('MAX(id)'))
+                    ->from('user_session_status')
+                    ->groupBy('user_id');
+            })
             ->count('user_id');
 
-        $idleUsers = DB::table('user_login_activities')
-            ->whereNotNull('last_logout')
-            ->distinct('user_id')
+        $breakUsersCount = DB::table('user_session_status')
+            ->where('status', 'Break')
+            ->whereIn('id', function ($query) {
+                $query->select(DB::raw('MAX(id)'))
+                    ->from('user_session_status')
+                    ->groupBy('user_id');
+            })
             ->count('user_id');
 
-        $inactiveUsers = DB::table('users')
-            ->whereIn('status', ['Inactive', 'Pending'])
-            ->distinct('id')
-            ->count('id');
+        $totalUsers = DB::table('users')->where('group_id', $nagadSebaGroupId)->distinct('id')->count('id');
 
-        $totalUsers = DB::table('users')->distinct('id')->count('id');
+        $output = [
+            'totalActiveUser' => $activeUsersCount,
+            'totalBreakUser' => $breakUsersCount,
+            'totalNagadSebaUsers' => $totalUsers,
+        ];
 
         return response()->json([
-            'totalActiveUser' => $totalActiveUsers,
-            'totalIdleUser' => $idleUsers,
-            'totalInactiveUser' => $inactiveUsers,
-            'totalUsers' => $totalUsers,
+            'totalActiveUser' => 0,
+            'totalIdleUser' => 0,
+            'totalInactiveUser' => 0,
+            'totalUsers' => 0,
         ]);
     }
 
