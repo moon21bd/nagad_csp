@@ -270,7 +270,9 @@
                                                             ]
                                                         "
                                                         type="datetime"
-                                                        placeholder="Select date and time"
+                                                        format="yyyy-MM-dd hh:mm:ss A"
+                                                        value-format="yyyy-MM-dd HH:mm:ss"
+                                                        placeholder="Select DateTime"
                                                         @change="
                                                             formatDateTimeTest(
                                                                 field.id
@@ -629,7 +631,7 @@ export default {
         },
     },
     methods: {
-        formatDateTimeTest(fieldId) {
+        /* formatDateTimeTest(fieldId) {
             const isoDateString = this.ticketInfos.requiredField[fieldId];
             if (isoDateString) {
                 const date = new Date(isoDateString);
@@ -646,7 +648,32 @@ export default {
                 const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
                 this.ticketInfos.requiredField[fieldId] = formattedDate;
             }
+        }, */
+
+        formatDateTimeTest(fieldId) {
+            const isoDateString = this.ticketInfos.requiredField[fieldId];
+            if (isoDateString) {
+                const date = new Date(isoDateString);
+
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, "0");
+                const day = String(date.getDate()).padStart(2, "0");
+
+                let hours = date.getHours();
+                const minutes = String(date.getMinutes()).padStart(2, "0");
+                const seconds = String(date.getSeconds()).padStart(2, "0");
+
+                const ampm = hours >= 12 ? "PM" : "AM";
+
+                hours = hours % 12;
+                hours = hours ? hours : 12;
+                hours = String(hours).padStart(2, "0");
+
+                const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds} ${ampm}`;
+                this.ticketInfos.requiredField[fieldId] = formattedDate;
+            }
         },
+
         resetFilter() {
             this.searchCallerMobileNo = "";
             this.selectedStatus = "";

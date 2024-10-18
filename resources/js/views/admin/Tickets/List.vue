@@ -137,6 +137,7 @@
                                     <th>Creator</th>
                                     <th>Status</th>
                                     <th>Groups</th>
+                                    <th>TAT (Hrs)</th>
                                     <th>Call No</th>
                                     <th>Service Type</th>
                                     <th>Service Category</th>
@@ -197,6 +198,7 @@
                                             </div>
                                         </div>
                                     </td>
+                                    <td>{{ item.tat_hours }}</td>
                                     <td>
                                         {{ item.caller_mobile_no }}
                                     </td>
@@ -360,9 +362,6 @@ export default {
 
     methods: {
         formatDateTime,
-        /* showExportModal() {
-            $("#exportModal").modal("show"); // Show the export modal
-        }, */
         showExportModal() {
             this.$nextTick(() => {
                 $("#exportModal").modal("show"); // Show the export modal
@@ -488,8 +487,19 @@ export default {
             } finally {
                 this.isLoading = false;
             }
+
+            localStorage.removeItem("ticketStatusAndMyTickets");
         },
         async fetchTickets() {
+            const selectedFilters = {
+                status: this.filters.status,
+                my_tickets: this.filters.my_tickets,
+            };
+            localStorage.setItem(
+                "ticketStatusAndMyTickets",
+                JSON.stringify(selectedFilters)
+            );
+
             try {
                 this.isLoading = true;
                 const response = await axios.get("/tickets", {
@@ -538,7 +548,7 @@ export default {
                 RESOLVED: { class: "badge-success", label: "RESOLVED" }, // Green
                 CLOSED: {
                     class: "badge-danger",
-                    label: "CLOSED", // General label for all closed statuses
+                    label: "CLOSED",
                 },
                 REOPEN: { class: "badge-info", label: "REOPEN" }, // Lavender
             };
@@ -569,6 +579,12 @@ export default {
         },
     },
     mounted() {
+        const savedFilters = localStorage.getItem("ticketStatusAndMyTickets");
+        if (savedFilters) {
+            const { status, my_tickets } = JSON.parse(savedFilters);
+            this.filters.status = status || "";
+            this.filters.my_tickets = my_tickets || false;
+        }
         this.fetchFilterOptions();
         this.fetchTickets();
         this.fetchTicketStatuses();

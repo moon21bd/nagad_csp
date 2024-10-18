@@ -66,27 +66,8 @@ class TicketService
         $user = auth()->user();
         $query = NCTicket::with(['creator:id,name', 'callType', 'callCategory', 'callSubCategory', 'attachments', 'comments']);
 
-        /* if (isset($filters['status']) && $filters['status'] !== '') {
-        $query->where('ticket_status', $filters['status']);
-        } */
-
         if (isset($filters['status']) && $filters['status'] !== '') {
-            /* $closedStatuses = [
-            'CLOSED',
-            'CLOSED - REACHED',
-            'CLOSED - NOT RECEIVED',
-            'CLOSED - NOT CONNECTED',
-            'CLOSED - SWITCHED OFF',
-            'CLOSED - NOT COOPERATED',
-            ];
-
-            if (in_array($filters['status'], $closedStatuses)) {
-            $query->whereIn('ticket_status', $closedStatuses);
-            } else {
-            $query->where('ticket_status', $filters['status']);
-            } */
-
-            $query->where('ticket_status', $filters['status']);
+            $query->whereIn('ticket_status', $filters['status']);
         }
 
         if (isset($filters['groups']) && !empty($filters['groups'])) {
@@ -116,7 +97,10 @@ class TicketService
         } else {
             $tickets = $query->where('assign_to_group_id', $user->group_id)->get();
         }
-        return $tickets;
+
+        return $this->addTatHoursToTickets($tickets);
+
+        // return $tickets;
     }
 
     public function createTicket(array $validated)
@@ -586,6 +570,24 @@ class TicketService
     {
         $groupIdsArray = explode(',', $groupIds);
         return $this->groupService->getGroupName($groupIdsArray);
+    }
+
+    protected function addTatHoursToTickets($tickets)
+    {
+        foreach ($tickets as $ticket) {
+            $responsibleGroup = NCServiceResponsibleGroup::where('call_type_id', $ticket->call_type_id)
+                ->where('call_category_id', $ticket->call_category_id)
+                ->where('call_sub_category_id', $ticket->call_sub_category_id)
+                ->first();
+
+            if ($responsibleGroup) {
+                $ticket->tat_hours = $responsibleGroup->tat_hours;
+            } else {
+                $ticket->tat_hours = 0;
+            }
+        }
+
+        return $tickets;
     }
 
 }
