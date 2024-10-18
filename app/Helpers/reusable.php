@@ -184,42 +184,39 @@ if (!function_exists('uploadMediaGetPath')) {
             return null;
         }
 
-        // Check if the media is a file object or base64 string
         if (is_file($media)) {
-            // Handle file upload (non-base64, typical file object)
-            $extension = $media->getClientOriginalExtension(); // Get file extension
+
+            $extension = $media->getClientOriginalExtension();
             $fileNameToStore = uniqid() . '.' . $extension;
             $filePath = public_path("uploads/" . $path . "/" . $fileNameToStore);
 
             if ($media->move(public_path("uploads/" . $path), $fileNameToStore)) {
                 return $path . "/" . $fileNameToStore;
             } else {
-                return null; // Failed to move file
+                return null;
             }
         } else {
-            // Assume it's a base64 string (handle base64 image upload)
+
             $imageParts = explode(";base64,", $media);
             if (count($imageParts) !== 2) {
-                return null; // Invalid base64 format
+                return null;
             }
 
-            // Extract image type
             $imageType = explode("image/", $imageParts[0])[1] ?? null;
             if (!$imageType) {
-                return null; // Invalid image type
+                return null;
             }
 
             $imageBase64 = base64_decode($imageParts[1]);
             if ($imageBase64 === false) {
-                return null; // Failed to decode base64
+                return null;
             }
 
-            // Generate unique filename and save the image
             $fileNameToStore = uniqid() . '.' . $imageType;
             $filePath = public_path("uploads/" . $path . "/" . $fileNameToStore);
 
             if (file_put_contents($filePath, $imageBase64) === false) {
-                return null; // Failed to save base64 image
+                return null;
             }
 
             return $path . "/" . $fileNameToStore;

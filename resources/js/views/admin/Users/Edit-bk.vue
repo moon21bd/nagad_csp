@@ -111,7 +111,7 @@
                                     v-if="user.level !== 1"
                                 >
                                     <label class="control-label"
-                                        >Select Group<sup>*</sup></label
+                                        >Select Group</label
                                     >
                                     <el-select
                                         class="d-block w-100"
@@ -139,7 +139,7 @@
 
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >Employee Name<sup>*</sup></label
+                                        >Employee Name</label
                                     >
                                     <input
                                         class="form-control"
@@ -163,13 +163,13 @@
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >Employee ID<sup>*</sup></label
+                                        >Employee ID</label
                                     >
                                     <input
                                         class="form-control"
                                         type="text"
                                         name="employee_id"
-                                        v-model="user.employee_id"
+                                        v-model="user.user_details.employee_id"
                                         v-validate="'required'"
                                     />
                                     <div
@@ -180,9 +180,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6 form-group">
-                                    <label class="control-label"
-                                        >User ID<sup>*</sup></label
-                                    >
+                                    <label class="control-label">User ID</label>
                                     <input
                                         class="form-control"
                                         type="text"
@@ -205,21 +203,29 @@
                                         class="form-control"
                                         type="text"
                                         name="nid_card_no"
-                                        v-model="user.nid_card_no"
+                                        v-model="user.user_details.nid_card_no"
+                                        v-validate="
+                                            'required|numeric|min:10|max:15'
+                                        "
                                     />
+                                    <div
+                                        class="text-danger"
+                                        v-show="errors.has('nid_card_no')"
+                                    >
+                                        {{ errors.first("nid_card_no") }}
+                                    </div>
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >Date of Birth<sup>*</sup>
+                                        >Date of Birth
                                     </label>
                                     <el-date-picker
                                         class="d-block w-100"
-                                        v-model="user.birth_date"
+                                        v-model="user.user_details.birth_date"
                                         type="date"
                                         name="birth_date"
                                         placeholder="Select date and time"
                                         v-validate="'required'"
-                                        format="yyyy-MM-dd"
                                     >
                                     </el-date-picker>
                                     <div
@@ -231,7 +237,7 @@
                                 </div>
                                 <div class="col-md-6 form-group">
                                     <label class="control-label"
-                                        >Phone Number<sup>*</sup></label
+                                        >Phone Number</label
                                     >
                                     <input
                                         class="form-control"
@@ -252,7 +258,7 @@
 
                                 <div class="col-md-12 form-group">
                                     <label class="control-label"
-                                        >Email Address<sup>*</sup></label
+                                        >Email Address</label
                                     >
                                     <input
                                         class="form-control"
@@ -270,13 +276,11 @@
                                 </div>
 
                                 <div class="col-md-12 form-group">
-                                    <label class="control-label"
-                                        >Address<sup>*</sup></label
-                                    >
+                                    <label class="control-label">Address</label>
                                     <textarea
                                         class="form-control"
                                         name="address"
-                                        v-model="user.address"
+                                        v-model="user.user_details.address"
                                         v-validate="'required'"
                                     ></textarea>
                                     <div
@@ -326,7 +330,9 @@
                                                 type="radio"
                                                 value="Male"
                                                 name="gender"
-                                                v-model="user.gender"
+                                                v-model="
+                                                    user.user_details.gender
+                                                "
                                                 v-validate="'required'"
                                             /><span class="radio-mark"></span
                                             >Male
@@ -336,7 +342,9 @@
                                                 type="radio"
                                                 value="Female"
                                                 name="gender"
-                                                v-model="user.gender"
+                                                v-model="
+                                                    user.user_details.gender
+                                                "
                                                 v-validate="'required'"
                                             /><span class="radio-mark"></span
                                             >Female
@@ -386,11 +394,11 @@
                                 </div>
                             </div>
 
-                            <div v-if="formErrors.message" class="mb-3">
-                                <small class="text-danger">{{
-                                    formErrors.message
-                                }}</small>
-                            </div>
+                            <small
+                                v-if="formErrors.message"
+                                class="text-danger"
+                                >{{ formErrors.message }}</small
+                            >
 
                             <button class="btn btn-site" type="submit">
                                 Update
@@ -420,7 +428,6 @@ export default {
                 { value: "Permanent", label: "Permanent" },
             ],
             user: {
-                name: "",
                 level: null,
                 avatar: null,
                 group_id: null,
@@ -428,18 +435,17 @@ export default {
                 employee_user_id: "",
                 mobile_no: "",
                 email: "",
-                user_type: "",
-                employee_name: "",
-                employee_id: null,
-                nid_card_no: "",
-                birth_date: "",
-                address: "",
-                gender: "",
+                user_details: {
+                    employee_name: "",
+                    employee_id: "",
+                    nid_card_no: "",
+                    birth_date: "",
+                    address: "",
+                    gender: "",
+                },
             },
-            originalUser: {},
             users: [],
             id: null,
-            hasChanges: false,
         };
     },
     created() {
@@ -450,6 +456,7 @@ export default {
     },
     methods: {
         handleFileUpload(event) {
+            // `files` is always an array because the file input may be in multiple mode
             let reader = new FileReader();
             reader.readAsDataURL(event.target.files[0]);
             reader.onload = () => {
@@ -482,29 +489,10 @@ export default {
             try {
                 const response = await axios.get(`/user/${this.id}`);
                 const data = response.data.data;
-
                 delete data.roles;
                 delete data.group;
+                this.user = data;
 
-                this.originalUser = {
-                    name: data.name,
-                    level: data.level,
-                    avatar: data.avatar,
-                    group_id: data.group_id,
-                    status: data.status,
-                    employee_user_id: data.employee_user_id,
-                    mobile_no: data.mobile_no,
-                    email: data.email,
-                    user_type: data.user_type,
-                    employee_name: data.user_details.employee_name,
-                    employee_id: data.user_details.employee_id,
-                    nid_card_no: data.user_details.nid_card_no,
-                    birth_date: data.user_details.birth_date,
-                    address: data.user_details.address,
-                    gender: data.user_details.gender,
-                };
-
-                this.user = { ...this.originalUser };
                 this.userLevels = data.levels;
                 this.setUserAvatar(data);
             } catch (error) {
@@ -512,67 +500,44 @@ export default {
                 this.user = {};
             }
         },
-
         async handleSubmit() {
-            this.$validator.validateAll().then(async (result) => {
+            const _this = this;
+
+            _this.$validator.validateAll().then(async (result) => {
                 if (result) {
-                    try {
-                        const modifiedData = this.prepareModifiedData();
-                        if (Object.keys(modifiedData).length === 0) {
-                            console.warn("No changes to update");
-                            this.isLoading = false;
-                            this.user = {};
-                            Vue.prototype.$showToast("No changes to update.", {
-                                type: "warning",
+                    console.log("_this.user", _this.user);
+
+                    axios({
+                        method: "PUT",
+                        url: `/user/${_this.id}`,
+                        data: _this.user,
+                        headers: { "Content-Type": "application/json" },
+                    })
+                        .then(({ response: { data } }) => {
+                            _this.isLoading = false;
+                            _this.user = {};
+                            Vue.prototype.$showToast(data.message, {
+                                type: data.type,
                             });
-                            this.$router.push({ name: "user-index" });
-                            // return false;
-                        }
-
-                        console.log("modifiedData", modifiedData);
-
-                        // return false;
-                        const response = await axios.put(`/user/${this.id}`, {
-                            ...modifiedData,
+                            _this.$router.push({ name: "user-index" });
+                        })
+                        .catch((errors) => {
+                            if (
+                                errors.response &&
+                                errors.response.data.errors
+                            ) {
+                                _this.formErrors = errors.response.data.errors;
+                            } else {
+                                _this.formErrors.push(
+                                    "Failed to update user profile. Please try again later."
+                                );
+                            }
+                        })
+                        .finally(() => {
+                            _this.isLoading = false;
                         });
-
-                        this.isLoading = false;
-                        this.user = {};
-                        Vue.prototype.$showToast(response.data.message, {
-                            type: response.data.type,
-                        });
-                        this.$router.push({ name: "user-index" });
-                    } catch (errors) {
-                        if (errors.response && errors.response.data.errors) {
-                            this.formErrors = errors.response.data.errors;
-                        } else {
-                            this.formErrors.push(
-                                "Failed to update user profile. Please try again later."
-                            );
-                        }
-                    } finally {
-                        this.isLoading = false;
-                    }
                 }
             });
-        },
-
-        prepareModifiedData() {
-            const modifiedData = {};
-
-            const isModified = (newValue, originalValue) => {
-                return (
-                    JSON.stringify(newValue) !== JSON.stringify(originalValue)
-                );
-            };
-
-            Object.keys(this.user).forEach((key) => {
-                if (isModified(this.user[key], this.originalUser[key])) {
-                    modifiedData[key] = this.user[key];
-                }
-            });
-
-            return modifiedData;
         },
     },
 };

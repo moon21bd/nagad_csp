@@ -18,6 +18,8 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Laratrust\Models\LaratrustPermission;
 
@@ -49,38 +51,6 @@ class UsersController extends Controller
      */
     public function index()
     {
-        /* $group = Group::find(1);
-        $user = User::find(12);
-        $userIsAble = $user->isAbleTo('user-edit', $group);
-        dd($userIsAble);
-        $this->assignPermissionToGroup(1);
-        dd(""); */
-
-        /* $user = User::find(14);
-        $groupId = $user->group_id;
-        $hasPermission = $user->hasPermission("user-create", $groupId);
-        dd($hasPermission); */
-        // $user->hasRole('owner|admin|default_role');
-        // logged in user permission check
-        // Auth::user()->hasPermission('role-create');
-
-        /*
-        // checking user hasPermission
-        $user = User::find(14);
-        $groupId = $user->group_id;
-        $hasPermission = $user->hasPermission("dashboard", $groupId);
-        dd($hasPermission); */
-
-        /*
-        // check user has permission to the user within group
-        $user = User::find(14);
-        $groupId = $user->group_id;
-        $userIsAbleTo = $user->isAbleTo('dashboard', $groupId);
-        dd($userIsAbleTo); */
-
-        /* $users = User::with(['group', 'user_activity', 'user_login_activity', 'user_details'])
-        ->orderByDesc('id')
-        ->get(); */
 
         $users = User::with(['group', 'user_activity', 'user_login_activity', 'user_details'])
             ->orderByDesc('id')
@@ -155,7 +125,6 @@ class UsersController extends Controller
             'data' => $users,
         ], 200);
     }
-
     public function assignPermissionToGroup($groupId)
     {
         $team = Group::find($groupId);
@@ -215,49 +184,117 @@ class UsersController extends Controller
     {
         $user = User::findOrFail($id);
         $userId = $user->id;
+        $phoneRules = explode('|', $this->phoneValidationRules());
 
-        // Validate the input
-        $validatedData = $request->validate([
-            'group_id' => 'required',
-            'parent_id' => 'nullable|integer',
-            'level' => 'nullable|integer',
-            'status' => 'required|in:Active,Inactive,Pending',
-            'avatar' => 'nullable|string',
-            'user_type' => 'required|string',
-            'user_details.gender' => 'required|string',
-        ]);
+        $validator = Validator::make($request->all(), [
+            'group_id' => 'sometimes|required',
+            'parent_id' => 'sometimes|required|integer|exists:users,id',
+            'level' => 'sometimes|required|integer',
+            'status' => 'sometimes|required|in:Active,Inactive,Pending',
+            'avatar' => 'sometimes|required|string',
+            'user_type' => 'sometimes|required|string',
+            'mobile_no' => array_merge(["sometimes"], $phoneRules, [
+                Rule::unique('users')->ignore($userId),
+            ]),
+            'email' => [
+                'sometimes',
+                'required',
+                'email',
+                'max:64',
+                Rule::unique('users')->ignore($userId),
+            ],
+            'employee_user_id' => [
+                'sometimes',
+                'required',
+                'string',
+                'max:64',
+                Rule::unique('users')->ignore($userId),
+            ],
+            'employee_id' => 'sometimes|required|string',
+            'gender' => 'sometimes|required|string',
+            'employee_name' => 'sometimes|required|string',
+            'nid_card_no' => 'sometimes|nullable|string',
+            'birth_date' => 'sometimes|required|date',
+            'address' => 'sometimes|required|string',
+        ], $this->phoneValidationErrorMessages());
+
+        if ($validator->fails()) {
+            return sendValidationErrorResponse($validator);
+        }
+
+        $validatedData = $validator->validated();
+
+        $validatedUserDetails = [
+            'user_details' => [
+                'employee_id' => $validatedData['employee_id'] ?? null,
+                'employee_user_id' => $validatedData['employee_user_id'] ?? null,
+                'gender' => $validatedData['gender'] ?? null,
+                'employee_name' => $validatedData['employee_name'] ?? null,
+                'nid_card_no' => $validatedData['nid_card_no'] ?? null,
+                'birth_date' => isset($validatedData['birth_date']) ? date('Y-m-d', strtotime($validatedData['birth_date'])) : null,
+                'address' => $validatedData['address'] ?? null,
+            ],
+        ];
 
         // Handle avatar upload
         if (!empty($validatedData['avatar'])) {
             $validatedData['avatar'] = uploadMediaGetPath($validatedData['avatar']) ?: null;
         }
 
-        // Capture previous roles and permissions
-        $previousPermissions = $user->permissions->pluck('name')->toArray();
-        $previousRoles = $user->roles->pluck('name')->toArray();
-        $groupPermissions = $user->group ? $user->group->permissions->pluck('name')->toArray() : [];
-        $previousAllPermissions = array_unique(array_merge($previousPermissions, $groupPermissions));
+        if (isset($validatedData['level']) && $validatedData['level'] === config('nagad.USER') && $validatedData['parent_id'] === null) {
+            return $this->sendError([
+                'title' => 'Failed to register.',
+                'message' => 'Please choose a valid parent_id. A user level with parent_id 0 is not acceptable.',
+            ]);
+
+        }
+
+        if (isset($validatedData['level']) && $validatedData['level'] == config('nagad.GROUP_OWNER')) {
+            $existingOwner = User::where('group_id', $validatedData['group_id'])
+                ->where('level', config('nagad.GROUP_OWNER'))
+                ->first();
+
+            if ($existingOwner) {
+                return $this->sendError([
+                    'title' => 'Failed to register.',
+                    'message' => 'Group already has an owner. Try Different owner.',
+                ]);
+            }
+        }
 
         // Check for changes in group, parent, or level
-        $isUserMigrated = $user->group_id != $validatedData['group_id'];
-        $isParentChanged = $user->parent_id != $validatedData['parent_id'];
-        $isLevelChanged = $user->level != $validatedData['level'];
 
-        if ($isUserMigrated || $isParentChanged || $isLevelChanged) {
+        // dd($validatedData['group_id'], (isset($validatedData['group_id']) && $user->group_id != $validatedData['group_id']), (isset($validatedData['parent_id']) && $user->parent_id != $validatedData['parent_id']), (isset($validatedData['level']) && $user->level != $validatedData['level']));
+        if ($isUserMigrated = (isset($validatedData['group_id']) && $user->group_id != $validatedData['group_id'])
+            || (isset($validatedData['parent_id']) && $user->parent_id != $validatedData['parent_id'])
+            || (isset($validatedData['level']) && $user->level != $validatedData['level'])) {
+
+            // $isUserMigrated = $user->group_id != $validatedData['group_id'];
+            // $isParentChanged = $user->parent_id != $validatedData['parent_id'];
+            // $isLevelChanged = $user->level != $validatedData['level'];
+
+            // Capture previous roles and permissions
+            $previousPermissions = $user->permissions->pluck('name')->toArray();
+            $previousRoles = $user->roles->pluck('name')->toArray();
+            $groupPermissions = $user->group ? $user->group->permissions->pluck('name')->toArray() : [];
+            $previousAllPermissions = array_unique(array_merge($previousPermissions, $groupPermissions));
+
             // Handle group migration if needed
             if ($isUserMigrated) {
-                $user->permissions()->detach();
-                $newGroupPermissions = Group::find($validatedData['group_id'])->permissions->pluck('id')->toArray();
-                $user->permissions()->attach($newGroupPermissions);
+                if (!empty($validatedData['group_id'])) {
+                    $user->permissions()->detach();
+                    $newGroupPermissions = Group::find($validatedData['group_id'])->permissions->pluck('id')->toArray();
+                    $user->permissions()->attach($newGroupPermissions);
+                }
             }
 
             // Log migration changes
-            $totalTicket = NCTicket::where('ticket_created_by', $id)->count();
+            $totalTicket = NCTicket::where('ticket_created_by', $userId)->count();
 
             $this->createUserMigrationLogs([
                 'user_id' => $userId,
                 'previous_group_id' => $user->group_id,
-                'current_group_id' => $validatedData['group_id'],
+                'current_group_id' => $validatedData['group_id'] ?? $user->group_id,
                 'total_ticket_created_till' => $totalTicket,
                 'previous_roles_permissions' => json_encode([
                     'permissions' => $previousAllPermissions,
@@ -265,8 +302,8 @@ class UsersController extends Controller
                 ]),
                 'previous_level' => $user->level,
                 'previous_parent_id' => $user->parent_id,
-                'current_level' => $validatedData['level'],
-                'current_parent_id' => $validatedData['parent_id'],
+                'current_level' => $validatedData['level'] ?? $user->level,
+                'current_parent_id' => $validatedData['parent_id'] ?? $user->parent_id,
                 'updator_group_id' => Auth::user()->group_id,
                 'updated_by' => Auth::id(),
                 'updator_ip' => getIPAddress(),
@@ -274,13 +311,36 @@ class UsersController extends Controller
             ]);
         }
 
-        // Update the user with validated data
-        $user->update($validatedData);
+        // Update user with only changed data
+        $userData = [];
+        foreach ($validatedData as $key => $value) {
+            if ($user->{$key} !== $value) {
+                $userData[$key] = $value;
+            }
+        }
 
-        // Update user details
-        UserDetail::where('user_id', $user->id)->update([
-            'gender' => $validatedData['user_details']['gender'],
-        ]);
+        $userData = array_filter($userData, function ($value) {
+            return !is_null($value);
+        });
+
+        if (!empty($userData)) {
+            $user->update($userData);
+        }
+
+        $userDetailsData = [];
+        foreach ($validatedUserDetails['user_details'] ?? [] as $key => $value) {
+            if ($user->user_details->{$key} !== $value) {
+                $userDetailsData[$key] = $value;
+            }
+        }
+
+        $userDetailsData = array_filter($userDetailsData, function ($value) {
+            return !is_null($value);
+        });
+
+        if (!empty($userDetailsData)) {
+            UserDetail::where('user_id', $user->id)->update($userDetailsData);
+        }
 
         return response()->json([
             'message' => 'User data updated.',

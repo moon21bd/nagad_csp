@@ -21,6 +21,55 @@
                         <i class="icon-refresh"></i></button
                 ></a>
             </li>
+
+            <div class="status-update">
+                <span>Status: {{ currentStatus }}</span>
+                <div>
+                    <label>
+                        <input
+                            type="radio"
+                            value="Active"
+                            v-model="currentStatus"
+                            @change="changeStatus('Active')"
+                        />
+                        Active
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            value="Break"
+                            v-model="currentStatus"
+                            @change="changeStatus('Break')"
+                        />
+                        Break
+                    </label>
+                </div>
+            </div>
+
+            <!-- Status Update Radio Buttons -->
+            <!-- <li class="nav-item">
+                <div class="btn-group" role="group" aria-label="Status Update">
+                    <label>
+                        <input
+                            type="radio"
+                            value="Active"
+                            v-model="status"
+                            @change="updateStatus"
+                        />
+                        Active
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            value="Break"
+                            v-model="status"
+                            @change="updateStatus"
+                        />
+                        Break
+                    </label>
+                </div>
+            </li> -->
+
             <div class="topbar-divider d-none d-sm-block"></div>
             <NotificationDropdown />
 
@@ -96,16 +145,28 @@ export default {
     computed: {
         ...mapState("auth", ["user"]),
         ...mapGetters("auth", ["user"]),
+        ...mapGetters("sessionStatus", ["currentStatus"]),
+
         user() {
             return this.$store.getters["auth/user"];
         },
     },
+    mounted() {
+        this.loadCurrentStatus();
+    },
     methods: {
         ...mapActions("auth", ["setUser"]),
+        ...mapActions("sessionStatus", ["updateStatus", "fetchCurrentStatus"]),
         logout() {
             this.logoutSend(this.$store.state.auth.user.id);
             this.$store.dispatch("auth/logout");
             this.$router.push("/login");
+        },
+        changeStatus(newStatus) {
+            this.updateStatus(newStatus);
+        },
+        loadCurrentStatus() {
+            this.fetchCurrentStatus();
         },
         async logoutSend(id) {
             console.log("logoutSend Called", id);

@@ -688,8 +688,6 @@ export default {
                     // Require minimum "Fair" strength
                     // Proceed with form submission if validated and password strength is sufficient
 
-                    // console.log("formData", _this.formData);
-                    // return;
                     axios({
                         method: "POST",
                         url: "/user/register",

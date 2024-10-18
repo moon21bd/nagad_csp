@@ -19,6 +19,7 @@ use App\Http\Controllers\NCTicketTimelineController;
 use App\Http\Controllers\PermissionsController;
 use App\Http\Controllers\RolesController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\UserSessionStatusController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -161,6 +162,10 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('get-service-types', [NCCallTypeController::class, 'getActiveCallType']);
     Route::get('get-service-category', [NCCallCategoryController::class, 'getActiveServiceCategory']);
     Route::get('get-service-type-configs/{cti}/{cci}/{csci}', [NCServiceTypeConfigController::class, 'getServiceTypeConfigs']);
+
+    // session status update
+    Route::get('/session-status/current', [UserSessionStatusController::class, 'currentStatus']);
+    Route::post('/session-status', [UserSessionStatusController::class, 'update']);
 
     // Dashboard related apis
     Route::get('get-total-report-count/{id?}/{date?}', [NCReportController::class, 'getTotalReportCount']);
