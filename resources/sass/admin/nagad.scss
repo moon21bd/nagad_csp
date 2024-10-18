@@ -120,28 +120,38 @@ body {
         margin: 0;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        grid-gap: 1.5rem;
+        grid-gap: 1rem;
         li {
             background: $red;
             padding: 15px;
             display: block;
             border-radius: 6px;
-            color: $white;
+            color: $red;
             position: relative;
+
+            &.open-tickets {
+                background: rgba($red, 0.06);
+                color: $red;
+            }
             &.progress-tickets {
-                background: #260066;
+                background: rgba(#260066, 0.06);
+                color: #260066;
             }
             &.close-tickets {
-                background: #34b669;
+                background: rgba(#34b669, 0.06);
+                color: #34b669;
             }
             &.total-query {
-                background: #003049;
+                background: rgba(#003049, 0.06);
+                color: #003049;
             }
             &.total-compliance {
-                background: #0b7c86;
+                background: rgba(#0b7c86, 0.06);
+                color: #0b7c86;
             }
             &.total-tequest {
-                background: #f77f00;
+                background: rgba(#f77f00, 0.06);
+                color: #f77f00;
             }
             i {
                 font-size: 32px;

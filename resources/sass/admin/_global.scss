@@ -51,6 +51,70 @@ a {
     }
 }
 
+.switch {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 140px;
+    height: 30px;
+    background-color: #cbd9eb;
+    border-radius: 36px;
+    cursor: pointer;
+    z-index: 1;
+
+    &-label {
+        flex: 1;
+        text-align: center;
+
+        font-weight: 500;
+        margin: 0;
+        font-size: 14px;
+        line-height: 0;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        span {
+            transition: all 0.15s linear;
+            color: $gray-600;
+            &:hover {
+                color: white;
+            }
+        }
+    }
+    input {
+        display: none;
+        &:checked + span {
+            color: white;
+        }
+    }
+}
+
+.slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background-color: #1abc9c;
+    border-radius: 15px;
+    transition: left 0.15s linear;
+    z-index: -1;
+    &.break {
+        left: 50%;
+        background-color: #f39c12;
+    }
+}
+.badge-status {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    top: 0;
+    right: 0;
+    box-shadow: 0 0 0px 2px white;
+    transition: all 0.2s linear;
+}
 // Set container padding to match gutter width instead of default 15px
 .container,
 .container-fluid {

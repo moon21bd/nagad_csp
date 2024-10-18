@@ -14,37 +14,43 @@
         </button>
 
         <!-- Topbar Navbar -->
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a href="" class="nav-link"
-                    ><button class="btn btn-refresh">
-                        <i class="icon-refresh"></i></button
-                ></a>
-            </li>
-
-            <div class="status-update">
-                <span>Status: {{ currentStatus }}</span>
-                <div>
-                    <label>
+        <ul class="navbar-nav ml-auto align-items-center">
+            <li>
+                <div class="switch mr-3">
+                    <label class="switch-label">
                         <input
                             type="radio"
                             value="Active"
                             v-model="currentStatus"
                             @change="changeStatus('Active')"
                         />
-                        Active
+                        <span>Active</span>
                     </label>
-                    <label>
+
+                    <label class="switch-label">
                         <input
                             type="radio"
                             value="Break"
                             v-model="currentStatus"
                             @change="changeStatus('Break')"
                         />
-                        Break
+                        <span>Break</span>
                     </label>
+
+                    <div
+                        class="slider"
+                        :class="{ break: currentStatus === 'Break' }"
+                    ></div>
                 </div>
-            </div>
+                <!-- <p>Current Status: {{ currentStatus }}</p> -->
+            </li>
+            <div class="topbar-divider d-none d-sm-block"></div>
+            <li class="nav-item">
+                <a href="" class="nav-link"
+                    ><button class="btn btn-refresh">
+                        <i class="icon-refresh"></i></button
+                ></a>
+            </li>
 
             <!-- Status Update Radio Buttons -->
             <!-- <li class="nav-item">
@@ -86,10 +92,22 @@
                     aria-haspopup="true"
                     aria-expanded="false"
                 >
-                    <img
-                        class="img-profile rounded-circle"
-                        src="/images/user-avatar.png"
-                    />
+                    <div class="position-relative">
+                        <img
+                            class="img-profile rounded-circle"
+                            src="/images/user-avatar.png"
+                        />
+
+                        <span
+                            class="badge-status position-absolute"
+                            :style="{
+                                background:
+                                    currentStatus === 'Break'
+                                        ? '#f39c12'
+                                        : '#1abc9c',
+                            }"
+                        ></span>
+                    </div>
                     <span class="ml-2 d-none d-lg-inline text-gray-600 small">
                         <span v-if="user">{{ user.name }}</span>
                         <i class="icon-down"></i>

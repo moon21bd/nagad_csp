@@ -1,41 +1,47 @@
 <template>
     <div>
         <div
-            class="common-heading d-flex align-items-center mb-3 flex-wrap flex-md-nowrap"
+            class="common-heading d-none align-items-center mb-3 flex-wrap flex-md-nowrap"
         >
             <h1 class="title m-0 mr-2">Dashboard</h1>
-            <el-select
-                v-if="hasRole('admin|superadmin')"
-                class="mr-2 mb-3 mb-md-0"
-                v-model="filterGroup"
-                placeholder="Select Group"
+        </div>
+        <div class="card mb-3">
+            <div
+                class="card-body d-flex align-items-centerflex-wrap flex-md-nowrap"
             >
-                <el-option value="">All</el-option>
-                <el-option
-                    v-for="group in groups"
-                    :key="group.id"
-                    :label="group.name"
-                    :value="group.id"
+                <el-select
+                    v-if="hasRole('admin|superadmin')"
+                    class="mr-2 mb-3 mb-md-0"
+                    v-model="filterGroup"
+                    placeholder="Select Group"
                 >
-                </el-option>
-            </el-select>
-            <el-date-picker
-                v-if="hasRole('admin|superadmin')"
-                v-model="dateFilter"
-                type="daterange"
-                range-separator="To"
-                start-placeholder="Start date"
-                end-placeholder="End date"
-            >
-            </el-date-picker>
-            <el-button
-                v-if="hasRole('admin|superadmin')"
-                type="primary"
-                @click="resetFilters"
-                class="btn btn-site bg-dark ml-auto text-nowrap"
-            >
-                Reset Filters
-            </el-button>
+                    <el-option value="">All</el-option>
+                    <el-option
+                        v-for="group in groups"
+                        :key="group.id"
+                        :label="group.name"
+                        :value="group.id"
+                    >
+                    </el-option>
+                </el-select>
+                <el-date-picker
+                    v-if="hasRole('admin|superadmin')"
+                    v-model="dateFilter"
+                    type="daterange"
+                    range-separator="To"
+                    start-placeholder="Start date"
+                    end-placeholder="End date"
+                >
+                </el-date-picker>
+                <el-button
+                    v-if="hasRole('admin|superadmin')"
+                    type="primary"
+                    @click="resetFilters"
+                    class="btn btn-site ml-auto text-nowrap"
+                >
+                    Reset Filter
+                </el-button>
+            </div>
         </div>
         <div class="dashboard-card">
             <ul>
@@ -49,7 +55,11 @@
                     </div>
                     <h3>
                         <span>{{ ticket.label }}</span>
-                        {{ ticket.count }}
+                        {{
+                            ticket.count < 10
+                                ? "0" + ticket.count
+                                : ticket.count
+                        }}
                     </h3>
                 </li>
             </ul>
@@ -66,14 +76,14 @@
                     </div>
                     <h3>
                         <span>{{ label }}</span>
-                        {{ value }}
+                        {{ value < 10 ? "0" + value : value }}
                     </h3>
                 </li>
             </ul>
         </div>
 
         <div class="row card-equal">
-            <div class="col-md-6">
+            <div class="col-md-6 pr-md-0">
                 <div class="card mb-4">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
@@ -313,6 +323,7 @@ export default {
             ticketsStatus: {
                 chart: {
                     type: "pie",
+                    height: 300,
                     options3d: {
                         enabled: true,
                         alpha: 45,
@@ -339,7 +350,7 @@ export default {
                     text: null,
                 },
                 credits: {
-                    enabled: true,
+                    enabled: false,
                 },
                 plotOptions: {
                     pie: {
@@ -484,6 +495,7 @@ export default {
                     series: [
                         {
                             name: "Complaint (in thousand)",
+                            borderRadius: 8,
                             data: [
                                 20, 40, 50, 20, 40, 50, 60, 80, 100, 60, 40, 50,
                                 30, 80, 100, 20, 40, 50, 60, 80, 40, 50, 20, 40,
@@ -576,6 +588,8 @@ export default {
                     series: [
                         {
                             name: "Monthly Service Request (in thousand)",
+                            borderRadius: 8,
+
                             data: [
                                 20, 40, 50, 20, 40, 50, 60, 80, 100, 60, 40, 50,
                                 30, 80, 100, 20, 40, 50, 60, 80, 40, 50, 20, 40,
@@ -591,22 +605,48 @@ export default {
                 },
                 title: {
                     text: "Top 30 Ticket Categories",
+                    align: "left",
+                    style: {
+                        color: "#242526",
+                        fontSize: "16px",
+                        fontWeight: "500",
+                        fontFamily: "Inter, sans-serif",
+                    },
+                },
+                credits: {
+                    enabled: false,
                 },
                 xAxis: {
                     categories: [],
-                    title: {
-                        text: "Categories",
+                    title: null,
+                    crosshair: true,
+                    labels: {
+                        style: {
+                            color: "#345b5b",
+                            fontSize: "14px",
+                            fontFamily: "Inter, sans-serif",
+                        },
                     },
                 },
                 yAxis: {
                     min: 0,
                     title: {
                         text: "Count",
+                        style: {
+                            color: "#345b5b",
+                            fontSize: "14px",
+                            fontFamily: "Inter, sans-serif",
+                        },
                     },
+                },
+                colors: ["#ff6060"],
+                legend: {
+                    enabled: false,
                 },
                 series: [
                     {
                         name: "Count",
+                        borderRadius: 4,
                         data: [],
                     },
                 ],
@@ -665,8 +705,8 @@ export default {
         userStatistics() {
             return {
                 "Active User": this.userStats.totalActiveUser,
-                "Idle User": this.userStats.totalIdleUser,
-                "Inactive User": this.userStats.totalInactiveUser,
+                // "Idle User": this.userStats.totalIdleUser,
+                "Break Count": this.userStats.totalInactiveUser,
                 "User (Lifetime)": this.userStats.totalUsers,
             };
         },
@@ -752,8 +792,8 @@ export default {
         getUserStatsIconClass(label) {
             const icons = {
                 "Active User": "icon-user-check",
-                "Idle User": "icon-user-remove",
-                "Inactive User": "icon-user-x",
+                // "Idle User": "icon-user-remove",
+                "Break Count": "icon-clock",
                 "User (Lifetime)": "icon-user",
             };
             return icons[label];
@@ -977,4 +1017,9 @@ export default {
     },
 };
 </script>
-<style></style>
+<style scoped>
+.btn-site {
+    background: #ff6060 !important;
+    border-color: #ff6060 !important;
+}
+</style>
