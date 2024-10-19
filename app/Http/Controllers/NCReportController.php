@@ -393,17 +393,10 @@ class NCReportController extends Controller
 
         $totalUsers = DB::table('users')->where('group_id', $nagadSebaGroupId)->distinct('id')->count('id');
 
-        $output = [
+        return response()->json([
             'totalActiveUser' => $activeUsersCount,
             'totalBreakUser' => $breakUsersCount,
             'totalNagadSebaUsers' => $totalUsers,
-        ];
-
-        return response()->json([
-            'totalActiveUser' => 0,
-            'totalIdleUser' => 0,
-            'totalInactiveUser' => 0,
-            'totalUsers' => 0,
         ]);
     }
 

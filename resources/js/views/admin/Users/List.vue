@@ -82,19 +82,7 @@
                                         }}
                                     </td>
 
-                                    <td>
-                                        <span
-                                            :class="
-                                                item?.status === 'Active'
-                                                    ? 'active'
-                                                    : 'inactive'
-                                            "
-                                            class="badge"
-                                        >
-                                            {{ item?.status || "" }}
-                                        </span>
-                                    </td>
-
+                                    <td v-html="renderStatus(item.status)"></td>
                                     <td class="text-right">
                                         <div class="btn-group">
                                             <button
@@ -256,6 +244,18 @@ export default {
     methods: {
         ...mapActions("permissions", ["fetchPermissions"]),
 
+        renderStatus(status) {
+            const statusMap = {
+                Blocked: { class: "badge-primary", label: "Blocked" },
+                Pending: { class: "badge-warning", label: "Pending" },
+                Active: { class: "badge-success", label: "Active" },
+                Inactive: { class: "badge-danger", label: "Inactive" },
+                Deleted: { class: "badge-info", label: "Deleted" },
+            };
+            return statusMap[status]
+                ? `<span class="badge ${statusMap[status].class}">${statusMap[status].label}</span>`
+                : `<span class="badge badge-dark">${status}</span>`;
+        },
         async deleteUser(id) {
             try {
                 const loggedInUserId = this.$store.state.auth.user.id;

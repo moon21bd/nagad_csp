@@ -546,7 +546,6 @@ import axios from "../../../axios";
 import noData from "../components/noData.vue";
 // import userInfo from "./components/userInfo.vue";
 import { formatDateTime } from "../../../utils/common";
-import { debounce } from "lodash";
 
 export default {
     components: {
@@ -631,25 +630,6 @@ export default {
         },
     },
     methods: {
-        /* formatDateTimeTest(fieldId) {
-            const isoDateString = this.ticketInfos.requiredField[fieldId];
-            if (isoDateString) {
-                const date = new Date(isoDateString);
-
-                // Extract the components
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
-                const day = String(date.getDate()).padStart(2, "0");
-                const hours = String(date.getHours()).padStart(2, "0");
-                const minutes = String(date.getMinutes()).padStart(2, "0");
-                const seconds = String(date.getSeconds()).padStart(2, "0");
-
-                // Format to 'YYYY-MM-DD HH:mm:ss'
-                const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-                this.ticketInfos.requiredField[fieldId] = formattedDate;
-            }
-        }, */
-
         formatDateTimeTest(fieldId) {
             const isoDateString = this.ticketInfos.requiredField[fieldId];
             if (isoDateString) {

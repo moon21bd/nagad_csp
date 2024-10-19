@@ -656,6 +656,12 @@ export default {
     },
     computed: {
         ...mapGetters("permissions", ["hasPermission", "hasRole"]),
+        user() {
+            return this.$store.state.auth.user;
+        },
+        isNagadSebaUserGroup() {
+            return this.user && this.user.group_id === 3;
+        },
         ticketStats() {
             return [
                 {
@@ -705,9 +711,8 @@ export default {
         userStatistics() {
             return {
                 "Active User": this.userStats.totalActiveUser,
-                // "Idle User": this.userStats.totalIdleUser,
-                "Break Count": this.userStats.totalInactiveUser,
-                "User (Lifetime)": this.userStats.totalUsers,
+                "Break Count": this.userStats.totalBreakUser,
+                "User (Lifetime)": this.userStats.totalNagadSebaUsers,
             };
         },
         isSuperAdmin() {
@@ -792,7 +797,6 @@ export default {
         getUserStatsIconClass(label) {
             const icons = {
                 "Active User": "icon-user-check",
-                // "Idle User": "icon-user-remove",
                 "Break Count": "icon-clock",
                 "User (Lifetime)": "icon-user",
             };

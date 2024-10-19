@@ -157,7 +157,7 @@
                                                 params: { id: item.id },
                                             }"
                                             class="text-nowrap btn btn btn-sm btn-outline-danger"
-                                            title="Ticket Timeline"
+                                            title="Timeline"
                                         >
                                             <i class="icon-clock"></i>
                                             {{ item.uuid }}
@@ -238,7 +238,7 @@
                                         ></router-link>
                                         <a
                                             v-if="
-                                                hasRole('superadmin') ||
+                                                hasRole('admin|superadmin') ||
                                                 hasPermission('ticket-delete')
                                             "
                                             class="btn-action btn-trash"

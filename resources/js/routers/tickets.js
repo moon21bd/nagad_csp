@@ -5,7 +5,7 @@ export default [
         component: () => import("../views/admin/Tickets/Create.vue"),
         meta: {
             requiresAuth: true,
-            requiresPermission: "ticket-create",
+            // requiresPermission: "ticket-create",
         },
     },
     {
@@ -23,7 +23,7 @@ export default [
         component: () => import("../views/admin/Tickets/List.vue"),
         meta: {
             requiresAuth: true,
-            requiresPermission: "ticket-list",
+            // requiresPermission: "ticket-list",
         },
     },
     {
@@ -44,7 +44,7 @@ export default [
         component: () => import("../views/admin/Tickets/Timeline.vue"),
         meta: {
             requiresAuth: true,
-            requiresPermission: "ticket-timeline",
+            // requiresPermission: "ticket-timeline",
         },
     },
 ];
