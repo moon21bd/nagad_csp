@@ -25,3 +25,6 @@ yarn.lock
 package-lock.json
 public/mix-manifest.json
 .DS_Store
+Dockerfile
+docker-compose.yaml
+nginx/
