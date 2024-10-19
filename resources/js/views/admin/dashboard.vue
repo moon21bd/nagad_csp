@@ -7,11 +7,11 @@
         </div>
         <div class="card mb-3">
             <div
-                class="card-body d-flex align-items-centerflex-wrap flex-md-nowrap"
+                class="card-body d-flex align-items-center flex-wrap flex-md-nowrap"
             >
                 <el-select
                     v-if="hasRole('admin|superadmin')"
-                    class="mr-2 mb-3 mb-md-0"
+                    class="mr-0 mb-3 mb-md-0 mr-md-3"
                     v-model="filterGroup"
                     placeholder="Select Group"
                 >
@@ -37,7 +37,7 @@
                     v-if="hasRole('admin|superadmin')"
                     type="primary"
                     @click="resetFilters"
-                    class="btn btn-site ml-auto text-nowrap"
+                    class="btn btn-site ml-auto text-nowrap mt-3 mt-md-0"
                 >
                     Reset Filter
                 </el-button>
@@ -56,7 +56,7 @@
                     <h3>
                         <span>{{ ticket.label }}</span>
                         {{
-                            ticket.count < 10
+                            ticket.count < 10 && ticket.count > 0
                                 ? "0" + ticket.count
                                 : ticket.count
                         }}
@@ -76,7 +76,7 @@
                     </div>
                     <h3>
                         <span>{{ label }}</span>
-                        {{ value < 10 ? "0" + value : value }}
+                        {{ value < 10 && value > 0 ? "0" + value : value }}
                     </h3>
                 </li>
             </ul>

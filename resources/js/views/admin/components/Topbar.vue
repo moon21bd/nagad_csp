@@ -9,8 +9,8 @@
         >
             <i class="icon-left"></i>
         </button>
-        <button class="btn push-menu" id="sidebarToggle">
-            <i class="icon-left"></i>
+        <button class="btn push-menu d-none d-sm-flex" id="sidebarToggle">
+            <i class="icon-left m-auto"></i>
         </button>
 
         <!-- Topbar Navbar -->

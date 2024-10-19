@@ -163,7 +163,7 @@
 
                     <el-menu-item index="customer-profile-index">
                         <router-link :to="{ name: 'customer-profile-index' }">
-                            <i class="icon-user-x"></i>
+                            <i class="icon-user"></i>
                             <span>Customer Profiles</span>
                         </router-link>
                     </el-menu-item>
