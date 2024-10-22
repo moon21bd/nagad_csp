@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 
@@ -45,13 +46,20 @@ class Handler extends ExceptionHandler
     {
         if ($exception instanceof HttpException) {
             // Check if it's a Laratrust permission error
-            if ($exception->getStatusCode() == 403) {
+            if ($exception->getStatusCode() === Response::HTTP_FORBIDDEN) {
                 return response()->json([
                     'message' => 'User does not have the necessary access rights.',
                     'error' => 'permission_denied',
-                    'status' => 403,
-                ], 403);
+                    'status' => Response::HTTP_FORBIDDEN,
+                ], Response::HTTP_FORBIDDEN);
             }
+
+            if ($exception instanceof \Illuminate\Http\Exceptions\ThrottleRequestsException) {
+                return response()->json([
+                    'message' => 'Too many login attempts. Please try again later.',
+                ], Response::HTTP_TOO_MANY_REQUESTS);
+            }
+
         }
 
         return parent::render($request, $exception);

@@ -75,19 +75,19 @@
                                 <div
                                     class="form-row"
                                     v-if="
-                                        isNagadSebaOrUddoktaPointCustomerGroup
+                                        isSebaOrUddoktaAgent || isOtherCCAgent
                                     "
                                 >
                                     <div class="col-md-12 form-group">
-                                        <label class="control-label"
-                                            >Customer Number<sup>*</sup></label
-                                        >
+                                        <label class="control-label">
+                                            {{ phoneLabel }}<sup>*</sup>
+                                        </label>
                                         <input
                                             class="form-control"
                                             type="tel"
                                             v-model="customerPhoneNumber"
-                                            name="customerPhoneNumber"
-                                            placeholder="Customer Account No"
+                                            :name="phoneLabel"
+                                            :placeholder="phonePlaceholder"
                                         />
                                     </div>
                                 </div>
@@ -388,7 +388,11 @@
                                     </ul>
                                 </div>
 
-                                <button class="btn btn-site" type="submit">
+                                <button
+                                    class="btn btn-site"
+                                    type="submit"
+                                    :disabled="isSubmitDisabled"
+                                >
                                     Submit
                                 </button>
                             </form>
@@ -574,6 +578,7 @@ export default {
         requiredFieldErrors: [],
         isPrevTicketActive: false,
         dataTable: false,
+        isSubmitDisabled: false,
         ticketInfos: {
             statuses: [],
             callTypeId: null,
@@ -597,11 +602,24 @@ export default {
         user() {
             return this.$store.state.auth.user;
         },
-        isNagadSebaOrUddoktaPointCustomerGroup() {
-            return (
-                this.user &&
-                (this.user.group_id === 3 || this.user.group_id === 5)
-            );
+        isSebaOrUddoktaAgent() {
+            return this.isGroup(3, 5);
+        },
+        isOtherCCAgent() {
+            return this.isGroup(1, 2);
+        },
+        phoneLabel() {
+            if (this.isSebaOrUddoktaAgent) {
+                return "Customer Number";
+            } else if (this.isOtherCCAgent) {
+                return "Service Number";
+            }
+            return "";
+        },
+        phonePlaceholder() {
+            return this.isSebaOrUddoktaAgent
+                ? "Customer Account No"
+                : "Service Account No";
         },
     },
     created() {
@@ -630,6 +648,9 @@ export default {
         },
     },
     methods: {
+        isGroup(...groupIds) {
+            return this.user && groupIds.includes(this.user.group_id);
+        },
         formatDateTimeTest(fieldId) {
             const isoDateString = this.ticketInfos.requiredField[fieldId];
             if (isoDateString) {
@@ -956,18 +977,33 @@ export default {
                     this.popupMessages = JSON.parse(
                         serviceConfigs.popup_msg_texts || "{}"
                     );
+                    this.isSubmitDisabled = false;
                 } else {
-                    console.error(
-                        "Unexpected serviceConfigs structure:",
-                        serviceConfigs
-                    );
                     this.serviceTypeConfigs = {};
                     this.popupMessages = {};
+                    this.isSubmitDisabled = true;
+                    console.info("serviceConfigs not found:", serviceConfigs);
+
+                    this.$showToast(
+                        "Service configuration not found. Please configure it to proceed.",
+                        {
+                            type: "error",
+                        }
+                    );
                 }
             } catch (error) {
                 console.error("Error fetching service type configs:", error);
                 this.serviceTypeConfigs = {};
                 this.popupMessages = {};
+
+                this.$showToast(
+                    "Error fetching service type configuration. Please configure it to proceed.",
+                    {
+                        type: "error",
+                    }
+                );
+
+                this.isSubmitDisabled = true;
             }
         },
         generateInputTypes(value) {

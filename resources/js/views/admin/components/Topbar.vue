@@ -15,7 +15,7 @@
 
         <!-- Topbar Navbar -->
         <ul class="navbar-nav ml-auto align-items-center">
-            <li>
+            <li v-if="isUserFromNagadSebaGroup">
                 <div class="switch mr-3">
                     <label class="switch-label">
                         <input
@@ -42,8 +42,8 @@
                         :class="{ break: currentStatus === 'Break' }"
                     ></div>
                 </div>
-                <!-- <p>Current Status: {{ currentStatus }}</p> -->
             </li>
+
             <div class="topbar-divider d-none d-sm-block"></div>
             <li class="nav-item">
                 <a href="" class="nav-link"
@@ -51,30 +51,6 @@
                         <i class="icon-refresh"></i></button
                 ></a>
             </li>
-
-            <!-- Status Update Radio Buttons -->
-            <!-- <li class="nav-item">
-                <div class="btn-group" role="group" aria-label="Status Update">
-                    <label>
-                        <input
-                            type="radio"
-                            value="Active"
-                            v-model="status"
-                            @change="updateStatus"
-                        />
-                        Active
-                    </label>
-                    <label>
-                        <input
-                            type="radio"
-                            value="Break"
-                            v-model="status"
-                            @change="updateStatus"
-                        />
-                        Break
-                    </label>
-                </div>
-            </li> -->
 
             <div class="topbar-divider d-none d-sm-block"></div>
             <NotificationDropdown />
@@ -164,10 +140,17 @@ export default {
         ...mapState("auth", ["user"]),
         ...mapGetters("auth", ["user"]),
         ...mapGetters("sessionStatus", ["currentStatus"]),
-
         user() {
             return this.$store.getters["auth/user"];
         },
+        //computed: {
+        /* user() {
+            return this.$store.state.auth.user;
+        }, */
+        isUserFromNagadSebaGroup() {
+            return this.user && this.user.group_id === 3;
+        },
+        //},
     },
     mounted() {
         this.loadCurrentStatus();
@@ -187,7 +170,7 @@ export default {
             this.fetchCurrentStatus();
         },
         async logoutSend(id) {
-            console.log("logoutSend Called", id);
+            // console.log("logoutSend Called", id);
             await axios
                 .post("/logout", { id })
                 .then(({ data }) => {

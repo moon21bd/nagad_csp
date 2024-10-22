@@ -200,9 +200,10 @@ class NCReportController extends Controller
         } elseif ($user->hasRole('owner') && $user->group->hasOwner()) {
             $query->where('assign_to_group_id', $user->group_id);
         } else {
-            return response()->json([
-                'msg' => 'Unauthorized or no data available for your role.',
-            ], 403);
+            $query->where('assign_to_group_id', $user->group_id);
+            // return response()->json([
+            //     'msg' => 'Unauthorized or no data available for your role.',
+            // ], 403);
         }
 
         $topCategoriesData = $query->select('call_category_id', DB::raw('COUNT(*) as count'))
@@ -317,7 +318,8 @@ class NCReportController extends Controller
         } elseif ($user->hasRole('owner') && $user->group->hasOwner()) {
             $query = NCTicket::where('assign_to_group_id', $user->group_id);
         } else {
-            return response()->json(['msg' => 'Unauthorized or no data available for your role.'], 403);
+            $query = NCTicket::where('assign_to_group_id', $user->group_id);
+            // return response()->json(['msg' => 'Unauthorized or no data available for your role.'], 403);
         }
 
         if (!$month) {

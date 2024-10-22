@@ -16,7 +16,10 @@
             >
                 <el-menu-item
                     index="dashboard"
-                    v-if="hasPermission('dashboard')"
+                    v-if="
+                        hasRole('admin|superadmin') ||
+                        hasPermission('dashboard')
+                    "
                 >
                     <router-link :to="{ name: 'dashboard' }">
                         <i class="icon-grid"></i>

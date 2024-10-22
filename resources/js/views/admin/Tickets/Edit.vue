@@ -267,6 +267,24 @@
                                     </button>
                                 </div>
                             </div>
+
+                            <div class="form-row">
+                                <div
+                                    v-if="isReUploadAttachment"
+                                    class="col-md-6 form-group uploads"
+                                >
+                                    <label class="control-label"
+                                        >Attachment</label
+                                    >
+                                    <input
+                                        type="file"
+                                        name="attachment"
+                                        @change="handleAttachmentFileUpload"
+                                        accept="image/png, image/jpeg, .pdf, .doc, .docx, .xls, .xlsx"
+                                    />
+                                </div>
+                            </div>
+
                             <div class="dropdown-divider mt-0 mb-3"></div>
 
                             <div class="form-row">
@@ -438,6 +456,8 @@ export default {
         maxTicketComments: 5,
         serviceTypeConfigs: {},
         filteredStatusList: [],
+        attachment: "",
+        attachmentType: "",
         ticketInfos: {
             id: null,
             call_type: {
@@ -454,6 +474,7 @@ export default {
             comments: [],
             attachments: [],
             path_url: "",
+            is_show_attachment: "no",
         },
         ticketComments: [{ text: "" }],
     }),
@@ -470,6 +491,13 @@ export default {
         },
         filteredStatuses() {
             return this.filteredStatusList;
+        },
+        isReUploadAttachment() {
+            return (
+                this.ticketInfos.attachments &&
+                this.ticketInfos.attachments.length === 0 &&
+                this.ticketInfos.is_show_attachment === "yes"
+            );
         },
     },
     mounted() {
@@ -529,6 +557,17 @@ export default {
                     this.filteredStatusList = this.ticketInfos.statuses;
             }
             return this.filteredStatusList;
+        },
+
+        handleAttachmentFileUpload(event) {
+            const file = event.target.files[0]; // Get the file
+            const reader = new FileReader();
+
+            reader.readAsDataURL(file); // Convert file to Base64
+            reader.onload = () => {
+                this.attachment = reader.result; // Store Base64 data
+                this.attachmentType = file.type; // Store the file's MIME type
+            };
         },
         checkFirstLoad() {
             const pageKey = "ticket_page_first_load";
@@ -636,7 +675,6 @@ export default {
                         if (
                             response.data.assign_to_user_id !== this.authUserId
                         ) {
-                            // If the current user is not assigned to the ticket, redirect them and show a message
                             this.$showToast(response.data.message, {
                                 type: "error",
                             });
@@ -700,6 +738,7 @@ export default {
                         required_fields: this.requiredFields,
                         ticket_status: response.data.ticket_status,
                         attachments: response.data.attachments,
+                        is_show_attachment: response.data.is_show_attachment,
                         comments: response.data.user_comments,
                     };
                 })
@@ -714,7 +753,11 @@ export default {
                         ...this.ticketInfos,
                         selectedStatus: this.selectedStatus,
                         comments: this.ticketComments,
+                        attachment: this.attachment,
+                        attachmentType: this.attachmentType,
                     };
+                    console.log("payload", payload);
+                    // return false;
 
                     try {
                         const response = await axios({

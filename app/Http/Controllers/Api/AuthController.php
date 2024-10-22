@@ -349,38 +349,6 @@ class AuthController extends Controller
         return $user;
     }
 
-    /* protected function createUser($data, $authUserId)
-    {
-    $user = User::create([
-    'name' => $data['employee_name'],
-    'parent_id' => $data['parent_id'] ?? 0,
-    'level' => $data['level'],
-    'group_id' => $data['group_id'],
-    'mobile_no' => $data['mobile_no'],
-    'email' => $data['email'],
-    'status' => in_array($data['level'], [1, 2, 3]) ? 'Active' : 'Pending',
-    'avatar' => uploadMediaGetPath($data['avatar']),
-    'password' => Hash::make($data['password']),
-    'created_by' => $authUserId,
-    'updated_by' => $authUserId,
-    ]);
-
-    // Role assignment based on level ID
-    $roleName = match ($user->level) {
-    1 => 'superadmin',
-    2 => 'admin',
-    3 => 'owner',
-    default => 'user',
-    };
-
-    $user->attachRole($roleName);
-
-    $role = Role::where('name', $roleName)->first();
-    $user->attachPermissions($role->permissions, $data['group_id']);
-
-    return $user;
-    } */
-
     protected function createUserDetail($data, $userId)
     {
         UserDetail::create([
@@ -520,25 +488,32 @@ class AuthController extends Controller
 
                 $this->updateUserActivity($user);
 
-                // $permissions = $this->getUserPermissions($user);
-                $cando = $user->allPermissions();
-                // $roles = $this->getUserRoles($user);
                 // Transforming the user and roles data
                 $userData = $user->only(['id', 'uuid', 'group_id', 'level', 'parent_id', 'mobile_no', 'name', 'avatar', 'email', 'status']);
                 $userData['roles'] = $user->roles->pluck('name');
+
                 return response([
                     'message' => 'Successfully logged in.',
                     'token' => $token,
                     'user' => $userData,
-                    // 'cando' => $cando,
+                    'redirect' => $this->redirectTo($user),
                 ]);
             }
         } catch (\Exception $e) {
-            Log::error('Login error: ' . $e->getMessage());
+            Log::error('Login-Error: ' . $e->getMessage());
             return response(['message' => 'Internal error, please try again later.'], Response::HTTP_BAD_REQUEST);
         }
 
         return response(['title' => 'Invalid login details', 'message' => 'Invalid login details'], Response::HTTP_UNAUTHORIZED);
+    }
+
+    protected function redirectTo($user): string
+    {
+        if ($user->hasRole('superadmin') || $user->hasRole('admin') || $user->hasPermission('dashboard')) {
+            return 'dashboard';
+        }
+        return 'home';
+
     }
 
     public function completeLogin(Request $request)
@@ -555,13 +530,17 @@ class AuthController extends Controller
 
         $this->updateUserActivity($user);
         $this->updateUserLocation($user, $location);
-        // $roles = $this->getUserRoles($user);
 
         // Transforming the user and roles data
         $userData = $user->only(['id', 'uuid', 'group_id', 'level', 'parent_id', 'mobile_no', 'name', 'avatar', 'email', 'status']);
         $userData['roles'] = $user->roles->pluck('name');
 
-        return response(['message' => 'Successfully logged in.', 'token' => $token, 'user' => $userData]);
+        return response([
+            'message' => 'Successfully logged in.',
+            'token' => $token,
+            'user' => $userData,
+            'redirect' => $this->redirectTo($user),
+        ]);
     }
 
     protected function incrementFailedLogins(User $user)

@@ -8,9 +8,9 @@
         <div class="card mb-3">
             <div
                 class="card-body d-flex align-items-center flex-wrap flex-md-nowrap"
+                v-if="hasRole('admin|superadmin')"
             >
                 <el-select
-                    v-if="hasRole('admin|superadmin')"
                     class="mr-0 mb-3 mb-md-0 mr-md-3"
                     v-model="filterGroup"
                     placeholder="Select Group"
@@ -25,7 +25,6 @@
                     </el-option>
                 </el-select>
                 <el-date-picker
-                    v-if="hasRole('admin|superadmin')"
                     v-model="dateFilter"
                     type="daterange"
                     range-separator="To"
@@ -34,7 +33,6 @@
                 >
                 </el-date-picker>
                 <el-button
-                    v-if="hasRole('admin|superadmin')"
                     type="primary"
                     @click="resetFilters"
                     class="btn btn-site ml-auto text-nowrap mt-3 mt-md-0"
@@ -43,6 +41,7 @@
                 </el-button>
             </div>
         </div>
+
         <div class="dashboard-card">
             <ul>
                 <li

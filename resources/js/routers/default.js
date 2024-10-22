@@ -16,16 +16,7 @@ export default [
         },
     },
     {
-        path: "/dash",
-        name: "dash",
-        component: () => import("../views/admin/dashboard.vue"),
-        meta: {
-            requiresPermission: "dashboard",
-            requiresAuth: true,
-        },
-    },
-    {
-        path: "/",
+        path: "/admin/dashboard",
         name: "dashboard",
         component: () => import("../views/admin/dashboard.vue"),
         meta: {

@@ -22,9 +22,11 @@ class NCTicketController extends Controller
     protected $notificationService;
     protected $serviceTypeConfig;
 
-    public function __construct(TicketService $ticketService, NotificationService $notificationService, ServiceTypeConfigService $serviceTypeConfig)
-    {
+    protected $serviceTypeConfigController;
 
+    public function __construct(TicketService $ticketService, NotificationService $notificationService, ServiceTypeConfigService $serviceTypeConfig, NCServiceTypeConfigController $serviceTypeConfigController)
+    {
+        $this->serviceTypeConfigController = $serviceTypeConfigController;
         $this->notificationService = $notificationService;
         $this->ticketService = $ticketService;
         $this->serviceTypeConfig = $serviceTypeConfig;
@@ -122,6 +124,12 @@ class NCTicketController extends Controller
             ];
         }
 
+        $serviceConfigs = $this->serviceTypeConfigController->getServiceTypeConfigs($ticket->call_type_id, $ticket->call_category_id, $ticket->call_sub_category_id);
+
+        $serviceConfigData = $serviceConfigs->getOriginalContent()['data'];
+        $isShowAttachment = $serviceConfigData ? $serviceConfigData['is_show_attachment'] : null;
+
+        $ticketCollection->put('is_show_attachment', $isShowAttachment);
         $ticketCollection->put('user_comments', $comments);
 
         return response()->json($ticketCollection, 200);

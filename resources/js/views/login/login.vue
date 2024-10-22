@@ -121,7 +121,6 @@
 
 <script>
 import axios from "../../axios";
-import * as notify from "../../utils/notify.js";
 export default {
     name: "Login",
     data() {
@@ -180,7 +179,9 @@ export default {
                             );
 
                             const token = locationResponse.data.token;
-                            console.log("token", token);
+                            const redirect = locationResponse.data.redirect;
+                            console.log("redirect", redirect);
+
                             localStorage.setItem("token", token);
 
                             this.$store.dispatch(
@@ -192,7 +193,9 @@ export default {
                             axios.defaults.headers.common[
                                 "Authorization"
                             ] = `Bearer ${token}`;
-                            this.$router.push("/admin");
+
+                            this.$router.push({ name: redirect });
+
                         } catch (locationError) {
                             // console.error("Error getting location:", locationError);
                             if (locationError.code === 1) {
@@ -207,25 +210,26 @@ export default {
                         }
                     } else if (response.data.requiresFirstPasswordChange) {
                         const { data } = response;
-
                         this.notifyAuthError(
                             data.message
                         );
-
                         this.$router.push({ name: 'change-password', params: { token:data.token } });
-                        
                     } else {
-                        const token = response.data.token;
-                        console.log("token", token);
-                        localStorage.setItem("token", token);
+                        const { data } = response;
+                        const token = data.token;
+                        const redirect = data.redirect;
 
+                        console.log("redirect", redirect);
+
+                        localStorage.setItem("token", token);
                         this.$store.dispatch("auth/setUser", response.data.user);
                         this.$store.commit("auth/SET_TOKEN", token);
 
                         axios.defaults.headers.common[
                             "Authorization"
                         ] = `Bearer ${token}`;
-                        this.$router.push("/admin");
+
+                        this.$router.push({ name: redirect });
                     }
                 } catch (error) {
                     // Check if error response exists and has a message or validation errors

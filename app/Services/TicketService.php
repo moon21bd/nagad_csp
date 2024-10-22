@@ -349,15 +349,26 @@ class TicketService
             $ticketId = $ticket->id;
             $ticketStatus = $ticket->ticket_status;
 
+            $authUserId = Auth::id();
+
             // Update SLA status based on the ticket's updated status
             $this->updateSlaStatus($ticket);
+
+            // if attachment is not submitting during ticket create, then from here this can be added.
+
+            if (!empty($validated['attachment'])) {
+                $ticketAttachments = uploadAttachment($validated['attachment'], $validated['attachmentType']) ?? null;
+                Attachment::create([
+                    'ticket_id' => $ticketId,
+                    'path' => $ticketAttachments,
+                    'created_by' => $authUserId,
+                ]);
+            }
 
             $data = [
                 'ticket_id' => $ticketId,
                 'responsible_group_ids' => $ticket->responsible_group_ids,
                 'ticket_status' => $ticketStatus,
-                // 'ticket_comments' => json_encode($validated['comments']),
-                // 'ticket_attachments' => $ticket->attachment,
                 'ticket_opened_by' => $ticket->ticket_updated_by,
                 'ticket_status_updated_by' => $ticket->ticket_updated_by,
                 'opened_at' => Carbon::now(),
@@ -369,7 +380,7 @@ class TicketService
                 $comment = TicketComment::create([
                     'ticket_id' => $ticketId,
                     'comment' => $comment['text'],
-                    'created_by' => Auth::id(),
+                    'created_by' => $authUserId,
                 ]);
             }
 
@@ -452,6 +463,8 @@ class TicketService
         return $request->validate([
             'selectedStatus' => 'required|string',
             'comments' => 'nullable|array',
+            'attachment' => 'nullable|string',
+            'attachmentType' => 'nullable|string',
         ]);
     }
 
@@ -459,7 +472,6 @@ class TicketService
     {
         $dataArr = [
             'ticket_status' => $validated['selectedStatus'],
-            // 'comments' => $validated['comments'],
             'updated_by' => Auth::id(),
             'ticket_updated_at' => Carbon::now(),
             'ticket_updated_by' => Auth::id(),
